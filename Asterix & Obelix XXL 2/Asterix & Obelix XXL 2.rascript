@@ -27,7 +27,16 @@ function pointer_to_loads_of_data() => dword(0x57E2A4)
 
 // Global data
 FLAG_OFFSET = 0x14
-DIAMOND_HELMET_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, 0x154], dword)
+
+EVENT_OFFSET = 0x13c
+DIAMOND_HELMET_OFFSET = 0x154
+CUTSCENE_OFFSET = 0x16c
+SOUVENIER_OFFSET = 0x184
+
+EVENT_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, EVENT_OFFSET], dword)
+DIAMOND_HELMET_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, DIAMOND_HELMET_OFFSET], dword)
+CUTSCENE_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, CUTSCENE_OFFSET], dword)
+SOUVENIER_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, SOUVENIER_OFFSET], dword)
 
 PLAYER_DATA = {
     "world": prt(pointer_to_loads_of_data(), [0x48, 0x1d], byte),
@@ -51,7 +60,34 @@ CHALLENGE_TIMERS = {
     "target": prt(pointer_to_loads_of_data(), [0x80, 0x524, 0x5ac, 0x04, 0x04], float)
 }
 
-WORLD_DATA = [{
+CUTSCENE_DATA = {
+    "Entering Venetia": ptr(CUTSCENE_POINTER, [0x00, FLAG_OFFSET], bit1),
+    "Boats / Intro Cutscene": ptr(CUTSCENE_POINTER, [0x04, FLAG_OFFSET], bit1),
+    "Gaulish village / Follow-up to Intro": ptr(CUTSCENE_POINTER, [0x08, FLAG_OFFSET], bit1),
+    "Entering Las Vegum": ptr(CUTSCENE_POINTER, [0x0c, FLAG_OFFSET], bit1),
+    "After saving 1st prisoner": ptr(CUTSCENE_POINTER, [0x10, FLAG_OFFSET], bit1),
+    "Internetus": ptr(CUTSCENE_POINTER, [0x14, FLAG_OFFSET], bit1),
+    "Fake village in WCW": ptr(CUTSCENE_POINTER, [0x18, FLAG_OFFSET], bit1),
+    "Larry Craft reveal in WCW": ptr(CUTSCENE_POINTER, [0x1c, FLAG_OFFSET], bit1),
+    "LuckSore entrance": ptr(CUTSCENE_POINTER, [0x20, FLAG_OFFSET], bit1),
+    "Pirate Island entrance": ptr(CUTSCENE_POINTER, [0x24, FLAG_OFFSET], bit1),
+    "Palace entrance": ptr(CUTSCENE_POINTER, [0x28, FLAG_OFFSET], bit1),
+    "Confronting Ceasar / That one weird Matrix reference": ptr(CUTSCENE_POINTER, [0x2c, FLAG_OFFSET], bit1),
+    "Saving 1st prisoner": ptr(CUTSCENE_POINTER, [0x30, FLAG_OFFSET], bit1),
+    "Saving 2nd prisoner": ptr(CUTSCENE_POINTER, [0x34, FLAG_OFFSET], bit1),
+    "Saving 3rd prisoner": ptr(CUTSCENE_POINTER, [0x38, FLAG_OFFSET], bit1),
+    "Caesar defeated": ptr(CUTSCENE_POINTER, [0x3c, FLAG_OFFSET], bit1),
+    "Ending": ptr(CUTSCENE_POINTER, [0x40, FLAG_OFFSET], bit1)
+}
+
+SOUVENIER_DATA = {
+    "Character models / Lutetia": ptr(SOUVENIER_POINTER, [0x00, FLAG_OFFSET], bit1),
+    "Postcards / Venetia": ptr(SOUVENIER_POINTER, [0x04, FLAG_OFFSET], bit1),
+    "Cutscenes / LuckSore": ptr(SOUVENIER_POINTER, [0x08, FLAG_OFFSET], bit1)
+}
+
+WORLD_DATA = {
+"Lutetia":{
     "id": 0x1,
     "world_name": "Lutetia",
     "rp_name": "in Lutetia",
@@ -64,18 +100,18 @@ WORLD_DATA = [{
         "Obelisk": ptr(DIAMOND_HELMET_POINTER, [0x64, FLAG_OFFSET], bit1)
     },
     "events": {
-        "Switch on top of Eiffel Tower opening boat ride path": 0x178,
-        "Door to Arc de Triomphe opening": 0x18c,
-        "Security System 4th torch lit": 0x190,
-        "Security System 3rd torch lit": 0x194,
-        "Security System 2nd torch lit": 0x198,
-        "Security System 1st torch lit": 0x19c,
-        "Mario reveal outside Las Vegum": 0x210,
-        "Toll gate to Venetia": 0x25c,
-        "Toll gate to LuckSore": 0x264
+        "Switch on top of Eiffel Tower opening boat ride path": ptr(EVENT_POINTER, [0x178, FLAG_OFFSET], bit1),
+        "Door to Arc de Triomphe opening": ptr(EVENT_POINTER, [0x18c, FLAG_OFFSET], bit1),
+        "Security System 4th torch lit": ptr(EVENT_POINTER, [0x190, FLAG_OFFSET], bit1),
+        "Security System 3rd torch lit": ptr(EVENT_POINTER, [0x194, FLAG_OFFSET], bit1),
+        "Security System 2nd torch lit": ptr(EVENT_POINTER, [0x198, FLAG_OFFSET], bit1),
+        "Security System 1st torch lit": ptr(EVENT_POINTER, [0x19c, FLAG_OFFSET], bit1),
+        "Mario reveal outside Las Vegum": ptr(EVENT_POINTER, [0x210, FLAG_OFFSET], bit1),
+        "Toll gate to Venetia": ptr(EVENT_POINTER, [0x25c, FLAG_OFFSET], bit1),
+        "Toll gate to LuckSore": ptr(EVENT_POINTER, [0x264, FLAG_OFFSET], bit1)
     }
 },
-{
+"Venetia":{
     "id": 0x2,
     "world_name": "Venetia",
     "rp_name": "in Venetia",
@@ -88,17 +124,17 @@ WORLD_DATA = [{
         "Little Stone Bridge": ptr(DIAMOND_HELMET_POINTER, [0x50, FLAG_OFFSET], bit1)
     },
     "events": {
-        "Boss door opened": 0x12c,
-        "Torch for filling targets on plaza": 0x18c,
-        "Torch in Asterix route on plaza": 0x1b0,
-        "Torch in Obelix route on plaza": 0x1b4,
-        "Lever to open door in trench area with merchant": 0x1bc,
-        "Obelix torch in front of boss gate": 0x1c0,
-        "Asterix torch in front of boss gate": 0x1c4,
-        "Panel stomped in 1st trench": 0x220
+        "Boss door opened": ptr(EVENT_POINTER, [0x12c, FLAG_OFFSET], bit1),
+        "Torch for filling targets on plaza": ptr(EVENT_POINTER, [0x18c, FLAG_OFFSET], bit1),
+        "Torch in Asterix route on plaza": ptr(EVENT_POINTER, [0x1b0, FLAG_OFFSET], bit1),
+        "Torch in Obelix route on plaza": ptr(EVENT_POINTER, [0x1b4, FLAG_OFFSET], bit1),
+        "Lever to open door in trench area with merchant": ptr(EVENT_POINTER, [0x1bc, FLAG_OFFSET], bit1),        
+        "Obelix torch in front of boss gate": ptr(EVENT_POINTER, [0x1c0, FLAG_OFFSET], bit1),
+        "Asterix torch in front of boss gate": ptr(EVENT_POINTER, [0x1c4, FLAG_OFFSET], bit1),
+        "Panel stomped in 1st trench": ptr(EVENT_POINTER, [0x220, FLAG_OFFSET], bit1)
     }
 },
-{
+"WCW":{
     "id": 0x3,
     "world_name": "WCW",
     "rp_name": "in the WCW",
@@ -111,16 +147,16 @@ WORLD_DATA = [{
         "Fake Gaulish Village": ptr(DIAMOND_HELMET_POINTER, [0x3c, FLAG_OFFSET], bit1)
     },
     "events": {
-        "Internetus switch turned on": 0xf8,
-        "Door to village opened": 0xfc,
-        "Challenge 4 completed": 0x108,
-        "Challenge 3 completed": 0x10c,
-        "Challenge 2 completed": 0x110,
-        "Challenge 1 completed": 0x114,
-        "Door to Pirate Island and Palace opened": 0x234
+        "Internetus switch turned on": ptr(EVENT_POINTER, [0xf8, FLAG_OFFSET], bit1),
+        "Door to village opened": ptr(EVENT_POINTER, [0xfc, FLAG_OFFSET], bit1),
+        "Challenge 4 completed": ptr(EVENT_POINTER, [0x108, FLAG_OFFSET], bit1),
+        "Challenge 3 completed": ptr(EVENT_POINTER, [0x10c, FLAG_OFFSET], bit1),
+        "Challenge 2 completed": ptr(EVENT_POINTER, [0x110, FLAG_OFFSET], bit1),
+        "Challenge 1 completed": ptr(EVENT_POINTER, [0x114, FLAG_OFFSET], bit1),
+        "Door to Pirate Island and Palace opened": ptr(EVENT_POINTER, [0x234, FLAG_OFFSET], bit1)
     }
 },
-{
+"LuckSore":{
     "id": 0x4,
     "world_name": "LuckSore",
     "rp_name": "in LuckSore",
@@ -131,9 +167,24 @@ WORLD_DATA = [{
         "One flew over the Tortoise": ptr(DIAMOND_HELMET_POINTER, [0x30, FLAG_OFFSET], bit1),
         "Crown of Palms": ptr(DIAMOND_HELMET_POINTER, [0x34, FLAG_OFFSET], bit1),
         "Refreshing Shower": ptr(DIAMOND_HELMET_POINTER, [0x38, FLAG_OFFSET], bit1)
+    },
+    "events": {
+        "Right torch in Pikmin room": ptr(EVENT_POINTER, [0x80, FLAG_OFFSET], bit1),
+        "Left torch in Pikmin room": ptr(EVENT_POINTER, [0x84, FLAG_OFFSET], bit1),
+        "Main door in bomb push area open": ptr(EVENT_POINTER, [0x88, FLAG_OFFSET], bit1),
+        "Torch 3 in bomb push area lit": ptr(EVENT_POINTER, [0X8c, FLAG_OFFSET], bit1),
+        "Torch 2 in bomb push area lit": ptr(EVENT_POINTER, [0x90, FLAG_OFFSET], bit1),
+        "Torch 1 in bomb push area lit": ptr(EVENT_POINTER, [0x94, FLAG_OFFSET], bit1),
+        "Torch 2 in toilet room": ptr(EVENT_POINTER, [0x9c, FLAG_OFFSET], bit1),
+        "Torch 3 in toilet room": ptr(EVENT_POINTER, [0xa0, FLAG_OFFSET], bit1),
+        "Boss door opened": ptr(EVENT_POINTER, [0xc0, FLAG_OFFSET], bit1),
+        "Red laser activated": ptr(EVENT_POINTER, [0xc4, FLAG_OFFSET], bit1),
+        "Green laser activated": ptr(EVENT_POINTER, [0xc8, FLAG_OFFSET], bit1),
+        "Yellow laser activated": ptr(EVENT_POINTER, [0xcc, FLAG_OFFSET], bit1),
+        "Torch 1 in toilet room": ptr(EVENT_POINTER, [0xdc, FLAG_OFFSET], bit1)
     }
 },
-{
+"Pirate Island":{
     "id": 0x6,
     "world_name": "Pirate Island",
     "rp_name": "in Pirate Island",
@@ -144,9 +195,16 @@ WORLD_DATA = [{
         "Out of the Right Eye": ptr(DIAMOND_HELMET_POINTER, [0x1c, FLAG_OFFSET], bit1),
         "Out of the Left Eye": ptr(DIAMOND_HELMET_POINTER, [0x20, FLAG_OFFSET], bit1),
         "Booty in the Sand": ptr(DIAMOND_HELMET_POINTER, [0x24, FLAG_OFFSET], bit1)
+    },
+    "events": {
+        "Boss door opened": ptr(EVENT_POINTER, [0x5c, FLAG_OFFSET], bit1),
+        "Toll gate": ptr(EVENT_POINTER, [0x6c, FLAG_OFFSET], bit1),
+        "Left skull flame lit": ptr(EVENT_POINTER, [0x1a0, FLAG_OFFSET], bit1),
+        "Right skull flame lit ": ptr(EVENT_POINTER, [0x1a4, FLAG_OFFSET], bit1),
+        "Door with three buttons in front opened": ptr(EVENT_POINTER, [0x1c8, FLAG_OFFSET], bit1)
     }
 },
-{
+"SeizeUs Palace":{
     "id": 0x7,
     "world_name": "SeizeUs Palace",
     "rp_name": "in SeizeUs Palace",
@@ -157,38 +215,60 @@ WORLD_DATA = [{
         "Garden Level Zero": ptr(DIAMOND_HELMET_POINTER, [0x08, FLAG_OFFSET], bit1),
         "Leap of Faith": ptr(DIAMOND_HELMET_POINTER, [0x0c, FLAG_OFFSET], bit1),
         "Emperor's Laurels": ptr(DIAMOND_HELMET_POINTER, [0x10, FLAG_OFFSET], bit1) // Before final boss in the pillar
+    },
+    "events": {
+        "Ambush fight completed": ptr(EVENT_POINTER, [0x1c, FLAG_OFFSET], bit1),
+        "Roulette door opened": ptr(EVENT_POINTER, [0x28, FLAG_OFFSET], bit1),
+        "Blue roulette panel broken": ptr(EVENT_POINTER, [0x1ec, FLAG_OFFSET], bit1),
+        "Yellow roulette panel  ": ptr(EVENT_POINTER, [0x1f0, FLAG_OFFSET], bit1),
+        "Red roulette panel broken": ptr(EVENT_POINTER, [0x1f4, FLAG_OFFSET], bit1),
+        "Green roulette panel broken": ptr(EVENT_POINTER, [0x1f8, FLAG_OFFSET], bit1)
     }
 },
-{
+"Boss Area Venetia":{
     "id": 0x8,
     "world_name": "Boss Area Venetia",
     "rp_name": "facing the boss of Venetia",
     "quip_name": "", // none
-    "helmets": {} // none
+    "helmets": {}, // none
+    "events": {
+        "Boss Clear": ptr(EVENT_POINTER, [0x0c, FLAG_OFFSET], bit1)
+    }
 },
-{
+"Boss Area LuckSore":{
     "id": 0x9,
     "world_name": "Boss Area LuckSore",
     "rp_name": "facing the boss of LuckSore",
     "quip_name": "", // none
-    "helmets": {} // none
+    "helmets": {}, // none
+    "events": {
+        "Boss Clear": ptr(EVENT_POINTER, [0x08, FLAG_OFFSET], bit1)
+    }
 },
-{
+"Boss Area Pirate Island":{
     "id": 0x0a,
     "world_name": "Boss Area Pirate Island",
     "rp_name": "facing the boss of Pirate Island",
     "quip_name": "", // none
-    "helmets": {} // none
+    "helmets": {}, // none
+    "events": {
+        "Boss Clear": ptr(EVENT_POINTER, [0x00, FLAG_OFFSET], bit1)
+    }
 },
-{
+"Boss Area SeizeUs Palace":{
     "id": 0x0b,
     "world_name": "Boss Area SeizeUs Palace",
     "rp_name": "facing the boss of SeizeUs Palace",
     "quip_name": "", // none
-    "helmets": {} // none
+    "helmets": {}, // none
+    "events": {
+        // none
+    }
 }
-]
+}
 
+
+// Achievements
 achievement(
         title = "TESTING",
         description = "A COOL TEST",
@@ -198,25 +278,25 @@ achievement(
 
 )
 
-// Achievements
-for world in WORLD_DATA {
-    if (length(world["helmets"]) == 5) {
+for world_name in WORLD_DATA {
+    current_world_data = WORLD_DATA[world_name]
+    if (length(current_world_data["helmets"]) == 5) {
         achievement(
-        title = format("debug The {0}'s Treasures", world["quip_name"]),
-        description = format("Find every diamond helmet {0}", world["rp_name"]),
+        title = format("debug The {0}'s Treasures", current_world_data["quip_name"]),
+        description = format("Find every diamond helmet {0}", current_world_data["rp_name"]),
         points = 10,
         id = 0,
         trigger =
             measured(
                 sum_of(
-                    world["helmets"],
-                    key => world["helmets"][key]
+                    current_world_data["helmets"],
+                    key => current_world_data["helmets"][key]
                 ) == 5
             )
             &&
             sum_of(
-                world["helmets"],
-                key => prev(world["helmets"][key])
+                current_world_data["helmets"],
+                key => prev(current_world_data["helmets"][key])
             ) == 4
     )
     }
