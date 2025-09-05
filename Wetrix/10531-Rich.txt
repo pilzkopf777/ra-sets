@@ -1,0 +1,47 @@
+Format:Number
+FormatType=VALUE
+
+Lookup:Main-Mode
+0x01=Classic
+0x02=Practice (Play)
+0x03=Pro
+0x04=Multiplay
+0x05=Challenge
+0x06=Handicap
+0x07=Practice (Lesson)
+
+Lookup:Sub-Mode
+0x01=Classic
+0x02=Practice
+0x03=Pro
+0x04=Multiplay
+0x07=Practice
+0x80=Raised Land A
+0x81=Raised Land B
+0x82=Ice Layer A
+0x83=Ice Layer B
+0x84=Random Land
+0x85=Random Hole
+0x86=Half Full Drain
+0x40=1 Minute
+0x41=5 Minute
+0x42=100 Pieces
+0x43=500 Pieces
+0x44=Preset A
+0x45=Preset B
+
+Display:
+// Menu
+?O:0xH0a2774=0_O:0xH07536c!=3_O:0xH0a35a0=0_0xH065980=1?In the main menu
+// Classic and Pro
+?S0xH0af2e8=1S0xH0af2e8=3?Playing @Main-Mode(0x0a35a0) • Score @Number(0xX001bf958) • Level @Number(0x01bf9ac)
+// Handicap and Challenge
+?N:0xH0af2e8>=64_0xH0af2e8<=134?Playing @Main-Mode(0x0a35a0) (@Sub-Mode(0xaf2e8)) • Score @Number(0xX001bf958) • Level @Number(0x01bf9ac)
+// Multiplay
+?0xH0af2e8=4?Playing @Main-Mode(0x0a35a0) • Player 1 (@Number(0xW001bee30)) vs. Player 2 (@Number(0xW001ef5b0))
+// Practice Play
+?0xH0af2e8=2?Playing @Main-Mode(0x0a35a0) • Score @Number(0xX001bf958)
+// Practice Lesson
+?0xH0af2e8=7?Playing @Main-Mode(0x0a35a0) • Lesson @Number(0xH000a2b54_v+1)
+// Whoops
+On the title screen
