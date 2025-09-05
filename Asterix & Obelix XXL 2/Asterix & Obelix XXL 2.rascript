@@ -38,6 +38,15 @@ DIAMOND_HELMET_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, DIAM
 CUTSCENE_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, CUTSCENE_OFFSET], dword)
 SOUVENIER_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, SOUVENIER_OFFSET], dword)
 
+ASTERIX_POINTER = prt(pointer_to_loads_of_data(), [0x80, 0x08, 0x28, 0x04], dword)
+OBELIX_POINTER = prt(pointer_to_loads_of_data(), [0x80, 0x08, 0x28, 0x96c], dword)
+
+IN_ENGINE_CUTSCENE_STATE =  ptr(pointer_to_loads_of_data(), [0x74, 0x0c], byte)
+MAIN_MENU_STATE = ptr(pointer_to_loads_of_data(), [0x80, 0x5f4], byte)
+
+COMBAT_LOCK_COUNT = ptr(pointer_to_loads_of_data(), [0x88, 0xc4, 0x20], byte) // enemies left on a combat lock
+WCW_TARGET_COUNT = ptr(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x3c, 0x04], byte) // enemies left in the wcw target challenge
+
 PLAYER_DATA = {
     "world": prt(pointer_to_loads_of_data(), [0x48, 0x1d], byte),
     "subarea": prt(pointer_to_loads_of_data(), [0x48, 0x1e], byte),
@@ -46,18 +55,52 @@ PLAYER_DATA = {
         "shields": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3c], byte), // 0x00 - 0x06
         "shield_parts": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3d], byte) // 0x00 (none) - 0x04 (full)
     },
+    "character_in_control": prt(ASTERIX_POINTER, [0x25], byte), // 0x00 = asterix, 0x01 = obelix
     "multiplier": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3e], word),
     "playtime": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x48], float),
     "enemies_defeated": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x44], dword),
     "magic_potion": {
         "active": prt(pointer_to_loads_of_data(), [0x80, 0xa0, 0x3c], bit0),
         "timer": prt(pointer_to_loads_of_data(), [0x80, 0xa0, 0x44], float)
-    }
+    },
+    "final_postcard": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x66], bit0) // postcard #24 is the last one you can buy
+    "character": {
+        "asterix":
+        {
+            "control_freeze": prt(ASTERIX_POINTER, [0x0c], byte)
+            "current_move": prt(ASTERIX_POINTER, [0xf4], byte)
+            "coordinates": {
+                "x": prt(ASTERIX_POINTER, [0x3d4], float)
+                "y": prt(ASTERIX_POINTER, [0x3d8], float)
+                "z": prt(ASTERIX_POINTER, [0x3dc], float)
+            },
+            "jump_state": prt(ASTERIX_POINTER, [0x40c], byte)
+            "flame_state": prt(ASTERIX_POINTER, [0x575], byte)
+        },   
+        "obelix":
+        {
+            "control_freeze": prt(OBELIX_POINTER, [0x0c], byte)
+            "current_move": prt(OBELIX_POINTER, [0xf4], byte)
+            "coordinates": {
+                "x": prt(OBELIX_POINTER, [0x3d4], float)
+                "y": prt(OBELIX_POINTER, [0x3d8], float)
+                "z": prt(OBELIX_POINTER, [0x3dc], float)
+            },
+            "jump_state": prt(OBELIX_POINTER, [0x40c], byte)
+            "flame_state": prt(OBELIX_POINTER, [0x575], byte)
+        }
+    }    
 }
 
 CHALLENGE_TIMERS = {
     "lava": prt(pointer_to_loads_of_data(), [0x80, 0x524, 0x5ac, 0x00, 0x04], float),
     "target": prt(pointer_to_loads_of_data(), [0x80, 0x524, 0x5ac, 0x04, 0x04], float)
+}
+
+CUPOLA_DATA = {
+    "height_right": prt(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x29e0, 0xf8], float)
+    "height_middle": prt(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x29ec, 0xf8], float)
+    "height_left": prt(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x29f8, 0xf8], float)
 }
 
 CUTSCENE_DATA = {
