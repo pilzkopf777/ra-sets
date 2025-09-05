@@ -26,7 +26,30 @@ function ptr(base, offsets, accessor=dword)
 function pointer_to_loads_of_data() => dword(0x57E2A4)
 
 // Global data
-diamond_helmet_state = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, 0x154], dword)
+FLAG_OFFSET = 0x14
+DIAMOND_HELMET_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, 0x154], dword)
+
+PLAYER_DATA = {
+    "world": prt(pointer_to_loads_of_data(), [0x48, 0x1d], byte),
+    "subarea": prt(pointer_to_loads_of_data(), [0x48, 0x1e], byte),
+    "helmets": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x40], dword),
+    "hp": {
+        "shields": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3c], byte), // 0x00 - 0x06
+        "shield_parts": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3d], byte) // 0x00 (none) - 0x04 (full)
+    },
+    "multiplier": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3e], word),
+    "playtime": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x48], float),
+    "enemies_defeated": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x44], dword),
+    "magic_potion": {
+        "active": prt(pointer_to_loads_of_data(), [0x80, 0xa0, 0x3c], bit0),
+        "timer": prt(pointer_to_loads_of_data(), [0x80, 0xa0, 0x44], float)
+    }
+}
+
+CHALLENGE_TIMERS = {
+    "lava": prt(pointer_to_loads_of_data(), [0x80, 0x524, 0x5ac, 0x00, 0x04], float),
+    "target": prt(pointer_to_loads_of_data(), [0x80, 0x524, 0x5ac, 0x04, 0x04], float)
+}
 
 WORLD_DATA = [{
     "id": 0x1,
@@ -34,11 +57,22 @@ WORLD_DATA = [{
     "rp_name": "in Lutetia",
     "quip_name": "City",
     "helmets": {
-        "Four Torches": 0x74, // Player is not forced to collect it but loading a chapter will mark this as collected
-        "Cruising": 0x70,
-        "Triumphal Arch": 0x6c,
-        "Eiffel Tower": 0x68,
-        "Obelisk": 0x64
+        "Four Torches": ptr(DIAMOND_HELMET_POINTER, [0x74, FLAG_OFFSET], bit1), // Player is not forced to collect it but loading a chapter will mark this as collected
+        "Cruising": ptr(DIAMOND_HELMET_POINTER, [0x70, FLAG_OFFSET], bit1),
+        "Triumphal Arch": ptr(DIAMOND_HELMET_POINTER, [0x6c, FLAG_OFFSET], bit1),
+        "Eiffel Tower": ptr(DIAMOND_HELMET_POINTER, [0x68, FLAG_OFFSET], bit1),
+        "Obelisk": ptr(DIAMOND_HELMET_POINTER, [0x64, FLAG_OFFSET], bit1)
+    },
+    "events": {
+        "Switch on top of Eiffel Tower opening boat ride path": 0x178,
+        "Door to Arc de Triomphe opening": 0x18c,
+        "Security System 4th torch lit": 0x190,
+        "Security System 3rd torch lit": 0x194,
+        "Security System 2nd torch lit": 0x198,
+        "Security System 1st torch lit": 0x19c,
+        "Mario reveal outside Las Vegum": 0x210,
+        "Toll gate to Venetia": 0x25c,
+        "Toll gate to LuckSore": 0x264
     }
 },
 {
@@ -47,11 +81,21 @@ WORLD_DATA = [{
     "rp_name": "in Venetia",
     "quip_name": "Canal",
     "helmets": {
-        "Saint Mark's Cage": 0x60,
-        "Canal Bumper Jumper": 0x5c,
-        "Rooftop Slides": 0x58,
-        "Going Underground": 0x54,
-        "Little Stone Bridge": 0x50
+        "Saint Mark's Cage": ptr(DIAMOND_HELMET_POINTER, [0x60, FLAG_OFFSET], bit1),
+        "Canal Bumper Jumper": ptr(DIAMOND_HELMET_POINTER, [0x5c, FLAG_OFFSET], bit1),
+        "Rooftop Slides": ptr(DIAMOND_HELMET_POINTER, [0x58, FLAG_OFFSET], bit1),
+        "Going Underground": ptr(DIAMOND_HELMET_POINTER, [0x54, FLAG_OFFSET], bit1),
+        "Little Stone Bridge": ptr(DIAMOND_HELMET_POINTER, [0x50, FLAG_OFFSET], bit1)
+    },
+    "events": {
+        "Boss door opened": 0x12c,
+        "Torch for filling targets on plaza": 0x18c,
+        "Torch in Asterix route on plaza": 0x1b0,
+        "Torch in Obelix route on plaza": 0x1b4,
+        "Lever to open door in trench area with merchant": 0x1bc,
+        "Obelix torch in front of boss gate": 0x1c0,
+        "Asterix torch in front of boss gate": 0x1c4,
+        "Panel stomped in 1st trench": 0x220
     }
 },
 {
@@ -60,11 +104,20 @@ WORLD_DATA = [{
     "rp_name": "in the WCW",
     "quip_name": "Arena",
     "helmets": {
-        "Challenge 1": 0x4c, // Player is forced to collect Challenge 1-4.
-        "Challenge 3": 0x48, // That is the actual order!
-        "Challenge 2": 0x44,
-        "Challenge 4": 0x40,
-        "Fake Gaulish Village": 0x3c
+        "Challenge 1": ptr(DIAMOND_HELMET_POINTER, [0x4c, FLAG_OFFSET], bit1), // Player is forced to collect Challenge 1-4.
+        "Challenge 3": ptr(DIAMOND_HELMET_POINTER, [0x48, FLAG_OFFSET], bit1), // That is the actual order!
+        "Challenge 2": ptr(DIAMOND_HELMET_POINTER, [0x44, FLAG_OFFSET], bit1),
+        "Challenge 4": ptr(DIAMOND_HELMET_POINTER, [0x40, FLAG_OFFSET], bit1),
+        "Fake Gaulish Village": ptr(DIAMOND_HELMET_POINTER, [0x3c, FLAG_OFFSET], bit1)
+    },
+    "events": {
+        "Internetus switch turned on": 0xf8,
+        "Door to village opened": 0xfc,
+        "Challenge 4 completed": 0x108,
+        "Challenge 3 completed": 0x10c,
+        "Challenge 2 completed": 0x110,
+        "Challenge 1 completed": 0x114,
+        "Door to Pirate Island and Palace opened": 0x234
     }
 },
 {
@@ -73,11 +126,11 @@ WORLD_DATA = [{
     "rp_name": "in LuckSore",
     "quip_name": "Pyramid",   
     "helmets": {
-        "Secret of the Secret Passage": 0x28,
-        "Beneath the Sphinx": 0x2c,
-        "One flew over the Tortoise": 0x30,
-        "Crown of Palms": 0x34,
-        "Refreshing Shower": 0x38
+        "Secret of the Secret Passage": ptr(DIAMOND_HELMET_POINTER, [0x28, FLAG_OFFSET], bit1),
+        "Beneath the Sphinx": ptr(DIAMOND_HELMET_POINTER, [0x2c, FLAG_OFFSET], bit1),
+        "One flew over the Tortoise": ptr(DIAMOND_HELMET_POINTER, [0x30, FLAG_OFFSET], bit1),
+        "Crown of Palms": ptr(DIAMOND_HELMET_POINTER, [0x34, FLAG_OFFSET], bit1),
+        "Refreshing Shower": ptr(DIAMOND_HELMET_POINTER, [0x38, FLAG_OFFSET], bit1)
     }
 },
 {
@@ -86,11 +139,11 @@ WORLD_DATA = [{
     "rp_name": "in Pirate Island",
     "quip_name": "Island",   
     "helmets": {
-        "Bellyflop by the Lighthouse": 0x14,
-        "Record Ascent": 0x18,
-        "Out of the Right Eye": 0x1c,
-        "Out of the Left Eye": 0x20,
-        "Booty in the Sand": 0x24
+        "Bellyflop by the Lighthouse": ptr(DIAMOND_HELMET_POINTER, [0x14, FLAG_OFFSET], bit1),
+        "Record Ascent": ptr(DIAMOND_HELMET_POINTER, [0x18, FLAG_OFFSET], bit1),
+        "Out of the Right Eye": ptr(DIAMOND_HELMET_POINTER, [0x1c, FLAG_OFFSET], bit1),
+        "Out of the Left Eye": ptr(DIAMOND_HELMET_POINTER, [0x20, FLAG_OFFSET], bit1),
+        "Booty in the Sand": ptr(DIAMOND_HELMET_POINTER, [0x24, FLAG_OFFSET], bit1)
     }
 },
 {
@@ -99,11 +152,11 @@ WORLD_DATA = [{
     "rp_name": "in SeizeUs Palace",
     "quip_name": "Palace",   
     "helmets": {
-        "Crazy Elevator": 0x00,
-        "Skyscraper": 0x04,
-        "Garden Level Zero": 0x08,
-        "Leap of Faith": 0x0c,
-        "Emperor's Laurels": 0x10 // Before final boss in the pillar
+        "Crazy Elevator": ptr(DIAMOND_HELMET_POINTER, [0x00, FLAG_OFFSET], bit1),
+        "Skyscraper": ptr(DIAMOND_HELMET_POINTER, [0x04, FLAG_OFFSET], bit1),
+        "Garden Level Zero": ptr(DIAMOND_HELMET_POINTER, [0x08, FLAG_OFFSET], bit1),
+        "Leap of Faith": ptr(DIAMOND_HELMET_POINTER, [0x0c, FLAG_OFFSET], bit1),
+        "Emperor's Laurels": ptr(DIAMOND_HELMET_POINTER, [0x10, FLAG_OFFSET], bit1) // Before final boss in the pillar
     }
 },
 {
@@ -136,6 +189,14 @@ WORLD_DATA = [{
 }
 ]
 
+achievement(
+        title = "TESTING",
+        description = "A COOL TEST",
+        points = 10,
+        id = 0,
+        trigger=WORLD_DATA[0]["helmets"]["Four Torches"] == 1
+
+)
 
 // Achievements
 for world in WORLD_DATA {
@@ -149,15 +210,14 @@ for world in WORLD_DATA {
             measured(
                 sum_of(
                     world["helmets"],
-                    key => bit1(dword(diamond_helmet_state + world["helmets"][key]) + 0x14)
+                    key => world["helmets"][key]
                 ) == 5
             )
             &&
             sum_of(
                 world["helmets"],
-                key => prev(bit1(dword(diamond_helmet_state + world["helmets"][key]) + 0x14))
+                key => prev(world["helmets"][key])
             ) == 4
     )
     }
-    
 }
