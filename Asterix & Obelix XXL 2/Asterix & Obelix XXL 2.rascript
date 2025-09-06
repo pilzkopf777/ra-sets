@@ -43,7 +43,7 @@ OBELIX_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x08, 0x28, 0x96c], dwor
 
 IN_ENGINE_CUTSCENE_STATE =  ptr(pointer_to_loads_of_data(), [0x74, 0x0c], byte)
 PAUSE_MENU_STATE = ptr(pointer_to_loads_of_data(), [0x44, 0x04, 0x30], byte)
-MAIN_MENU_STATE = ptr(pointer_to_loads_of_data(), [0x80, 0x5f4], byte)
+SAVE_GAME_STATE = ptr(pointer_to_loads_of_data(), [0x80, 0x5f4], byte)
 
 COMBAT_LOCK_COUNT = ptr(pointer_to_loads_of_data(), [0x88, 0xc4, 0x20], byte) // enemies left on a combat lock
 WCW_TARGET_COUNT = ptr(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x3c, 0x04], byte) // enemies left in the wcw target challenge
@@ -278,8 +278,10 @@ WORLD_DATA = {
     "id": 0x8,
     "world_name": "Boss Area Venetia",
     "rp_name": "facing the boss of Venetia",
-    "quip_name": "", // none
-    "helmets": {}, // none
+    "quip_name": "",
+    "helmets": {
+
+    },
     "events": {
         "Boss Clear": ptr(EVENT_POINTER, [0x0c, FLAG_OFFSET], bit1)
     }
@@ -288,8 +290,10 @@ WORLD_DATA = {
     "id": 0x9,
     "world_name": "Boss Area LuckSore",
     "rp_name": "facing the boss of LuckSore",
-    "quip_name": "", // none
-    "helmets": {}, // none
+    "quip_name": "",
+    "helmets": {
+
+    },
     "events": {
         "Boss Clear": ptr(EVENT_POINTER, [0x08, FLAG_OFFSET], bit1)
     }
@@ -298,8 +302,10 @@ WORLD_DATA = {
     "id": 0x0a,
     "world_name": "Boss Area Pirate Island",
     "rp_name": "facing the boss of Pirate Island",
-    "quip_name": "", // none
-    "helmets": {}, // none
+    "quip_name": "",
+    "helmets": {
+
+    },
     "events": {
         "Boss Clear": ptr(EVENT_POINTER, [0x00, FLAG_OFFSET], bit1)
     }
@@ -308,8 +314,10 @@ WORLD_DATA = {
     "id": 0x0b,
     "world_name": "Boss Area SeizeUs Palace",
     "rp_name": "facing the boss of SeizeUs Palace",
-    "quip_name": "", // none
-    "helmets": {}, // none
+    "quip_name": "",
+    "helmets": {
+
+    },
     "events": {
         // none
     }
@@ -337,7 +345,7 @@ function count_helmets_in_world(world_name) {
 function count_all_helmets() {
     return sum_of(
         WORLD_DATA,
-        world_name => count_helmets_in_world(WORLD_DATA[world_name])
+        world_name => count_helmets_in_world(world_name)
     )
 }
 
@@ -938,3 +946,27 @@ achievement(
 )
 
 // Rich Presence
+// todo: This is also present in WORLD_DATA so it would probably be better to pull the data from there instead..
+WorldLookup = {
+    0: "in the Main Menu",
+    1: "in Lutetia",
+    2: "in Venetia",
+    3: "in the WCW",
+    4: "in LuckSore",
+    6: "in Pirate Island",
+    7: "in SeizeUs Palace",
+    8: "facing the boss of Venetia",
+    9: "facing the boss of LuckSore",
+    10: "facing the boss of Pirate Island",
+    11: "facing the boss of SeizeUs Palace",
+}
+
+
+rich_presence_conditional_display(SAVE_GAME_STATE == 0, "Asterix & Obelix are preparing to set out to Las Vegum")
+rich_presence_conditional_display(SAVE_GAME_STATE == 1, "Asterix & Obelix are {0} • Helmets: {1} • Diamond Helmets: {2} / 30",
+    rich_presence_lookup("World", PLAYER_DATA["world"], WorldLookup, fallback="in an unknown area"),
+    rich_presence_value("Helmets", PLAYER_DATA["helmets"]),
+    rich_presence_value("Diamond Helmets", count_all_helmets())
+)
+
+rich_presence_display("Playing Asterix & Obelix XXL 2: Mission - Las Vegum")
