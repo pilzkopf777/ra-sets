@@ -336,6 +336,168 @@ achievement(
         )
 )
 
+achievement(
+    title = "debug Veni, Vidi, Venetia", points = 3, type="progression",
+    description = "Pay the toll and gain access to Venetia",
+    trigger = 
+        PLAYER_DATA["world"] == 1 &&
+        PLAYER_DATA["subarea"] == 2 &&
+        WORLD_DATA["Lutetia"]["events"]["Toll gate to Venetia"] == 1 &&
+        prev(WORLD_DATA["Lutetia"]["events"]["Toll gate to Venetia"] == 0)
+)
+
+achievement(
+    title = "debug Open Says Me", points = 3, type="progression",
+    description = "Open the door at the end of Venetia",
+    trigger = 
+        PLAYER_DATA["world"] == 2 &&
+        PLAYER_DATA["subarea"] == 5 &&
+        WORLD_DATA["Venetia"]["events"]["Boss door opened"] == 1 &&
+        WORLD_DATA["Boss Area Venetia"]["events"]["Boss Clear"] == 0 &&
+        (
+           in_engine_cutscene_has_ended() 
+        )
+)
+
+achievement(
+    title = "debug Enter the Dethmach", points = 5, type="progression",
+    description = "Defeat Dethmach",
+    trigger = 
+        PLAYER_DATA["world"] == 8 &&
+        PLAYER_DATA["subarea"] == 255 &&
+        WORLD_DATA["Boss Area Venetia"]["events"]["Boss Clear"] == 0 &&
+        WORLD_DATA["Lutetia"]["events"]["Toll gate to LuckSore"] == 0 &&
+        (
+            in_engine_cutscene_has_ended()
+        )
+)
+
+achievement(
+    title = "debug Welcome to Casino Night", points = 3, type="progression",
+    description = "Pay the toll and gain access to LuckSore",
+    trigger = 
+        PLAYER_DATA["world"] == 1 &&
+        PLAYER_DATA["subarea"] == 6 &&
+        WORLD_DATA["Lutetia"]["events"]["Toll gate to LuckSore"] == 1 &&
+        prev(WORLD_DATA["Lutetia"]["events"]["Toll gate to LuckSore"] == 0)
+)
+
+achievement(
+    title = "debug Laser Focused", points = 3, type="progression",
+    description = "Use the lights to open the giant door in LuckSore",
+    id = 532225, badge = "608397", published = "14/07/2025 22:10:48", modified = "23/07/2025 18:38:02",
+    trigger = 
+        PLAYER_DATA["world"] == 4 &&
+        PLAYER_DATA["subarea"] == 2 &&
+        WORLD_DATA["LuckSore"]["events"]["Boss door opened"] == 1 &&
+        WORLD_DATA["Boss Area LuckSore"]["events"]["Boss Clear"] == 0 &&
+        (
+            in_engine_cutscene_has_ended()
+        )
+)
+
+achievement(
+    title = "debug Dethmach Reloaded", points = 5, type="progression",
+    description = "Defeat Dethmach again",
+    trigger = 
+        PLAYER_DATA["world"] == 9 &&
+        PLAYER_DATA["subarea"] == 255 &&
+        WORLD_DATA["Boss Area LuckSore"]["events"]["Boss Clear"] == 0 &&
+        CUTSCENE_DATA["Saving 2nd prisoner"] == 0 &&
+        (
+            in_engine_cutscene_has_ended()
+        )
+)
+
+achievement(
+    title = "debug Galactic Gladiator", points = 3, type="progression",
+    description = "Become the champion of the WCW",
+    trigger =
+        PLAYER_DATA["world"] == 3 &&
+        PLAYER_DATA["subarea"] == 6 &&
+        WORLD_DATA["WCW"]["events"]["Door to village opened"] == 1 &&
+        CUTSCENE_DATA["Fake village in WCW"] == 0 &&
+        (
+            in_engine_cutscene_has_ended()
+        )
+)
+
+achievement(
+    title = "debug Tomb Raided", points = 10, type="progression",
+    description = "Survive the ambush and defeat Caesar's henchman",
+    trigger =
+        PLAYER_DATA["world"] == 3 &&
+        PLAYER_DATA["subarea"] == 8 &&
+        WORLD_DATA["WCW"]["events"]["Door to Pirate Island and Palace opened"] == 1 &&
+        prev(WORLD_DATA["WCW"]["events"]["Door to Pirate Island and Palace opened"] == 0)
+)
+
+achievement(
+    title = "debug Eyes on Me", points = 3, type="progression",
+    description = "Light up the eyes of the skull",
+    trigger = 
+        PLAYER_DATA["world"] == 6 &&
+        PLAYER_DATA["subarea"] == 1 &&
+        WORLD_DATA["Pirate Island"]["events"]["Boss door opened"] == 1 &&
+        WORLD_DATA["Boss Area Pirate Island"]["events"]["Boss Clear"] == 0 &&
+        (
+            in_engine_cutscene_has_ended()
+        )
+)    
+    
+achievement(
+    title = "debug Dethmach with a Vengeance", points = 5, type="progression",
+    description = "Defeat Dethmach yet again",
+    trigger =
+        PLAYER_DATA["world"] == 10 &&
+        PLAYER_DATA["subarea"] == 255 &&
+        WORLD_DATA["Boss Area Pirate Island"]["events"]["Boss Clear"] == 0 &&
+        CUTSCENE_DATA["Saving 3rd prisoner"] == 0 &&
+        (
+            in_engine_cutscene_has_ended()
+        )
+)
+
+achievement(
+    title = "debug The House Always Loses", points = 3, type="progression",
+    description = "Destroy the roulette wheel and open the door",
+    trigger =
+        PLAYER_DATA["world"] == 7 &&
+        PLAYER_DATA["subarea"] == 1 &&
+        WORLD_DATA["SeizeUs Palace"]["events"]["Roulette door opened"] == 1 &&
+        WORLD_DATA["SeizeUs Palace"]["events"]["Ambush fight completed"] == 0 &&
+        (
+            in_engine_cutscene_has_ended()
+        )
+)
+
+achievement(
+    title = "debug Do Movie References Count?", points = 10, type="progression",
+    description = "Defeat the foes at the top of SeizeUs Palace",
+    trigger = 
+        PLAYER_DATA["world"] == 7 &&
+        PLAYER_DATA["subarea"] == 7 &&
+        WORLD_DATA["SeizeUs Palace"]["events"]["Ambush fight completed"] == 1 &&
+        CUTSCENE_DATA["Ending"] == 0 &&
+        (
+            in_engine_cutscene_has_ended()
+        )
+)
+
+achievement(
+    title = "debug Park's Closed Forever", points = 25, type="win_condition",
+    description = "Defeat Dethmach one last time",
+    trigger = 
+        PLAYER_DATA["world"] == 11 &&
+        PLAYER_DATA["subarea"] == 255 &&
+        CUTSCENE_DATA["Caesar defeated"] == 1 &&
+        IN_ENGINE_CUTSCENE_STATE == 0 && prev(IN_ENGINE_CUTSCENE_STATE == 1) &&
+)
+
+// Souvenier shops
+
+// Buy all postcards
+
 // Diamond helmet achievements
 for world_name in WORLD_DATA {
     current_world_data = WORLD_DATA[world_name]
@@ -360,3 +522,34 @@ for world_name in WORLD_DATA {
     )
     }
 }
+
+// Kill 1000 enemies
+
+// x50 mult
+
+// 6 shields
+
+// Get diamond helmet without bomb
+
+// Looping for 24sec
+
+// Internetus dispenser
+
+// Challenge 1 extra
+
+// Challenge 2 extra
+
+// Challenge 3 extra
+
+// Challenge 4 extra
+
+// Smash attack
+
+// Play slots with enemy
+
+// Fury mode for 30sec
+
+// Climb Internetus in 35sec
+
+
+// Rich Presence
