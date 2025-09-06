@@ -384,6 +384,17 @@ function player_is_performing_looping() {
     return player_is_in_automatic_cablecart() && ptr(INTERACTIVE_ITEM_POINTER, [0x1f4], float) != 1000.0 && ptr(INTERACTIVE_ITEM_POINTER, [0x1f4], float) != 0.0
 }
 
+function SlotMachineObj(addr)
+{
+  obj = {
+    "is_slot_machine": dword(addr + 0x0) == 0x57A6F0,
+    "status": byte(addr + 0x34),
+    "payment_method": byte(addr + 0xA1),
+  }
+
+  return obj
+}
+
 
 // Achievements
 
@@ -834,23 +845,30 @@ achievement(
         )
 )
 
-// Play slots with enemy
-// TODO: This seems to not play nice with RATools. Research that later..
-/*
+function welcome_to_the_machine_logic() {
+  objects = DYNAMIC_ITEM_POINTER
+  
+  cond = always_false()
+  for i in range(0, 140-1)
+  {
+    obj = SlotMachineObj(dword(objects + i * 4))
+    cond = cond || (
+        obj["is_slot_machine"] &&
+        prev(obj["payment_method"] == 0x01) &&
+        obj["status"] == 0x02 &&
+        prev(obj["status"] == 0x01)
+    )
+  }
+  return cond
+}
+
+// Play slots with enemy todo
 achievement(
     title = "Welcome to the Machine", points = 3,
     description = "Play a slot machine by throwing a Roman into it",
-    trigger =
-        for element in range(0, DYNAMIC_ITEM_COUNT, 1) {
-            ptr(DYNAMIC_ITEM_POINTER, [element * 0x04], dword) == 0x57a6f0 && 
-            once(
-                ptr(DYNAMIC_ITEM_POINTER, [element * 0x04, 0xa1], byte) == 1 &&
-                never(ptr(DYNAMIC_ITEM_POINTER, [element * 0x04, 0x34], byte) == 0)
-            ) &&
-            prev(ptr(DYNAMIC_ITEM_POINTER, [element * 0x04, 0x34], byte) == 2)
-        }
+    trigger = PLAYER_DATA["world"] != 0 && welcome_to_the_machine_logic()
 )
-*/
+
 
 // Fury mode for 30sec
 achievement(
