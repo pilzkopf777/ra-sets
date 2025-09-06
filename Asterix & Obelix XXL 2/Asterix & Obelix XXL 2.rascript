@@ -51,6 +51,8 @@ WCW_TARGET_COUNT = ptr(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x3c, 0x04], byt
 DYNAMIC_ITEM_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x0c, 0x2c], dword)
 DYNAMIC_ITEM_COUNT = ptr(pointer_to_loads_of_data(), [0x80, 0x0c, 0x30], word) // amount of dynamic items in current subarea
 
+INTERACTIVE_ITEM_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x90], dword)
+
 PLAYER_DATA = {
     "world": ptr(pointer_to_loads_of_data(), [0x48, 0x1d], byte),
     "subarea": ptr(pointer_to_loads_of_data(), [0x48, 0x1e], byte),
@@ -359,6 +361,13 @@ function player_died() {
     return PLAYER_DATA["hp"]["shields"] == 0 && PLAYER_DATA["hp"]["shield_parts"] == 0
 }
 
+function player_is_in_automatic_cablecart() {
+    return ptr(INTERACTIVE_ITEM_POINTER, [0x00], dword) == 0x005786a0
+}
+
+function player_is_performing_looping() {
+    return player_is_in_automatic_cablecart() && ptr(INTERACTIVE_ITEM_POINTER, [0x1f4], float) != 1000.0 && ptr(INTERACTIVE_ITEM_POINTER, [0x1f4], float) != 0.0
+}
 
 
 // Achievements
@@ -656,6 +665,17 @@ achievement(
 )
 
 // Looping for 24sec
+achievement(
+    title = "debug Downhill Jam", points = 10,
+    description = "Hold a looping in a cable cart for 24 seconds",
+    trigger = 
+        // Not in main menu
+        never(PLAYER_DATA["world"] == 0) &&
+        // Player is in automatic cablecart, performing a looping
+        never(!player_is_performing_looping()) &&
+        // 24 secs
+        repeated(1200, in_game_timer_tick())
+)
 
 // Internetus dispenser
 achievement(
@@ -684,24 +704,104 @@ achievement(
             // At 50Hz this equals 40 seconds
             // Thus, deny achievement after 40 seconds after the tutorial cutscene ends
             repeated(2000, in_game_timer_tick()),
-            until=(COMBAT_LOCK_COUNT != 0) &&
+        until=(COMBAT_LOCK_COUNT != 0) &&
             IN_ENGINE_CUTSCENE_STATE >= 1
         ) &&
         trigger_when(
             // Award achievement when all enemies are defeated
             combat_lock_cleared()
         ) &&
-        // If player dies, instantly deny achievement
         never(
+            // If player dies, instantly deny achievement
+            // As a safeguard, also deny once the player respawns outside the arena (see never() subarea)
             player_died()
         )           
 )
 
 // Challenge 2 extra
+achievement(
+    title = "debug Potion Sickness", points = 10,
+    description = "Complete Challenge 2: Mass Attack in the WCW without using a magic potion",
+    trigger =
+        // Player must be in Challenge 2 arena, reset when leaving
+        never(PLAYER_DATA["world"] != 3) &&
+        never(PLAYER_DATA["subarea"] != 3) &&
+        disable_when(
+            // Deny when the player gains a magic potion, be it from a Tip Bonus or the dispenser
+            PLAYER_DATA["magic_potion"]["active"] == 1,
+        until = IN_ENGINE_CUTSCENE_STATE >= 1
+        ) &&
+        trigger_when(
+            combat_lock_cleared()
+        ) &&
+        never(
+            player_died()
+        )
+)
+
 
 // Challenge 3 extra
+achievement(
+    title = "debug High Ton", points = 25,
+    description = "Complete Challenge 3: Targets in the WCW in 3 minutes or less",
+    trigger = 
+        // Player must be in Challenge 3 arena, reset when leaving
+        never(PLAYER_DATA["world"] != 3) &&
+        never(PLAYER_DATA["subarea"] != 4) &&
+        disable_when(
+            // 9000 hits, gain a hit when the in-game timer ticks up
+            // At 50Hz this equals 3 minutes
+            // Thus, deny achievement after 3 minutes after the tutorial cutscene ends
+            repeated(9000, in_game_timer_tick()),
+        until=(COMBAT_LOCK_COUNT != 0) &&
+            IN_ENGINE_CUTSCENE_STATE >= 1
+        ) &&
+        trigger_when(
+            // This challenge does not use a combat lock but a fancy floating counter in the arena
+            WCW_TARGET_COUNT == 0 && prev(WCW_TARGET_COUNT > 0)
+        ) &&
+        never(
+            player_died()
+        )
+)
+
+
 
 // Challenge 4 extra
+achievement(
+    title = "debug Torchus Interruptus", points = 10,
+    description = "Complete Challenge 4: Cupolas in the WCW without letting any cupolas be completed",
+    trigger =
+        // If any of the cupolas reach a height of 6.5, deny the achievement
+        // The cupolas will rise to 6.5 during the tutorial cutscene so 1 hit is "free" and the 2nd hit denies the achievement
+        disable_when(
+            repeated(
+                2, CUPOLA_DATA["height_right"] == 6.5 && prev(CUPOLA_DATA["height_right"] < 6.5)
+            )
+        ) && 
+        disable_when(
+            repeated(
+                2, CUPOLA_DATA["height_middle"] == 6.5 && prev(CUPOLA_DATA["height_middle"] < 6.5)
+            )
+        ) && 
+        disable_when(
+            repeated(
+                2, CUPOLA_DATA["height_left"] == 6.5 && prev(CUPOLA_DATA["height_left"] < 6.5)
+            )
+        ) && 
+        trigger_when(
+            combat_lock_cleared()
+        ) &&
+        // When the player dies or leaves, reset all hits
+        // Done in an alt group since the disable_when() prevents a well timed reset
+        (always_false() ||
+            never(PLAYER_DATA["world"] != 3) &&
+            never(PLAYER_DATA["subarea"] != 5) &&
+            never(player_died())    
+        )
+)
+
+
 
 // Smash attack
 achievement(
