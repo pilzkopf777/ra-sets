@@ -347,6 +347,18 @@ function sphinx_with_diamond_helmet_is_broken() {
     return ptr(DYNAMIC_ITEM_POINTER, [0x144, 0x34, 0x10], byte) == 4
 }
 
+function in_game_timer_tick() {
+    return PLAYER_DATA["playtime"] > prev(PLAYER_DATA["playtime"])
+}
+
+function combat_lock_cleared() {
+    return COMBAT_LOCK_COUNT == 0 && prev(COMBAT_LOCK_COUNT > 0)
+}
+
+function player_died() {
+    return PLAYER_DATA["hp"]["shields"] == 0 && PLAYER_DATA["hp"]["shield_parts"] == 0
+}
+
 
 
 // Achievements
@@ -646,8 +658,44 @@ achievement(
 // Looping for 24sec
 
 // Internetus dispenser
+achievement(
+    title = "debug Cheat Code", points = 2,
+    description = "Enable the secret magic potion dispenser in the WCW",
+    trigger =
+        PLAYER_DATA["world"] == 3 &&
+        PLAYER_DATA["subarea"] == 10 &&
+        WORLD_DATA["WCW"]["events"]["Internetus switch turned on"] == 1 &&
+        // Special type of cutscene for this - unlock the achievement after it ends (which is when the player can move again)
+        PLAYER_DATA["character"]["asterix"]["control_freeze"] == 0 &&
+        prev(PLAYER_DATA["character"]["asterix"]["control_freeze"] == 2)
+)
+
 
 // Challenge 1 extra
+achievement(
+    title = "debug Hot-Head Bop", points = 25,
+    description = "Complete Challenge 1: Lava Pit in the WCW in 40 seconds or less",
+    trigger =
+        // Player must be in Challenge 1 arena, reset when leaving
+        never(PLAYER_DATA["world"] != 3) &&
+        never(PLAYER_DATA["subarea"] != 2) &&
+        disable_when(
+            // 2000 hits, gain a hit when the in-game timer ticks up
+            // At 50Hz this equals 40 seconds
+            // Thus, deny achievement after 40 seconds after the tutorial cutscene ends
+            repeated(2000, in_game_timer_tick()),
+            until=(COMBAT_LOCK_COUNT != 0) &&
+            IN_ENGINE_CUTSCENE_STATE >= 1
+        ) &&
+        trigger_when(
+            // Award achievement when all enemies are defeated
+            combat_lock_cleared()
+        ) &&
+        // If player dies, instantly deny achievement
+        never(
+            player_died()
+        )           
+)
 
 // Challenge 2 extra
 
@@ -656,6 +704,20 @@ achievement(
 // Challenge 4 extra
 
 // Smash attack
+achievement(
+    title = "debug Stylish!", points = 2,
+    description = "Perform a Smash attack and earn a 3x multiplier",
+    trigger =
+        PLAYER_DATA["world"] != 0 &&
+        // Pause menu not open / gameplay
+        PAUSE_MENU_STATE == 0 &&
+        (
+            // Either Asterix or Obelix have to perform the move
+            // ID 11 is the wind-up before the punch and 12 is the punch during the Smash combo itself
+            PLAYER_DATA["character"]["asterix"]["current_move"] == 12 && prev(PLAYER_DATA["character"]["asterix"]["current_move"] == 11) ||
+            PLAYER_DATA["character"]["obelix"]["current_move"] == 12 && prev(PLAYER_DATA["character"]["obelix"]["current_move"] == 11)
+        )
+)
 
 // Play slots with enemy
 
