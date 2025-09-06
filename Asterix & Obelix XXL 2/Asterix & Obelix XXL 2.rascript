@@ -22,7 +22,7 @@ function ptr(base, offsets, accessor=dword)
     return val
 }
 
-// Global access functions
+// Global access function
 function pointer_to_loads_of_data() => dword(0x57E2A4)
 
 // Global data
@@ -47,6 +47,9 @@ MAIN_MENU_STATE = ptr(pointer_to_loads_of_data(), [0x80, 0x5f4], byte)
 
 COMBAT_LOCK_COUNT = ptr(pointer_to_loads_of_data(), [0x88, 0xc4, 0x20], byte) // enemies left on a combat lock
 WCW_TARGET_COUNT = ptr(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x3c, 0x04], byte) // enemies left in the wcw target challenge
+
+DYNAMIC_ITEM_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x0c, 0x2c], dword)
+DYNAMIC_ITEM_COUNT = ptr(pointer_to_loads_of_data(), [0x80, 0x0c, 0x30], word) // amount of dynamic items in current subarea
 
 PLAYER_DATA = {
     "world": ptr(pointer_to_loads_of_data(), [0x48, 0x1d], byte),
@@ -319,6 +322,32 @@ function in_engine_cutscene_has_ended() {
     return PAUSE_MENU_STATE == 2 && prev(PAUSE_MENU_STATE == 1) || IN_ENGINE_CUTSCENE_STATE == 0 && prev(IN_ENGINE_CUTSCENE_STATE == 1)
 }
 
+// Get diamond helmet count in a world
+// world_name = String, name of world
+function count_helmets_in_world(world_name) {
+    return sum_of(
+        WORLD_DATA[world_name]["helmets"],
+        key => WORLD_DATA[world_name]["helmets"][key]
+    )
+}
+
+// Get diamond helmet count in total (all worlds)
+function count_all_helmets() {
+    return sum_of(
+        WORLD_DATA,
+        world_name => count_helmets_in_world(WORLD_DATA[world_name])
+    )
+}
+
+// Check if the sphinx is broken
+// Not related to collecting the diamond helmet
+// The sphinx status is == 4 when broken, this function returns True/False accordingly
+function sphinx_with_diamond_helmet_is_broken() {
+    // 0x144 is always the sphinx with the diamond helmet
+    return ptr(DYNAMIC_ITEM_POINTER, [0x144, 0x34, 0x10], byte) == 4
+}
+
+
 
 // Achievements
 
@@ -327,10 +356,15 @@ achievement(
     title = "debug What Happens in Las Vegum...", points = 2, type="progression",
     description = "Outsmart the security system of Las Vegum",
     trigger=
+        // Player is in world 1...
         PLAYER_DATA["world"] == 1 &&
+        // ...and in subarea 1
         PLAYER_DATA["subarea"] == 1 &&
+        // This is the condition when the achievement will activate (after the related cutscene plays)
         WORLD_DATA["Lutetia"]["events"]["Security System 4th torch lit"] == 1 &&
+        // This should be false. If it's not, the player used the chapter menu to skip ahead and shouldn't get the unlock
         WORLD_DATA["Lutetia"]["events"]["Toll gate to Venetia"] == 0 &&
+        // Actual mem/delta check happens here: Unlock the achievement once the cutscene ends
         (
             in_engine_cutscene_has_ended()
         )
@@ -342,6 +376,7 @@ achievement(
     trigger = 
         PLAYER_DATA["world"] == 1 &&
         PLAYER_DATA["subarea"] == 2 &&
+        // There's no cutscene for the toll gate flag so do a basic mem/delta here
         WORLD_DATA["Lutetia"]["events"]["Toll gate to Venetia"] == 1 &&
         prev(WORLD_DATA["Lutetia"]["events"]["Toll gate to Venetia"] == 0)
 )
@@ -491,45 +526,122 @@ achievement(
         PLAYER_DATA["world"] == 11 &&
         PLAYER_DATA["subarea"] == 255 &&
         CUTSCENE_DATA["Caesar defeated"] == 1 &&
-        IN_ENGINE_CUTSCENE_STATE == 0 && prev(IN_ENGINE_CUTSCENE_STATE == 1) &&
+        // Only the in-engine cutscene state flag should be used for tracking since this is the end of the game
+        // The player should not be able to access the pause menu to go back to the main menu in a cutscene
+        IN_ENGINE_CUTSCENE_STATE == 0 && prev(IN_ENGINE_CUTSCENE_STATE == 1)
 )
 
 // Souvenier shops
+achievement(
+    title = "debug What're Ya Buyin'?", points = 5,
+    description = "Find the merchant area in Venetia",
+    trigger =
+        PLAYER_DATA["world"] == 2 &&
+        PLAYER_DATA["subarea"] == 4 &&
+        SOUVENIER_DATA["Postcards / Venetia"] == 1 &&
+        prev(SOUVENIER_DATA["Postcards / Venetia"]) == 0
+)
+
+achievement(
+    title = "debug Shop and Awe", points = 5,
+    description = "Find the merchant area in Lutetia",
+    trigger =
+        PLAYER_DATA["world"] == 1 &&
+        PLAYER_DATA["subarea"] == 4 &&
+        SOUVENIER_DATA["Character models / Lutetia"] == 1 &&
+        prev(SOUVENIER_DATA["Character models / Lutetia"]) == 0
+)
+
+achievement(
+    title = "debug Buy Julius!", points = 5,
+    description = "Find the merchant area in LuckSore",
+    trigger =
+        PLAYER_DATA["world"] == 4 &&
+        PLAYER_DATA["subarea"] == 1 &&
+        SOUVENIER_DATA["Cutscenes / LuckSore"] == 1 &&
+        prev(SOUVENIER_DATA["Cutscenes / LuckSore"]) == 0
+)
 
 // Buy all postcards
+achievement(
+    title = "debug Picture City", points = 10,
+    description = "Purchase every image from the postcard souvenir shop",
+    trigger = 
+        // World 0 is the main menu
+        PLAYER_DATA["world"] == 0 &&
+        PLAYER_DATA["final_postcard"] == 1 &&
+        prev(PLAYER_DATA["final_postcard"]) == 0
+)
 
 // Diamond helmet achievements
 for world_name in WORLD_DATA {
-    current_world_data = WORLD_DATA[world_name]
-    if (length(current_world_data["helmets"]) == 5) {
+    if (length(WORLD_DATA[world_name]["helmets"]) == 5) {
         achievement(
-        title = format("debug The {0}'s Treasures", current_world_data["quip_name"]),
-        description = format("Find every diamond helmet {0}", current_world_data["rp_name"]),
+        title = format("debug The {0}'s Treasures", WORLD_DATA[world_name]["quip_name"]),
+        description = format("Find every diamond helmet {0}", WORLD_DATA[world_name]["rp_name"]),
         points = 10,
         id = 0,
         trigger =
             measured(
-                sum_of(
-                    current_world_data["helmets"],
-                    key => current_world_data["helmets"][key]
-                ) == 5
+                count_helmets_in_world(world_name) == 5
             )
             &&
-            sum_of(
-                current_world_data["helmets"],
-                key => prev(current_world_data["helmets"][key])
-            ) == 4
+            prev(count_helmets_in_world(world_name)) == 4
     )
     }
 }
 
 // Kill 1000 enemies
+achievement(
+    title = "debug Back to Rome", points = 4,
+    description = "Defeat 1,000 Romans in total",
+    trigger = 
+        // Player is in any world, not the main menu
+        PLAYER_DATA["world"] != 0 &&
+        PLAYER_DATA["enemies_defeated"] >= 1000 &&
+        prev(PLAYER_DATA["enemies_defeated"] < 1000)
+)
 
 // x50 mult
+achievement(
+    title = "debug Market Manipulation", points = 2,
+    description = "Reach a x50 multiplier",
+    trigger = 
+        PLAYER_DATA["world"] != 0 &&
+        PLAYER_DATA["multiplier"] >= 50 &&
+        prev(PLAYER_DATA["multiplier"] < 50)
+)
 
 // 6 shields
+achievement(
+    title = "debug Impeccable Defense", points = 2,
+    description = "Have six shields at the same time",
+    trigger = 
+        PLAYER_DATA["world"] != 0 &&
+        // ["hp"]["shields"] tracks the amount of full shields remaining
+        PLAYER_DATA["hp"]["shields"] == 6 &&
+        // You can only reach 6 shields if you had at least 5 before since grabbing the item will increase the amount of full ones by 1
+        prev(PLAYER_DATA["hp"]["shields"] == 5)
+)
 
 // Get diamond helmet without bomb
+achievement(
+    title = "debug No Bomb, No Problem", points = 4,
+    description = "Earn the diamond helmet \"Beneath the Sphinx\" without using the bomb",
+    trigger = 
+        // Player must be in LuckSore
+        never(PLAYER_DATA["world"] != 4) &&
+        // Player collected the diamond helmet
+        WORLD_DATA["LuckSore"]["helmets"]["Beneath the Sphinx"] == 1 &&
+        prev(WORLD_DATA["LuckSore"]["helmets"]["Beneath the Sphinx"] == 0) &&
+        // Check if the sphinx was broken using the magic potion
+        // The potion will only be able to do this in the first 2.5 sec due to the explosion effects
+        // You cannot prime the bomb and use the potion at the same time properly since the explosion would still cause the sphinx to break first
+        once(
+            PLAYER_DATA["magic_potion"]["timer"] < 2.5 &&
+            sphinx_with_diamond_helmet_is_broken() && prev(!sphinx_with_diamond_helmet_is_broken())
+        )
+)
 
 // Looping for 24sec
 
