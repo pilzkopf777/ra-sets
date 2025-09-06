@@ -318,13 +318,13 @@ WORLD_DATA = {
 
 // Helper functions for common use-cases
 
-// Returns true if an in-game cutscene ended.
-// User can either do this by watching / skipping through it normally or alternatively by quitting to the main menu.
+// True, when an in-game cutscene ends
+// User can either do this by watching / skipping through it normally or alternatively by quitting to the main menu
 function in_engine_cutscene_has_ended() {
     return PAUSE_MENU_STATE == 2 && prev(PAUSE_MENU_STATE == 1) || IN_ENGINE_CUTSCENE_STATE == 0 && prev(IN_ENGINE_CUTSCENE_STATE == 1)
 }
 
-// Get diamond helmet count in a world
+// Get diamond helmet count in a world, max is 5
 // world_name = String, name of world
 function count_helmets_in_world(world_name) {
     return sum_of(
@@ -333,7 +333,7 @@ function count_helmets_in_world(world_name) {
     )
 }
 
-// Get diamond helmet count in total (all worlds)
+// Get diamond helmet count in total (all worlds), max is 30
 function count_all_helmets() {
     return sum_of(
         WORLD_DATA,
@@ -341,30 +341,37 @@ function count_all_helmets() {
     )
 }
 
-// Check if the sphinx is broken
+// True, when sphinx with diamond helmet in LuckSore is broken
 // Not related to collecting the diamond helmet
-// The sphinx status is == 4 when broken, this function returns True/False accordingly
 function sphinx_with_diamond_helmet_is_broken() {
     // 0x144 is always the sphinx with the diamond helmet
     return ptr(DYNAMIC_ITEM_POINTER, [0x144, 0x34, 0x10], byte) == 4
 }
 
+// In-game timer advanced
 function in_game_timer_tick() {
     return PLAYER_DATA["playtime"] > prev(PLAYER_DATA["playtime"])
 }
 
+// True, when the combat lock ticked from 1 to 0
+// A combat lock is the red lock on the right side of the screen
+// This does NOT include the WCW target lock for the targets challenge
 function combat_lock_cleared() {
     return COMBAT_LOCK_COUNT == 0 && prev(COMBAT_LOCK_COUNT > 0)
 }
 
+// True, when the player is dead as they have no shields / hp left
+// Also counts when jumping in pits or deathplanes etc
 function player_died() {
     return PLAYER_DATA["hp"]["shields"] == 0 && PLAYER_DATA["hp"]["shield_parts"] == 0
 }
 
+// Is the player in an automatically moving cablecart?
 function player_is_in_automatic_cablecart() {
     return ptr(INTERACTIVE_ITEM_POINTER, [0x00], dword) == 0x005786a0
 }
 
+// Is the player doing a looping?
 function player_is_performing_looping() {
     return player_is_in_automatic_cablecart() && ptr(INTERACTIVE_ITEM_POINTER, [0x1f4], float) != 1000.0 && ptr(INTERACTIVE_ITEM_POINTER, [0x1f4], float) != 0.0
 }
@@ -820,10 +827,114 @@ achievement(
 )
 
 // Play slots with enemy
+// TODO: This seems to not play nice with RATools. Research that later..
+/*
+achievement(
+    title = "Welcome to the Machine", points = 3,
+    description = "Play a slot machine by throwing a Roman into it",
+    trigger =
+        for element in range(0, DYNAMIC_ITEM_COUNT, 1) {
+            ptr(DYNAMIC_ITEM_POINTER, [element * 0x04], dword) == 0x57a6f0 && 
+            once(
+                ptr(DYNAMIC_ITEM_POINTER, [element * 0x04, 0xa1], byte) == 1 &&
+                never(ptr(DYNAMIC_ITEM_POINTER, [element * 0x04, 0x34], byte) == 0)
+            ) &&
+            prev(ptr(DYNAMIC_ITEM_POINTER, [element * 0x04, 0x34], byte) == 2)
+        }
+)
+*/
 
 // Fury mode for 30sec
+achievement(
+    title = "debug Burning Knuckle", points = 3,
+    description = "Stay in Fury mode for 30 seconds at once",
+    trigger = 
+        never(PLAYER_DATA["world"] != 0) &&
+        // Being in the pause menu does not count, do not collect hits
+        unless(PAUSE_MENU_STATE != 0) &&
+        // 30sec target
+        repeated(1500,
+            // Earn hits while Asterix or Obelic have flames / are in Fury mode
+            (PLAYER_DATA["character"]["asterix"]["flame_state"] == 3) || PLAYER_DATA["character"]["obelix"]["flame_state"] == 3
+        ) &&
+        never(
+            // The moment they lose them reset the hit count
+            (PLAYER_DATA["character"]["asterix"]["flame_state"] == 0) && PLAYER_DATA["character"]["obelix"]["flame_state"] == 0
+        )
+)
 
 // Climb Internetus in 35sec
+achievement(
+    title = "debug To the Top of the Fortress", points = 10,
+    description = "Starting from the platform next to the pipe, reach the top of the tower in the Internetus area in 35 seconds or less",
+    trigger =
+        // Player must be in Internetus area
+        never(PLAYER_DATA["world"] != 3) &&
+        never(PLAYER_DATA["subarea"] != 10) &&
+        // Logic is seperated into two alt groups since mixing the two can cause issues - the NPC companion likes to sometimes jump around aimlessly at the pipe base.
+        // If this were to happen during the final checks for this achievement the player might lose eligibility which would be very confusing.
+        // Player coordinates may not properly update for the character not in control so this is safer. 
+        (
+            // Alt group 1: Logic for Asterix
+            (
+                PLAYER_DATA["character_in_control"] == 0 &&
+                disable_when(
+                    // Player fell or tried to cheat by taking a shortcut that enables after clearing the area - disable until...
+                    PLAYER_DATA["character"]["asterix"]["coordinates"]["x"] < -158.0 &&
+                    PLAYER_DATA["character"]["asterix"]["coordinates"]["y"] < -1.0,
+                until=
+                    // ... the player is at starting platform with the pipe - enable the achievement / Trigger again
+                    PLAYER_DATA["character"]["asterix"]["coordinates"]["x"] > 158.0
+                ) &&
+                disable_when(
+                    // Also disable the achievement if the player took too long.
+                    repeated(1750, in_game_timer_tick()),
+                until=
+                    // Does not collect hits when the player is at the starting platform due to ResetIf. As a result, you may stand at the start as much as you like - the timer starts once you start moving
+                    PLAYER_DATA["character"]["asterix"]["coordinates"]["x"] > -158.0
+                ) &&
+                trigger_when(
+                    // Trigger the achievement if the player did not reset is previously (i.e. fell down or took too long) and additionally...
+                    once(
+                        once((
+                            // ...they reached the top of the tower...
+                            once(PLAYER_DATA["character"]["asterix"]["coordinates"]["y"] > 15.9)
+                            ) &&
+                            prev(PLAYER_DATA["character"]["asterix"]["coordinates"]["y"]) <= 15.9
+                        ) &&
+                        // ...and they stood on it (i.e. are not jumping, must be grounded for it to count)
+                        PLAYER_DATA["character"]["asterix"]["jump_state"] == 0xff
+                    )
+                )
+            ) ||
+            // Alt group 2: Logic for Obelix
+            // Comments from above apply here as well
+            (
+                PLAYER_DATA["character_in_control"] == 1 &&
+                disable_when(
+                    PLAYER_DATA["character"]["obelix"]["coordinates"]["x"] < -158.0 &&
+                    PLAYER_DATA["character"]["obelix"]["coordinates"]["y"] < -1.0,
+                until=
+                    PLAYER_DATA["character"]["obelix"]["coordinates"]["x"] > 158.0
+                ) &&
+                disable_when(
+                    repeated(1750, in_game_timer_tick()),
+                until=
+                    PLAYER_DATA["character"]["obelix"]["coordinates"]["x"] > -158.0
+                ) &&
+                trigger_when(
+                    once(
+                        once((
+                            once(PLAYER_DATA["character"]["obelix"]["coordinates"]["y"] > 15.9)
+                            ) &&
+                            prev(PLAYER_DATA["character"]["obelix"]["coordinates"]["y"]) <= 15.9
+                        ) &&
+                        PLAYER_DATA["character"]["obelix"]["jump_state"] == 0xff
+                    )
+                )
+            )
+        )
 
+)
 
 // Rich Presence
