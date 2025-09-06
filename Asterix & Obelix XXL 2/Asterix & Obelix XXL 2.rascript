@@ -38,69 +38,70 @@ DIAMOND_HELMET_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, DIAM
 CUTSCENE_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, CUTSCENE_OFFSET], dword)
 SOUVENIER_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x38, 0x0c, SOUVENIER_OFFSET], dword)
 
-ASTERIX_POINTER = prt(pointer_to_loads_of_data(), [0x80, 0x08, 0x28, 0x04], dword)
-OBELIX_POINTER = prt(pointer_to_loads_of_data(), [0x80, 0x08, 0x28, 0x96c], dword)
+ASTERIX_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x08, 0x28, 0x04], dword)
+OBELIX_POINTER = ptr(pointer_to_loads_of_data(), [0x80, 0x08, 0x28, 0x96c], dword)
 
 IN_ENGINE_CUTSCENE_STATE =  ptr(pointer_to_loads_of_data(), [0x74, 0x0c], byte)
+PAUSE_MENU_STATE = ptr(pointer_to_loads_of_data(), [0x44, 0x04, 0x30], byte)
 MAIN_MENU_STATE = ptr(pointer_to_loads_of_data(), [0x80, 0x5f4], byte)
 
 COMBAT_LOCK_COUNT = ptr(pointer_to_loads_of_data(), [0x88, 0xc4, 0x20], byte) // enemies left on a combat lock
 WCW_TARGET_COUNT = ptr(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x3c, 0x04], byte) // enemies left in the wcw target challenge
 
 PLAYER_DATA = {
-    "world": prt(pointer_to_loads_of_data(), [0x48, 0x1d], byte),
-    "subarea": prt(pointer_to_loads_of_data(), [0x48, 0x1e], byte),
-    "helmets": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x40], dword),
+    "world": ptr(pointer_to_loads_of_data(), [0x48, 0x1d], byte),
+    "subarea": ptr(pointer_to_loads_of_data(), [0x48, 0x1e], byte),
+    "helmets": ptr(pointer_to_loads_of_data(), [0x80, 0x5c, 0x40], dword),
     "hp": {
-        "shields": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3c], byte), // 0x00 - 0x06
-        "shield_parts": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3d], byte) // 0x00 (none) - 0x04 (full)
+        "shields": ptr(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3c], byte), // 0x00 - 0x06
+        "shield_parts": ptr(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3d], byte) // 0x00 (none) - 0x04 (full)
     },
-    "character_in_control": prt(ASTERIX_POINTER, [0x25], byte), // 0x00 = asterix, 0x01 = obelix
-    "multiplier": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3e], word),
-    "playtime": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x48], float),
-    "enemies_defeated": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x44], dword),
+    "character_in_control": ptr(ASTERIX_POINTER, [0x25], byte), // 0x00 = asterix, 0x01 = obelix
+    "multiplier": ptr(pointer_to_loads_of_data(), [0x80, 0x5c, 0x3e], word),
+    "playtime": ptr(pointer_to_loads_of_data(), [0x80, 0x5c, 0x48], float),
+    "enemies_defeated": ptr(pointer_to_loads_of_data(), [0x80, 0x5c, 0x44], dword),
     "magic_potion": {
-        "active": prt(pointer_to_loads_of_data(), [0x80, 0xa0, 0x3c], bit0),
-        "timer": prt(pointer_to_loads_of_data(), [0x80, 0xa0, 0x44], float)
+        "active": ptr(pointer_to_loads_of_data(), [0x80, 0xa0, 0x3c], bit0),
+        "timer": ptr(pointer_to_loads_of_data(), [0x80, 0xa0, 0x44], float)
     },
-    "final_postcard": prt(pointer_to_loads_of_data(), [0x80, 0x5c, 0x66], bit0) // postcard #24 is the last one you can buy
+    "final_postcard": ptr(pointer_to_loads_of_data(), [0x80, 0x5c, 0x66], bit0), // postcard #24 is the last one you can buy
     "character": {
         "asterix":
         {
-            "control_freeze": prt(ASTERIX_POINTER, [0x0c], byte)
-            "current_move": prt(ASTERIX_POINTER, [0xf4], byte)
+            "control_freeze": ptr(ASTERIX_POINTER, [0x0c], byte),
+            "current_move": ptr(ASTERIX_POINTER, [0xf4], byte),
             "coordinates": {
-                "x": prt(ASTERIX_POINTER, [0x3d4], float)
-                "y": prt(ASTERIX_POINTER, [0x3d8], float)
-                "z": prt(ASTERIX_POINTER, [0x3dc], float)
+                "x": ptr(ASTERIX_POINTER, [0x3d4], float),
+                "y": ptr(ASTERIX_POINTER, [0x3d8], float),
+                "z": ptr(ASTERIX_POINTER, [0x3dc], float)
             },
-            "jump_state": prt(ASTERIX_POINTER, [0x40c], byte)
-            "flame_state": prt(ASTERIX_POINTER, [0x575], byte)
+            "jump_state": ptr(ASTERIX_POINTER, [0x40c], byte),
+            "flame_state": ptr(ASTERIX_POINTER, [0x575], byte)
         },   
         "obelix":
         {
-            "control_freeze": prt(OBELIX_POINTER, [0x0c], byte)
-            "current_move": prt(OBELIX_POINTER, [0xf4], byte)
+            "control_freeze": ptr(OBELIX_POINTER, [0x0c], byte),
+            "current_move": ptr(OBELIX_POINTER, [0xf4], byte),
             "coordinates": {
-                "x": prt(OBELIX_POINTER, [0x3d4], float)
-                "y": prt(OBELIX_POINTER, [0x3d8], float)
-                "z": prt(OBELIX_POINTER, [0x3dc], float)
+                "x": ptr(OBELIX_POINTER, [0x3d4], float),
+                "y": ptr(OBELIX_POINTER, [0x3d8], float),
+                "z": ptr(OBELIX_POINTER, [0x3dc], float)
             },
-            "jump_state": prt(OBELIX_POINTER, [0x40c], byte)
-            "flame_state": prt(OBELIX_POINTER, [0x575], byte)
+            "jump_state": ptr(OBELIX_POINTER, [0x40c], byte),
+            "flame_state": ptr(OBELIX_POINTER, [0x575], byte)
         }
     }    
 }
 
 CHALLENGE_TIMERS = {
-    "lava": prt(pointer_to_loads_of_data(), [0x80, 0x524, 0x5ac, 0x00, 0x04], float),
-    "target": prt(pointer_to_loads_of_data(), [0x80, 0x524, 0x5ac, 0x04, 0x04], float)
+    "lava": ptr(pointer_to_loads_of_data(), [0x80, 0x524, 0x5ac, 0x00, 0x04], float),
+    "target": ptr(pointer_to_loads_of_data(), [0x80, 0x524, 0x5ac, 0x04, 0x04], float)
 }
 
 CUPOLA_DATA = {
-    "height_right": prt(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x29e0, 0xf8], float)
-    "height_middle": prt(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x29ec, 0xf8], float)
-    "height_left": prt(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x29f8, 0xf8], float)
+    "height_right": ptr(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x29e0, 0xf8], float),
+    "height_middle": ptr(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x29ec, 0xf8], float),
+    "height_left": ptr(pointer_to_loads_of_data(), [0x8c, 0x0c, 0x29f8, 0xf8], float)
 }
 
 CUTSCENE_DATA = {
@@ -215,7 +216,7 @@ WORLD_DATA = {
         "Right torch in Pikmin room": ptr(EVENT_POINTER, [0x80, FLAG_OFFSET], bit1),
         "Left torch in Pikmin room": ptr(EVENT_POINTER, [0x84, FLAG_OFFSET], bit1),
         "Main door in bomb push area open": ptr(EVENT_POINTER, [0x88, FLAG_OFFSET], bit1),
-        "Torch 3 in bomb push area lit": ptr(EVENT_POINTER, [0X8c, FLAG_OFFSET], bit1),
+        "Torch 3 in bomb push area lit": ptr(EVENT_POINTER, [0x8c, FLAG_OFFSET], bit1),
         "Torch 2 in bomb push area lit": ptr(EVENT_POINTER, [0x90, FLAG_OFFSET], bit1),
         "Torch 1 in bomb push area lit": ptr(EVENT_POINTER, [0x94, FLAG_OFFSET], bit1),
         "Torch 2 in toilet room": ptr(EVENT_POINTER, [0x9c, FLAG_OFFSET], bit1),
@@ -310,17 +311,32 @@ WORLD_DATA = {
 }
 }
 
+// Helper functions for common use-cases
+
+// Returns true if an in-game cutscene ended.
+// User can either do this by watching / skipping through it normally or alternatively by quitting to the main menu.
+function in_engine_cutscene_has_ended() {
+    return PAUSE_MENU_STATE == 2 && prev(PAUSE_MENU_STATE == 1) || IN_ENGINE_CUTSCENE_STATE == 0 && prev(IN_ENGINE_CUTSCENE_STATE == 1)
+}
+
 
 // Achievements
-achievement(
-        title = "TESTING",
-        description = "A COOL TEST",
-        points = 10,
-        id = 0,
-        trigger=WORLD_DATA[0]["helmets"]["Four Torches"] == 1
 
+// Progression
+achievement(
+    title = "debug What Happens in Las Vegum...", points = 2, type="progression",
+    description = "Outsmart the security system of Las Vegum",
+    trigger=
+        PLAYER_DATA["world"] == 1 &&
+        PLAYER_DATA["subarea"] == 1 &&
+        WORLD_DATA["Lutetia"]["events"]["Security System 4th torch lit"] == 1 &&
+        WORLD_DATA["Lutetia"]["events"]["Toll gate to Venetia"] == 0 &&
+        (
+            in_engine_cutscene_has_ended()
+        )
 )
 
+// Diamond helmet achievements
 for world_name in WORLD_DATA {
     current_world_data = WORLD_DATA[world_name]
     if (length(current_world_data["helmets"]) == 5) {
