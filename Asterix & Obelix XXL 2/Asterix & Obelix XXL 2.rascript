@@ -1036,6 +1036,122 @@ leaderboard(
     format = "MILLISECS", lower_is_better = true
 )
 
+leaderboard(
+    id = 136159, title = "Challenge 2 Time Trial - No Potion Dispenser",
+    description = "Complete Challenge 2: Mass Attack in the WCW as quickly as possible with the secret magic potion dispenser disabled",
+    start = PLAYER_DATA["world"] == 3 &&
+            PLAYER_DATA["subarea"] == 3 &&
+            prev(PLAYER_DATA["subarea"] == 1) &&
+            // Potion dispenser must be off for this version
+            WORLD_DATA["WCW"]["events"]["Internetus switch turned on"] == 0,
+    cancel = (
+        (
+            player_died()
+        ) ||
+        (
+            PLAYER_DATA["world"] == 3 && PLAYER_DATA["subarea"] == 1
+        ) ||
+        (
+            PLAYER_DATA["world"] == 0
+        )
+    ),
+    submit = combat_lock_cleared(),
+    value = unless(
+        IN_ENGINE_CUTSCENE_STATE >= 1
+    ) &&
+    measured(
+        tally(0,
+            in_game_timer_tick(), in_game_timer_tick()
+        )
+    ),
+    format = "MILLISECS", lower_is_better = true
+)
+
+leaderboard(
+    id = 136160, title = "Challenge 2 Time Trial",
+    description = "Complete Challenge 2: Mass Attack in the WCW as quickly as possible with the secret magic potion dispenser enabled",
+    start = PLAYER_DATA["world"] == 3 &&
+            PLAYER_DATA["subarea"] == 3 &&
+            prev(PLAYER_DATA["subarea"] == 1) &&
+            // Potion dispenser must be on for this version
+            WORLD_DATA["WCW"]["events"]["Internetus switch turned on"] == 1,
+    cancel = (
+        (
+            player_died()
+        ) ||
+        (
+            PLAYER_DATA["world"] == 3 && PLAYER_DATA["subarea"] == 1
+        ) ||
+        (
+            PLAYER_DATA["world"] == 0
+        )
+    ),
+    submit = combat_lock_cleared(),
+    value = unless(
+        IN_ENGINE_CUTSCENE_STATE >= 1
+    ) &&
+    measured(
+        tally(0,
+            in_game_timer_tick(), in_game_timer_tick()
+        )
+    ),
+    format = "MILLISECS", lower_is_better = true
+)
+
+leaderboard(
+    id = 136161, title = "Challenge 3 Time Trial",
+    description = "Complete Challenge 3: Targets in the WCW as quickly as possible",
+    start = PLAYER_DATA["world"] == 3 &&
+            PLAYER_DATA["subarea"] == 4 &&
+            prev(PLAYER_DATA["subarea"] == 6),
+    cancel = (
+        (
+            player_died()
+        ) ||
+        (
+            PLAYER_DATA["world"] == 3 && PLAYER_DATA["subarea"] == 6
+        ) ||
+        (
+            PLAYER_DATA["world"] == 0
+        )
+    ),
+    // This arena uses a different lock type so we cannot use the combat lock function
+    submit = WCW_TARGET_COUNT == 0 && prev(WCW_TARGET_COUNT) > 0,
+    measured(
+        tally(0,
+            in_game_timer_tick(), in_game_timer_tick()
+        )
+    ),
+    format = "MILLISECS", lower_is_better = true
+)
+
+leaderboard(
+    id = 136162, title = "Challenge 4 Time Trial",
+    description = "Complete Challenge 4: Cupolas in the WCW as quickly as possible",
+    start = PLAYER_DATA["world"] == 3 &&
+            PLAYER_DATA["subarea"] == 5 &&
+            prev(PLAYER_DATA["subarea"] == 6),
+    cancel = (
+        (
+            player_died()
+        ) ||
+        (
+            PLAYER_DATA["world"] == 3 && PLAYER_DATA["subarea"] == 6
+        ) ||
+        (
+            PLAYER_DATA["world"] == 0
+        )
+    ),
+    submit = combat_lock_cleared(),
+    measured(
+        tally(0,
+            in_game_timer_tick(), in_game_timer_tick()
+        )
+    ),
+    format = "MILLISECS", lower_is_better = true
+)
+
+
 
 // Rich Presence
 // todo: This is also present in WORLD_DATA so it would probably be better to pull the data from there instead..
