@@ -963,6 +963,80 @@ achievement(
 
 )
 
+// Leaderboards
+
+leaderboard(
+    id = 136157, title = "Challenge 1 Time Trial - No Potion Dispenser",
+    description = "Complete Challenge 1: Lava Pit in the WCW as quickly as possible with the secret magic potion dispenser disabled",
+    // Start the leaderboard attempt when the player enter the arena
+    start = PLAYER_DATA["world"] == 3 &&
+            PLAYER_DATA["subarea"] == 2 &&
+            prev(PLAYER_DATA["subarea"] == 1) &&
+            // Potion dispenser must be off for this version
+            WORLD_DATA["WCW"]["events"]["Internetus switch turned on"] == 0,
+    cancel = (
+        (
+            // Death is bad
+            player_died()
+        ) ||
+        (
+            // So is leaving the arena somehow
+            PLAYER_DATA["world"] == 3 && PLAYER_DATA["subarea"] == 1
+        ) ||
+        (
+            // And going back to the main menu is too
+            PLAYER_DATA["world"] == 0
+        )
+    ),
+    // Submit when the player beats the arena
+    submit = combat_lock_cleared(),
+    value = unless(
+        // The timer will appear during the cutscene / tutorial but only start ticking once it ends
+        // This lines up with when the player gains control so it's a nice way to "preparing" them for the leaderboard attempt
+        IN_ENGINE_CUTSCENE_STATE >= 1
+    ) &&
+    measured(
+        // The value to submit is the time taken based on the in-game timer
+        // The game runs at 50Hz so using in_game_timer_tick() twice and tracking this as milliseconds returns the actual time spent
+        tally(0,
+            in_game_timer_tick(), in_game_timer_tick()
+        )
+    ),
+    format = "MILLISECS", lower_is_better = true
+)
+
+leaderboard(
+    id = 136157, title = "Challenge 1 Time Trial",
+    description = "Complete Challenge 1: Lava Pit in the WCW as quickly as possible with the secret magic potion dispenser enabled",
+    start = PLAYER_DATA["world"] == 3 &&
+            PLAYER_DATA["subarea"] == 2 &&
+            prev(PLAYER_DATA["subarea"] == 1) &&
+            // Potion dispenser must be on for this version
+            WORLD_DATA["WCW"]["events"]["Internetus switch turned on"] == 1,
+    cancel = (
+        (
+            player_died()
+        ) ||
+        (
+            PLAYER_DATA["world"] == 3 && PLAYER_DATA["subarea"] == 1
+        ) ||
+        (
+            PLAYER_DATA["world"] == 0
+        )
+    ),
+    submit = combat_lock_cleared(),
+    value = unless(
+        IN_ENGINE_CUTSCENE_STATE >= 1
+    ) &&
+    measured(
+        tally(0,
+            in_game_timer_tick(), in_game_timer_tick()
+        )
+    ),
+    format = "MILLISECS", lower_is_better = true
+)
+
+
 // Rich Presence
 // todo: This is also present in WORLD_DATA so it would probably be better to pull the data from there instead..
 WorldLookup = {
