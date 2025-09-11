@@ -116,14 +116,18 @@ RACE_DATA = {
 
 // Rich Presence
 MapLookup = {
-    0x00: "on Three Seven Speedway",
-    0x01: "on Sea-Side Street Galaxy",
-    0x02: "on Dinosaur Canyon",
-    0x03: "in Desert City",
-    0x04: "on National Park Speedway",
-    0x05: "on Circuit Pixie",
-    0x06: "on Rin Rin Rink",
-    0x07: "on Mermaid Lake"
+    0x00: "Three Seven Speedway",
+    0x01: "Sea-Side Street Galaxy",
+    0x02: "Dinosaur Canyon",
+    0x03: "Desert City",
+    0x04: "National Park Speedway",
+    0x05: "Circuit Pixie",
+    0x06: "Rin Rin Rink",
+    0x07: "Mermaid Lake"
+}
+
+MapPrefixLookup = {
+    0x04: "in",
 }
 
 CarLookup = {
@@ -152,25 +156,52 @@ GameModeLookup = {
 }
 
 TransmissionLookup = {
-    0x00: "AT",
-    0x01: "MT"
+    0x00: "[AT]",
+    0x01: "[MT]"
 }
 
 MapTypeLookup = {
     0x00: "",
-    0x01: "(M)",
-    0x02: "(R)",
-    0x03: "(MR)"
+    0x01: "[M]",
+    0x02: "[R]",
+    0x03: "[MR]"
 }
 
 
-
-// In (MODE)
-// e.g. "In a Single Race with the Hornet AT"
-rich_presence_conditional_display(CURRENT_SCREEN_REF_1 == 0x6c && CURRENT_SCREEN_REF_2 == 0x6f, "In a {0} with the {1} {2} {3}",
+// TODO: I hate the address for screen types. It works, but this needs a better "strategy":
+// Title Screen, Menus, Race / Gameplay should be fine categories
+// Rich Presence
+rich_presence_conditional_display(CURRENT_SCREEN_REF_1 == 0x25, "On the Title Screen")
+rich_presence_conditional_display(CURRENT_SCREEN_REF_1 == 0x6c && CURRENT_SCREEN_REF_2 == 0x6f, "In a {0} with the {1} {2} {3} {4} {5}",
     rich_presence_lookup("Game Mode", GAME_MODE, GameModeLookup, fallback="questionable situation"),
-    rich_presence_lookup("Car", RACE_DATA["player"]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
+    rich_presence_lookup("Car Selection", RACE_DATA["player"]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
+    rich_presence_lookup("Transmission", RACE_DATA["player"]["car"]["transmission"], TransmissionLookup, fallback="[?]"),
+    rich_presence_lookup("Map Prefix", RACE_DATA["track"]["map"], MapPrefixLookup, fallback="on"),
     rich_presence_lookup("Map", RACE_DATA["track"]["map"], MapLookup, fallback="an unknown place"),
-    rich_presence_lookup("Map Type", RACE_DATA["track"]["type"], MapTypeLookup, fallback="(?)")
+    rich_presence_lookup("Map Type", RACE_DATA["track"]["type"], MapTypeLookup, fallback="[?]")
 )
-rich_presence_display("test")
+rich_presence_conditional_display(CURRENT_SCREEN_REF_1 >= 0x17, "In a Menu")
+
+rich_presence_display("Preparing for Daytona USA 2001!")
+
+EASY_MAP_IDS = [0, 5, 7]
+MEDIUM_MAP_IDS = [2, 4, 6]
+HARD_MAP_IDS = [1, 3]
+
+// Achievements
+for current_map_id in EASY_MAP_IDS{
+    achievement(
+    title = format("Finish on {0} Normal or higher", MapLookup[current_map_id])",
+    points = 1,
+    type="progression",
+    description = format("Finish on {0} Normal or higher", MapLookup[current_map_id])",
+    trigger = 
+        // Medium difficulty or higher
+        SETTINGS["difficulty"] >= 1 &&
+        // On right correct map / track?
+        array_contains(current_map_id, RACE_DATA["track"]["map"]) &&
+        // Pass the finish line with the correct lap count..
+        // TODO: Missing the lap setting!
+        // TODO: Missing the lap goal!
+)
+}
