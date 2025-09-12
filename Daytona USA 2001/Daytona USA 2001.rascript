@@ -17,36 +17,39 @@ function car_color_settings_value_value() => byte(0x28F65A)
 
 GAME_MODE = byte(0x265D24)
 
-RACE_TRACK_AND_TYPE = byte(0x2a6350)
+RACE_TRACK_AND_TYPE_RAW_ADR = 0x2a6350
 
 CURRENT_SCREEN_REF_1 = byte(0x2B66DE)
 CURRENT_SCREEN_REF_2 = byte(0x2B66EA)
 
-function get_current_race_mode() {
-    bit0(RACE_TRACK_AND_TYPE)
-}
 
 function get_current_map_id() {
     // Map is bit0-2. Thus, mask with 7 (bin 111) using modolo
-    return RACE_TRACK_AND_TYPE % 8
+    return byte(RACE_TRACK_AND_TYPE_RAW_ADR) % 8
 }
 
 function get_map_mirror_state() {
-    return bit4(RACE_TRACK_AND_TYPE)
+    return bit4(RACE_TRACK_AND_TYPE_RAW_ADR)
 }
 
 function get_map_reverse_state() {
-    return bit3(RACE_TRACK_AND_TYPE)
+    return bit3(RACE_TRACK_AND_TYPE_RAW_ADR)
 }
 
 function get_map_type() {
     // (bit3(0x2A6350) + bit3(0x2A6350) + bit4(0x2A6350)) == 3
-    return (bit3(0x2A6350) + bit3(0x2A6350) + bit4(0x2A6350))
+    return (get_map_reverse_state() + get_map_reverse_state() + get_map_mirror_state())
     // return (get_map_reverse_state() + get_map_reverse_state() + get_map_mirror_state())
 }
 
 function raw_time_to_centiseconds(raw_time) {
     return (raw_time / 64) * 100
+}
+
+function check_if_race_finished() {
+    return
+    prev(RACE_DATA["player"]["progress"]["laps_completed"]) < RACE_DATA["track"]["target_laps"] &&
+    RACE_DATA["player"]["progress"]["laps_completed"] == RACE_DATA["track"]["target_laps"]
 }
 
 SETTINGS = {
@@ -97,14 +100,15 @@ RACE_DATA = {
         "gear": byte(0x345CAC),
         "viewpoint": byte(0x265EFC),
         "progress": {
-            "current_checkpoint": byte(0x345BC2) + 1,
-            "current_lap": byte(0x345BC4) + 1
+            "checkpoints_completed": byte(0x345BC2),
+            "laps_completed": byte(0x345BC4)
         },
         "drive_state": word(0x345B58)
     },
     "track": {
         "map": get_current_map_id(),
-        "type": get_map_type()
+        "type": get_map_type(),
+        "target_laps": byte(0x265c50)
     },
     "timing": {
         "countdown": raw_time_to_centiseconds(dword(0x265C34)),
@@ -112,6 +116,29 @@ RACE_DATA = {
         "best_time": raw_time_to_centiseconds(dword(0x29059C)),
         "best_lap_time": raw_time_to_centiseconds(dword(0x29189C))
     }
+}
+
+FIXATION_LAP_RULES = {
+    0x00: 8,
+    0x01: 4,
+    0x02: 2,
+    0x03: 4,
+    0x04: 6,
+    0x05: 8,
+    0x06: 6,
+    0x07: 6
+}
+
+function get_points_score_for_clear_achievement(map_id) {
+    // If the achievement asks the player to run x laps, award y points
+    // e.g. 2 laps -> 4pts
+    lap_check = {
+        2: 4,
+        4: 3,
+        6: 2,
+        8: 1
+    }
+    return lap_check[FIXATION_LAP_RULES[map_id]]
 }
 
 // Rich Presence
@@ -171,7 +198,7 @@ MapTypeLookup = {
 // TODO: I hate the address for screen types. It works, but this needs a better "strategy":
 // Title Screen, Menus, Race / Gameplay should be fine categories
 // Rich Presence
-rich_presence_conditional_display(CURRENT_SCREEN_REF_1 == 0x25, "On the Title Screen")
+rich_presence_conditional_display(CURRENT_SCREEN_REF_1 == 0x25 && CURRENT_SCREEN_REF_2 == 0x1a, "On the Title Screen")
 rich_presence_conditional_display(CURRENT_SCREEN_REF_1 == 0x6c && CURRENT_SCREEN_REF_2 == 0x6f, "In a {0} with the {1} {2} {3} {4} {5}",
     rich_presence_lookup("Game Mode", GAME_MODE, GameModeLookup, fallback="questionable situation"),
     rich_presence_lookup("Car Selection", RACE_DATA["player"]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
@@ -180,28 +207,28 @@ rich_presence_conditional_display(CURRENT_SCREEN_REF_1 == 0x6c && CURRENT_SCREEN
     rich_presence_lookup("Map", RACE_DATA["track"]["map"], MapLookup, fallback="an unknown place"),
     rich_presence_lookup("Map Type", RACE_DATA["track"]["type"], MapTypeLookup, fallback="[?]")
 )
-rich_presence_conditional_display(CURRENT_SCREEN_REF_1 >= 0x17, "In a Menu")
+rich_presence_conditional_display(GAME_MODE == 0x00, "In the Main Menu")
 
 rich_presence_display("Preparing for Daytona USA 2001!")
 
-EASY_MAP_IDS = [0, 5, 7]
-MEDIUM_MAP_IDS = [2, 4, 6]
-HARD_MAP_IDS = [1, 3]
+finish_on_normal_achievement_names = [] // 7 tracks
 
 // Achievements
-for current_map_id in EASY_MAP_IDS{
+for current_map_id in range(0, 7, 1){
     achievement(
-    title = format("Finish on {0} Normal or higher", MapLookup[current_map_id])",
-    points = 1,
+    title = format("Finish on {0} Normal or higher", MapLookup[current_map_id]),
+    points = get_points_score_for_clear_achievement(current_map_id),
     type="progression",
-    description = format("Finish on {0} Normal or higher", MapLookup[current_map_id])",
+    description = format("Finish on {0} Normal or higher", MapLookup[current_map_id]),
     trigger = 
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
         // On right correct map / track?
-        array_contains(current_map_id, RACE_DATA["track"]["map"]) &&
-        // Pass the finish line with the correct lap count..
-        // TODO: Missing the lap setting!
-        // TODO: Missing the lap goal!
+        current_map_id == RACE_DATA["track"]["map"] &&
+        // Is the player using fixation rules?
+        FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
+        get_map_reverse_state() == 0 && 
+        // Pass the finish line with the correct lap count to get the achievement
+        check_if_race_finished()
 )
 }
