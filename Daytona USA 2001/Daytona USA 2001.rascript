@@ -17,7 +17,7 @@ function car_color_settings_value_value() => byte(0x28F65A)
 
 GAME_MODE = byte(0x265D24)
 
-RACE_TRACK_AND_TYPE_RAW_ADR = 0x2a6350
+RACE_TRACK_AND_TYPE_RAW_ADR = 0x294a40
 
 SCREEN_STATE = byte(0x265bfd)
 
@@ -53,6 +53,10 @@ function check_if_race_finished() {
     RACE_DATA["player"][0]["progress"]["laps_completed"] == RACE_DATA["track"]["target_laps"]
 }
 
+function check_if_in_first(player_id) {
+    return RACE_DATA["player"][player_id]["position"] == 1
+}
+
 SETTINGS = {
     "difficulty": byte(0x28F660),
     "lap_time_display_off_on": byte(0x28F661),
@@ -65,7 +69,7 @@ SETTINGS = {
     "vibration_off_on": byte(0x28F669)
 }
 
-GAME_PAUSED = bit1(byte(0x265D08))
+GAME_PAUSED = bit1(0x265D08)
 
 UNLOCKS = {
     "Red Cat": bit5(0x291F68),
@@ -75,22 +79,21 @@ UNLOCKS = {
     "P. B. Super": bit1(0x291f69)
 }
 
-PLAYER_CAR = {
-    "selection": byte(0x1BE9AD),
-    "transmission": byte(0x265EE8),
-    "tire": "n/a",
-    "color": "n/a"
-}
-
 PLAYER_DATA = {
     "unlockables": UNLOCKS,
     "total_play_time": raw_time_to_centiseconds(dword(0x291FDC))
 }
-
+    
 RACE_DATA = {
     "player": {
         0: {
-        "car": PLAYER_CAR,
+        "car": {
+            "selection": byte(0x294a45),
+            "transmission": byte(0x294a43),
+            "tire": byte(0x294a47),
+            "color": "n/a",
+            "handicap": byte(0x294a49)
+        },
         "coordinates": {
             "x": float(0x345B6C),
             "y": float(0x345B70),
@@ -108,7 +111,13 @@ RACE_DATA = {
         "drive_state": word(0x345B58)
         },
         1: {
-        //"car": PLAYER_CAR,
+        "car": {
+            "selection": byte(0x294a46),
+            "transmission": byte(0x294a44),
+            "tire": byte(0x294a48),
+            "color": "n/a",
+            "handicap": byte(0x294a49)
+        },
         //"coordinates": {
         //    "x": float(0x345B6C),
         //    "y": float(0x345B70),
@@ -129,7 +138,8 @@ RACE_DATA = {
     "track": {
         "map": get_current_map_id(),
         "type": get_map_type(),
-        "target_laps": byte(0x265c50)
+        "target_laps": byte(0x294a41),
+        "driver_count": byte(0x294a42)
     },
     "timing": {
         "countdown": raw_time_to_centiseconds(dword(0x265C34)),
@@ -139,25 +149,26 @@ RACE_DATA = {
     }
 }
 
+
 FIXATION_LAP_RULES = {
-    0x00: 8,
-    0x01: 4,
-    0x02: 2,
-    0x03: 4,
-    0x04: 6,
-    0x05: 8,
-    0x06: 6,
-    0x07: 6
+    0x00: 3,
+    0x01: 1,
+    0x02: 0,
+    0x03: 1,
+    0x04: 2,
+    0x05: 3,
+    0x06: 2,
+    0x07: 2
 }
 
-function get_points_score_for_clear_achievement(map_id) {
+function get_points_score_for_1st_place_normal_achievement(map_id) {
     // If the achievement asks the player to run x laps, award y points
     // e.g. 2 laps -> 4pts
     lap_check = {
-        2: 4,
-        4: 3,
-        6: 2,
-        8: 1
+        0: 5, // 2 laps
+        1: 4, // 4 laps
+        2: 3, // 6 laps
+        3: 2  // 8 laps
     }
     return lap_check[FIXATION_LAP_RULES[map_id]]
 }
@@ -198,8 +209,17 @@ MapPrefixLookup = {
     0x04: "in",
 }
 
+LapLookup = {
+    0x00: 2,
+    0x01: 4,
+    0x02: 6,
+    0x03: 8,
+    0x04: 16,
+    0x05: 40
+}
+
 TournamentLookup = {
-    0x00: "Challengers Cup ",
+    0x00: "Challengers Cup",
     0x01: "Strong Runners",
     0x02: "Riot Party Cup",
     0x03: "King of Daytona"
@@ -243,7 +263,7 @@ MapTypeLookup = {
 }
 
 function in_title_menu() {
-    return SCREEN_STATE == 0x09 || SCREEN_STATE == 0x32 || SCREEN_STATE == 0x09 || SCREEN_STATE == 0x03
+    return SCREEN_STATE == 0x09 || SCREEN_STATE == 0x09 || SCREEN_STATE <= 0x03 || SCREEN_STATE >= 0x32
 }
 
 function in_race() {
@@ -255,16 +275,16 @@ function in_race() {
 // Rich Presence
 rich_presence_conditional_display(in_title_menu(), "On the Title Screen")
 // VS Race needs extra data for P2
-//rich_presence_conditional_display(in_race() && GAME_MODE == 0x03, "In a {0} with the {1} {2} vs. {3} {4} {5} {6} {7}",
-//    rich_presence_lookup("Game Mode", GAME_MODE, GameModeLookup, fallback="questionable situation"),
-//    rich_presence_lookup("Car Selection", RACE_DATA["player"][0]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
-//    rich_presence_lookup("Transmission", RACE_DATA["player"][0]["car"]["transmission"], TransmissionLookup, fallback="[?]"),
-//    rich_presence_lookup("Car Selection P2", RACE_DATA["player"][1]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
-//    rich_presence_lookup("Transmission P2", RACE_DATA["player"][1]["car"]["transmission"], TransmissionLookup, fallback="[?]"),
-//    rich_presence_lookup("Map Prefix", RACE_DATA["track"]["map"], MapPrefixLookup, fallback="on"),
-//    rich_presence_lookup("Map", RACE_DATA["track"]["map"], MapLookup, fallback="an unknown place"),
-//    rich_presence_lookup("Map Type", RACE_DATA["track"]["type"], MapTypeLookup, fallback="[?]")
-//)
+rich_presence_conditional_display(in_race() && GAME_MODE == 0x03, "In a {0} with the {1} {2} vs. the {3} {4} {5} {6} {7}",
+    rich_presence_lookup("Game Mode", GAME_MODE, GameModeLookup, fallback="questionable situation"),
+    rich_presence_lookup("Car Selection", RACE_DATA["player"][0]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
+    rich_presence_lookup("Transmission", RACE_DATA["player"][0]["car"]["transmission"], TransmissionLookup, fallback="[?]"),
+    rich_presence_lookup("Car Selection P2", RACE_DATA["player"][1]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
+    rich_presence_lookup("Transmission P2", RACE_DATA["player"][1]["car"]["transmission"], TransmissionLookup, fallback="[?]"),
+    rich_presence_lookup("Map Prefix", RACE_DATA["track"]["map"], MapPrefixLookup, fallback="on"),
+    rich_presence_lookup("Map", RACE_DATA["track"]["map"], MapLookup, fallback="an unknown place"),
+    rich_presence_lookup("Map Type", RACE_DATA["track"]["type"], MapTypeLookup, fallback="[?]")
+)
 // Regular Race
 rich_presence_conditional_display(in_race(), "In a {0} with the {1} {2} {3} {4} {5}",
     rich_presence_lookup("Game Mode", GAME_MODE, GameModeLookup, fallback="questionable situation"),
@@ -277,24 +297,42 @@ rich_presence_conditional_display(in_race(), "In a {0} with the {1} {2} {3} {4} 
 
 rich_presence_display("In the Main Menu")
 
-finish_on_normal_achievement_names = [] // 7 tracks
 
 // Achievements
+// Finish your first race
+achievement(
+    title = "In a Single Race or Championship, complete a race on Normal difficulty or higher",
+    points = 1,
+    description = "In a Single Race or Championship, complete a race on Normal difficulty or higher",
+    trigger = 
+        // Medium difficulty or higher
+        SETTINGS["difficulty"] >= 1 &&
+        // Must be in a race
+        in_race() &&
+        // Pass the finish line with the correct lap count to get the achievement
+        check_if_race_finished()
+)
+
 
 // Finish race on normal & fixation rules
 for current_map_id in range(0, 7, 1) {
     achievement(
-    title = format("Finish on {0} Normal or higher", MapLookup[current_map_id]),
-    points = get_points_score_for_clear_achievement(current_map_id),
-    description = format("Finish on {0} Normal or higher", MapLookup[current_map_id]),
+    title = format("In a Single Race or Championship, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
+    points = get_points_score_for_1st_place_normal_achievement(current_map_id),
+    description = format("Finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
     trigger = 
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
         // On right correct map / track?
         current_map_id == RACE_DATA["track"]["map"] &&
-        // Is the player using fixation rules?
+        // Must be correct lap count
         FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
-        get_map_reverse_state() == 0 && 
+        // Cannot be reverse type
+        get_map_reverse_state() == 0 &&
+        // Must be in a race
+        in_race() &&
+        // Must be in 1st
+        check_if_in_first(0) &&
         // Pass the finish line with the correct lap count to get the achievement
         check_if_race_finished()
     )
