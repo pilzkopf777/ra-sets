@@ -48,6 +48,10 @@ function raw_time_to_centiseconds(raw_time) {
     return (raw_time / 64) * 100
 }
 
+function raw_time_to_formatted_timestamp(raw_time) {
+    return raw_time
+}
+
 function check_if_race_finished() {
     return prev(RACE_DATA["player"][0]["progress"]["laps_completed"]) < RACE_DATA["track"]["target_laps"] &&
     RACE_DATA["player"][0]["progress"]["laps_completed"] == RACE_DATA["track"]["target_laps"]
@@ -193,6 +197,57 @@ function get_progression_or_victory_for_tournament(tournament_id) {
     }
 }
 
+TIME_TRIAL_TARGET_TIMES = {
+    0x00: {
+        "course_raw": 9031,
+        "course_string": "2'21\"078",
+        "lap_raw": 0,
+        "lap_string": ""
+    },
+    0x01: {
+        "course_raw": 11819,
+        "course_string": "3'04\"671",
+        "lap_raw": 0,
+        "lap_string": ""
+    },
+    0x02: {
+        "course_raw": 13162,
+        "course_string": "2'21\"078",
+        "lap_raw": 0,
+        "lap_string": ""
+    },
+    0x03: {
+        "course_raw": 11975,
+        "course_string": "3'07\"109",
+        "lap_raw": 0,
+        "lap_string": ""
+    },
+    0x04: {
+        "course_raw": 14336,
+        "course_string": "3'44\"000",
+        "lap_raw": 0,
+        "lap_string": ""
+    },
+    0x05: {
+        "course_raw": 9579,
+        "course_string": "2'29\"671",
+        "lap_raw": 0,
+        "lap_string": ""
+    },
+    0x06: {
+        "course_raw": 14188,
+        "course_string": "3'41\"687",
+        "lap_raw": 0,
+        "lap_string": ""
+    },
+    0x07: {
+        "course_raw": 17177,
+        "course_string": "4'28\"390",
+        "lap_raw": 0,
+        "lap_string": ""
+    }
+}
+
 // Rich Presence
 MapLookup = {
     0x00: "Three Seven Speedway",
@@ -301,9 +356,9 @@ rich_presence_display("In the Main Menu")
 // Achievements
 // Finish your first race
 achievement(
-    title = "In a Single Race or Championship, complete a race on Normal difficulty or higher",
+    title = "In Single Race or Championship mode, complete a race on Normal difficulty or higher",
     points = 1,
-    description = "In a Single Race or Championship, complete a race on Normal difficulty or higher",
+    description = "In Single Race or Championship mode, complete a race on Normal difficulty or higher",
     trigger = 
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
@@ -314,12 +369,12 @@ achievement(
 )
 
 
-// Finish race on normal & fixation rules
+// 1st place on normal & fixation rules
 for current_map_id in range(0, 7, 1) {
     achievement(
-    title = format("In a Single Race or Championship, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
+    title = format("In Single Race or Championship mode, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
     points = get_points_score_for_1st_place_normal_achievement(current_map_id),
-    description = format("Finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
+    description = format("In Single Race or Championship mode, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
     trigger = 
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
@@ -338,6 +393,28 @@ for current_map_id in range(0, 7, 1) {
     )
 }
 
+// Finish race on hard & fixation rules
+for current_map_id in range(0, 7, 1) {
+    achievement(
+    title = format("In Single Race or Championship mode, reach the goal on {0} on Hard difficulty", MapLookup[current_map_id]),
+    points = get_points_score_for_1st_place_normal_achievement(current_map_id),
+    description = format("In Single Race or Championship mode, reach the goal on {0} on Hard difficulty", MapLookup[current_map_id]),
+    trigger = 
+        // Medium difficulty or higher
+        SETTINGS["difficulty"] >= 2 &&
+        // On right correct map / track?
+        current_map_id == RACE_DATA["track"]["map"] &&
+        // Must be correct lap count
+        FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
+        // Cannot be reverse type
+        get_map_reverse_state() == 0 &&
+        // Must be in a race
+        in_race() &&
+        // Pass the finish line with the correct lap count to get the achievement
+        check_if_race_finished()
+    )
+}
+
 // Tournaments
 for current_tournament in range(0, 3, 1) {
     achievement(
@@ -351,3 +428,41 @@ for current_tournament in range(0, 3, 1) {
     )
 }
 
+// Finish reverse race
+achievement(
+    title = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
+    points = 1,
+    description = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
+    trigger = 
+        // Medium difficulty or higher
+        SETTINGS["difficulty"] >= 1 &&
+        // Must be in a race
+        in_race() &&
+        // Must be reverse
+        get_map_reverse_state() == 1 &&
+        // Pass the finish line with the correct lap count to get the achievement
+        check_if_race_finished()
+)
+
+// Fastest course time
+for current_map_id in range(0, 7, 1) {
+    achievement(
+    title = format("In Time attack mode, on {0} beat the target time of {1}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES[current_map_id]["course_string"]),
+    points = get_points_score_for_1st_place_normal_achievement(current_map_id),
+    description = format("In Time attack mode, on {0} beat the target time of {1}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES[current_map_id]["course_string"]),
+    trigger = 
+        // On right correct map / track?
+        current_map_id == RACE_DATA["track"]["map"] &&
+        // Must be correct lap count
+        //FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
+        // Must be basic type
+        get_map_reverse_state() == 0 &&
+        get_map_mirror_state() == 0 &&
+        // Must be in a race
+        in_race() &&
+        // Must be meeting time criteria
+        RACE_DATA["timing"]["best_time"] < TIME_TRIAL_TARGET_TIMES[current_map_id]["course_raw"] &&
+        // Pass the finish line with the correct lap count to get the achievement
+        check_if_race_finished()
+    )
+}
