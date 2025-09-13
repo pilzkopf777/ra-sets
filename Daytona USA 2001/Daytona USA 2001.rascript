@@ -19,6 +19,8 @@ GAME_MODE = byte(0x265D24)
 
 RACE_TRACK_AND_TYPE_RAW_ADR = 0x2a6350
 
+SCREEN_STATE = byte(0x265bfd)
+
 CURRENT_SCREEN_REF_1 = byte(0x2B66DE)
 CURRENT_SCREEN_REF_2 = byte(0x2B66EA)
 
@@ -47,9 +49,8 @@ function raw_time_to_centiseconds(raw_time) {
 }
 
 function check_if_race_finished() {
-    return
-    prev(RACE_DATA["player"]["progress"]["laps_completed"]) < RACE_DATA["track"]["target_laps"] &&
-    RACE_DATA["player"]["progress"]["laps_completed"] == RACE_DATA["track"]["target_laps"]
+    return prev(RACE_DATA["player"][0]["progress"]["laps_completed"]) < RACE_DATA["track"]["target_laps"] &&
+    RACE_DATA["player"][0]["progress"]["laps_completed"] == RACE_DATA["track"]["target_laps"]
 }
 
 SETTINGS = {
@@ -88,6 +89,7 @@ PLAYER_DATA = {
 
 RACE_DATA = {
     "player": {
+        0: {
         "car": PLAYER_CAR,
         "coordinates": {
             "x": float(0x345B6C),
@@ -104,6 +106,25 @@ RACE_DATA = {
             "laps_completed": byte(0x345BC4)
         },
         "drive_state": word(0x345B58)
+        },
+        1: {
+        //"car": PLAYER_CAR,
+        //"coordinates": {
+        //    "x": float(0x345B6C),
+        //    "y": float(0x345B70),
+        //    "z": float(0x345B74)
+        //},
+        //"speed": word(0x345B64), // todo: translate
+        //"speed_raw": float(0x345B84),
+        //"position": byte(0x345BC0) + 1,
+        //"gear": byte(0x345CAC),
+        //"viewpoint": byte(0x265EFC),
+        //"progress": {
+        //    "checkpoints_completed": byte(0x345BC2),
+        //    "laps_completed": byte(0x345BC4)
+        //},
+        //"drive_state": word(0x345B58)
+        },
     },
     "track": {
         "map": get_current_map_id(),
@@ -141,6 +162,26 @@ function get_points_score_for_clear_achievement(map_id) {
     return lap_check[FIXATION_LAP_RULES[map_id]]
 }
 
+function get_points_score_for_tournament_achievement(tournament_id) {
+    // TODO: Change
+    tourney_check = {
+        0x00: 5,
+        0x01: 5,
+        0x02: 10,
+        0x03: 10 // ?
+    }
+    
+    return tourney_check[tournament_id]
+}
+
+function get_progression_or_victory_for_tournament(tournament_id) {
+    if (tournament_id == 0x03) {
+        return "win_condition"
+    } else {
+        return "progression"
+    }
+}
+
 // Rich Presence
 MapLookup = {
     0x00: "Three Seven Speedway",
@@ -155,6 +196,13 @@ MapLookup = {
 
 MapPrefixLookup = {
     0x04: "in",
+}
+
+TournamentLookup = {
+    0x00: "Challengers Cup ",
+    0x01: "Strong Runners",
+    0x02: "Riot Party Cup",
+    0x03: "King of Daytona"
 }
 
 CarLookup = {
@@ -194,31 +242,50 @@ MapTypeLookup = {
     0x03: "[MR]"
 }
 
+function in_title_menu() {
+    return SCREEN_STATE == 0x09 || SCREEN_STATE == 0x32 || SCREEN_STATE == 0x09 || SCREEN_STATE == 0x03
+}
+
+function in_race() {
+    return (SCREEN_STATE == 0x14 || SCREEN_STATE == 0x16) || (SCREEN_STATE == 0x28 && GAME_MODE == 0x04)
+}
 
 // TODO: I hate the address for screen types. It works, but this needs a better "strategy":
 // Title Screen, Menus, Race / Gameplay should be fine categories
 // Rich Presence
-rich_presence_conditional_display(CURRENT_SCREEN_REF_1 == 0x25 && CURRENT_SCREEN_REF_2 == 0x1a, "On the Title Screen")
-rich_presence_conditional_display(CURRENT_SCREEN_REF_1 == 0x6c && CURRENT_SCREEN_REF_2 == 0x6f, "In a {0} with the {1} {2} {3} {4} {5}",
+rich_presence_conditional_display(in_title_menu(), "On the Title Screen")
+// VS Race needs extra data for P2
+//rich_presence_conditional_display(in_race() && GAME_MODE == 0x03, "In a {0} with the {1} {2} vs. {3} {4} {5} {6} {7}",
+//    rich_presence_lookup("Game Mode", GAME_MODE, GameModeLookup, fallback="questionable situation"),
+//    rich_presence_lookup("Car Selection", RACE_DATA["player"][0]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
+//    rich_presence_lookup("Transmission", RACE_DATA["player"][0]["car"]["transmission"], TransmissionLookup, fallback="[?]"),
+//    rich_presence_lookup("Car Selection P2", RACE_DATA["player"][1]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
+//    rich_presence_lookup("Transmission P2", RACE_DATA["player"][1]["car"]["transmission"], TransmissionLookup, fallback="[?]"),
+//    rich_presence_lookup("Map Prefix", RACE_DATA["track"]["map"], MapPrefixLookup, fallback="on"),
+//    rich_presence_lookup("Map", RACE_DATA["track"]["map"], MapLookup, fallback="an unknown place"),
+//    rich_presence_lookup("Map Type", RACE_DATA["track"]["type"], MapTypeLookup, fallback="[?]")
+//)
+// Regular Race
+rich_presence_conditional_display(in_race(), "In a {0} with the {1} {2} {3} {4} {5}",
     rich_presence_lookup("Game Mode", GAME_MODE, GameModeLookup, fallback="questionable situation"),
-    rich_presence_lookup("Car Selection", RACE_DATA["player"]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
-    rich_presence_lookup("Transmission", RACE_DATA["player"]["car"]["transmission"], TransmissionLookup, fallback="[?]"),
+    rich_presence_lookup("Car Selection", RACE_DATA["player"][0]["car"]["selection"], CarLookup, fallback="unknown vehicle"),
+    rich_presence_lookup("Transmission", RACE_DATA["player"][0]["car"]["transmission"], TransmissionLookup, fallback="[?]"),
     rich_presence_lookup("Map Prefix", RACE_DATA["track"]["map"], MapPrefixLookup, fallback="on"),
     rich_presence_lookup("Map", RACE_DATA["track"]["map"], MapLookup, fallback="an unknown place"),
     rich_presence_lookup("Map Type", RACE_DATA["track"]["type"], MapTypeLookup, fallback="[?]")
 )
-rich_presence_conditional_display(GAME_MODE == 0x00, "In the Main Menu")
 
-rich_presence_display("Preparing for Daytona USA 2001!")
+rich_presence_display("In the Main Menu")
 
 finish_on_normal_achievement_names = [] // 7 tracks
 
 // Achievements
-for current_map_id in range(0, 7, 1){
+
+// Finish race on normal & fixation rules
+for current_map_id in range(0, 7, 1) {
     achievement(
     title = format("Finish on {0} Normal or higher", MapLookup[current_map_id]),
     points = get_points_score_for_clear_achievement(current_map_id),
-    type="progression",
     description = format("Finish on {0} Normal or higher", MapLookup[current_map_id]),
     trigger = 
         // Medium difficulty or higher
@@ -230,5 +297,19 @@ for current_map_id in range(0, 7, 1){
         get_map_reverse_state() == 0 && 
         // Pass the finish line with the correct lap count to get the achievement
         check_if_race_finished()
-)
+    )
 }
+
+// Tournaments
+for current_tournament in range(0, 3, 1) {
+    achievement(
+    title = format("Complete the {0} championship series", TournamentLookup[current_tournament]),
+    points = get_points_score_for_tournament_achievement(current_tournament),
+    type = get_progression_or_victory_for_tournament(current_tournament),
+    description = format("Complete the {0} championship series", TournamentLookup[current_tournament]),
+    trigger = 
+        // TODO: logic here
+        always_true()
+    )
+}
+
