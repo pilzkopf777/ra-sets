@@ -45,7 +45,7 @@ function get_map_type() {
 }
 
 function raw_time_to_centiseconds(raw_time) {
-    return (raw_time / 64) * 100
+    return (raw_time * 100) / 64
 }
 
 function raw_time_to_formatted_timestamp(raw_time) {
@@ -146,35 +146,35 @@ RACE_DATA = {
     "timing": {
         "countdown": raw_time_to_centiseconds(dword(0x265C34)),
         "total_time": raw_time_to_centiseconds(dword(0x265C30)),
-        "best_time": raw_time_to_centiseconds(dword(0x29059C)),
-        "best_lap_time": raw_time_to_centiseconds(dword(0x29189C)),
+        "total_time_raw": dword(0x265C30),
         "last_split_time": raw_time_to_centiseconds(dword(0x345bbc))
     }
 }
 
 
 FIXATION_LAP_RULES = {
-    0x00: 3,
-    0x01: 1,
-    0x02: 0,
-    0x03: 1,
-    0x04: 2,
-    0x05: 3,
-    0x06: 2,
-    0x07: 2
+    0x00: 8,
+    0x01: 2,
+    0x02: 4,
+    0x03: 4,
+    0x04: 6,
+    0x05: 8,
+    0x06: 6,
+    0x07: 6
 }
 
-function get_points_score_for_1st_place_normal_achievement(map_id) {
-    // If the achievement asks the player to run x laps, award y points
-    // e.g. 2 laps -> 4pts
-    lap_check = {
-        0: 5, // 2 laps
-        1: 4, // 4 laps
-        2: 3, // 6 laps
-        3: 2  // 8 laps
-    }
-    return lap_check[FIXATION_LAP_RULES[map_id]]
-}
+// TODO: what??
+//function get_points_score_for_1st_place_normal_achievement(map_id) {
+//    // If the achievement asks the player to run x laps, award y points
+//    // e.g. 2 laps -> 4pts
+//    lap_check = {
+//        0: 5, // 2 laps
+//        1: 4, // 4 laps
+//        2: 3, // 6 laps
+//        3: 2  // 8 laps
+//    }
+//    return lap_check[FIXATION_LAP_RULES[map_id]]
+//}
 
 function get_points_score_for_tournament_achievement(tournament_id) {
     // TODO: Change
@@ -202,6 +202,8 @@ TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS = {
     "reverse": "[Reverse]",
     "mirror_reverse": "[Mirror-Reverse]"
 }
+
+// TODO: FILL OUT ALL OF THESE...
 
 TIME_TRIAL_TARGET_TIMES = {
     // Three Seven Speedway
@@ -403,7 +405,7 @@ function in_title_menu() {
 }
 
 function in_race() {
-    return (SCREEN_STATE == 0x14 || SCREEN_STATE == 0x16) || (SCREEN_STATE == 0x28 && GAME_MODE == 0x04)
+    return (SCREEN_STATE == 0x14 || SCREEN_STATE == 0x15 || SCREEN_STATE == 0x16) || (SCREEN_STATE == 0x28 && GAME_MODE == 0x04)
 }
 
 // TODO: I hate the address for screen types. It works, but this needs a better "strategy":
@@ -454,7 +456,7 @@ achievement(
 for current_map_id in range(0, 7, 1) {
     achievement(
     title = format("In Single Race or Championship mode, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
-    points = get_points_score_for_1st_place_normal_achievement(current_map_id),
+    points = 0, // get_points_score_for_1st_place_normal_achievement(current_map_id),
     description = format("In Single Race or Championship mode, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
     trigger = 
         // Medium difficulty or higher
@@ -478,7 +480,7 @@ for current_map_id in range(0, 7, 1) {
 for current_map_id in range(0, 7, 1) {
     achievement(
     title = format("In Single Race or Championship mode, reach the goal on {0} on Hard difficulty", MapLookup[current_map_id]),
-    points = get_points_score_for_1st_place_normal_achievement(current_map_id),
+    points = 0, // get_points_score_for_1st_place_normal_achievement(current_map_id),
     description = format("In Single Race or Championship mode, reach the goal on {0} on Hard difficulty", MapLookup[current_map_id]),
     trigger = 
         // Medium difficulty or higher
@@ -562,9 +564,12 @@ for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
         // Must be in a race
         in_race() &&
         // Must be meeting time criteria
-        RACE_DATA["timing"]["best_time"] < TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_raw"] &&
-        // Pass the finish line with the correct lap count to get the achievement
-        check_if_race_finished()
+        // RACE_DATA["timing"]["total_time"] <= 0 &&
+        RACE_DATA["timing"]["total_time"] <= TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_raw"] + 1 &&
+        trigger_when(
+            // Pass the finish line with the correct lap count to get the achievement
+            check_if_race_finished()
+        )
     )
 }
 
@@ -603,4 +608,36 @@ for current_car in UNLOCKS_W_O_RED_CAT {
         // Check moment of unlock
         prev(UNLOCKS_W_O_RED_CAT[current_car]) == 0 && UNLOCKS_W_O_RED_CAT[current_car] == 1
     )
+}
+
+TYPES_OF_MAPS = ["normal", "mirror", "reverse", "mirror_reverse"]
+
+for race_type in TYPES_OF_MAPS {
+    for current_map_id in range(0, 7, 1) {
+        leaderboard(
+            title = format("{0} {1} Course Time", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[race_type]),
+            description = format("Get the fastest Course Time on {0} {1} using the Fixation ruleset in any mode except VS Battle", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[race_type]),
+            start = 
+                // No VS mode!
+                GAME_MODE != 0x03 &&
+                // On right correct map / track?
+                current_map_id == RACE_DATA["track"]["map"] &&
+                // Must be correct lap count
+                FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
+                // Must be correct type
+                get_map_type() == MODE_TO_VAL_MAP[race_type] &&
+                // Must be in a race
+                in_race() && 
+                check_if_race_finished(),
+            cancel = (
+                !in_race()
+            ),
+            submit = always_true(),
+            value =
+                measured(
+                    RACE_DATA["timing"]["total_time"]
+            ),
+            format = "MILLISECS", lower_is_better = true
+        )
+    }
 }
