@@ -151,7 +151,6 @@ RACE_DATA = {
     }
 }
 
-
 FIXATION_LAP_RULES = {
     0x00: 8,
     0x01: 2,
@@ -203,8 +202,9 @@ TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS = {
     "mirror_reverse": "[Mirror-Reverse]"
 }
 
-// TODO: FILL OUT ALL OF THESE...
-
+// These are the targets for the Time Attack achievements
+// There's normal, reverse, mirror and mirror_reverse
+// Missing objects do exist but are left out of this object due to laziness and due to not being used in the set design
 TIME_TRIAL_TARGET_TIMES = {
     // Three Seven Speedway
     0x00: { //
@@ -215,7 +215,7 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_string": ""
         },
         "reverse": {
-            "course_raw": 0,
+            "course_raw": 9071,
             "course_string": "2'21\"734",
             "lap_raw": 0,
             "lap_string": ""
@@ -230,7 +230,7 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_string": ""
         },
         "mirror": {
-            "course_raw": 0,
+            "course_raw": 13410,
             "course_string": "3'29\"531",
             "lap_raw": 0,
             "lap_string": ""
@@ -245,7 +245,7 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_string": ""
         },
         "reverse": {
-            "course_raw": 0,
+            "course_raw": 12414,
             "course_string": "3'13\"968",
             "lap_raw": 0,
             "lap_string": ""
@@ -260,7 +260,7 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_string": ""
         },
         "mirror_reverse": {
-            "course_raw": 0,
+            "course_raw": 11928,
             "course_string": "3'06\"375",
             "lap_raw": 0,
             "lap_string": ""
@@ -276,7 +276,7 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_string": ""
         },
         "mirror": {
-            "course_raw": 0,
+            "course_raw": 14263,
             "course_string": "3'42\"859",
             "lap_raw": 0,
             "lap_string": ""
@@ -292,7 +292,7 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_string": ""
         },
         "reverse": {
-            "course_raw": 0,
+            "course_raw": 9620,
             "course_string": "2'30\"312",
             "lap_raw": 0,
             "lap_string": ""
@@ -307,7 +307,7 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_string": ""
         },
         "mirror_reverse": {
-            "course_raw": 0,
+            "course_raw": 14164,
             "course_string": "3'41\"312",
             "lap_raw": 0,
             "lap_string": ""
@@ -408,7 +408,9 @@ function in_race() {
     return (SCREEN_STATE == 0x14 || SCREEN_STATE == 0x15 || SCREEN_STATE == 0x16) || (SCREEN_STATE == 0x28 && GAME_MODE == 0x04)
 }
 
-// TODO: I hate the address for screen types. It works, but this needs a better "strategy":
+// TODO: Find a happier life - the RP swithes to Main Menu during loading / restarting a race
+// TODO: Find a memory address for demo play / replays. Cannot let achievements pop by watching a video back.
+
 // Title Screen, Menus, Race / Gameplay should be fine categories
 // Rich Presence
 rich_presence_conditional_display(in_title_menu(), "On the Title Screen")
@@ -443,6 +445,7 @@ achievement(
     points = 1,
     description = "In Single Race or Championship mode, complete a race on Normal difficulty or higher",
     trigger = 
+        (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
         // Must be in a race
@@ -459,6 +462,7 @@ for current_map_id in range(0, 7, 1) {
     points = 0, // get_points_score_for_1st_place_normal_achievement(current_map_id),
     description = format("In Single Race or Championship mode, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
     trigger = 
+        (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
         // On right correct map / track?
@@ -483,6 +487,7 @@ for current_map_id in range(0, 7, 1) {
     points = 0, // get_points_score_for_1st_place_normal_achievement(current_map_id),
     description = format("In Single Race or Championship mode, reach the goal on {0} on Hard difficulty", MapLookup[current_map_id]),
     trigger = 
+        (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 2 &&
         // On right correct map / track?
@@ -518,6 +523,7 @@ achievement(
     points = 1,
     description = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
     trigger = 
+        GAME_MODE == 0x01 &&
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
         // Must be in a race
@@ -549,9 +555,9 @@ MODE_TO_VAL_MAP = {
 // Fastest course time (8 versions)
 for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
     achievement(
-    title = format("In Time attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
-    points = 10,
-    description = format("In Time attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
+    title = format("In Time Attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
+    points = 10, //TODO: Maybe 25 for hard tracks?
+    description = format("In Time Attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
     trigger = 
         // Time Attack mode?
         GAME_MODE == 0x02 &&
@@ -565,7 +571,7 @@ for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
         in_race() &&
         // Must be meeting time criteria
         // RACE_DATA["timing"]["total_time"] <= 0 &&
-        RACE_DATA["timing"]["total_time"] <= TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_raw"] + 1 &&
+        RACE_DATA["timing"]["total_time_raw"] < TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_raw"] &&
         trigger_when(
             // Pass the finish line with the correct lap count to get the achievement
             check_if_race_finished()
@@ -610,34 +616,60 @@ for current_car in UNLOCKS_W_O_RED_CAT {
     )
 }
 
-TYPES_OF_MAPS = ["normal", "mirror", "reverse", "mirror_reverse"]
+// LB for Normal type
+for current_map_id in range(0, 7, 1) {
+    leaderboard(
+        title = format("{0} [Normal / Mirror]: Best Course Time", MapLookup[current_map_id]),
+        description = format("Get the fastest Course Time on {0} [Normal / Mirror] using the Fixation ruleset in any mode except VS Battle", MapLookup[current_map_id]),
+        start = 
+            // No VS mode!
+            GAME_MODE != 0x03 &&
+            // On right correct map / track?
+            current_map_id == RACE_DATA["track"]["map"] &&
+            // Must be correct lap count
+            FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
+            // Must be correct type
+            get_map_type() <= 0x01 &&
+            // Must be in a race
+            in_race() && 
+            check_if_race_finished(),
+        cancel = (
+            !in_race()
+        ),
+        submit = always_true(),
+        value =
+            measured(
+                RACE_DATA["timing"]["total_time"]
+        ),
+        format = "MILLISECS", lower_is_better = true
+    )
+}
 
-for race_type in TYPES_OF_MAPS {
-    for current_map_id in range(0, 7, 1) {
-        leaderboard(
-            title = format("{0} {1} Course Time", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[race_type]),
-            description = format("Get the fastest Course Time on {0} {1} using the Fixation ruleset in any mode except VS Battle", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[race_type]),
-            start = 
-                // No VS mode!
-                GAME_MODE != 0x03 &&
-                // On right correct map / track?
-                current_map_id == RACE_DATA["track"]["map"] &&
-                // Must be correct lap count
-                FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
-                // Must be correct type
-                get_map_type() == MODE_TO_VAL_MAP[race_type] &&
-                // Must be in a race
-                in_race() && 
-                check_if_race_finished(),
-            cancel = (
-                !in_race()
-            ),
-            submit = always_true(),
-            value =
-                measured(
-                    RACE_DATA["timing"]["total_time"]
-            ),
-            format = "MILLISECS", lower_is_better = true
-        )
-    }
+// LB for Reverse type
+for current_map_id in range(0, 7, 1) {
+    leaderboard(
+        title = format("{0} [Reverse / Reverse-Mirror]: Best Course Time", MapLookup[current_map_id]),
+        description = format("Get the fastest Course Time on {0} [Reverse / Reverse-Mirror] using the Fixation ruleset in any mode except VS Battle", MapLookup[current_map_id]),
+        start = 
+            // No VS mode!
+            GAME_MODE != 0x03 &&
+            // On right correct map / track?
+            current_map_id == RACE_DATA["track"]["map"] &&
+            // Must be correct lap count
+            FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
+            // Must be correct type
+            get_map_type() >= 0x02 &&
+            // Must be in a race
+            in_race() && 
+            check_if_race_finished(),
+        cancel = (
+            !in_race()
+        ),
+        submit = always_true(),
+        value =
+            measured(
+                RACE_DATA["timing"]["total_time"]
+        ),
+        format = "MILLISECS", lower_is_better = true
+    )
 }
