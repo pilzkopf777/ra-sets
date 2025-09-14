@@ -75,18 +75,16 @@ SETTINGS = {
 
 GAME_PAUSED = bit1(0x265D08)
 
-UNLOCKS = {
-    "Red Cat": bit5(0x291F68),
+UNLOCKS_W_O_RED_CAT = {
     "Pywackett Barchetta": bit6(0x291F68),
     "Rule of 9th": bit7(0x291F68),
     "Javelin": bit0(0x291f69),
     "P. B. Super": bit1(0x291f69)
 }
 
-PLAYER_DATA = {
-    "unlockables": UNLOCKS,
-    "total_play_time": raw_time_to_centiseconds(dword(0x291FDC))
-}
+RED_CAT_UNLOCK = bit5(0x291F68)
+
+TOTAL_PLAY_TIME = raw_time_to_centiseconds(dword(0x291FDC))
     
 RACE_DATA = {
     "player": {
@@ -149,7 +147,8 @@ RACE_DATA = {
         "countdown": raw_time_to_centiseconds(dword(0x265C34)),
         "total_time": raw_time_to_centiseconds(dword(0x265C30)),
         "best_time": raw_time_to_centiseconds(dword(0x29059C)),
-        "best_lap_time": raw_time_to_centiseconds(dword(0x29189C))
+        "best_lap_time": raw_time_to_centiseconds(dword(0x29189C)),
+        "last_split_time": raw_time_to_centiseconds(dword(0x345bbc))
     }
 }
 
@@ -197,54 +196,129 @@ function get_progression_or_victory_for_tournament(tournament_id) {
     }
 }
 
+TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS = {
+    "normal": "[Normal]",
+    "mirror": "[Mirror]",
+    "reverse": "[Reverse]",
+    "mirror_reverse": "[Mirror-Reverse]"
+}
+
 TIME_TRIAL_TARGET_TIMES = {
-    0x00: {
-        "course_raw": 9031,
-        "course_string": "2'21\"078",
-        "lap_raw": 0,
-        "lap_string": ""
+    // Three Seven Speedway
+    0x00: { //
+        "normal": {
+            "course_raw": 9031,
+            "course_string": "2'21\"078",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
+        "reverse": {
+            "course_raw": 0,
+            "course_string": "2'21\"734",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
     },
+    // Sea-Side Street Galaxy
     0x01: {
-        "course_raw": 11819,
-        "course_string": "3'04\"671",
-        "lap_raw": 0,
-        "lap_string": ""
+        "normal": {        
+            "course_raw": 11819,
+            "course_string": "3'04\"671",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
+        "mirror": {
+            "course_raw": 0,
+            "course_string": "3'29\"531",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
     },
+    // Dinosaur Canyon
     0x02: {
-        "course_raw": 13162,
-        "course_string": "2'21\"078",
-        "lap_raw": 0,
-        "lap_string": ""
+        "normal": {        
+            "course_raw": 13162,
+            "course_string": "2'21\"078",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
+        "reverse": {
+            "course_raw": 0,
+            "course_string": "3'13\"968",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
     },
+    // Desert City
     0x03: {
-        "course_raw": 11975,
-        "course_string": "3'07\"109",
-        "lap_raw": 0,
-        "lap_string": ""
+        "normal": {        
+            "course_raw": 11975,
+            "course_string": "3'07\"109",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
+        "mirror_reverse": {
+            "course_raw": 0,
+            "course_string": "3'06\"375",
+            "lap_raw": 0,
+            "lap_string": ""
+        }
+
     },
+    // National Park Speedway
     0x04: {
-        "course_raw": 14336,
-        "course_string": "3'44\"000",
-        "lap_raw": 0,
-        "lap_string": ""
+        "normal": {        
+            "course_raw": 14336,
+            "course_string": "3'44\"000",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
+        "mirror": {
+            "course_raw": 0,
+            "course_string": "3'42\"859",
+            "lap_raw": 0,
+            "lap_string": ""
+
+        },
     },
+    // Circuit Pixie
     0x05: {
-        "course_raw": 9579,
-        "course_string": "2'29\"671",
-        "lap_raw": 0,
-        "lap_string": ""
+        "normal": {        
+            "course_raw": 9579,
+            "course_string": "2'29\"671",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
+        "reverse": {
+            "course_raw": 0,
+            "course_string": "2'30\"312",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
     },
+    // Rin Rin Rink
     0x06: {
-        "course_raw": 14188,
-        "course_string": "3'41\"687",
-        "lap_raw": 0,
-        "lap_string": ""
+        "normal": {        
+            "course_raw": 14188,
+            "course_string": "3'41\"687",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
+        "mirror_reverse": {
+            "course_raw": 0,
+            "course_string": "3'41\"312",
+            "lap_raw": 0,
+            "lap_string": ""
+        }
     },
+    // Mermaid Lake
     0x07: {
-        "course_raw": 17177,
-        "course_string": "4'28\"390",
-        "lap_raw": 0,
-        "lap_string": ""
+        "normal": {        
+            "course_raw": 17177,
+            "course_string": "4'28\"390",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
     }
 }
 
@@ -315,6 +389,13 @@ MapTypeLookup = {
     0x01: "[M]",
     0x02: "[R]",
     0x03: "[MR]"
+}
+
+OptionalRedCatUnlockLookup = {
+    0x00: "",
+    0x01: "",
+    0x02: "",
+    0x03: " and unlock the Red Cat"
 }
 
 function in_title_menu() {
@@ -421,8 +502,9 @@ for current_tournament in range(0, 3, 1) {
     title = format("Complete the {0} championship series", TournamentLookup[current_tournament]),
     points = get_points_score_for_tournament_achievement(current_tournament),
     type = get_progression_or_victory_for_tournament(current_tournament),
-    description = format("Complete the {0} championship series", TournamentLookup[current_tournament]),
+    description = format("Complete the {0} championship series{1}", TournamentLookup[current_tournament], OptionalRedCatUnlockLookup[current_tournament]),
     trigger = 
+        GAME_MODE == 0x04 &&
         // TODO: logic here
         always_true()
     )
@@ -444,25 +526,81 @@ achievement(
         check_if_race_finished()
 )
 
-// Fastest course time
-for current_map_id in range(0, 7, 1) {
+TIME_ATTACK_COURSE_TIME_MISSION_TYPE = {
+    0x00: "reverse",
+    0x01: "mirror",
+    0x02: "normal",
+    0x03: "mirror_reverse",
+    0x04: "mirror",
+    0x05: "reverse",
+    0x06: "mirror_reverse",
+    0x07: "normal"
+}
+
+MODE_TO_VAL_MAP = {
+    "normal": 0x00,
+    "mirror": 0x01,
+    "reverse": 0x02,
+    "mirror_reverse": 0x03
+}
+
+// Fastest course time (8 versions)
+for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
     achievement(
-    title = format("In Time attack mode, on {0} beat the target time of {1}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES[current_map_id]["course_string"]),
-    points = get_points_score_for_1st_place_normal_achievement(current_map_id),
-    description = format("In Time attack mode, on {0} beat the target time of {1}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES[current_map_id]["course_string"]),
+    title = format("In Time attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
+    points = 10,
+    description = format("In Time attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
     trigger = 
+        // Time Attack mode?
+        GAME_MODE == 0x02 &&
         // On right correct map / track?
         current_map_id == RACE_DATA["track"]["map"] &&
-        // Must be correct lap count
-        //FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
-        // Must be basic type
-        get_map_reverse_state() == 0 &&
-        get_map_mirror_state() == 0 &&
+        // Cannot be free run..
+        RACE_DATA["track"]["target_laps"] != 0xff &&
+        // Must be correct type
+        get_map_type() == MODE_TO_VAL_MAP[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]] &&
         // Must be in a race
         in_race() &&
         // Must be meeting time criteria
-        RACE_DATA["timing"]["best_time"] < TIME_TRIAL_TARGET_TIMES[current_map_id]["course_raw"] &&
+        RACE_DATA["timing"]["best_time"] < TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_raw"] &&
         // Pass the finish line with the correct lap count to get the achievement
         check_if_race_finished()
+    )
+}
+
+
+// Fastest lap time (8 versions)
+// TODO
+/*
+achievement(
+title = format("In Time attack mode, on {0} beat the lap target time of {1}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES[current_map_id]["lap_string"]),
+points = 5,
+description = format("In Time attack mode, on {0} beat the lap target time of {1}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES[current_map_id]["lap_string"]),
+trigger = 
+    // On right correct map / track?
+    current_map_id == RACE_DATA["track"]["map"] &&
+    // Must be basic type
+    get_map_reverse_state() == 0 &&
+    get_map_mirror_state() == 0 &&
+    // Must be in a race
+    in_race() &&
+    // Must be meeting time criteria
+    RACE_DATA["timing"]["last_split_time"] < TIME_TRIAL_TARGET_TIMES[current_map_id]["lap_raw"] &&
+    // Pass the finish line with the correct lap count to get the achievement
+    check_if_race_finished()
+)
+*/
+
+// Unlock cars (no Red Cat since that one matches tournament unlock)
+for current_car in UNLOCKS_W_O_RED_CAT {
+    achievement(
+    title = format("Unlock the {0}", current_car),
+    points = 5,
+    description = format("Unlock the {0}", current_car),
+    trigger = 
+        // On the unlock screen?
+        SCREEN_STATE == 0x2e &&
+        // Check moment of unlock
+        prev(UNLOCKS_W_O_RED_CAT[current_car]) == 0 && UNLOCKS_W_O_RED_CAT[current_car] == 1
     )
 }
