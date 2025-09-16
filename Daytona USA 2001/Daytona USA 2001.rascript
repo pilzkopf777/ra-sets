@@ -19,11 +19,67 @@ GAME_MODE = byte(0x265D24)
 
 RACE_TRACK_AND_TYPE_RAW_ADR = 0x294a40
 
-SCREEN_STATE = byte(0x265bfd)
+// SCREEN_STATE = byte(0x265bfd)
 
-CURRENT_SCREEN_REF_1 = byte(0x2B66DE)
-CURRENT_SCREEN_REF_2 = byte(0x2B66EA)
+CURRENT_SCREEN = word(0x2B66DE)
+/*
+Reworked values for only this address:
+0x0020 = Car / Map select
+0x0017 = Main Menu
+0x0025 = Title and Demo, Rankings
+0x00cf = Dev logos
+0xffff = Loading
+0x004d = Championship exclusive menus
+0x0033 = Ghost Car select, Memory Card, Race End Menu, Replay
+0x0038 = Options
+0x0028 = Records
+0x006c = Race
+0x0036 = Name Entry
+0x0011 = New Car unlock
+0x00a6 = TV setting
+0x0000 = Initial boot
+0x01cf = Initial logos on boot
 
+0x01bc = 1st place celebration on 777 Speedway
+0x0012 = Game Over after celebration
+
+Start Your Engines:
+0x01f5 = 777 Speedway
+0x0205 = Dino Canyon
+0x01fd = Seaside
+0x020d = Desert City
+0x0215 = National Park
+0x021d = Ct. Pixie
+0x0225 = Rin Rin Rink
+0x022d = Mermaid Lake
+*/
+
+// Functions for player screen states
+function screen_check(value) {
+    return CURRENT_SCREEN == value || prior(CURRENT_SCREEN == value)
+}
+
+function on_title_screen() {
+    // Special check for 0x0025: Also matches rankings after a race so additionally check for the main menu or title screen
+    return (screen_check(0x0025) && GAME_MODE == 0) || screen_check(0x00cf) || screen_check(0x00a6) || screen_check(0x0000) || screen_check(0x01cf)
+}
+
+function in_race() {
+    return screen_check(0x006c) || screen_check(0x00cf) || screen_check(0x01bc) || screen_check(0x0012)
+}
+
+function reset_race() {
+    return CURRENT_SCREEN == 0x006c && prev(CURRENT_SCREEN == 0xffff)
+}
+
+function on_car_unlock_screen() {
+    return screen_check(0x0011)
+}
+
+function on_start_your_engines_screen() {
+    return screen_check(0x01f5) || screen_check(0x0205) || screen_check(0x01fd) || screen_check(0x020d) ||
+           screen_check(0x0215) || screen_check(0x021d) || screen_check(0x0225) || screen_check(0x022d)
+}
 
 function get_current_map_id() {
     // Map is bit0-2. Thus, mask with 7 (bin 111) using modolo
@@ -59,6 +115,26 @@ function check_if_race_finished() {
 
 function check_if_in_first(player_id) {
     return RACE_DATA["player"][player_id]["position"] == 1
+}
+
+INTERACTIVE_OBJ_COUNT_RAW_ADR = 0x34d664
+INTERACTIVE_OBJ_COUNT = byte(INTERACTIVE_OBJ_COUNT_RAW_ADR)
+
+function get_interactive_obj_data(id) {
+    obj_start = INTERACTIVE_OBJ_COUNT_RAW_ADR + id * 0x100
+
+    obj = {
+        "coord1": float(obj_start + 0x14),
+        "coord2": float(obj_start + 0x18),
+        "coord3": float(obj_start + 0x1c),
+    }
+
+    return obj
+}
+
+function check_if_interactive_obj_moved(id) {
+    obj = get_interactive_obj_data(id)
+    return obj["coord1"] != prev(obj["coord1"]) || obj["coord2"] != prev(obj["coord2"]) || obj["coord3"] != prev(obj["coord3"])
 }
 
 SETTINGS = {
@@ -400,20 +476,14 @@ OptionalRedCatUnlockLookup = {
     0x03: " and unlock the Red Cat"
 }
 
-function in_title_menu() {
-    return SCREEN_STATE == 0x09 || SCREEN_STATE == 0x09 || SCREEN_STATE <= 0x03 || SCREEN_STATE >= 0x32
-}
 
-function in_race() {
-    return (SCREEN_STATE == 0x14 || SCREEN_STATE == 0x15 || SCREEN_STATE == 0x16) || (SCREEN_STATE == 0x28 && GAME_MODE == 0x04)
-}
 
 // TODO: Find a happier life - the RP swithes to Main Menu during loading / restarting a race
 // TODO: Find a memory address for demo play / replays. Cannot let achievements pop by watching a video back.
 
 // Title Screen, Menus, Race / Gameplay should be fine categories
 // Rich Presence
-rich_presence_conditional_display(in_title_menu(), "On the Title Screen")
+rich_presence_conditional_display(on_title_screen(), "On the Title Screen")
 // VS Race needs extra data for P2
 rich_presence_conditional_display(in_race() && GAME_MODE == 0x03, "In a {0} with the {1} {2} vs. the {3} {4} {5} {6} {7}",
     rich_presence_lookup("Game Mode", GAME_MODE, GameModeLookup, fallback="questionable situation"),
@@ -522,7 +592,7 @@ achievement(
     title = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
     points = 1,
     description = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
-    trigger = 
+    trigger =
         GAME_MODE == 0x01 &&
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
@@ -610,17 +680,38 @@ for current_car in UNLOCKS_W_O_RED_CAT {
     description = format("Unlock the {0}", current_car),
     trigger = 
         // On the unlock screen?
-        SCREEN_STATE == 0x2e &&
+        on_car_unlock_screen() &&
         // Check moment of unlock
         prev(UNLOCKS_W_O_RED_CAT[current_car]) == 0 && UNLOCKS_W_O_RED_CAT[current_car] == 1
     )
 }
 
+function bump_into_obj_logic() {
+  cond = always_true()
+  // Player has to bump into all 35 items on Seaside Street Galaxy. Keep in mind that the first element is actually ID 1, not 0!
+  for element in range(1, 0x23, 1)
+  {
+    cond = cond && (once(check_if_interactive_obj_moved(element)))
+  }
+  return cond
+}
+
+achievement(
+    title = "Bumpscosity", 0,
+    points = 2,
+    description = "Run into all signs and traffic cones on Sea-Side Street Galaxy",
+    trigger = 
+        never(reset_race()) &&
+        never(!in_race()) &&
+        never(0x01 != RACE_DATA["track"]["map"]) &&
+        bump_into_obj_logic()
+)
+
 // LB for Normal type
 for current_map_id in range(0, 7, 1) {
     leaderboard(
         title = format("{0} [Normal / Mirror]: Best Course Time", MapLookup[current_map_id]),
-        description = format("Get the fastest Course Time on {0} [Normal / Mirror] using the Fixation ruleset in any mode except VS Battle", MapLookup[current_map_id]),
+        description = format("Get the fastest Course Time on {0} [Normal / Mirror] using the Fixation ruleset of {1} laps in any mode except VS Battle", MapLookup[current_map_id], FIXATION_LAP_RULES[current_map_id]),
         start = 
             // No VS mode!
             GAME_MODE != 0x03 &&
@@ -649,7 +740,7 @@ for current_map_id in range(0, 7, 1) {
 for current_map_id in range(0, 7, 1) {
     leaderboard(
         title = format("{0} [Reverse / Reverse-Mirror]: Best Course Time", MapLookup[current_map_id]),
-        description = format("Get the fastest Course Time on {0} [Reverse / Reverse-Mirror] using the Fixation ruleset in any mode except VS Battle", MapLookup[current_map_id]),
+        description = format("Get the fastest Course Time on {0} [Reverse / Mirror-Reverse] using the Fixation ruleset of {1} laps in any mode except VS Battle", MapLookup[current_map_id], FIXATION_LAP_RULES[current_map_id]),
         start = 
             // No VS mode!
             GAME_MODE != 0x03 &&
