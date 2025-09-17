@@ -64,6 +64,18 @@ function on_title_screen() {
     return (screen_check(0x0025) && GAME_MODE == 0) || screen_check(0x00cf) || screen_check(0x00a6) || screen_check(0x0000) || screen_check(0x01cf)
 }
 
+function on_victory_1st_series() {
+    return screen_check(0x00f7)
+}
+
+function on_victory_2nd_series() {
+    return screen_check(0x00ff)
+}
+
+function on_victory_3rd_series() {
+    return screen_check(0x0107)
+}
+
 function in_race() {
     return screen_check(0x006c) || screen_check(0x00cf) || screen_check(0x01bc) || screen_check(0x0012)
 }
@@ -151,14 +163,14 @@ SETTINGS = {
 
 GAME_PAUSED = bit1(0x265D08)
 
-UNLOCKS_W_O_RED_CAT = {
+UNLOCKS = {
+    "Unicorn": bit4(0x291F68),
+    "Red Cat": bit5(0x291F68),
     "Pywackett Barchetta": bit6(0x291F68),
     "Rule of 9th": bit7(0x291F68),
     "Javelin": bit0(0x291f69),
     "P. B. Super": bit1(0x291f69)
 }
-
-RED_CAT_UNLOCK = bit5(0x291F68)
 
 TOTAL_PLAY_TIME = raw_time_to_centiseconds(dword(0x291FDC))
     
@@ -216,7 +228,7 @@ RACE_DATA = {
     "track": {
         "map": get_current_map_id(),
         "type": get_map_type(),
-        "target_laps": byte(0x294a41),
+        "target_laps": byte(0x265c50),
         "driver_count": byte(0x294a42)
     },
     "timing": {
@@ -238,37 +250,16 @@ FIXATION_LAP_RULES = {
     0x07: 6
 }
 
-// TODO: what??
-//function get_points_score_for_1st_place_normal_achievement(map_id) {
-//    // If the achievement asks the player to run x laps, award y points
-//    // e.g. 2 laps -> 4pts
-//    lap_check = {
-//        0: 5, // 2 laps
-//        1: 4, // 4 laps
-//        2: 3, // 6 laps
-//        3: 2  // 8 laps
-//    }
-//    return lap_check[FIXATION_LAP_RULES[map_id]]
-//}
-
-function get_points_score_for_tournament_achievement(tournament_id) {
-    // TODO: Change
-    tourney_check = {
-        0x00: 5,
-        0x01: 5,
-        0x02: 10,
-        0x03: 10 // ?
+function get_points_score_for_compl_achievement(map_id) {
+    // If the achievement asks the player to run x laps, award y points
+    // e.g. 2 laps -> 4pts
+    lap_check = {
+        2: 5, // 2 laps
+        4: 4, // 4 laps
+        6: 3, // 6 laps
+        8: 2  // 8 laps
     }
-    
-    return tourney_check[tournament_id]
-}
-
-function get_progression_or_victory_for_tournament(tournament_id) {
-    if (tournament_id == 0x03) {
-        return "win_condition"
-    } else {
-        return "progression"
-    }
+    return lap_check[FIXATION_LAP_RULES[map_id]]
 }
 
 TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS = {
@@ -469,17 +460,6 @@ MapTypeLookup = {
     0x03: "[MR]"
 }
 
-OptionalRedCatUnlockLookup = {
-    0x00: "",
-    0x01: "",
-    0x02: "",
-    0x03: " and unlock the Red Cat"
-}
-
-
-
-// TODO: Find a happier life - the RP swithes to Main Menu during loading / restarting a race
-// TODO: Find a memory address for demo play / replays. Cannot let achievements pop by watching a video back.
 
 // Title Screen, Menus, Race / Gameplay should be fine categories
 // Rich Presence
@@ -511,7 +491,7 @@ rich_presence_display("In the Main Menu")
 // Achievements
 // Finish your first race
 achievement(
-    title = "In Single Race or Championship mode, complete a race on Normal difficulty or higher",
+    title = "Welcome to Daytona",
     points = 1,
     description = "In Single Race or Championship mode, complete a race on Normal difficulty or higher",
     trigger = 
@@ -529,7 +509,7 @@ achievement(
 for current_map_id in range(0, 7, 1) {
     achievement(
     title = format("In Single Race or Championship mode, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
-    points = 0, // get_points_score_for_1st_place_normal_achievement(current_map_id),
+    points = get_points_score_for_compl_achievement(current_map_id),
     description = format("In Single Race or Championship mode, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
     trigger = 
         (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
@@ -553,9 +533,9 @@ for current_map_id in range(0, 7, 1) {
 // Finish race on hard & fixation rules
 for current_map_id in range(0, 7, 1) {
     achievement(
-    title = format("In Single Race or Championship mode, reach the goal on {0} on Hard difficulty", MapLookup[current_map_id]),
-    points = 0, // get_points_score_for_1st_place_normal_achievement(current_map_id),
-    description = format("In Single Race or Championship mode, reach the goal on {0} on Hard difficulty", MapLookup[current_map_id]),
+    title = format("In Single Race mode, reach the goal on {0} with the fixation rulset of laps and drivers on Hard difficulty", MapLookup[current_map_id]),
+    points = get_points_score_for_compl_achievement(current_map_id),
+    description = format("In Single mode, reach the goal on {0} with the fixation rulset of laps and drivers on Hard difficulty", MapLookup[current_map_id]),
     trigger = 
         (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
         // Medium difficulty or higher
@@ -574,18 +554,49 @@ for current_map_id in range(0, 7, 1) {
 }
 
 // Tournaments
-for current_tournament in range(0, 3, 1) {
-    achievement(
-    title = format("Complete the {0} championship series", TournamentLookup[current_tournament]),
-    points = get_points_score_for_tournament_achievement(current_tournament),
-    type = get_progression_or_victory_for_tournament(current_tournament),
-    description = format("Complete the {0} championship series{1}", TournamentLookup[current_tournament], OptionalRedCatUnlockLookup[current_tournament]),
+achievement(
+    title = "Rise to the Challenge",
+    points = 5,
+    type = "progression",
+    description = "Complete the \"Challengers Cup\" championship series",
     trigger = 
         GAME_MODE == 0x04 &&
-        // TODO: logic here
-        always_true()
-    )
-}
+        on_victory_1st_series()
+)
+
+achievement(
+    title = "On the Run",
+    points = 10,
+    type = "progression",
+    description = "Complete the \"Strong Runners\" championship series",
+    trigger = 
+        GAME_MODE == 0x04 &&
+        on_victory_2nd_series()
+)
+
+
+achievement(
+    title = "Party's Just Getting Started",
+    points = 10,
+    type = "progression",
+    description = "Complete the \"Riot Party Cup\" championship series",
+    trigger = 
+        GAME_MODE == 0x04 &&
+        on_victory_3rd_series()
+)
+
+
+achievement(
+    title = "Roadside Royalty",
+    points = 25,
+    type = "win_condition",
+    description = "Complete the \"King of Daytona\" championship series and unlock the Unicorn",
+    trigger = 
+        GAME_MODE == 0x04 &&
+        on_car_unlock_screen() &&
+        prev(UNLOCKS["Unicorn"]) == 0 && UNLOCKS["Unicorn"] == 1
+
+)
 
 // Finish reverse race
 achievement(
@@ -672,20 +683,6 @@ trigger =
 )
 */
 
-// Unlock cars (no Red Cat since that one matches tournament unlock)
-for current_car in UNLOCKS_W_O_RED_CAT {
-    achievement(
-    title = format("Unlock the {0}", current_car),
-    points = 5,
-    description = format("Unlock the {0}", current_car),
-    trigger = 
-        // On the unlock screen?
-        on_car_unlock_screen() &&
-        // Check moment of unlock
-        prev(UNLOCKS_W_O_RED_CAT[current_car]) == 0 && UNLOCKS_W_O_RED_CAT[current_car] == 1
-    )
-}
-
 function bump_into_obj_logic() {
   cond = always_true()
   // Player has to bump into all 35 items on Seaside Street Galaxy. Keep in mind that the first element is actually ID 1, not 0!
@@ -697,7 +694,7 @@ function bump_into_obj_logic() {
 }
 
 achievement(
-    title = "Bumpscosity", 0,
+    title = "Bumpscosity",
     points = 2,
     description = "Run into all signs and traffic cones on Sea-Side Street Galaxy",
     trigger = 
