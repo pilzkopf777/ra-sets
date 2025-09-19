@@ -129,6 +129,26 @@ function check_if_in_first(player_id) {
     return RACE_DATA["player"][player_id]["position"] == 1
 }
 
+function reach_speed(player, target) {
+    return RACE_DATA["player"][player]["speed"] == target && prev(RACE_DATA["player"][player]["speed"]) < target
+}
+
+function get_angular_distance(a, b) {
+    diff = a - b
+    if (diff < 0) {
+        diff = -diff
+    }
+    if (diff > 32768) {
+        diff = 65536 - diff
+    }
+    return diff
+}
+
+//function is_drifting() {
+//    val = get_angular_distance(RACE_DATA["player"][0]["rotation"]["front"], RACE_DATA["player"][0]["rotation"]["back"])
+//    return val > 50 && val < 500
+//}
+
 INTERACTIVE_OBJ_COUNT_RAW_ADR = 0x34d664
 INTERACTIVE_OBJ_COUNT = byte(INTERACTIVE_OBJ_COUNT_RAW_ADR)
 
@@ -167,9 +187,9 @@ UNLOCKS = {
     "Unicorn": bit4(0x291F68),
     "Red Cat": bit5(0x291F68),
     "Pywackett Barchetta": bit6(0x291F68),
-    "Rule of 9th": bit7(0x291F68),
+    "Rule of the 9th": bit7(0x291F68),
     "Javelin": bit0(0x291f69),
-    "P. B. Super": bit1(0x291f69)
+    "Pywackett Barchetta Super": bit1(0x291f69)
 }
 
 TOTAL_PLAY_TIME = raw_time_to_centiseconds(dword(0x291FDC))
@@ -186,8 +206,12 @@ RACE_DATA = {
         },
         "coordinates": {
             "x": float(0x345B6C),
-            "y": float(0x345B70),
-            "z": float(0x345B74)
+            "z": float(0x345b70),
+            "y": float(0x345b74)
+        },
+        "rotation": {
+            "front": word(0x345b98),
+            "back": word(0x345ba8)
         },
         "speed": word(0x345B64), // todo: translate
         "speed_raw": float(0x345B84),
@@ -206,23 +230,23 @@ RACE_DATA = {
             "transmission": byte(0x294a44),
             "tire": byte(0x294a48),
             "color": "n/a",
-            "handicap": byte(0x294a49)
+            "handicap": byte(0x294a4a)
         },
-        //"coordinates": {
-        //    "x": float(0x345B6C),
-        //    "y": float(0x345B70),
-        //    "z": float(0x345B74)
-        //},
-        //"speed": word(0x345B64), // todo: translate
+        "coordinates": {
+            "x": float(0x345e78),
+            "z": float(0x345e7c),
+            "y": float(0x345e80)
+        },
+        "speed": word(0x345e70), // todo: translate
         //"speed_raw": float(0x345B84),
-        //"position": byte(0x345BC0) + 1,
+        "position": byte(0x345ecc) + 1,
         //"gear": byte(0x345CAC),
         //"viewpoint": byte(0x265EFC),
-        //"progress": {
-        //    "checkpoints_completed": byte(0x345BC2),
-        //    "laps_completed": byte(0x345BC4)
-        //},
-        //"drive_state": word(0x345B58)
+        "progress": {
+            "checkpoints_completed": byte(0x345ece),
+            "laps_completed": byte(0x345ed0)
+        },
+        "drive_state": word(0x345e64)
         },
     },
     "track": {
@@ -258,6 +282,18 @@ function get_points_score_for_compl_achievement(map_id) {
         4: 4, // 4 laps
         6: 3, // 6 laps
         8: 2  // 8 laps
+    }
+    return lap_check[FIXATION_LAP_RULES[map_id]]
+}
+
+function get_points_score_for_time_trial_circuit_achievement(map_id) {
+    // If the achievement asks the player to run x laps, award y points
+    // e.g. 2 laps -> 50pts
+    lap_check = {
+        2: 50, // 2 laps
+        4: 25, // 4 laps
+        6: 10, // 6 laps
+        8: 10  // 8 laps
     }
     return lap_check[FIXATION_LAP_RULES[map_id]]
 }
@@ -508,9 +544,9 @@ achievement(
 // 1st place on normal & fixation rules
 for current_map_id in range(0, 7, 1) {
     achievement(
-    title = format("In Single Race or Championship mode, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
+    title = format("In Single Race or Championship mode, finish in 1st place on {0} [Normal / Mirror] on Normal difficulty or higher", MapLookup[current_map_id]),
     points = get_points_score_for_compl_achievement(current_map_id),
-    description = format("In Single Race or Championship mode, finish in 1st place on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
+    description = format("In Single Race or Championship mode, finish in 1st place on {0} [Normal / Mirror] on Normal difficulty or higher", MapLookup[current_map_id]),
     trigger = 
         (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
         // Medium difficulty or higher
@@ -531,27 +567,23 @@ for current_map_id in range(0, 7, 1) {
 }
 
 // Finish race on hard & fixation rules
-for current_map_id in range(0, 7, 1) {
-    achievement(
-    title = format("In Single Race mode, reach the goal on {0} with the fixation rulset of laps and drivers on Hard difficulty", MapLookup[current_map_id]),
-    points = get_points_score_for_compl_achievement(current_map_id),
-    description = format("In Single mode, reach the goal on {0} with the fixation rulset of laps and drivers on Hard difficulty", MapLookup[current_map_id]),
+achievement(
+    title = "In Single Race mode, reach the goal on any track with the fixation rulset of laps and drivers on Hard difficulty",
+    points = 3,
+    description = "In Single mode, reach the goal on any track with the fixation rulset of laps and drivers on Hard difficulty",
     trigger = 
-        (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
+        GAME_MODE == 0x01 &&
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 2 &&
-        // On right correct map / track?
-        current_map_id == RACE_DATA["track"]["map"] &&
         // Must be correct lap count
-        FIXATION_LAP_RULES[current_map_id] == RACE_DATA["track"]["target_laps"] &&
-        // Cannot be reverse type
-        get_map_reverse_state() == 0 &&
+        // TODO: logic for this..
+        FIXATION_LAP_RULES[0] == RACE_DATA["track"]["target_laps"] &&
+        // TODO: Fixation driver count?
         // Must be in a race
         in_race() &&
         // Pass the finish line with the correct lap count to get the achievement
         check_if_race_finished()
-    )
-}
+)
 
 // Tournaments
 achievement(
@@ -574,7 +606,6 @@ achievement(
         on_victory_2nd_series()
 )
 
-
 achievement(
     title = "Party's Just Getting Started",
     points = 10,
@@ -585,7 +616,6 @@ achievement(
         on_victory_3rd_series()
 )
 
-
 achievement(
     title = "Roadside Royalty",
     points = 25,
@@ -595,8 +625,53 @@ achievement(
         GAME_MODE == 0x04 &&
         on_car_unlock_screen() &&
         prev(UNLOCKS["Unicorn"]) == 0 && UNLOCKS["Unicorn"] == 1
-
 )
+
+achievement(
+    title = "Done with Road Safety",
+    points = 5,
+    description = "Unlock the Red Cat",
+    trigger = 
+        on_car_unlock_screen() &&
+        prev(UNLOCKS["Red Cat"]) == 0 && UNLOCKS["Red Cat"] == 1
+)
+
+achievement(
+    title = "Maserati's Law",
+    points = 5,
+    description = "Unlock the Rule of the 9th",
+    trigger = 
+        on_car_unlock_screen() &&
+        prev(UNLOCKS["Rule of the 9th"]) == 0 && UNLOCKS["Rule of the 9th"] == 1
+)
+
+achievement(
+    title = "And Who Are These Guys?",
+    points = 5,
+    description = "Unlock the Pywackett Barchetta",
+    trigger = 
+        on_car_unlock_screen() &&
+        prev(UNLOCKS["Pywackett Barchetta"]) == 0 && UNLOCKS["Pywackett Barchetta"] == 1
+)
+
+achievement(
+    title = "On Knife's Edge",
+    points = 5,
+    description = "Unlock the Pywackett Barchetta Super",
+    trigger = 
+        on_car_unlock_screen() &&
+        prev(UNLOCKS["Pywackett Barchetta Super"]) == 0 && UNLOCKS["Pywackett Barchetta Super"] == 1
+)
+
+achievement(
+    title = "To Be This Good Really Does Take Ages",
+    points = 10,
+    description = "Unlock the Javelin",
+    trigger = 
+        on_car_unlock_screen() &&
+        prev(UNLOCKS["Javelin"]) == 0 && UNLOCKS["Javelin"] == 1
+)
+
 
 // Finish reverse race
 achievement(
@@ -637,7 +712,7 @@ MODE_TO_VAL_MAP = {
 for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
     achievement(
     title = format("In Time Attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
-    points = 10, //TODO: Maybe 25 for hard tracks?
+    points = get_points_score_for_compl_achievement(current_map_id),
     description = format("In Time Attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
     trigger = 
         // Time Attack mode?
@@ -660,29 +735,6 @@ for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
     )
 }
 
-
-// Fastest lap time (8 versions)
-// TODO
-/*
-achievement(
-title = format("In Time attack mode, on {0} beat the lap target time of {1}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES[current_map_id]["lap_string"]),
-points = 5,
-description = format("In Time attack mode, on {0} beat the lap target time of {1}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES[current_map_id]["lap_string"]),
-trigger = 
-    // On right correct map / track?
-    current_map_id == RACE_DATA["track"]["map"] &&
-    // Must be basic type
-    get_map_reverse_state() == 0 &&
-    get_map_mirror_state() == 0 &&
-    // Must be in a race
-    in_race() &&
-    // Must be meeting time criteria
-    RACE_DATA["timing"]["last_split_time"] < TIME_TRIAL_TARGET_TIMES[current_map_id]["lap_raw"] &&
-    // Pass the finish line with the correct lap count to get the achievement
-    check_if_race_finished()
-)
-*/
-
 function bump_into_obj_logic() {
   cond = always_true()
   // Player has to bump into all 35 items on Seaside Street Galaxy. Keep in mind that the first element is actually ID 1, not 0!
@@ -694,14 +746,78 @@ function bump_into_obj_logic() {
 }
 
 achievement(
+    title = "The Classic",
+    points = 3,
+    description = "In Single Race mode, with the Hornet finish a race on Three Seven Speedway set to 40 laps",
+    trigger = 
+        // Single Race
+        GAME_MODE == 0x01 &&
+        // Hornet only
+        RACE_DATA["player"][0]["car"]["selection"] == 0x00 &&
+        // Correct map?
+        RACE_DATA["track"]["map"] == 0x00 &&
+        // Laps?
+        RACE_DATA["track"]["target_laps"] == 40 &&
+        // Unlock when..
+        trigger_when(check_if_race_finished())
+)
+
+achievement(
     title = "Bumpscosity",
     points = 2,
-    description = "Run into all signs and traffic cones on Sea-Side Street Galaxy",
+    description = "With the Pywackett Barchetta run into all signs and traffic cones on Sea-Side Street Galaxy in any mode except VS Battle",
     trigger = 
+        // No VS mode
+        GAME_MODE != 0x03 &&
+        // Pywackett Barchetta only
+        RACE_DATA["player"][0]["car"]["selection"] == 0x06 &&
+        // Reset progress when not in a race or restarting race
         never(reset_race()) &&
         never(!in_race()) &&
+        // For good measure - also reset when on wrong map
         never(0x01 != RACE_DATA["track"]["map"]) &&
+        // Actual logic here
         bump_into_obj_logic()
+)
+
+achievement(
+    title = "Just like the Real Thing",
+    points = 3,
+    description = "With the Unicorn while staying in the cockpit view mode at all times reach the goal on Rin Rin Rink in any mode except VS Battle",
+    trigger = 
+        // No VS mode
+        GAME_MODE != 0x03 &&
+        // Unicorn only
+        RACE_DATA["player"][0]["car"]["selection"] == 0x04 &&
+        RACE_DATA["player"][0]["viewpoint"] == 0x01 &&
+        // todo: add mercy time during countdown
+        disable_when(RACE_DATA["player"][0]["viewpoint"] != 0x01, until=(RACE_DATA["timing"]["total_time_raw"] == 0)) &&
+        // Correct map?
+        RACE_DATA["track"]["map"] == 0x06 &&
+        // Unlock when..
+        trigger_when(check_if_race_finished())
+)
+
+TARGET_SPEED = 400
+
+achievement(
+    title = "Two Speeds",
+    points = 5,
+    description = format("With the Javelin reach a top speed of {0} km/h", TARGET_SPEED),
+    trigger = 
+        in_race() &&
+        // In all cases P1 can complete this mission 
+        (RACE_DATA["player"][0]["car"]["selection"] == 0x08 && trigger_when(reach_speed(0, TARGET_SPEED))) ||
+        // In VS mode, P2 could also do it
+        (GAME_MODE == 0x03 && RACE_DATA["player"][1]["car"]["selection"] == 0x08 && trigger_when(reach_speed(1, TARGET_SPEED)))
+)
+
+achievement(
+    title = "drifting debug",
+    points = 0,
+    description = "drift please",
+    trigger = 
+        in_race()
 )
 
 // LB for Normal type
