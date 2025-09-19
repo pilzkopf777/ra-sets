@@ -65,15 +65,15 @@ function on_title_screen() {
 }
 
 function on_victory_1st_series() {
-    return screen_check(0x00f7)
+    return CURRENT_SCREEN == 0x00f7 || prev(CURRENT_SCREEN == 0xffff)
 }
 
 function on_victory_2nd_series() {
-    return screen_check(0x00ff)
+    return CURRENT_SCREEN == 0x00ff || prev(CURRENT_SCREEN == 0xffff)
 }
 
 function on_victory_3rd_series() {
-    return screen_check(0x0107)
+    return CURRENT_SCREEN == 0x0107 || prev(CURRENT_SCREEN == 0xffff)
 }
 
 function in_race() {
@@ -123,6 +123,10 @@ function raw_time_to_formatted_timestamp(raw_time) {
 function check_if_race_finished() {
     return prev(RACE_DATA["player"][0]["progress"]["laps_completed"]) < RACE_DATA["track"]["target_laps"] &&
     RACE_DATA["player"][0]["progress"]["laps_completed"] == RACE_DATA["track"]["target_laps"]
+}
+
+function lap_completed() {
+    return prev(RACE_DATA["player"][0]["progress"]["laps_completed"]) < RACE_DATA["player"][0]["progress"]["laps_completed"]
 }
 
 function check_if_in_first(player_id) {
@@ -260,6 +264,9 @@ RACE_DATA = {
         "total_time": raw_time_to_centiseconds(dword(0x265C30)),
         "total_time_raw": dword(0x265C30),
         "last_split_time": raw_time_to_centiseconds(dword(0x345bbc))
+    },
+    "championship": {
+        "chain_lead": byte(0x2b63fd)
     }
 }
 
@@ -540,11 +547,21 @@ achievement(
         check_if_race_finished()
 )
 
+FIRST_PLACE_ACHIEVEMENT_NAME = {
+    0x00: "It's an Addiction",
+    0x01: "Out of this World",
+    0x02: "Canyon Fever",
+    0x03: "Hot and Exciting",
+    0x04: "",
+    0x05: "",
+    0x06: "",
+    0x07: ""
+}
 
 // 1st place on normal & fixation rules
 for current_map_id in range(0, 7, 1) {
     achievement(
-    title = format("In Single Race or Championship mode, finish in 1st place on {0} [Normal / Mirror] on Normal difficulty or higher", MapLookup[current_map_id]),
+    title = FIRST_PLACE_ACHIEVEMENT_NAME[current_map_id],
     points = get_points_score_for_compl_achievement(current_map_id),
     description = format("In Single Race or Championship mode, finish in 1st place on {0} [Normal / Mirror] on Normal difficulty or higher", MapLookup[current_map_id]),
     trigger = 
@@ -568,7 +585,7 @@ for current_map_id in range(0, 7, 1) {
 
 // Finish race on hard & fixation rules
 achievement(
-    title = "In Single Race mode, reach the goal on any track with the fixation rulset of laps and drivers on Hard difficulty",
+    title = "Driving a Hard Bargain",
     points = 3,
     description = "In Single mode, reach the goal on any track with the fixation rulset of laps and drivers on Hard difficulty",
     trigger = 
@@ -674,21 +691,21 @@ achievement(
 
 
 // Finish reverse race
-achievement(
-    title = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
-    points = 1,
-    description = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
-    trigger =
-        GAME_MODE == 0x01 &&
-        // Medium difficulty or higher
-        SETTINGS["difficulty"] >= 1 &&
-        // Must be in a race
-        in_race() &&
-        // Must be reverse
-        get_map_reverse_state() == 1 &&
-        // Pass the finish line with the correct lap count to get the achievement
-        check_if_race_finished()
-)
+//achievement(
+//    title = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
+//    points = 1,
+//    description = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
+//    trigger =
+//        GAME_MODE == 0x01 &&
+//        // Medium difficulty or higher
+//        SETTINGS["difficulty"] >= 1 &&
+//        // Must be in a race
+//        in_race() &&
+//        // Must be reverse
+//        get_map_reverse_state() == 1 &&
+//        // Pass the finish line with the correct lap count to get the achievement
+//        check_if_race_finished()
+//)
 
 TIME_ATTACK_COURSE_TIME_MISSION_TYPE = {
     0x00: "reverse",
@@ -701,6 +718,17 @@ TIME_ATTACK_COURSE_TIME_MISSION_TYPE = {
     0x07: "normal"
 }
 
+TIME_ATTACK_FLAP_MISSION_TYPE = {
+    0x00: "mirror",
+    0x01: "reverse",
+    0x02: "mirror_reverse",
+    0x03: "normal",
+    0x04: "reverse",
+    0x05: "mirror",
+    0x06: "normal",
+    0x07: "mirror_reverse"
+}
+
 MODE_TO_VAL_MAP = {
     "normal": 0x00,
     "mirror": 0x01,
@@ -708,10 +736,21 @@ MODE_TO_VAL_MAP = {
     "mirror_reverse": 0x03
 }
 
+TIME_ATTACK_COURSE_TIME_ACHIEVEMENT_NAME = {
+    0x00: "Reverse the Curse",
+    0x01: "Starboard Speed",
+    0x02: "Prehistoric Pace",
+    0x03: "Mirage Run",
+    0x04: "",
+    0x05: "",
+    0x06: "",
+    0x07: ""
+}
+
 // Fastest course time (8 versions)
 for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
     achievement(
-    title = format("In Time Attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
+    title = TIME_ATTACK_COURSE_TIME_ACHIEVEMENT_NAME[current_map_id],
     points = get_points_score_for_compl_achievement(current_map_id),
     description = format("In Time Attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
     trigger = 
@@ -732,6 +771,28 @@ for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
             // Pass the finish line with the correct lap count to get the achievement
             check_if_race_finished()
         )
+    )
+}
+
+TIME_ATTACK_FLAP_TIME_ACHIEVEMENT_NAME = {
+    0x00: "Taking it for a Spin",
+    0x01: "",
+    0x02: "",
+    0x03: "",
+    0x04: "",
+    0x05: "",
+    0x06: "",
+    0x07: "Let's Go A-Wave"
+}
+
+// FLAP (8 versions)
+for current_map_id in TIME_ATTACK_FLAP_MISSION_TYPE {
+    achievement(
+    title = TIME_ATTACK_FLAP_TIME_ACHIEVEMENT_NAME[current_map_id],
+    points = get_points_score_for_compl_achievement(current_map_id),
+    description = format("In Time Attack mode, on {0} {1} beat the fastest lap time of {2}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]]["lap_string"]),
+    trigger = 
+        always_false()
     )
 }
 
@@ -781,7 +842,7 @@ achievement(
 )
 
 achievement(
-    title = "Just like the Real Thing",
+    title = "Just Like the Real Thing",
     points = 3,
     description = "With the Unicorn while staying in the cockpit view mode at all times reach the goal on Rin Rin Rink in any mode except VS Battle",
     trigger = 
@@ -810,6 +871,16 @@ achievement(
         (RACE_DATA["player"][0]["car"]["selection"] == 0x08 && trigger_when(reach_speed(0, TARGET_SPEED))) ||
         // In VS mode, P2 could also do it
         (GAME_MODE == 0x03 && RACE_DATA["player"][1]["car"]["selection"] == 0x08 && trigger_when(reach_speed(1, TARGET_SPEED)))
+)
+
+achievement(
+    title = "Pole Possession",
+    points = 5,
+    description = "In Championship mode, earn a Chain Lead bonus of 4 points",
+    trigger = 
+        in_race() &&
+        RACE_DATA["championship"]["chain_lead"] == 4 &&
+        prev(RACE_DATA["championship"]["chain_lead"]) == 3       
 )
 
 achievement(
