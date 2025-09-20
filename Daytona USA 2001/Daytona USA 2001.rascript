@@ -271,7 +271,8 @@ RACE_DATA = {
         "countdown": raw_time_to_centiseconds(dword(0x265C34)),
         "total_time": raw_time_to_centiseconds(dword(0x265C30)),
         "total_time_raw": dword(0x265C30),
-        "last_split_time": raw_time_to_centiseconds(dword(0x345bbc))
+        "last_lap_time": raw_time_to_centiseconds(dword(0x345bbc)),
+        "last_lap_time_raw": dword(0x345bbc)
     },
     "championship": {
         "chain_lead": byte(0x2b63fd)
@@ -313,6 +314,19 @@ function get_points_score_for_time_trial_circuit_achievement(map_id) {
     return lap_check[FIXATION_LAP_RULES[map_id]]
 }
 
+function get_points_score_for_time_trial_flap_achievement(map_id) {
+    // If the achievement asks the player to run x laps, award y points
+    // e.g. 2 laps -> 50pts
+    lap_check = {
+        2: 10, // 2 laps
+        4: 5, // 4 laps
+        6: 5, // 6 laps
+        8: 3  // 8 laps
+    }
+    return lap_check[FIXATION_LAP_RULES[map_id]]
+}
+
+
 TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS = {
     "normal": "[Normal]",
     "mirror": "[Mirror]",
@@ -326,76 +340,76 @@ TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS = {
 TIME_TRIAL_TARGET_TIMES = {
     // Three Seven Speedway
     0x00: { //
-        "normal": {
-            "course_raw": 9031,
-            "course_string": "2'21\"078",
-            "lap_raw": 0,
-            "lap_string": ""
-        },
-        "reverse": {
+        //"normal": {
+        //    "course_raw": 9031,
+        //    "course_string": "2'21\"078",
+        //    "lap_raw": 0,
+        //    "lap_string": ""
+        //},
+        "reverse": { // Course
             "course_raw": 9071,
             "course_string": "2'21\"734",
             "lap_raw": 0,
             "lap_string": ""
         },
-        "mirror": {
+        "mirror": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0,
-            "lap_string": ""
+            "lap_raw": 1344,
+            "lap_string": "0'21\"000",
         },
     },
     // Sea-Side Street Galaxy
     0x01: {
-        "normal": {        
-            "course_raw": 11819,
-            "course_string": "3'04\"671",
-            "lap_raw": 0,
-            "lap_string": ""
-        },
-        "mirror": {
+        //"normal": {        
+        //    "course_raw": 11819,
+        //    "course_string": "3'04\"671",
+        //    "lap_raw": 0,
+        //    "lap_string": ""
+        //},
+        "mirror": { // Course
             "course_raw": 13410,
             "course_string": "3'29\"531",
             "lap_raw": 0,
             "lap_string": ""
         },
-        "reverse": {
+        "reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0,
-            "lap_string": ""
+            "lap_raw": 7808,
+            "lap_string": "2'02\"000"
         },
     },
     // Dinosaur Canyon
     0x02: {
-        "normal": {        
+        "normal": { // Course
             "course_raw": 13162,
             "course_string": "2'21\"078",
             "lap_raw": 0,
             "lap_string": ""
         },
-        "reverse": {
-            "course_raw": 12414,
-            "course_string": "3'13\"968",
-            "lap_raw": 0,
-            "lap_string": ""
-        },
-        "mirror_reverse": {
+        //"reverse": {
+        //    "course_raw": 12414,
+        //    "course_string": "3'13\"968",
+        //    "lap_raw": 0,
+        //    "lap_string": ""
+        //},
+        "mirror_reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0,
-            "lap_string": ""
+            "lap_raw": 3520,
+            "lap_string": "0'55\"000"
         }
     },
     // Desert City
     0x03: {
-        "normal": {        
+        "normal": { // FLAP
             "course_raw": 11975,
             "course_string": "3'07\"109",
-            "lap_raw": 0,
-            "lap_string": ""
+            "lap_raw": 3520,
+            "lap_string": "0'55\"000"
         },
-        "mirror_reverse": {
+        "mirror_reverse": { // Course
             "course_raw": 11928,
             "course_string": "3'06\"375",
             "lap_raw": 0,
@@ -404,74 +418,74 @@ TIME_TRIAL_TARGET_TIMES = {
     },
     // National Park Speedway
     0x04: {
-        "normal": {        
-            "course_raw": 14336,
-            "course_string": "3'44\"000",
-            "lap_raw": 0,
-            "lap_string": ""
-        },
-        "mirror": {
+        //"normal": {        
+        //    "course_raw": 14336,
+        //    "course_string": "3'44\"000",
+        //    "lap_raw": 0,
+        //    "lap_string": ""
+        //},
+        "mirror": { // Course
             "course_raw": 14263,
             "course_string": "3'42\"859",
             "lap_raw": 0,
             "lap_string": ""
         },
-        "reverse": {
+        "reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0,
-            "lap_string": ""
+            "lap_raw": 3136,
+            "lap_string": "0'49\"000"
         },
     },
     // Circuit Pixie
     0x05: {
-        "normal": {        
-            "course_raw": 9579,
-            "course_string": "2'29\"671",
-            "lap_raw": 0,
-            "lap_string": ""
-        },
-        "reverse": {
+        //"normal": {        
+        //    "course_raw": 9579,
+        //    "course_string": "2'29\"671",
+        //    "lap_raw": 0,
+        //    "lap_string": ""
+        //},
+        "reverse": { // Course
             "course_raw": 9620,
             "course_string": "2'30\"312",
             "lap_raw": 0,
             "lap_string": ""
         },
-        "mirror": {
+        "mirror": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0,
-            "lap_string": ""
+            "lap_raw": 1344,
+            "lap_string": "0'21\"000"
         },
     },
     // Rin Rin Rink
     0x06: {
-        "normal": {        
+        "normal": { // FLAP
             "course_raw": 14188,
             "course_string": "3'41\"687",
             "lap_raw": 0,
             "lap_string": ""
         },
-        "mirror_reverse": {
+        "mirror_reverse": { // Course
             "course_raw": 14164,
             "course_string": "3'41\"312",
-            "lap_raw": 0,
-            "lap_string": ""
+            "lap_raw": 3008,
+            "lap_string": "0'47\"000"
         }
     },
     // Mermaid Lake
     0x07: {
-        "normal": {        
+        "normal": { // Course
             "course_raw": 17177,
             "course_string": "4'28\"390",
             "lap_raw": 0,
             "lap_string": ""
         },
-        "mirror_reverse": {
+        "mirror_reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0,
-            "lap_string": ""
+            "lap_raw": 3328,
+            "lap_string": "0'52\"000"
         }
     }
 }
@@ -789,7 +803,7 @@ TIME_ATTACK_COURSE_TIME_ACHIEVEMENT_NAME = {
 for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
     achievement(
     title = TIME_ATTACK_COURSE_TIME_ACHIEVEMENT_NAME[current_map_id],
-    points = get_points_score_for_compl_achievement(current_map_id),
+    points = get_points_score_for_time_trial_circuit_achievement(current_map_id),
     description = format("In Time Attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
     trigger = 
         // Time Attack mode?
@@ -827,10 +841,22 @@ TIME_ATTACK_FLAP_TIME_ACHIEVEMENT_NAME = {
 for current_map_id in TIME_ATTACK_FLAP_MISSION_TYPE {
     achievement(
     title = TIME_ATTACK_FLAP_TIME_ACHIEVEMENT_NAME[current_map_id],
-    points = get_points_score_for_compl_achievement(current_map_id),
+    points = get_points_score_for_time_trial_flap_achievement(current_map_id),
     description = format("In Time Attack mode, on {0} {1} beat the fastest lap time of {2}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]]["lap_string"]),
     trigger = 
-        always_false()
+        // Time Attack mode?
+        GAME_MODE == 0x02 &&
+        // On right correct map / track?
+        current_map_id == RACE_DATA["track"]["map"] &&
+        // Must be correct type
+        get_map_type() == MODE_TO_VAL_MAP[TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]] &&
+        // Must be in a race
+        in_race() &&
+        // Must be meeting time criteria
+        // RACE_DATA["timing"]["total_time"] <= 0 &&
+        RACE_DATA["timing"]["last_lap_time"] < TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]]["lap_raw"] &&
+        // Complete a lap to get the achievement
+        lap_completed()
     )
 }
 
