@@ -65,15 +65,15 @@ function on_title_screen() {
 }
 
 function on_victory_1st_series() {
-    return CURRENT_SCREEN == 0x00f7 || prev(CURRENT_SCREEN == 0xffff)
+    return CURRENT_SCREEN == 0x00f7 && prev(CURRENT_SCREEN == 0xffff)
 }
 
 function on_victory_2nd_series() {
-    return CURRENT_SCREEN == 0x00ff || prev(CURRENT_SCREEN == 0xffff)
+    return CURRENT_SCREEN == 0x00ff && prev(CURRENT_SCREEN == 0xffff)
 }
 
 function on_victory_3rd_series() {
-    return CURRENT_SCREEN == 0x0107 || prev(CURRENT_SCREEN == 0xffff)
+    return CURRENT_SCREEN == 0x0107 && prev(CURRENT_SCREEN == 0xffff)
 }
 
 function in_race() {
@@ -461,16 +461,16 @@ TIME_TRIAL_TARGET_TIMES = {
     // Rin Rin Rink
     0x06: {
         "normal": { // FLAP
-            "course_raw": 14188,
-            "course_string": "3'41\"687",
-            "lap_raw": 0,
-            "lap_string": ""
+            "course_raw": 0,
+            "course_string": "",
+            "lap_raw": 2880,
+            "lap_string": "0'45\"000"
         },
         "mirror_reverse": { // Course
             "course_raw": 14164,
             "course_string": "3'41\"312",
-            "lap_raw": 3008,
-            "lap_string": "0'47\"000"
+            "lap_raw": 0,
+            "lap_string": ""
         }
     },
     // Mermaid Lake
@@ -619,13 +619,13 @@ achievement(
 
 FIRST_PLACE_ACHIEVEMENT_NAME = {
     0x00: "It's an Addiction",
-    0x01: "Out of this World",
+    0x01: "Out of This World",
     0x02: "Canyon Fever",
     0x03: "Hot and Exciting",
-    0x04: "",
-    0x05: "",
-    0x06: "",
-    0x07: ""
+    0x04: "First in Forest",
+    0x05: "Driving Circles",
+    0x06: "Freeze Frame Finish",
+    0x07: "A Wave of Applause"
 }
 
 // 1st place on normal & fixation rules
@@ -788,21 +788,10 @@ MODE_TO_VAL_MAP = {
     "mirror_reverse": 0x03
 }
 
-TIME_ATTACK_COURSE_TIME_ACHIEVEMENT_NAME = {
-    0x00: "Reverse the Curse",
-    0x01: "Starboard Speed",
-    0x02: "Prehistoric Pace",
-    0x03: "Mirage Run",
-    0x04: "",
-    0x05: "",
-    0x06: "",
-    0x07: ""
-}
-
 // Fastest course time (8 versions)
 for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
     achievement(
-    title = TIME_ATTACK_COURSE_TIME_ACHIEVEMENT_NAME[current_map_id],
+    title = format("Peak Pace: {0}", MapLookup[current_map_id]),
     points = get_points_score_for_time_trial_circuit_achievement(current_map_id),
     description = format("In Time Attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
     trigger = 
@@ -826,21 +815,10 @@ for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
     )
 }
 
-TIME_ATTACK_FLAP_TIME_ACHIEVEMENT_NAME = {
-    0x00: "Taking it for a Spin",
-    0x01: "",
-    0x02: "",
-    0x03: "",
-    0x04: "",
-    0x05: "",
-    0x06: "",
-    0x07: "Let's Go A-Wave"
-}
-
 // FLAP (8 versions)
 for current_map_id in TIME_ATTACK_FLAP_MISSION_TYPE {
     achievement(
-    title = TIME_ATTACK_FLAP_TIME_ACHIEVEMENT_NAME[current_map_id],
+    title = format("Dream Lap: {0}", MapLookup[current_map_id]),
     points = get_points_score_for_time_trial_flap_achievement(current_map_id),
     description = format("In Time Attack mode, on {0} {1} beat the fastest lap time of {2}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]]["lap_string"]),
     trigger = 
