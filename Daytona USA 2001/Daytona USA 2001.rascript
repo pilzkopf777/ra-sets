@@ -137,6 +137,10 @@ function reach_speed(player, target) {
     return RACE_DATA["player"][player]["speed"] == target && prev(RACE_DATA["player"][player]["speed"]) < target
 }
 
+function has_collided_with_object(player_id) {
+    return (RACE_DATA["player"][player_id]["contact"]["wall"] != prev(RACE_DATA["player"][player_id]["contact"]["wall"])) || (RACE_DATA["player"][player_id]["contact"]["car"] != prev(RACE_DATA["player"][player_id]["contact"]["car"]))
+}
+
 function get_angular_distance(a, b) {
     diff = a - b
     if (diff < 0) {
@@ -225,6 +229,10 @@ RACE_DATA = {
         "progress": {
             "checkpoints_completed": byte(0x345BC2),
             "laps_completed": byte(0x345BC4)
+        },
+        "contact": {
+            "wall": dword(0x345c4c),
+            "car": byte(0x345de5)
         },
         "drive_state": word(0x345B58)
         },
@@ -330,6 +338,12 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_raw": 0,
             "lap_string": ""
         },
+        "mirror": {
+            "course_raw": 0,
+            "course_string": "",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
     },
     // Sea-Side Street Galaxy
     0x01: {
@@ -342,6 +356,12 @@ TIME_TRIAL_TARGET_TIMES = {
         "mirror": {
             "course_raw": 13410,
             "course_string": "3'29\"531",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
+        "reverse": {
+            "course_raw": 0,
+            "course_string": "",
             "lap_raw": 0,
             "lap_string": ""
         },
@@ -360,6 +380,12 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_raw": 0,
             "lap_string": ""
         },
+        "mirror_reverse": {
+            "course_raw": 0,
+            "course_string": "",
+            "lap_raw": 0,
+            "lap_string": ""
+        }
     },
     // Desert City
     0x03: {
@@ -375,7 +401,6 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_raw": 0,
             "lap_string": ""
         }
-
     },
     // National Park Speedway
     0x04: {
@@ -390,7 +415,12 @@ TIME_TRIAL_TARGET_TIMES = {
             "course_string": "3'42\"859",
             "lap_raw": 0,
             "lap_string": ""
-
+        },
+        "reverse": {
+            "course_raw": 0,
+            "course_string": "",
+            "lap_raw": 0,
+            "lap_string": ""
         },
     },
     // Circuit Pixie
@@ -404,6 +434,12 @@ TIME_TRIAL_TARGET_TIMES = {
         "reverse": {
             "course_raw": 9620,
             "course_string": "2'30\"312",
+            "lap_raw": 0,
+            "lap_string": ""
+        },
+        "mirror": {
+            "course_raw": 0,
+            "course_string": "",
             "lap_raw": 0,
             "lap_string": ""
         },
@@ -431,6 +467,12 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_raw": 0,
             "lap_string": ""
         },
+        "mirror_reverse": {
+            "course_raw": 0,
+            "course_string": "",
+            "lap_raw": 0,
+            "lap_string": ""
+        }
     }
 }
 
@@ -543,6 +585,20 @@ achievement(
         SETTINGS["difficulty"] >= 1 &&
         // Must be in a race
         in_race() &&
+        // Pass the finish line with the correct lap count to get the achievement
+        check_if_race_finished()
+)
+
+achievement(
+    title = "Some Serious Shift",
+    points = 1,
+    description = "Complete a race using Manual transmission in any mode except VS Battle",
+    trigger = 
+        GAME_MODE != 0x03 &&
+        // Must be in a race
+        in_race() &&
+        // Must be MT
+        RACE_DATA["player"][0]["car"]["transmission"] == 0x01 &&
         // Pass the finish line with the correct lap count to get the achievement
         check_if_race_finished()
 )
@@ -689,24 +745,6 @@ achievement(
         prev(UNLOCKS["Javelin"]) == 0 && UNLOCKS["Javelin"] == 1
 )
 
-
-// Finish reverse race
-//achievement(
-//    title = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
-//    points = 1,
-//    description = "In Single Race mode, complete a reverse-type race with the fixation rulset of laps and drivers on Normal difficulty or higher",
-//    trigger =
-//        GAME_MODE == 0x01 &&
-//        // Medium difficulty or higher
-//        SETTINGS["difficulty"] >= 1 &&
-//        // Must be in a race
-//        in_race() &&
-//        // Must be reverse
-//        get_map_reverse_state() == 1 &&
-//        // Pass the finish line with the correct lap count to get the achievement
-//        check_if_race_finished()
-//)
-
 TIME_ATTACK_COURSE_TIME_MISSION_TYPE = {
     0x00: "reverse",
     0x01: "mirror",
@@ -842,6 +880,23 @@ achievement(
 )
 
 achievement(
+    title = "Rolling Thunder",
+    points = 3,
+    description = "In Single Race mode, with the Lightning win a race on National Park Speedway with the settings of 2 laps and 40 opponents present",
+    trigger = 
+        // Single Race mode
+        GAME_MODE == 0x00 &&
+        // Pywackett Barchetta only
+        RACE_DATA["player"][0]["car"]["selection"] == 0x03 &&
+        in_race() &&
+        RACE_DATA["track"]["target_laps"] == 2 &&
+        RACE_DATA["track"]["map"] == 0x04 &&
+        RACE_DATA["track"]["driver_count"] == 40 &&
+        check_if_in_first(0) && 
+        check_if_race_finished()
+)
+
+achievement(
     title = "Just Like the Real Thing",
     points = 3,
     description = "With the Unicorn while staying in the cockpit view mode at all times reach the goal on Rin Rin Rink in any mode except VS Battle",
@@ -857,6 +912,25 @@ achievement(
         RACE_DATA["track"]["map"] == 0x06 &&
         // Unlock when..
         trigger_when(check_if_race_finished())
+)
+
+achievement(
+    title = "The Perfect Run",
+    points = 3,
+    description = "In Single Race mode, with the Grasshopper complete a lap in Desert City without crashing into a wall or an opponent with 40 opponents present",
+    trigger = 
+        // Single Race mode
+        GAME_MODE == 0x00 &&
+        // Grasshopper only
+        RACE_DATA["player"][0]["car"]["selection"] == 0x01 &&
+        // 40 opponents
+        RACE_DATA["track"]["driver_count"] == 40 &&
+        // Fail achievement upon collision
+        disable_when(has_collided_with_object(0), until=(reset_race())) &&
+        // Correct map?
+        RACE_DATA["track"]["map"] == 0x03 &&
+        // Unlock when..
+        trigger_when(lap_completed())
 )
 
 TARGET_SPEED = 400
