@@ -606,7 +606,7 @@ FIRST_PLACE_ACHIEVEMENT_NAME = {
     0x01: "Out of This World",
     0x02: "Canyon Fever",
     0x03: "Hot and Exciting",
-    0x04: "First in Forest",
+    0x04: "The Wicked Wild",
     0x05: "Driving Circles",
     0x06: "Freeze Frame Finish",
     0x07: "A Wave of Applause"
@@ -644,8 +644,8 @@ achievement(
     description = "In Single mode, reach the goal on any track with the fixation rulset of laps and drivers on Hard difficulty",
     trigger = 
         GAME_MODE == 0x01 &&
-        // Medium difficulty or higher
-        SETTINGS["difficulty"] >= 2 &&
+        // Hard difficulty
+        SETTINGS["difficulty"] == 2 &&
         // Must be correct lap count
         // TODO: logic for this..
         FIXATION_LAP_RULES[0] == RACE_DATA["track"]["target_laps"] &&
@@ -695,7 +695,9 @@ achievement(
     trigger = 
         GAME_MODE == 0x04 &&
         on_car_unlock_screen() &&
-        prev(UNLOCKS["Unicorn"]) == 0 && UNLOCKS["Unicorn"] == 1
+        once(prev(UNLOCKS["Unicorn"]) == 0 && UNLOCKS["Unicorn"] == 1) &&
+        never(CURRENT_SCREEN == 0x33 && prev(CURRENT_SCREEN != 0x33))
+        
 )
 
 achievement(
@@ -704,7 +706,9 @@ achievement(
     description = "Unlock the Red Cat",
     trigger = 
         on_car_unlock_screen() &&
-        prev(UNLOCKS["Red Cat"]) == 0 && UNLOCKS["Red Cat"] == 1
+        once(prev(UNLOCKS["Red Cat"]) == 0 && UNLOCKS["Red Cat"] == 1) &&
+        never(CURRENT_SCREEN == 0x33 && prev(CURRENT_SCREEN != 0x33))
+        
 )
 
 achievement(
@@ -713,7 +717,9 @@ achievement(
     description = "Unlock the Rule of the 9th",
     trigger = 
         on_car_unlock_screen() &&
-        prev(UNLOCKS["Rule of the 9th"]) == 0 && UNLOCKS["Rule of the 9th"] == 1
+        once(prev(UNLOCKS["Rule of the 9th"]) == 0 && UNLOCKS["Rule of the 9th"] == 1) &&
+        never(CURRENT_SCREEN == 0x33 && prev(CURRENT_SCREEN != 0x33))
+        
 )
 
 achievement(
@@ -722,7 +728,9 @@ achievement(
     description = "Unlock the Pywackett Barchetta",
     trigger = 
         on_car_unlock_screen() &&
-        prev(UNLOCKS["Pywackett Barchetta"]) == 0 && UNLOCKS["Pywackett Barchetta"] == 1
+        once(prev(UNLOCKS["Pywackett Barchetta"]) == 0 && UNLOCKS["Pywackett Barchetta"] == 1) &&
+        never(CURRENT_SCREEN == 0x33 && prev(CURRENT_SCREEN != 0x33))
+        
 )
 
 achievement(
@@ -731,7 +739,9 @@ achievement(
     description = "Unlock the Pywackett Barchetta Super",
     trigger = 
         on_car_unlock_screen() &&
-        prev(UNLOCKS["Pywackett Barchetta Super"]) == 0 && UNLOCKS["Pywackett Barchetta Super"] == 1
+        once(prev(UNLOCKS["Pywackett Barchetta Super"]) == 0 && UNLOCKS["Pywackett Barchetta Super"] == 1) &&
+        never(CURRENT_SCREEN == 0x33 && prev(CURRENT_SCREEN != 0x33))
+        
 )
 
 achievement(
@@ -740,7 +750,9 @@ achievement(
     description = "Unlock the Javelin",
     trigger = 
         on_car_unlock_screen() &&
-        prev(UNLOCKS["Javelin"]) == 0 && UNLOCKS["Javelin"] == 1
+        once(prev(UNLOCKS["Javelin"]) == 0 && UNLOCKS["Javelin"] == 1) &&
+        never(CURRENT_SCREEN == 0x33 && prev(CURRENT_SCREEN != 0x33))
+        
 )
 
 TIME_ATTACK_COURSE_TIME_MISSION_TYPE = {
@@ -822,16 +834,6 @@ for current_map_id in TIME_ATTACK_FLAP_MISSION_TYPE {
     )
 }
 
-function bump_into_obj_logic() {
-  cond = always_true()
-  // Player has to bump into all 35 items on Seaside Street Galaxy. Keep in mind that the first element is actually ID 1, not 0!
-  for element in range(1, 0x23, 1)
-  {
-    cond = cond && (once(check_if_interactive_obj_moved(element)))
-  }
-  return cond
-}
-
 // TODO
 achievement(
     title = "???",
@@ -885,12 +887,13 @@ achievement(
 
 
 
-
 achievement(
     title = "The Classic",
     points = 3,
-    description = "In Single Race mode, with the Hornet finish a race on Three Seven Speedway set to 40 laps",
+    description = "In Single Race mode, with the Hornet finish a race on Three Seven Speedway set to 40 laps on Normal difficulty or higher",
     trigger = 
+        // Medium difficulty or higher
+        SETTINGS["difficulty"] >= 1 &&
         // Single Race
         GAME_MODE == 0x01 &&
         // Hornet only
@@ -902,6 +905,16 @@ achievement(
         // Unlock when..
         trigger_when(check_if_race_finished())
 )
+
+function bump_into_obj_logic() {
+  cond = always_true()
+  // Player has to bump into all 35 items on Seaside Street Galaxy. Keep in mind that the first element is actually ID 1, not 0!
+  for element in range(1, 0x23, 1)
+  {
+    cond = cond && (once(check_if_interactive_obj_moved(element)))
+  }
+  return cond
+}
 
 achievement(
     title = "Bumpscosity",
