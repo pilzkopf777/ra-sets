@@ -19,40 +19,7 @@ GAME_MODE = byte(0x265D24)
 
 RACE_TRACK_AND_TYPE_RAW_ADR = 0x294a40
 
-// SCREEN_STATE = byte(0x265bfd)
-
 CURRENT_SCREEN = word(0x2B66DE)
-/*
-Reworked values for only this address:
-0x0020 = Car / Map select
-0x0017 = Main Menu
-0x0025 = Title and Demo, Rankings
-0x00cf = Dev logos
-0xffff = Loading
-0x004d = Championship exclusive menus
-0x0033 = Ghost Car select, Memory Card, Race End Menu, Replay
-0x0038 = Options
-0x0028 = Records
-0x006c = Race
-0x0036 = Name Entry
-0x0011 = New Car unlock
-0x00a6 = TV setting
-0x0000 = Initial boot
-0x01cf = Initial logos on boot
-
-0x01bc = 1st place celebration on 777 Speedway
-0x0012 = Game Over after celebration
-
-Start Your Engines:
-0x01f5 = 777 Speedway
-0x0205 = Dino Canyon
-0x01fd = Seaside
-0x020d = Desert City
-0x0215 = National Park
-0x021d = Ct. Pixie
-0x0225 = Rin Rin Rink
-0x022d = Mermaid Lake
-*/
 
 // Functions for player screen states
 function screen_check(value) {
@@ -88,9 +55,12 @@ function on_car_unlock_screen() {
     return screen_check(0x0011)
 }
 
-function on_start_your_engines_screen() {
-    return screen_check(0x01f5) || screen_check(0x0205) || screen_check(0x01fd) || screen_check(0x020d) ||
-           screen_check(0x0215) || screen_check(0x021d) || screen_check(0x0225) || screen_check(0x022d)
+function start_your_engines_screen_ended() {
+    // Previously on the start your engines screen...
+    return (prev(CURRENT_SCREEN == 0x01f5) || prev(CURRENT_SCREEN == 0x0205) || prev(CURRENT_SCREEN == 0x01fd) || prev(CURRENT_SCREEN == 0x020d) ||
+           prev(CURRENT_SCREEN == 0x0215) ||prev(CURRENT_SCREEN == 0x021d) || prev(CURRENT_SCREEN == 0x0225) || prev(CURRENT_SCREEN == 0x022d)) &&
+           // ...and now on the loading screen
+           CURRENT_SCREEN == 0xffff
 }
 
 function get_current_map_id() {
@@ -177,6 +147,20 @@ function check_if_interactive_obj_moved(id) {
     return obj["coord1"] != prev(obj["coord1"]) || obj["coord2"] != prev(obj["coord2"]) || obj["coord3"] != prev(obj["coord3"])
 }
 
+INPUT = {
+    "a": bit2(0x2f0478),
+    "b": bit1(0x2f0478),
+    "x": bit2(0x2f0479),
+    "y": bit1(0x2f0479),
+    "l": bit1(0x2f047a),
+    "r": bit0(0x2f047a),
+    "start": bit3(0x2f0478),
+    "d-down": bit5(0x2f0478),
+    "d-left": bit6(0x2f0478),
+    "d-right":bit7(0x2f0478),
+    "d-up": bit4(0x2f0478)
+}
+
 SETTINGS = {
     "difficulty": byte(0x28F660),
     "lap_time_display_off_on": byte(0x28F661),
@@ -221,7 +205,7 @@ RACE_DATA = {
             "front": word(0x345b98),
             "back": word(0x345ba8)
         },
-        "speed": word(0x345B64), // todo: translate
+        "speed": word(0x345B64),
         "speed_raw": float(0x345B84),
         "position": byte(0x345BC0) + 1,
         "gear": byte(0x345CAC),
@@ -249,7 +233,7 @@ RACE_DATA = {
             "z": float(0x345e7c),
             "y": float(0x345e80)
         },
-        "speed": word(0x345e70), // todo: translate
+        "speed": word(0x345e70),
         //"speed_raw": float(0x345B84),
         "position": byte(0x345ecc) + 1,
         //"gear": byte(0x345CAC),
@@ -848,6 +832,60 @@ function bump_into_obj_logic() {
   return cond
 }
 
+// TODO
+achievement(
+    title = "???",
+    points = 0,
+    description = "boost start",
+    trigger = 
+        always_false()
+)
+
+achievement(
+    title = "???",
+    points = 0,
+    description = "drift for x sec",
+    trigger = 
+        always_false()
+)
+
+achievement(
+    title = "Golden Hour",
+    points = 1,
+    description = "Change the time of day before the race",
+    trigger = 
+        // Once the Ladies and Gentleman screen changes into a loading screen hold L and R to switch the skybox - though not always to Sunset as it depends on the track..
+        start_your_engines_screen_ended() &&
+        INPUT["l"] == 1 && INPUT["r"] == 1
+)
+
+achievement(
+    title = "???",
+    points = 0,
+    description = "red cat challenge",
+    trigger = 
+        always_false()
+)
+
+achievement(
+    title = "???",
+    points = 0,
+    description = "pbs challenge",
+    trigger = 
+        always_false()
+)
+
+achievement(
+    title = "???",
+    points = 0,
+    description = "falcon challenge",
+    trigger = 
+        always_false()
+)
+
+
+
+
 achievement(
     title = "The Classic",
     points = 3,
@@ -910,7 +948,6 @@ achievement(
         // Unicorn only
         RACE_DATA["player"][0]["car"]["selection"] == 0x04 &&
         RACE_DATA["player"][0]["viewpoint"] == 0x01 &&
-        // todo: add mercy time during countdown
         disable_when(RACE_DATA["player"][0]["viewpoint"] != 0x01, until=(RACE_DATA["timing"]["total_time_raw"] == 0)) &&
         // Correct map?
         RACE_DATA["track"]["map"] == 0x06 &&
@@ -959,14 +996,6 @@ achievement(
         in_race() &&
         RACE_DATA["championship"]["chain_lead"] == 4 &&
         prev(RACE_DATA["championship"]["chain_lead"]) == 3       
-)
-
-achievement(
-    title = "drifting debug",
-    points = 0,
-    description = "drift please",
-    trigger = 
-        in_race()
 )
 
 // LB for Normal type
