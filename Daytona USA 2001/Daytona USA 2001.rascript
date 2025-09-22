@@ -205,6 +205,10 @@ RACE_DATA = {
             "front": word(0x345b98),
             "back": word(0x345ba8)
         },
+        "pedal": {
+            "accel": byte(0x265bce),
+            "brake": byte(0x265bd0)
+        },  
         "speed": word(0x345B64),
         "speed_raw": float(0x345B84),
         "position": byte(0x345BC0) + 1,
@@ -836,17 +840,9 @@ for current_map_id in TIME_ATTACK_FLAP_MISSION_TYPE {
 
 // TODO
 achievement(
-    title = "???",
+    title = "And They're Underway",
     points = 0,
     description = "boost start",
-    trigger = 
-        always_false()
-)
-
-achievement(
-    title = "???",
-    points = 0,
-    description = "drift for x sec",
     trigger = 
         always_false()
 )
@@ -862,7 +858,7 @@ achievement(
 )
 
 achievement(
-    title = "???",
+    title = "Safety Redefined",
     points = 0,
     description = "red cat challenge",
     trigger = 
@@ -870,7 +866,7 @@ achievement(
 )
 
 achievement(
-    title = "???",
+    title = "Sideways Rollout",
     points = 0,
     description = "pbs challenge",
     trigger = 
@@ -878,11 +874,32 @@ achievement(
 )
 
 achievement(
-    title = "???",
+    title = "Chasing the Prey",
     points = 0,
     description = "falcon challenge",
     trigger = 
         always_false()
+)
+
+achievement(
+    title = "No Time for Breaks",
+    points = 3,
+    description = "In Single Race mode, with the Rule of the 9th in Automatic transmission finish a race on Dinosaur Canyon without using the breaks on Normal difficulty or higher",
+    trigger = 
+        // Medium difficulty or higher
+        SETTINGS["difficulty"] >= 1 &&
+        // Car?
+        RACE_DATA["player"][0]["car"]["selection"] == 0x07 &&
+        // AT?
+        RACE_DATA["player"][0]["car"]["transmission"] == 0x00 &&
+        // Single Race
+        GAME_MODE == 0x01 &&
+        // Dino Canyon?
+        RACE_DATA["track"]["map"] == 0x02 &&
+        // get break power input, retry when race starts again
+        disable_when(RACE_DATA["player"][0]["pedal"]["brake"] != 0x00, until=(reset_race())) &&
+        // Unlock when..
+        trigger_when(check_if_race_finished())
 )
 
 
@@ -931,7 +948,7 @@ achievement(
         // For good measure - also reset when on wrong map
         never(0x01 != RACE_DATA["track"]["map"]) &&
         // Actual logic here
-        bump_into_obj_logic()
+        trigger_when(bump_into_obj_logic())
 )
 
 achievement(
@@ -948,7 +965,7 @@ achievement(
         RACE_DATA["track"]["map"] == 0x04 &&
         RACE_DATA["track"]["driver_count"] == 40 &&
         check_if_in_first(0) && 
-        check_if_race_finished()
+        trigger_when(check_if_race_finished())
 )
 
 achievement(
@@ -961,7 +978,7 @@ achievement(
         // Unicorn only
         RACE_DATA["player"][0]["car"]["selection"] == 0x04 &&
         RACE_DATA["player"][0]["viewpoint"] == 0x01 &&
-        disable_when(RACE_DATA["player"][0]["viewpoint"] != 0x01, until=(RACE_DATA["timing"]["total_time_raw"] == 0)) &&
+        disable_when(RACE_DATA["player"][0]["viewpoint"] != 0x01, until=(RACE_DATA["timing"]["total_time_raw"] == 0 && prev(RACE_DATA["timing"]["total_time_raw"] != 0))) &&
         // Correct map?
         RACE_DATA["track"]["map"] == 0x06 &&
         // Unlock when..
