@@ -60,7 +60,7 @@ function start_your_engines_screen_ended() {
     return (prev(CURRENT_SCREEN == 0x01f5) || prev(CURRENT_SCREEN == 0x0205) || prev(CURRENT_SCREEN == 0x01fd) || prev(CURRENT_SCREEN == 0x020d) ||
            prev(CURRENT_SCREEN == 0x0215) ||prev(CURRENT_SCREEN == 0x021d) || prev(CURRENT_SCREEN == 0x0225) || prev(CURRENT_SCREEN == 0x022d)) &&
            // ...and now on the loading screen
-           CURRENT_SCREEN == 0xffff
+           LOADING_SCREEN_STATE == 0xfffffffe
 }
 
 function get_current_map_id() {
@@ -127,6 +127,8 @@ function get_angular_distance(a, b) {
 //    return val > 50 && val < 500
 //}
 
+LOADING_SCREEN_STATE = dword(0x1bfd94)
+
 INTERACTIVE_OBJ_COUNT_RAW_ADR = 0x34d664
 INTERACTIVE_OBJ_COUNT = byte(INTERACTIVE_OBJ_COUNT_RAW_ADR)
 
@@ -185,7 +187,7 @@ UNLOCKS = {
 }
 
 TOTAL_PLAY_TIME = raw_time_to_centiseconds(dword(0x291FDC))
-    
+
 RACE_DATA = {
     "player": {
         0: {
@@ -213,6 +215,7 @@ RACE_DATA = {
         "speed_raw": float(0x345B84),
         "position": byte(0x345BC0) + 1,
         "gear": byte(0x345CAC),
+        "burnout": byte(0x345c06),
         "viewpoint": byte(0x265EFC),
         "progress": {
             "checkpoints_completed": byte(0x345BC2),
@@ -593,7 +596,7 @@ achievement(
 
 achievement(
     title = "Some Serious Shift",
-    points = 1,
+    points = 5,
     description = "Complete a race using Manual transmission in any mode except VS Battle",
     trigger = 
         GAME_MODE != 0x03 &&
@@ -645,15 +648,22 @@ for current_map_id in range(0, 7, 1) {
 achievement(
     title = "Driving a Hard Bargain",
     points = 3,
-    description = "In Single mode, reach the goal on any track with the fixation rulset of laps and drivers on Hard difficulty",
+    description = "In Single Race mode, reach the goal on any track with the fixation rulset of laps on Hard difficulty",
     trigger = 
         GAME_MODE == 0x01 &&
         // Hard difficulty
         SETTINGS["difficulty"] == 2 &&
-        // Must be correct lap count
-        // TODO: logic for this..
-        FIXATION_LAP_RULES[0] == RACE_DATA["track"]["target_laps"] &&
-        // TODO: Fixation driver count?
+        // Must be correct lap count; I got very lazy here. Sorry, future devs.
+        (
+        ( RACE_DATA["track"]["map"] == 0 && FIXATION_LAP_RULES[0] == RACE_DATA["track"]["target_laps"]) ||
+        ( RACE_DATA["track"]["map"] == 1 && FIXATION_LAP_RULES[1] == RACE_DATA["track"]["target_laps"]) ||
+        ( RACE_DATA["track"]["map"] == 2 && FIXATION_LAP_RULES[2] == RACE_DATA["track"]["target_laps"]) ||
+        ( RACE_DATA["track"]["map"] == 3 && FIXATION_LAP_RULES[3] == RACE_DATA["track"]["target_laps"]) ||
+        ( RACE_DATA["track"]["map"] == 4 && FIXATION_LAP_RULES[4] == RACE_DATA["track"]["target_laps"]) ||
+        ( RACE_DATA["track"]["map"] == 5 && FIXATION_LAP_RULES[5] == RACE_DATA["track"]["target_laps"]) ||
+        ( RACE_DATA["track"]["map"] == 6 && FIXATION_LAP_RULES[6] == RACE_DATA["track"]["target_laps"]) ||
+        ( RACE_DATA["track"]["map"] == 7 && FIXATION_LAP_RULES[7] == RACE_DATA["track"]["target_laps"])
+        ) &&
         // Must be in a race
         in_race() &&
         // Pass the finish line with the correct lap count to get the achievement
@@ -841,10 +851,16 @@ for current_map_id in TIME_ATTACK_FLAP_MISSION_TYPE {
 // TODO
 achievement(
     title = "And They're Underway",
-    points = 0,
-    description = "boost start",
+    points = 2,
+    description = "Perform a Boost Start in any mode except VS Battle",
     trigger = 
-        always_false()
+        // No VS mode
+        GAME_MODE != 0x03 &&
+        RACE_DATA["player"][0]["speed_raw"] > 0.2 &&
+        prev(RACE_DATA["player"][0]["speed_raw"]) == 0.2 &&
+        in_race() &&
+        RACE_DATA["timing"]["total_time_raw"] >= 0x30 && // 0x40 is 1 sec 
+        RACE_DATA["player"][0]["burnout"] == 0x00
 )
 
 achievement(
@@ -859,24 +875,24 @@ achievement(
 
 achievement(
     title = "Safety Redefined",
-    points = 0,
-    description = "red cat challenge",
+    points = 2,
+    description = "With the Red Cat cause an opponent to crash in any mode except VS Battle",
     trigger = 
         always_false()
 )
 
 achievement(
     title = "Sideways Rollout",
-    points = 0,
-    description = "pbs challenge",
+    points = 5,
+    description = "With the Pywackett Barchetta Super drift for 4 seconds at a time in any mode except VS Battle",
     trigger = 
         always_false()
 )
 
 achievement(
     title = "Chasing the Prey",
-    points = 0,
-    description = "falcon challenge",
+    points = 4,
+    description = "In Single Race mode, with the Falcon finish in 1st place in Desert City [Normal / Mirror] with the settings of 4 laps and 20 opponents present without ever dropping down a position",
     trigger = 
         always_false()
 )
@@ -901,8 +917,6 @@ achievement(
         // Unlock when..
         trigger_when(check_if_race_finished())
 )
-
-
 
 achievement(
     title = "The Classic",
@@ -934,7 +948,7 @@ function bump_into_obj_logic() {
 }
 
 achievement(
-    title = "Bumpscosity",
+    title = "A General Distaste for Signs",
     points = 2,
     description = "With the Pywackett Barchetta run into all signs and traffic cones on Sea-Side Street Galaxy in any mode except VS Battle",
     trigger = 
@@ -1008,8 +1022,8 @@ TARGET_SPEED = 400
 
 achievement(
     title = "Two Speeds",
-    points = 5,
-    description = format("With the Javelin reach a top speed of {0} km/h", TARGET_SPEED),
+    points = 10,
+    description = format("With the Javelin reach a top speed of {0} km/h in any mode except VS Battle", TARGET_SPEED),
     trigger = 
         in_race() &&
         // In all cases P1 can complete this mission 
