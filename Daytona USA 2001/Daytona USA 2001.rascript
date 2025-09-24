@@ -58,9 +58,9 @@ function on_car_unlock_screen() {
 function start_your_engines_screen_ended() {
     // Previously on the start your engines screen...
     return (prev(CURRENT_SCREEN == 0x01f5) || prev(CURRENT_SCREEN == 0x0205) || prev(CURRENT_SCREEN == 0x01fd) || prev(CURRENT_SCREEN == 0x020d) ||
-           prev(CURRENT_SCREEN == 0x0215) ||prev(CURRENT_SCREEN == 0x021d) || prev(CURRENT_SCREEN == 0x0225) || prev(CURRENT_SCREEN == 0x022d)) &&
+           prev(CURRENT_SCREEN == 0x0215) || prev(CURRENT_SCREEN == 0x021d) || prev(CURRENT_SCREEN == 0x0225) || prev(CURRENT_SCREEN == 0x022d)) &&
            // ...and now on the loading screen
-           LOADING_SCREEN_STATE == 0xfffffffe
+           prev(LOADING_SCREEN_STATE == 0xfffffffe) && LOADING_SCREEN_STATE == 0x00
 }
 
 function get_current_map_id() {
@@ -932,8 +932,7 @@ achievement(
         // Car?
         RACE_DATA["player"][0]["car"]["selection"] == 0x05 &&
         trigger_when(opponent_crash_logic()) &&
-        in_race() &&
-        never(reset_race() || on_title_screen())
+        in_race()
 )
 
 achievement(
@@ -1026,7 +1025,7 @@ achievement(
     description = "In Single Race mode, with the Lightning win a race on National Park Speedway with the settings of 2 laps and 40 opponents present",
     trigger = 
         // Single Race mode
-        GAME_MODE == 0x00 &&
+        GAME_MODE == 0x01 &&
         // Pywackett Barchetta only
         RACE_DATA["player"][0]["car"]["selection"] == 0x03 &&
         in_race() &&
@@ -1060,7 +1059,7 @@ achievement(
     description = "In Single Race mode, with the Grasshopper complete a lap in Desert City without crashing into a wall or an opponent with 40 opponents present",
     trigger = 
         // Single Race mode
-        GAME_MODE == 0x00 &&
+        GAME_MODE == 0x01 &&
         // Grasshopper only
         RACE_DATA["player"][0]["car"]["selection"] == 0x01 &&
         // 40 opponents
