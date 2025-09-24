@@ -131,6 +131,7 @@ LOADING_SCREEN_STATE = dword(0x1bfd94)
 
 INTERACTIVE_OBJ_COUNT_RAW_ADR = 0x34d664
 INTERACTIVE_OBJ_COUNT = byte(INTERACTIVE_OBJ_COUNT_RAW_ADR)
+CAR_OBJECT_START_RAW_ADR = 0x345b6c
 
 function get_interactive_obj_data(id) {
     obj_start = INTERACTIVE_OBJ_COUNT_RAW_ADR + id * 0x100
@@ -147,6 +148,43 @@ function get_interactive_obj_data(id) {
 function check_if_interactive_obj_moved(id) {
     obj = get_interactive_obj_data(id)
     return obj["coord1"] != prev(obj["coord1"]) || obj["coord2"] != prev(obj["coord2"]) || obj["coord3"] != prev(obj["coord3"])
+}
+
+function get_car_crash_obj_data(id) {
+    // objects are 0x30C away from each other
+    // id = 0: 0 * 0x30c = 0x00 from start
+    obj_start = CAR_OBJECT_START_RAW_ADR + id * 0x30C
+
+    obj = {
+        "x": float(obj_start + 0x0),
+        "z": float(obj_start + 0x4),
+        "y": float(obj_start + 0x8),
+        "crash": float(obj_start + 0x40)
+    }
+
+    return obj
+}
+
+// TODO
+function check_if_crashed_nearby(id) {
+    // RACE_DATA["player"][0]["coordinates"]["x"]
+    player_x = RACE_DATA["player"][0]["coordinates"]["x"]
+    player_y = RACE_DATA["player"][0]["coordinates"]["y"]
+    player_z = RACE_DATA["player"][0]["coordinates"]["z"]
+
+    obj = get_car_crash_obj_data(id)
+
+    // obj is at 20, player at 23:
+    // check if player is in 15-25 for validity
+    // obj - 5: is player larger?
+    // obj + 5: is player smaller?
+    // if both: valid
+    return obj["x"] - 5.0 < player_x && obj["x"] + 5.0 > player_x &&
+           obj["y"] - 5.0 < player_y && obj["y"] + 5.0 > player_y &&
+           obj["z"] - 5.0 < player_z && obj["z"] + 5.0 > player_z &&
+           // also opponent must be crashing now
+           obj["crash"] > 0.0 && prev(obj["crash"] == 0.0)
+    // return obj["x"] != prev(obj["coord1"]) || obj["coord2"] != prev(obj["coord2"]) || obj["coord3"] != prev(obj["coord3"])
 }
 
 INPUT = {
@@ -216,6 +254,7 @@ RACE_DATA = {
         "position": byte(0x345BC0) + 1,
         "gear": byte(0x345CAC),
         "burnout": byte(0x345c06),
+        "flip": float(0x345bac),
         "viewpoint": byte(0x265EFC),
         "progress": {
             "checkpoints_completed": byte(0x345BC2),
@@ -873,12 +912,26 @@ achievement(
         INPUT["l"] == 1 && INPUT["r"] == 1
 )
 
+function opponent_crash_logic() {
+    cond = always_false()
+    // Up to 39 opponents, including the Player 2 object which will be a CPU if in Single Player mode
+    for id in range(1, 39, 1)
+    {
+      cond = cond || (check_if_crashed_nearby(id))
+    }
+    return cond
+}
+
 achievement(
     title = "Safety Redefined",
     points = 2,
     description = "With the Red Cat cause an opponent to crash in any mode except VS Battle",
     trigger = 
-        always_false()
+        // Car?
+        RACE_DATA["player"][0]["car"]["selection"] == 0x05 &&
+        trigger_when(opponent_crash_logic()) &&
+        in_race() &&
+        never(reset_race() || on_title_screen())
 )
 
 achievement(
@@ -898,9 +951,9 @@ achievement(
 )
 
 achievement(
-    title = "No Time for Breaks",
+    title = "No Time for Brakes",
     points = 3,
-    description = "In Single Race mode, with the Rule of the 9th in Automatic transmission finish a race on Dinosaur Canyon without using the breaks on Normal difficulty or higher",
+    description = "In Single Race mode, with the Rule of the 9th in Automatic transmission finish a race on Dinosaur Canyon without using the brakes on Normal difficulty or higher",
     trigger = 
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
