@@ -927,6 +927,8 @@ achievement(
     points = 2,
     description = "With the Red Cat cause an opponent to crash in any mode except VS Battle",
     trigger = 
+        // No VS mode
+        GAME_MODE != 0x03 &&
         // Car?
         RACE_DATA["player"][0]["car"]["selection"] == 0x05 &&
         trigger_when(opponent_crash_logic()) &&
