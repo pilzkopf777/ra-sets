@@ -358,10 +358,14 @@ function get_points_score_for_time_trial_flap_achievement(map_id) {
 
 
 TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS = {
-    "normal": "[Normal]",
-    "mirror": "[Mirror]",
-    "reverse": "[Reverse]",
-    "mirror_reverse": "[Mirror-Reverse]"
+    //"normal": "[Normal]",
+    //"mirror": "[Mirror]",
+    //"reverse": "[Reverse]",
+    //"mirror_reverse": "[Mirror-Reverse]"
+    "normal": "Normal",
+    "mirror": "Mirror",
+    "reverse": "Reverse",
+    "mirror_reverse": "Mirror Reverse"
 }
 
 // These are the targets for the Time Attack achievements
@@ -663,7 +667,7 @@ for current_map_id in range(0, 7, 1) {
     achievement(
     title = FIRST_PLACE_ACHIEVEMENT_NAME[current_map_id],
     points = get_points_score_for_compl_achievement(current_map_id),
-    description = format("In Single Race or Championship mode, finish in 1st place on {0} [Normal / Mirror] on Normal difficulty or higher", MapLookup[current_map_id]),
+    description = format("In Single Race or Championship mode, win a Normal or Mirrored race on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
     trigger = 
         (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
         // Medium difficulty or higher
@@ -687,7 +691,7 @@ for current_map_id in range(0, 7, 1) {
 achievement(
     title = "Driving a Hard Bargain",
     points = 3,
-    description = "In Single Race mode, reach the goal on any track with the fixation rulset of laps on Hard difficulty",
+    description = "In Single Race mode, complete a race on any track with the Fixation ruleset of laps on Hard difficulty",
     trigger = 
         GAME_MODE == 0x01 &&
         // Hard difficulty
@@ -842,7 +846,12 @@ for current_map_id in TIME_ATTACK_COURSE_TIME_MISSION_TYPE {
     achievement(
     title = format("Peak Pace: {0}", MapLookup[current_map_id]),
     points = get_points_score_for_time_trial_circuit_achievement(current_map_id),
-    description = format("In Time Attack mode, on {0} {1} beat the target time of {2} using the Fixation ruleset", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"]),
+    description = format("In Time Attack mode, beat the course time of {2} in a {3} lap race on {1} {0}",
+        MapLookup[current_map_id],
+        TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]],
+        TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_COURSE_TIME_MISSION_TYPE[current_map_id]]["course_string"],
+        FIXATION_LAP_RULES[current_map_id]
+    ),
     trigger = 
         // Time Attack mode?
         GAME_MODE == 0x02 &&
@@ -869,7 +878,7 @@ for current_map_id in TIME_ATTACK_FLAP_MISSION_TYPE {
     achievement(
     title = format("Dream Lap: {0}", MapLookup[current_map_id]),
     points = get_points_score_for_time_trial_flap_achievement(current_map_id),
-    description = format("In Time Attack mode, on {0} {1} beat the fastest lap time of {2}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]]["lap_string"]),
+    description = format("In Time Attack mode, beat the fastest lap time of {2} on {1} {0}", MapLookup[current_map_id], TIME_TRIAL_TARGET_TIMES_GENERIC_STRINGS[TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]], TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]]["lap_string"]),
     trigger = 
         // Time Attack mode?
         GAME_MODE == 0x02 &&
@@ -889,7 +898,7 @@ for current_map_id in TIME_ATTACK_FLAP_MISSION_TYPE {
 
 // TODO
 achievement(
-    title = "And They're Underway",
+    title = "[VOID] And They're Underway",
     points = 2,
     description = "Perform a Boost Start in any mode except VS Battle",
     trigger = 
@@ -946,15 +955,32 @@ achievement(
 achievement(
     title = "Chasing the Prey",
     points = 4,
-    description = "In Single Race mode, with the Falcon finish in 1st place in Desert City [Normal / Mirror] with the settings of 4 laps and 20 opponents present without ever dropping down a position",
+    description = "With the Falcon in Single Race mode, win a Normal or Mirrored 4 lap race with 20 opponents present in Desert City without ever dropping down a position",
     trigger = 
-        always_false()
+        // Single Race
+        GAME_MODE == 0x01 &&
+        // Car?
+        RACE_DATA["player"][0]["car"]["selection"] == 0x02 &&
+        // Desert City?
+        RACE_DATA["track"]["map"] == 0x03 &&
+        // Cannot be reverse type
+        get_map_reverse_state() == 0 &&
+        // Laps?
+        RACE_DATA["track"]["target_laps"] == 4 &&
+        // Opponents?
+        RACE_DATA["track"]["driver_count"] == 40 &&
+        // In race?
+        in_race() &&
+        // Race over? Did they win?
+        trigger_when(check_if_race_finished() && check_if_in_first(0)) &&
+        // Disable if the player drops in position; reset if they reset the race
+        disable_when(prev(RACE_DATA["player"][0]["position"]) < RACE_DATA["player"][0]["position"], until=reset_race())
 )
 
 achievement(
     title = "No Time for Brakes",
     points = 3,
-    description = "In Single Race mode, with the Rule of the 9th in Automatic transmission finish a race on Dinosaur Canyon without using the brakes on Normal difficulty or higher",
+    description = "With the Rule of the 9th in Single Race mode, finish a race on Dinosaur Canyon using Automatic transmission but without using the brakes on Normal difficulty or higher",
     trigger = 
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
@@ -967,7 +993,7 @@ achievement(
         // Dino Canyon?
         RACE_DATA["track"]["map"] == 0x02 &&
         // get break power input, retry when race starts again
-        disable_when(RACE_DATA["player"][0]["pedal"]["brake"] != 0x00, until=(reset_race())) &&
+        disable_when(RACE_DATA["player"][0]["pedal"]["brake"] != 0x00, until=reset_race()) &&
         // Unlock when..
         trigger_when(check_if_race_finished())
 )
@@ -975,7 +1001,7 @@ achievement(
 achievement(
     title = "The Classic",
     points = 3,
-    description = "In Single Race mode, with the Hornet finish a race on Three Seven Speedway set to 40 laps on Normal difficulty or higher",
+    description = "With the Hornet in Single Race mode, finish a 40 lap race on Three Seven Speedway on Normal difficulty or higher",
     trigger = 
         // Medium difficulty or higher
         SETTINGS["difficulty"] >= 1 &&
@@ -1022,7 +1048,7 @@ achievement(
 achievement(
     title = "Rolling Thunder",
     points = 3,
-    description = "In Single Race mode, with the Lightning win a race on National Park Speedway with the settings of 2 laps and 40 opponents present",
+    description = "With the Lightning, in Single Race mode win a 2 lap race with 40 opponents present on National Park Speedway",
     trigger = 
         // Single Race mode
         GAME_MODE == 0x01 &&
@@ -1032,14 +1058,13 @@ achievement(
         RACE_DATA["track"]["target_laps"] == 2 &&
         RACE_DATA["track"]["map"] == 0x04 &&
         RACE_DATA["track"]["driver_count"] == 40 &&
-        check_if_in_first(0) && 
-        trigger_when(check_if_race_finished())
+        trigger_when(check_if_race_finished() && check_if_in_first(0))
 )
 
 achievement(
     title = "Just Like the Real Thing",
     points = 3,
-    description = "With the Unicorn while staying in the cockpit view mode at all times reach the goal on Rin Rin Rink in any mode except VS Battle",
+    description = "With the Unicorn reach the goal on Rin Rin Rink while staying in the cockpit view mode at all times in any mode except VS Battle",
     trigger = 
         // No VS mode
         GAME_MODE != 0x03 &&
@@ -1056,7 +1081,7 @@ achievement(
 achievement(
     title = "The Perfect Run",
     points = 3,
-    description = "In Single Race mode, with the Grasshopper complete a lap in Desert City without crashing into a wall or an opponent with 40 opponents present",
+    description = "With the Grasshopper in Single Race mode, complete a lap with 40 opponents present in Desert City without crashing into a wall or an opponent",
     trigger = 
         // Single Race mode
         GAME_MODE == 0x01 &&
@@ -1079,11 +1104,11 @@ achievement(
     points = 10,
     description = format("With the Javelin reach a top speed of {0} km/h in any mode except VS Battle", TARGET_SPEED),
     trigger = 
+        // No VS mode!
+        GAME_MODE != 0x03 &&
         in_race() &&
-        // In all cases P1 can complete this mission 
-        (RACE_DATA["player"][0]["car"]["selection"] == 0x08 && trigger_when(reach_speed(0, TARGET_SPEED))) ||
-        // In VS mode, P2 could also do it
-        (GAME_MODE == 0x03 && RACE_DATA["player"][1]["car"]["selection"] == 0x08 && trigger_when(reach_speed(1, TARGET_SPEED)))
+        RACE_DATA["player"][0]["car"]["selection"] == 0x08 &&
+        trigger_when(reach_speed(0, TARGET_SPEED))
 )
 
 achievement(
@@ -1099,8 +1124,12 @@ achievement(
 // LB for Normal type
 for current_map_id in range(0, 7, 1) {
     leaderboard(
-        title = format("{0} [Normal / Mirror]: Best Course Time", MapLookup[current_map_id]),
-        description = format("Get the fastest Course Time on {0} [Normal / Mirror] using the Fixation ruleset of {1} laps in any mode except VS Battle", MapLookup[current_map_id], FIXATION_LAP_RULES[current_map_id]),
+        title = format("{0} Normal & Mirror: Best Course Time", MapLookup[current_map_id]),
+        // Get the fastest Course Time in a 8 lap race on the Normal or Mirrored version of Three Seven Speedway in any mode except VS Battle
+        description = format("Get the fastest Course Time in a {1} lap race on the Normal or Mirrored version of {0} in any mode except VS Battle",
+            MapLookup[current_map_id],
+            FIXATION_LAP_RULES[current_map_id]
+        ),
         start = 
             // No VS mode!
             GAME_MODE != 0x03 &&
@@ -1128,8 +1157,11 @@ for current_map_id in range(0, 7, 1) {
 // LB for Reverse type
 for current_map_id in range(0, 7, 1) {
     leaderboard(
-        title = format("{0} [Reverse / Reverse-Mirror]: Best Course Time", MapLookup[current_map_id]),
-        description = format("Get the fastest Course Time on {0} [Reverse / Mirror-Reverse] using the Fixation ruleset of {1} laps in any mode except VS Battle", MapLookup[current_map_id], FIXATION_LAP_RULES[current_map_id]),
+        title = format("{0} Reverse & Reverse Mirror: Best Course Time", MapLookup[current_map_id]),
+        description = format("Get the fastest Course Time in a {1} lap race on the Reverse or Reverse Mirrored version of {0} in any mode except VS Battle",
+            MapLookup[current_map_id],
+            FIXATION_LAP_RULES[current_map_id]
+        ),
         start = 
             // No VS mode!
             GAME_MODE != 0x03 &&
