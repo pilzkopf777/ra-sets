@@ -44,7 +44,10 @@ function on_victory_3rd_series() {
 }
 
 function in_race() {
-    return screen_check(0x006c) || screen_check(0x00cf) || screen_check(0x01bc) || screen_check(0x0012)
+    // Maybe exclude 0x01bc?
+    // -> return screen_check(0x006c) || screen_check(0x00cf) || screen_check(0x0012)
+    // return screen_check(0x006c) || screen_check(0x00cf) || screen_check(0x01bc) || screen_check(0x0012)
+    return screen_check(0x006c) || screen_check(0x00cf) || screen_check(0x0012)
 }
 
 function reset_race() {
@@ -127,6 +130,8 @@ function get_angular_distance(a, b) {
 //    return val > 50 && val < 500
 //}
 
+
+
 LOADING_SCREEN_STATE = dword(0x1bfd94)
 
 INTERACTIVE_OBJ_COUNT_RAW_ADR = 0x34d664
@@ -165,7 +170,6 @@ function get_car_crash_obj_data(id) {
     return obj
 }
 
-// TODO
 function check_if_crashed_nearby(id) {
     // RACE_DATA["player"][0]["coordinates"]["x"]
     player_x = RACE_DATA["player"][0]["coordinates"]["x"]
@@ -381,7 +385,7 @@ TIME_TRIAL_TARGET_TIMES = {
         //    "lap_string": ""
         //},
         "reverse": { // Course
-            "course_raw": 9071,
+            "course_raw": 0x236F,
             "course_string": "2'21\"734",
             "lap_raw": 0,
             "lap_string": ""
@@ -389,7 +393,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "mirror": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 1344,
+            "lap_raw": 0x540,
             "lap_string": "0'21\"000",
         },
     },
@@ -402,7 +406,7 @@ TIME_TRIAL_TARGET_TIMES = {
         //    "lap_string": ""
         //},
         "mirror": { // Course
-            "course_raw": 13410,
+            "course_raw": 0x3462,
             "course_string": "3'29\"531",
             "lap_raw": 0,
             "lap_string": ""
@@ -410,14 +414,14 @@ TIME_TRIAL_TARGET_TIMES = {
         "reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 7808,
+            "lap_raw": 0x1E80,
             "lap_string": "2'02\"000"
         },
     },
     // Dinosaur Canyon
     0x02: {
         "normal": { // Course
-            "course_raw": 13162,
+            "course_raw": 0x336A,
             "course_string": "2'21\"078",
             "lap_raw": 0,
             "lap_string": ""
@@ -431,20 +435,20 @@ TIME_TRIAL_TARGET_TIMES = {
         "mirror_reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 3520,
+            "lap_raw": 0xDC0,
             "lap_string": "0'55\"000"
         }
     },
     // Desert City
     0x03: {
         "normal": { // FLAP
-            "course_raw": 11975,
+            "course_raw": 0x2EC7,
             "course_string": "3'07\"109",
-            "lap_raw": 3520,
+            "lap_raw": 0xDC0,
             "lap_string": "0'55\"000"
         },
         "mirror_reverse": { // Course
-            "course_raw": 11928,
+            "course_raw": 0x2E98,
             "course_string": "3'06\"375",
             "lap_raw": 0,
             "lap_string": ""
@@ -459,7 +463,7 @@ TIME_TRIAL_TARGET_TIMES = {
         //    "lap_string": ""
         //},
         "mirror": { // Course
-            "course_raw": 14263,
+            "course_raw": 0x37B7,
             "course_string": "3'42\"859",
             "lap_raw": 0,
             "lap_string": ""
@@ -467,7 +471,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 3136,
+            "lap_raw": 0xC40,
             "lap_string": "0'49\"000"
         },
     },
@@ -480,7 +484,7 @@ TIME_TRIAL_TARGET_TIMES = {
         //    "lap_string": ""
         //},
         "reverse": { // Course
-            "course_raw": 9620,
+            "course_raw": 0x2594,
             "course_string": "2'30\"312",
             "lap_raw": 0,
             "lap_string": ""
@@ -488,7 +492,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "mirror": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 1344,
+            "lap_raw": 0x540,
             "lap_string": "0'21\"000"
         },
     },
@@ -497,11 +501,11 @@ TIME_TRIAL_TARGET_TIMES = {
         "normal": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 2880,
+            "lap_raw": 0xB40,
             "lap_string": "0'45\"000"
         },
         "mirror_reverse": { // Course
-            "course_raw": 14164,
+            "course_raw": 0x3754,
             "course_string": "3'41\"312",
             "lap_raw": 0,
             "lap_string": ""
@@ -510,7 +514,7 @@ TIME_TRIAL_TARGET_TIMES = {
     // Mermaid Lake
     0x07: {
         "normal": { // Course
-            "course_raw": 17177,
+            "course_raw": 0x4319,
             "course_string": "4'28\"390",
             "lap_raw": 0,
             "lap_string": ""
@@ -518,7 +522,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "mirror_reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 3328,
+            "lap_raw": 0xD00,
             "lap_string": "0'52\"000"
         }
     }
@@ -667,7 +671,7 @@ for current_map_id in range(0, 7, 1) {
     achievement(
     title = FIRST_PLACE_ACHIEVEMENT_NAME[current_map_id],
     points = get_points_score_for_compl_achievement(current_map_id),
-    description = format("In Single Race or Championship mode, win a Normal or Mirrored race on {0} on Normal difficulty or higher", MapLookup[current_map_id]),
+    description = format("In Single Race or Championship mode, win a {1} lap race on the Normal or Mirrored {0} on Normal difficulty or higher", MapLookup[current_map_id], FIXATION_LAP_RULES[current_map_id]),
     trigger = 
         (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
         // Medium difficulty or higher
@@ -696,7 +700,7 @@ achievement(
         GAME_MODE == 0x01 &&
         // Hard difficulty
         SETTINGS["difficulty"] == 2 &&
-        // Must be correct lap count; I got very lazy here. Sorry, future devs.
+        // Must be correct lap count; I got very lazy here.
         (
         ( RACE_DATA["track"]["map"] == 0 && FIXATION_LAP_RULES[0] == RACE_DATA["track"]["target_laps"]) ||
         ( RACE_DATA["track"]["map"] == 1 && FIXATION_LAP_RULES[1] == RACE_DATA["track"]["target_laps"]) ||
@@ -750,7 +754,8 @@ achievement(
     type = "win_condition",
     description = "Complete the \"King of Daytona\" championship series and unlock the Unicorn",
     trigger = 
-        GAME_MODE == 0x04 &&
+        // But why, game????
+        GAME_MODE == 0x00 &&
         on_car_unlock_screen() &&
         once(prev(UNLOCKS["Unicorn"]) == 0 && UNLOCKS["Unicorn"] == 1) &&
         never(CURRENT_SCREEN == 0x33 && prev(CURRENT_SCREEN != 0x33))
@@ -890,13 +895,11 @@ for current_map_id in TIME_ATTACK_FLAP_MISSION_TYPE {
         in_race() &&
         // Must be meeting time criteria
         // RACE_DATA["timing"]["total_time"] <= 0 &&
-        RACE_DATA["timing"]["last_lap_time"] < TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]]["lap_raw"] &&
+        trigger_when(RACE_DATA["timing"]["last_lap_time_raw"] < TIME_TRIAL_TARGET_TIMES[current_map_id][TIME_ATTACK_FLAP_MISSION_TYPE[current_map_id]]["lap_raw"] && lap_completed())
         // Complete a lap to get the achievement
-        lap_completed()
     )
 }
 
-// TODO
 achievement(
     title = "[VOID] And They're Underway",
     points = 2,
@@ -945,11 +948,15 @@ achievement(
 )
 
 achievement(
-    title = "Sideways Rollout",
-    points = 5,
-    description = "With the Pywackett Barchetta Super drift for 4 seconds at a time in any mode except VS Battle",
+    title = "Grab and Hold",
+    points = 3,
+    description = "In Single Race or Championship mode, with the Pywackett Barchetta Super win a race while performing a Pit Stop at least twice",
     trigger = 
-        always_false()
+        (GAME_MODE == 0x01 || GAME_MODE == 0x04) &&
+        never(reset_race() || !in_race()) &&
+        RACE_DATA["player"][0]["car"]["selection"] == 0x09 &&
+        // Race over? Did they win?
+        trigger_when(check_if_race_finished() && check_if_in_first(0) && repeated(2, prev(RACE_DATA["player"][0]["drive_state"]) == 0xbf94 && RACE_DATA["player"][0]["drive_state"] == 0xbb9c))
 )
 
 achievement(
@@ -968,7 +975,7 @@ achievement(
         // Laps?
         RACE_DATA["track"]["target_laps"] == 4 &&
         // Opponents?
-        RACE_DATA["track"]["driver_count"] == 40 &&
+        RACE_DATA["track"]["driver_count"] == 20 &&
         // In race?
         in_race() &&
         // Race over? Did they win?
@@ -1071,7 +1078,7 @@ achievement(
         // Unicorn only
         RACE_DATA["player"][0]["car"]["selection"] == 0x04 &&
         RACE_DATA["player"][0]["viewpoint"] == 0x01 &&
-        disable_when(RACE_DATA["player"][0]["viewpoint"] != 0x01, until=(RACE_DATA["timing"]["total_time_raw"] == 0 && prev(RACE_DATA["timing"]["total_time_raw"] != 0))) &&
+        disable_when(RACE_DATA["player"][0]["viewpoint"] != 0x01, until=(RACE_DATA["timing"]["total_time_raw"] == 0 && prev(RACE_DATA["timing"]["total_time_raw"] == 0))) &&
         // Correct map?
         RACE_DATA["track"]["map"] == 0x06 &&
         // Unlock when..
@@ -1114,11 +1121,14 @@ achievement(
 achievement(
     title = "Pole Possession",
     points = 5,
-    description = "In Championship mode, earn a Chain Lead bonus of 4 points",
+    description = "In Championship mode, cross the finish line first for 5 laps in a row",
     trigger = 
-        in_race() &&
-        RACE_DATA["championship"]["chain_lead"] == 4 &&
-        prev(RACE_DATA["championship"]["chain_lead"]) == 3       
+        GAME_MODE == 0x04 &&
+        repeated(5, lap_completed() && check_if_in_first(0)) &&
+        never(lap_completed() && !check_if_in_first(0)) &&
+        never(!in_race())
+        // RACE_DATA["championship"]["chain_lead"] == 4 &&
+        // prev(RACE_DATA["championship"]["chain_lead"]) == 3       
 )
 
 // LB for Normal type
