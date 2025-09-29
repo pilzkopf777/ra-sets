@@ -393,7 +393,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "mirror": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0x540,
+            "lap_raw": 0x0540,
             "lap_string": "0'21\"000",
         },
     },
@@ -421,7 +421,7 @@ TIME_TRIAL_TARGET_TIMES = {
     // Dinosaur Canyon
     0x02: {
         "normal": { // Course
-            "course_raw": 0x336A,
+            "course_raw": 0x2337,
             "course_string": "2'21\"078",
             "lap_raw": 0,
             "lap_string": ""
@@ -435,7 +435,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "mirror_reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0xDC0,
+            "lap_raw": 0x0DC0,
             "lap_string": "0'55\"000"
         }
     },
@@ -444,7 +444,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "normal": { // FLAP
             "course_raw": 0x2EC7,
             "course_string": "3'07\"109",
-            "lap_raw": 0xDC0,
+            "lap_raw": 0x0DC0,
             "lap_string": "0'55\"000"
         },
         "mirror_reverse": { // Course
@@ -471,7 +471,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0xC40,
+            "lap_raw": 0x0C40,
             "lap_string": "0'49\"000"
         },
     },
@@ -492,7 +492,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "mirror": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0x540,
+            "lap_raw": 0x0540,
             "lap_string": "0'21\"000"
         },
     },
@@ -501,11 +501,11 @@ TIME_TRIAL_TARGET_TIMES = {
         "normal": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0xB40,
+            "lap_raw": 0x0B40,
             "lap_string": "0'45\"000"
         },
         "mirror_reverse": { // Course
-            "course_raw": 0x3754,
+            "course_raw": 0x3744,
             "course_string": "3'41\"312",
             "lap_raw": 0,
             "lap_string": ""
@@ -522,7 +522,7 @@ TIME_TRIAL_TARGET_TIMES = {
         "mirror_reverse": { // FLAP
             "course_raw": 0,
             "course_string": "",
-            "lap_raw": 0xD00,
+            "lap_raw": 0x0D00,
             "lap_string": "0'52\"000"
         }
     }
