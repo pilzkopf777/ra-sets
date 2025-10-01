@@ -421,8 +421,8 @@ TIME_TRIAL_TARGET_TIMES = {
     // Dinosaur Canyon
     0x02: {
         "normal": { // Course
-            "course_raw": 0x2337,
-            "course_string": "2'21\"078",
+            "course_raw": 0x2E2B,
+            "course_string": "3'04\"671", // wrong!
             "lap_raw": 0,
             "lap_string": ""
         },
@@ -505,7 +505,7 @@ TIME_TRIAL_TARGET_TIMES = {
             "lap_string": "0'45\"000"
         },
         "mirror_reverse": { // Course
-            "course_raw": 0x3744,
+            "course_raw": 0x3754,
             "course_string": "3'41\"312",
             "lap_raw": 0,
             "lap_string": ""
