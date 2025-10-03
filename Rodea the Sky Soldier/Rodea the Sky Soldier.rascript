@@ -28,6 +28,22 @@ function ptr(base, offsets, accessor=dword_be)
     return val
 }
 
+function get_active_save_slot() {
+    return dword_be(0x003F210C)
+}
+
+function check_if_on_title_screen() {
+    return dword_be(0x003F210C) == 0x04
+}
+
+function check_if_in_multiplayer() {
+    return dword_be(0x003F210C) == 0x03
+}
+
+function get_current_stage() {
+    return dword_be(0x3f0a24)
+}
+
 
 START_OF_SAVE_SLOT_1 = 0x00EDF3D0
 
@@ -82,13 +98,39 @@ class ChapterSaveData
 //
 //    }
 
-
 }
+
+class SaveSlot
+{
+    save_slot = 0
+
+    function get_chapter(chapter) {
+        return ChapterSaveData(save_slot=this.save_slot, chapter=chapter)
+    }
+
+    function is_chapter_beaten(chapter) {
+        return this.get_chapter(chapter).is_beaten()
+    }
+}
+
+
+save_slot_0 = SaveSlot(save_slot=0)
+save_slot_1 = SaveSlot(save_slot=1)
+save_slot_2 = SaveSlot(save_slot=2)
+
+
 
 function clear_prologue_logic() {
-  cp= ChapterSaveData(save_slot=0, chapter=0)
-  return cp.is_beaten() && prev(!cp.is_beaten())
+    return !check_if_on_title_screen() &&
+        get_current_stage() == 26 &&
+        (
+            save_slot_0.is_chapter_beaten(0) && prev(!save_slot_0.is_chapter_beaten(0)) ||
+            save_slot_1.is_chapter_beaten(0) && prev(!save_slot_1.is_chapter_beaten(0)) ||
+            save_slot_2.is_chapter_beaten(0) && prev(!save_slot_2.is_chapter_beaten(0))
+        )
 }
+
+
 
 achievement(
     title = "Debug Stuff in RA", points = 50,
