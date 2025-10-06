@@ -328,9 +328,9 @@ achievement(
 
 CHAPTER_CLEAR_ACHIEVEMENT_NAMES = {
     5: "Proving Your Resolve",
-    10: "10",
-    15: "15",
-    20: "20",
+    10: "Lingering Memories",
+    15: "Burning Desire",
+    20: "Leap of Faith",
     25: "May These Feelings Reach the Future"
 }
 
@@ -343,10 +343,19 @@ CHAPTER_CLEAR_PTS_MAP = {
     25: 25
 }
 
+function get_progression_type(current_chapter) {
+    if (current_chapter == 25) {
+        return "win_condition"
+    } else {
+        "progression"
+    }
+}
+
 for current_chapter in range(5, 25, 5) {
     achievement(
     title = CHAPTER_CLEAR_ACHIEVEMENT_NAMES[current_chapter],
     points = CHAPTER_CLEAR_PTS_MAP[current_chapter],
+    type = get_progression_type(current_chapter),
     description = format("Complete Chapter {0}", current_chapter),
     trigger = 
         !check_if_on_title_screen() && get_current_chapter() == current_chapter &&
@@ -374,11 +383,19 @@ MEDAL_COLLECTION_PTS_MAP = {
     25: 25
 }
 
+CHAPTERS_WITH_MEDALS = {
+    5: 4,
+    10: 4,
+    15: 4,
+    20: 4,
+    25: 3
+}
+
 for current_chapter in range(5, 25, 5) {
     achievement(
     title = format("The Legacy of the {0}", MEDAL_COLLECTION_ACHIEVEMENT_NAMES[current_chapter]),
     points = MEDAL_COLLECTION_PTS_MAP[current_chapter],
-    description = format("Collect all Legacy Medals in Chapters {0} through {1}", current_chapter - 4, current_chapter),
+    description = format("Collect all Legacy Medals in Chapters {0} through {1}", current_chapter - 4, current_chapter - 5 + CHAPTERS_WITH_MEDALS[current_chapter]),
     trigger = 
         // TODO: Logic for medal collection check
         check_if_in_chapter_results() && always_false()
