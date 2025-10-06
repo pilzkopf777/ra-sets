@@ -40,27 +40,29 @@ function check_if_in_multiplayer() {
     return dword_be(0x003F210C) == 0x03
 }
 
-function get_current_stage() {
-    val_1 = dword_be(0x3f0a24)
-    val_2 = dword_be(0x3f0a28)
-
-    // Same ID = Regular stage
-    if (val_1 == val_2) {
-        return val_1
-    }
-    // Special rule for prologue in new save file
-    else if (val_1 == 0x1a && val_2 == 0x00) {
-        return 0x00
-    }
-    // Chapter select
-    else {
-        return 0xFF
-    }
+function check_if_in_chapter_select() {
+    return dword_be(0x3f211c) != 0x00 // If pointer points places we are in chapter select
 }
 
-// TODO: check if stage restarted..?
-function check_if_respawned_or_restarted() {
-    return 0
+function check_if_in_chapter_results() {
+    return dword_be(0x3f1cfc) != 0x00 // See above
+}
+
+function results_rolled_in() {
+    roll_state = ptr(dword_be(0x3f1cfc), [0x00], dword_be)
+    return roll_state == 0x08 && prev(roll_state) != 0x08
+}
+
+function in_active_gameplay() {
+    return dword_be(0x3f1478) != 0x00
+}
+
+function get_current_chapter() {
+    return dword_be(0x3f0a28)
+}
+
+function check_if_save_file_loaded() {
+    return dword_be(0x3f210c) <= 2
 }
 
 function in_graviton_door() {
@@ -92,7 +94,6 @@ function get_bottom_objective_id() {
 }
 
 
-FLIGHT_POINTER = dword_be(0xa186e8)
 PLAYER_DATA_POINTER = dword_be(0x3f1478)
 
 START_OF_SAVE_SLOT_1 = 0x00EDF3D0
@@ -178,11 +179,11 @@ class ItemCapsule
         return val
     }
 
-    function capsule_opened {
+    function capsule_opened() {
         return ptr(dword_be(this._get_state_adr()), [0x04], dword_be) == 0x01
     }
 
-    function capsule_unopened {
+    function capsule_unopened() {
         return ptr(dword_be(this._get_state_adr()), [0x04], dword_be) == 0x00
     }
 }
@@ -204,6 +205,15 @@ class RodeaObject
         return dword_be(0xf58010)
     }
 
+    function died() {
+        // Timer resets to last checkpoint split upon death
+        return get_stage_time() < prev(get_stage_time())
+    }
+
+    function restarted_stage() {
+        return get_stage_time() < prev(get_stage_time()) && get_stage_time() == 0
+    }
+
     // Gravitons and Chain
     function get_gravitons() {
         return ptr(dword_be(0x3f1638), [0xc6], word_be)
@@ -216,6 +226,10 @@ class RodeaObject
     // State
     function stuck_in_spiderweb() {
         return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x6c
+    }
+
+    function in_victory_pose() {
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x4b
     }
 
     // Gears
@@ -254,19 +268,19 @@ class RodeaObject
 
     // Flight
     function get_flight_target_x() {
-        return ptr(FLIGHT_POINTER, [0xEF8], float_be)
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0xEF8], float_be)
     }
 
     function get_flight_target_y() {
-        return ptr(FLIGHT_POINTER, [0xEFC], float_be)
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0xEFC], float_be)
     }
 
     function get_flight_target_z() {
-        return ptr(FLIGHT_POINTER, [0xFD0], float_be)
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0xFD0], float_be)
     }
 
     function get_flight_speed() {
-        return ptr(FLIGHT_POINTER, [0xFDC], float_be)
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0xFDC], float_be)
     }
 }
 
@@ -281,7 +295,7 @@ rodea = RodeaObject()
 
 
 function clear_chapter_logic(target_stage) {
-    return !check_if_on_title_screen() && get_current_stage() == target_stage &&
+    return !check_if_on_title_screen() && get_current_chapter() == target_stage &&
     (
         save_slot_0.is_chapter_beaten_first_time(target_stage) && prev(!save_slot_0.is_chapter_beaten_first_time(target_stage)) ||
         save_slot_1.is_chapter_beaten_first_time(target_stage) && prev(!save_slot_1.is_chapter_beaten_first_time(target_stage)) ||
@@ -290,17 +304,16 @@ function clear_chapter_logic(target_stage) {
 }
 
 function clear_without_spiderweb_logic() {
-    return !check_if_on_title_screen() && get_current_stage() == 2 &&
-    // todo: also check if goal reached
-    trigger_when(always_true()) &&
-    never(rodea.stuck_in_spiderweb() && prev(!rodea.stuck_in_spiderweb()))
+    return !check_if_on_title_screen() && get_current_chapter() == 2 &&
+    trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose())) &&
+    disable_when(rodea.stuck_in_spiderweb() && prev(!rodea.stuck_in_spiderweb()), until=rodea.restarted_stage())
 }
 
 function clear_bomber_attack_without_dmg_logic() {
     // TODO: objective id as check
-    return !check_if_on_title_screen() && get_current_stage() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0
+    return !check_if_on_title_screen() && get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
     // TODO: was it 5 hp?
-    never(get_ion_wave_hp() < prev(get_ion_wave_hp())) &&
+    disable_when(get_ion_wave_hp() < prev(get_ion_wave_hp()), until=rodea.died()) &&
     // TODO: trigger when bomber defeated
     trigger_when(always_true())
 }
@@ -313,12 +326,75 @@ achievement(
         clear_chapter_logic(0)
 )
 
+CHAPTER_CLEAR_ACHIEVEMENT_NAMES = {
+    5: "Proving Your Resolve",
+    10: "10",
+    15: "15",
+    20: "20",
+    25: "May These Feelings Reach the Future"
+}
 
+CHAPTER_CLEAR_PTS_MAP = {
+    0: 1,
+    5: 5,
+    10: 10,
+    15: 10,
+    20: 10,
+    25: 25
+}
+
+for current_chapter in range(5, 25, 5) {
+    achievement(
+    title = CHAPTER_CLEAR_ACHIEVEMENT_NAMES[current_chapter],
+    points = CHAPTER_CLEAR_PTS_MAP[current_chapter],
+    description = format("Complete Chapter {0}", current_chapter),
+    trigger = 
+        !check_if_on_title_screen() && get_current_chapter() == current_chapter &&
+        (
+            save_slot_0.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_0.is_chapter_beaten_first_time(current_chapter)) ||
+            save_slot_1.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_1.is_chapter_beaten_first_time(current_chapter)) ||
+            save_slot_2.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_2.is_chapter_beaten_first_time(current_chapter))
+        )
+    )
+}
+
+MEDAL_COLLECTION_ACHIEVEMENT_NAMES = {
+    5: "Grasslands",
+    10: "Desert",
+    15: "Volcano",
+    20: "Snowbank",
+    25: "Naga Empire"
+}
+
+MEDAL_COLLECTION_PTS_MAP = {
+    5: 10,
+    10: 10,
+    15: 10,
+    20: 25,
+    25: 25
+}
+
+for current_chapter in range(5, 25, 5) {
+    achievement(
+    title = format("The Legacy of the {0}", MEDAL_COLLECTION_ACHIEVEMENT_NAMES[current_chapter]),
+    points = MEDAL_COLLECTION_PTS_MAP[current_chapter],
+    description = format("Collect all Legacy Medals in Chapters {0} through {1}", current_chapter - 4, current_chapter),
+    trigger = 
+        // TODO: Logic for medal collection check
+        check_if_in_chapter_results() && always_false()
+    )
+}
 
 
 
 rich_presence_conditional_display(check_if_on_title_screen(), "Rodea is on the Title Screen")
 
+rich_presence_conditional_display(check_if_in_chapter_select(), "Rodea is on the way to the next destination")
 
+// TODO: Prologue fallback
+rich_presence_conditional_display(in_active_gameplay(), "Rodea is in Chapter {0} - {1} / 9999 Medals",
+    rich_presence_value("Chapter", get_current_chapter()),
+    rich_presence_value("Medals", 0)
+)
 
 rich_presence_display("Preparing to take flight!")
