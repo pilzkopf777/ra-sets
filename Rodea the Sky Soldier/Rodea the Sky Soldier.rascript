@@ -146,8 +146,16 @@ class ChapterSaveData
         return bitcount(this._get_start_adr_raw() + 0x17)
     }
 
-    function all_medals_collected() {
-        this.get_bronze_medal_count() == 5 && this.get_silver_medal_count() == 3 && this.get_gold_medal_count() == 1
+    // function all_medals_collected() {
+    //     if (this.chapter == 0 || this.chapter == 4 || this.chapter == 9 || this.chapter == 14 || this.chapter == 19 || this.chapter == 24 || this.chapter == 25) {
+    //         return always_true()
+    //     } else {
+    //         return this.get_bronze_medal_count() == 5 && this.get_silver_medal_count() == 3 && this.get_gold_medal_count() == 1
+    //     }
+    // }
+
+    function get_amount_of_medals_collected() {
+        return this.get_bronze_medal_count() + this.get_silver_medal_count() + this.get_gold_medal_count()
     }
 
 }
@@ -162,6 +170,27 @@ class SaveSlot
 
     function is_chapter_beaten_first_time(chapter) {
         return this.get_chapter(chapter).is_beaten()
+    }
+
+    function collected_all_medals_on_page(first_chapter) {
+        //return this.get_chapter(first_chapter).all_medals_collected() && // eg 5
+        //       this.get_chapter(first_chapter + 1).all_medals_collected() &&  // eg 6
+        //       this.get_chapter(first_chapter + 2).all_medals_collected() &&  // eg 7
+        //       this.get_chapter(first_chapter + 3).all_medals_collected() &&  // eg 8
+        //       this.get_chapter(first_chapter + 4).all_medals_collected() // 9
+
+        if (first_chapter == 21) {
+            target = 27
+        } else {
+            target = 36
+        }
+        collected = this.get_chapter(first_chapter + 0).get_amount_of_medals_collected() + 
+                    this.get_chapter(first_chapter + 1).get_amount_of_medals_collected() +
+                    this.get_chapter(first_chapter + 2).get_amount_of_medals_collected() +
+                    this.get_chapter(first_chapter + 3).get_amount_of_medals_collected() +
+                    this.get_chapter(first_chapter + 4).get_amount_of_medals_collected()
+                    
+        return measured(collected == target)
     }
 }
 
@@ -297,9 +326,9 @@ rodea = RodeaObject()
 function clear_chapter_logic(target_stage) {
     return !check_if_on_title_screen() && get_current_chapter() == target_stage &&
     (
-        save_slot_0.is_chapter_beaten_first_time(target_stage) && prev(!save_slot_0.is_chapter_beaten_first_time(target_stage)) ||
-        save_slot_1.is_chapter_beaten_first_time(target_stage) && prev(!save_slot_1.is_chapter_beaten_first_time(target_stage)) ||
-        save_slot_2.is_chapter_beaten_first_time(target_stage) && prev(!save_slot_2.is_chapter_beaten_first_time(target_stage))
+        save_slot_0.is_chapter_beaten_first_time(target_stage) ||
+        save_slot_1.is_chapter_beaten_first_time(target_stage) ||
+        save_slot_2.is_chapter_beaten_first_time(target_stage)    
     )
 }
 
@@ -347,7 +376,7 @@ function get_progression_type(current_chapter) {
     if (current_chapter == 25) {
         return "win_condition"
     } else {
-        "progression"
+        return "progression"
     }
 }
 
@@ -391,14 +420,22 @@ CHAPTERS_WITH_MEDALS = {
     25: 3
 }
 
+function medal_collection_logic(first_chapter) {
+    return check_if_in_chapter_results() &&
+    (
+        save_slot_0.collected_all_medals_on_page(first_chapter) ||
+        save_slot_1.collected_all_medals_on_page(first_chapter) ||
+        save_slot_2.collected_all_medals_on_page(first_chapter)     
+    )
+}
+
 for current_chapter in range(5, 25, 5) {
     achievement(
     title = format("The Legacy of the {0}", MEDAL_COLLECTION_ACHIEVEMENT_NAMES[current_chapter]),
     points = MEDAL_COLLECTION_PTS_MAP[current_chapter],
     description = format("Collect all Legacy Medals in Chapters {0} through {1}", current_chapter - 4, current_chapter - 5 + CHAPTERS_WITH_MEDALS[current_chapter]),
     trigger = 
-        // TODO: Logic for medal collection check
-        check_if_in_chapter_results() && always_false()
+        medal_collection_logic(first_chapter=current_chapter - 4)
     )
 }
 
