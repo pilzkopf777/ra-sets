@@ -41,7 +41,54 @@ function check_if_in_multiplayer() {
 }
 
 function get_current_stage() {
-    return dword_be(0x3f0a24)
+    val_1 = dword_be(0x3f0a24)
+    val_2 = dword_be(0x3f0a28)
+
+    // Same ID = Regular stage
+    if (val_1 == val_2) {
+        return val_1
+    }
+    // Special rule for prologue in new save file
+    else if (val_1 == 0x1a && val_2 == 0x00) {
+        return 0x00
+    }
+    // Chapter select
+    else {
+        return 0xFF
+    }
+}
+
+// TODO: check if stage restarted..?
+function check_if_respawned_or_restarted() {
+    return 0
+}
+
+function in_graviton_door() {
+    return dword_be(0x3f1448) == 0x01
+}
+
+function get_stage_time() {
+    return dword_be(0x3f19e4)
+}
+
+function timer_frozen_due_to_cutscene() {
+    return dword_be(0x3f19e0) == 0x01
+}
+
+function get_boss_hp() {
+    return ptr(dword_be(0x3f1d00), [0x04], dword_be)
+}
+
+function get_ion_wave_hp() {
+    return dword_be(0x3efa94)
+}
+
+function get_top_objective_id() {
+    return ptr(dword_be(0x3f19dc), [0x410], dword_be)
+}
+
+function get_bottom_objective_id() {
+    return ptr(dword_be(0x3f19dc), [0x414], dword_be)
 }
 
 
@@ -112,60 +159,63 @@ class SaveSlot
         return ChapterSaveData(save_slot=this.save_slot, chapter=chapter)
     }
 
-    function is_chapter_beaten(chapter) {
+    function is_chapter_beaten_first_time(chapter) {
         return this.get_chapter(chapter).is_beaten()
     }
 }
 
-/*
-[32-bit BE] Player data
-+0x08
+INTERACTIVE_ITEM_BASE = 0x3f1818
 
-++0x50 = [32-bit BE] Current tool
-..0xfffffff = None
-..0x00000000 = Machine Gun Gear
-..0x00000001 = Slide Gear
-..0x00000002 = Lock-on Gear
+class ItemCapsule
+{
+    id = 0
 
-++0x54 = [32-bit BE float] Energy in current tool (100.0 through 0.0)
-++0x64 = [32-bit BE] Power Wing state (0x01 if none, 0x02 if collected)
+    function _get_state_adr() {
+        val = INTERACTIVE_ITEM_BASE + 0x10000
+        offset = this.id * 0x0c
+        val = val + offset
+        val = val - 0x57fc
+        return val
+    }
 
-++0x128 = [32-bit BE] Current state
-..0x01 = Standing still
-..0x02 = Idle animation
-..0x03 = Crouching before flight
-..0x05 = Walking
-..0x07 through 0x09 = Dodge roll
-..0x10 through 0x1a = Any form of flight
-..0x23 = Charge Attack
-..0x24 = Falling
-..0x27 = Landing
-..0x53 = Collected Power Wing
-..0x72 = Hurt / Knockback
+    function capsule_opened {
+        return ptr(dword_be(this._get_state_adr()), [0x04], dword_be) == 0x01
+    }
 
-++0x350 = [32-bit BE float] Coordinate X
-++0x354 = [32-bit BE float] Coordinate Y (height)
-++0x358 = [32-bit BE float] Coordinate Z
+    function capsule_unopened {
+        return ptr(dword_be(this._get_state_adr()), [0x04], dword_be) == 0x00
+    }
+}
 
-++0x35c = [32-bit BE float] Model rotation X
-++0x360 = [32-bit BE float] Model rotation Y
-++0x364 = [32-bit BE float] Model rotation Z
-
-++0x368 = [32-bit BE float] Movement input X
-++0x36c = [32-bit BE float] Movement input Y
-++0x370 = [32-bit BE float] Movement input Z
-*/
 class RodeaObject
 {
-    // function has_power_wing_plus() {
-    //     PLAYER_DATA_POINTER
-    // }
-
     current_gear = ptr(PLAYER_DATA_POINTER, [0x08, 0x50], dword_be)
 
-    // Power Wing
-    function has_power_wing_plus() {
-        return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x00
+    // HP, Lives
+    function get_hp() {
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x64], dword_be)
+    }
+
+    function has_shield() {
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x68], dword_be) == 0x01
+    }
+
+    function get_lives() {
+        return dword_be(0xf58010)
+    }
+
+    // Gravitons and Chain
+    function get_gravitons() {
+        return ptr(dword_be(0x3f1638), [0xc6], word_be)
+    }
+
+    function get_chain() {
+        return ptr(dword_be(0x3f1638), [0xd0], word_be)
+    }
+
+    // State
+    function stuck_in_spiderweb() {
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x6c
     }
 
     // Gears
@@ -225,16 +275,34 @@ save_slot_0 = SaveSlot(save_slot=0)
 save_slot_1 = SaveSlot(save_slot=1)
 save_slot_2 = SaveSlot(save_slot=2)
 
+unused_hp_capsule = ItemCapsule(id=0x88)
+
+rodea = RodeaObject()
 
 
-function clear_prologue_logic() {
-    return !check_if_on_title_screen() &&
-        get_current_stage() == 26 &&
-        (
-            save_slot_0.is_chapter_beaten(0) && prev(!save_slot_0.is_chapter_beaten(0)) ||
-            save_slot_1.is_chapter_beaten(0) && prev(!save_slot_1.is_chapter_beaten(0)) ||
-            save_slot_2.is_chapter_beaten(0) && prev(!save_slot_2.is_chapter_beaten(0))
-        )
+function clear_chapter_logic(target_stage) {
+    return !check_if_on_title_screen() && get_current_stage() == target_stage &&
+    (
+        save_slot_0.is_chapter_beaten_first_time(target_stage) && prev(!save_slot_0.is_chapter_beaten_first_time(target_stage)) ||
+        save_slot_1.is_chapter_beaten_first_time(target_stage) && prev(!save_slot_1.is_chapter_beaten_first_time(target_stage)) ||
+        save_slot_2.is_chapter_beaten_first_time(target_stage) && prev(!save_slot_2.is_chapter_beaten_first_time(target_stage))
+    )
+}
+
+function clear_without_spiderweb_logic() {
+    return !check_if_on_title_screen() && get_current_stage() == 2 &&
+    // todo: also check if goal reached
+    trigger_when(always_true()) &&
+    never(rodea.stuck_in_spiderweb() && prev(!rodea.stuck_in_spiderweb()))
+}
+
+function clear_bomber_attack_without_dmg_logic() {
+    // TODO: objective id as check
+    return !check_if_on_title_screen() && get_current_stage() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0
+    // TODO: was it 5 hp?
+    never(get_ion_wave_hp() < prev(get_ion_wave_hp())) &&
+    // TODO: trigger when bomber defeated
+    trigger_when(always_true())
 }
 
 
@@ -242,7 +310,7 @@ achievement(
     title = "Debug Stuff in RA", points = 50,
     description = "Debug Away!",
     trigger =
-        clear_prologue_logic()
+        clear_chapter_logic(0)
 )
 
 
