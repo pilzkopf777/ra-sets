@@ -73,6 +73,14 @@ function get_stage_time() {
     return dword_be(0x3f19e4)
 }
 
+function get_bomb_time_left() {
+    return ptr(dword_be(0x3f19dc), [0xAF0], float_be)
+}
+
+function bomb_timer_stopped() {
+    return ptr(dword_be(0x3f19dc), [0xAEC], dword_be)
+}
+
 function timer_frozen_due_to_cutscene() {
     return dword_be(0x3f19e0) == 0x01
 }
@@ -91,6 +99,10 @@ function get_top_objective_id() {
 
 function get_bottom_objective_id() {
     return ptr(dword_be(0x3f19dc), [0x414], dword_be)
+}
+
+function restarted_stage() {
+    return get_stage_time() < prev(get_stage_time()) && get_stage_time() == 0
 }
 
 
@@ -172,6 +184,14 @@ class SaveSlot
         return this.get_chapter(chapter).is_beaten()
     }
 
+    function get_total_medals_collected() {
+        sum = 0
+        for current_chapter in range(0, 25, 1) {
+            sum = sum + this.get_chapter(current_chapter).get_amount_of_medals_collected()
+        }
+        return sum
+    }
+
     function collected_all_medals_on_page(first_chapter) {
         //return this.get_chapter(first_chapter).all_medals_collected() && // eg 5
         //       this.get_chapter(first_chapter + 1).all_medals_collected() &&  // eg 6
@@ -223,6 +243,7 @@ class RodeaObject
 
     // HP, Lives
     function get_hp() {
+        // 0 = no wing, 1 = with wing, 2 = powered up
         return ptr(PLAYER_DATA_POINTER, [0x08, 0x64], dword_be)
     }
 
@@ -237,10 +258,6 @@ class RodeaObject
     function died() {
         // Timer resets to last checkpoint split upon death
         return get_stage_time() < prev(get_stage_time())
-    }
-
-    function restarted_stage() {
-        return get_stage_time() < prev(get_stage_time()) && get_stage_time() == 0
     }
 
     // Gravitons and Chain
@@ -335,7 +352,7 @@ function clear_chapter_logic(target_stage) {
 function clear_without_spiderweb_logic() {
     return !check_if_on_title_screen() && get_current_chapter() == 2 &&
     trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose())) &&
-    disable_when(rodea.stuck_in_spiderweb() && prev(!rodea.stuck_in_spiderweb()), until=rodea.restarted_stage())
+    disable_when(rodea.stuck_in_spiderweb() && prev(!rodea.stuck_in_spiderweb()), until=restarted_stage())
 }
 
 function clear_bomber_attack_without_dmg_logic() {
@@ -343,17 +360,26 @@ function clear_bomber_attack_without_dmg_logic() {
     return !check_if_on_title_screen() && get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
     // TODO: was it 5 hp?
     disable_when(get_ion_wave_hp() < prev(get_ion_wave_hp()), until=rodea.died()) &&
-    // TODO: trigger when bomber defeated
-    trigger_when(always_true())
+    trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose()))
 }
 
+function escape_bomb_logic() {
+    // check objective ids
+    return !check_if_on_title_screen() && get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
+    disable_when(get_bomb_time_left() < 30.0 && prev(get_bomb_time_left()) => 30.0) &&
+    // Timer pauses upon explosion and when stopped (todo: check if also during pause menu)
+    // Bomb timer runs into negative
+    trigger_when(bomb_timer_stopped() && get_bomb_time_left() > 0.0)
+}
 
-achievement(
-    title = "Debug Stuff in RA", points = 50,
-    description = "Debug Away!",
-    trigger =
-        clear_chapter_logic(0)
-)
+function clear_all_rolling_enemies_logic() {
+    // TODO: was it 6?
+    chain_target = 6
+    // TODO check values
+    return !check_if_on_title_screen() && get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
+    disable_when(rodea.get_chain < prev(rodea.get_chain)) &&
+    trigger_when(rodea.get_chain == chain_target && prev(rodea.get_chain) == chain_target - 1)
+}
 
 CHAPTER_CLEAR_ACHIEVEMENT_NAMES = {
     5: "Proving Your Resolve",
@@ -445,10 +471,23 @@ rich_presence_conditional_display(check_if_on_title_screen(), "Rodea is on the T
 
 rich_presence_conditional_display(check_if_in_chapter_select(), "Rodea is on the way to the next destination")
 
-// TODO: Prologue fallback
-rich_presence_conditional_display(in_active_gameplay(), "Rodea is in Chapter {0} - {1} / 9999 Medals",
+// TODO: Probably better as loop?
+rich_presence_conditional_display(in_active_gameplay() && get_active_save_slot() == 0,
+    "Rodea is in Chapter {0} - {1} / 9999 Medals",
     rich_presence_value("Chapter", get_current_chapter()),
-    rich_presence_value("Medals", 0)
+    rich_presence_value("Medals", save_slot_0.get_total_medals_collected())
+)
+
+rich_presence_conditional_display(in_active_gameplay() && get_active_save_slot() == 1,
+    "Rodea is in Chapter {0} - {1} / 9999 Medals",
+    rich_presence_value("Chapter", get_current_chapter()),
+    rich_presence_value("Medals", save_slot_1.get_total_medals_collected())
+)
+
+rich_presence_conditional_display(in_active_gameplay() && get_active_save_slot() == 2,
+    "Rodea is in Chapter {0} - {1} / 9999 Medals",
+    rich_presence_value("Chapter", get_current_chapter()),
+    rich_presence_value("Medals", save_slot_2.get_total_medals_collected())
 )
 
 rich_presence_display("Preparing to take flight!")
