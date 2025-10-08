@@ -105,6 +105,19 @@ function restarted_stage() {
     return get_stage_time() < prev(get_stage_time()) && get_stage_time() == 0
 }
 
+// S_RANK_GOALS[0]["grav"] == ...
+S_RANK_GOALS = {
+    0:
+        {
+            "time": 0,
+            "grav": 0
+        },
+    1:
+        {
+            "time": 0,
+            "grav": 0
+        }
+}
 
 PLAYER_DATA_POINTER = dword_be(0x3f1478)
 
@@ -340,15 +353,6 @@ unused_hp_capsule = ItemCapsule(id=0x88)
 rodea = RodeaObject()
 
 
-function clear_chapter_logic(target_stage) {
-    return !check_if_on_title_screen() && get_current_chapter() == target_stage &&
-    (
-        save_slot_0.is_chapter_beaten_first_time(target_stage) ||
-        save_slot_1.is_chapter_beaten_first_time(target_stage) ||
-        save_slot_2.is_chapter_beaten_first_time(target_stage)    
-    )
-}
-
 function clear_without_spiderweb_logic() {
     return !check_if_on_title_screen() && get_current_chapter() == 2 &&
     trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose())) &&
@@ -406,22 +410,6 @@ function get_progression_type(current_chapter) {
     }
 }
 
-for current_chapter in range(5, 25, 5) {
-    achievement(
-    title = CHAPTER_CLEAR_ACHIEVEMENT_NAMES[current_chapter],
-    points = CHAPTER_CLEAR_PTS_MAP[current_chapter],
-    type = get_progression_type(current_chapter),
-    description = format("Complete Chapter {0}", current_chapter),
-    trigger = 
-        !check_if_on_title_screen() && get_current_chapter() == current_chapter &&
-        (
-            save_slot_0.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_0.is_chapter_beaten_first_time(current_chapter)) ||
-            save_slot_1.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_1.is_chapter_beaten_first_time(current_chapter)) ||
-            save_slot_2.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_2.is_chapter_beaten_first_time(current_chapter))
-        )
-    )
-}
-
 MEDAL_COLLECTION_ACHIEVEMENT_NAMES = {
     5: "Grasslands",
     10: "Desert",
@@ -447,15 +435,30 @@ CHAPTERS_WITH_MEDALS = {
 }
 
 function medal_collection_logic(first_chapter) {
-    return check_if_in_chapter_results() &&
+    return !check_if_on_title_screen() && check_if_in_chapter_results() &&
     (
-        save_slot_0.collected_all_medals_on_page(first_chapter) ||
-        save_slot_1.collected_all_medals_on_page(first_chapter) ||
-        save_slot_2.collected_all_medals_on_page(first_chapter)     
+        // TODO: this is a measured, is this fine without delta?
+        get_active_save_slot() == 0 && save_slot_0.collected_all_medals_on_page(first_chapter) ||
+        get_active_save_slot() == 1 && save_slot_1.collected_all_medals_on_page(first_chapter) ||
+        get_active_save_slot() == 2 && save_slot_2.collected_all_medals_on_page(first_chapter)     
     )
 }
 
 for current_chapter in range(5, 25, 5) {
+    achievement(
+    title = CHAPTER_CLEAR_ACHIEVEMENT_NAMES[current_chapter],
+    points = CHAPTER_CLEAR_PTS_MAP[current_chapter],
+    type = get_progression_type(current_chapter),
+    description = format("Complete Chapter {0}", current_chapter),
+    trigger = 
+        !check_if_on_title_screen() && get_current_chapter() == current_chapter && check_if_in_chapter_results() &&
+        (
+            get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_0.is_chapter_beaten_first_time(current_chapter)) ||
+            get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_1.is_chapter_beaten_first_time(current_chapter)) ||
+            get_active_save_slot() == 2 && save_slot_2.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_2.is_chapter_beaten_first_time(current_chapter))
+        )
+    )
+
     achievement(
     title = format("The Legacy of the {0}", MEDAL_COLLECTION_ACHIEVEMENT_NAMES[current_chapter]),
     points = MEDAL_COLLECTION_PTS_MAP[current_chapter],
