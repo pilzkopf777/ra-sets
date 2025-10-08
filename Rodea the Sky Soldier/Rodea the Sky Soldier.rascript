@@ -150,15 +150,15 @@ class ChapterSaveData
         return dword_be(this._get_start_adr_raw() + 0x08)
     }
 
-//
-//    function is_time_s_rank() {
-//        
-//    }
-//
-//    function is_graviton_s_rank() {
-//        
-//    }
-//
+
+    function is_time_s_rank() {
+        return true
+    }
+
+    function is_graviton_s_rank() {
+        return true    
+    }
+
     function get_bronze_medal_count() {
         return bitcount(this._get_start_adr_raw() + 0x1b)
     }
@@ -212,13 +212,14 @@ class SaveSlot
             target = 9
         }
 
-        collected = this.get_chapter(first_chapter + 0).is_graviton_s_rank() + this.get_chapter(first_chapter + 0).is_time_s_rank() + 
-                    this.get_chapter(first_chapter + 1).is_graviton_s_rank() + this.get_chapter(first_chapter + 1).is_time_s_rank() + 
-                    this.get_chapter(first_chapter + 2).is_graviton_s_rank() + this.get_chapter(first_chapter + 2).is_time_s_rank() + 
-                    this.get_chapter(first_chapter + 3).is_graviton_s_rank() + this.get_chapter(first_chapter + 3).is_time_s_rank() + 
-                    this.get_chapter(first_chapter + 4).is_graviton_s_rank() + this.get_chapter(first_chapter + 4).is_time_s_rank()
-                    
-        return measured(collected == target)
+        //collected = this.get_chapter(first_chapter + 0).is_graviton_s_rank() + this.get_chapter(first_chapter + 0).is_time_s_rank() + 
+        //            this.get_chapter(first_chapter + 1).is_graviton_s_rank() + this.get_chapter(first_chapter + 1).is_time_s_rank() + 
+        //            this.get_chapter(first_chapter + 2).is_graviton_s_rank() + this.get_chapter(first_chapter + 2).is_time_s_rank() + 
+        //            this.get_chapter(first_chapter + 3).is_graviton_s_rank() + this.get_chapter(first_chapter + 3).is_time_s_rank() + 
+        //            this.get_chapter(first_chapter + 4).is_graviton_s_rank() + this.get_chapter(first_chapter + 4).is_time_s_rank()
+        //            
+        //return measured(collected == target)
+        return true
     }
 
     function collected_all_medals_on_page(first_chapter) {
@@ -364,6 +365,8 @@ save_slot_0 = SaveSlot(save_slot=0)
 save_slot_1 = SaveSlot(save_slot=1)
 save_slot_2 = SaveSlot(save_slot=2)
 
+SAVE_SLOT_OBJ_LIST = [save_slot_0, save_slot_1, save_slot_2]
+
 unused_hp_capsule = ItemCapsule(id=0x88)
 
 rodea = RodeaObject()
@@ -386,7 +389,7 @@ function clear_bomber_attack_without_dmg_logic() {
 function escape_bomb_logic() {
     // check objective ids
     return !check_if_on_title_screen() && get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
-    disable_when(get_bomb_time_left() < 30.0 && prev(get_bomb_time_left()) => 30.0) &&
+    disable_when(get_bomb_time_left() < 30.0 && prev(get_bomb_time_left()) >= 30.0) &&
     // Timer pauses upon explosion and when stopped (todo: check if also during pause menu)
     // Bomb timer runs into negative
     trigger_when(bomb_timer_stopped() && get_bomb_time_left() > 0.0)
@@ -470,6 +473,20 @@ function s_rank_collection_logic(first_chapter) {
     )
 }
 
+achievement(
+title = "More than Just an Order",
+points = 1,
+type = "progression",
+description = "Complete the Prologue",
+trigger = 
+    !check_if_on_title_screen() && prev(get_current_chapter()) == 0 &&
+    (
+        get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(0) && prev(!save_slot_0.is_chapter_beaten_first_time(0)) ||
+        get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(0) && prev(!save_slot_1.is_chapter_beaten_first_time(0)) ||
+        get_active_save_slot() == 2 && save_slot_2.is_chapter_beaten_first_time(0) && prev(!save_slot_2.is_chapter_beaten_first_time(0))
+    )
+)
+
 for current_chapter in range(5, 25, 5) {
     achievement(
     title = CHAPTER_CLEAR_ACHIEVEMENT_NAMES[current_chapter],
@@ -477,7 +494,9 @@ for current_chapter in range(5, 25, 5) {
     type = get_progression_type(current_chapter),
     description = format("Complete Chapter {0}", current_chapter),
     trigger = 
-        !check_if_on_title_screen() && get_current_chapter() == current_chapter && check_if_in_chapter_results() &&
+    // TODO: All of these need to earn a hit once the chapter clear is recorded and reset the hit once you enter the chapter select
+    // Then, trigger the achievement the moment you enter the results screen
+        !check_if_on_title_screen() && prev(get_current_chapter()) == current_chapter && check_if_in_chapter_results() &&
         (
             get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_0.is_chapter_beaten_first_time(current_chapter)) ||
             get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_1.is_chapter_beaten_first_time(current_chapter)) ||
@@ -502,29 +521,21 @@ for current_chapter in range(5, 25, 5) {
     )
 }
 
+rich_presence_conditional_display(check_if_on_title_screen(), "On the Title Screen")
+
+for current_save_slot in range(0, 2, 1) {
+
+    rich_presence_conditional_display(check_if_in_chapter_select() && get_active_save_slot() == current_save_slot, "Rodea is choosing his next destination • {0} / 9999 Medals",
+        rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
+    )
+
+    rich_presence_conditional_display(in_active_gameplay() && get_active_save_slot() == current_save_slot,
+        "Rodea is in Chapter {0} • {1} / 9999 Medals",
+        rich_presence_value("Chapter", get_current_chapter()),
+        rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
+    )
+}
 
 
-rich_presence_conditional_display(check_if_on_title_screen(), "Rodea is on the Title Screen")
-
-rich_presence_conditional_display(check_if_in_chapter_select(), "Rodea is on the way to the next destination")
-
-// TODO: Probably better as loop?
-rich_presence_conditional_display(in_active_gameplay() && get_active_save_slot() == 0,
-    "Rodea is in Chapter {0} - {1} / 9999 Medals",
-    rich_presence_value("Chapter", get_current_chapter()),
-    rich_presence_value("Medals", save_slot_0.get_total_medals_collected())
-)
-
-rich_presence_conditional_display(in_active_gameplay() && get_active_save_slot() == 1,
-    "Rodea is in Chapter {0} - {1} / 9999 Medals",
-    rich_presence_value("Chapter", get_current_chapter()),
-    rich_presence_value("Medals", save_slot_1.get_total_medals_collected())
-)
-
-rich_presence_conditional_display(in_active_gameplay() && get_active_save_slot() == 2,
-    "Rodea is in Chapter {0} - {1} / 9999 Medals",
-    rich_presence_value("Chapter", get_current_chapter()),
-    rich_presence_value("Medals", save_slot_2.get_total_medals_collected())
-)
 
 rich_presence_display("Preparing to take flight!")
