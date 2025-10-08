@@ -152,11 +152,11 @@ class ChapterSaveData
 
 //
 //    function is_time_s_rank() {
-//
+//        
 //    }
 //
 //    function is_graviton_s_rank() {
-//
+//        
 //    }
 //
     function get_bronze_medal_count() {
@@ -203,6 +203,22 @@ class SaveSlot
             sum = sum + this.get_chapter(current_chapter).get_amount_of_medals_collected()
         }
         return sum
+    }
+
+    function earned_all_s_rank_on_page(first_chapter) {
+        if (first_chapter == 21) {
+            target = 8
+        } else {
+            target = 9
+        }
+
+        collected = this.get_chapter(first_chapter + 0).is_graviton_s_rank() + this.get_chapter(first_chapter + 0).is_time_s_rank() + 
+                    this.get_chapter(first_chapter + 1).is_graviton_s_rank() + this.get_chapter(first_chapter + 1).is_time_s_rank() + 
+                    this.get_chapter(first_chapter + 2).is_graviton_s_rank() + this.get_chapter(first_chapter + 2).is_time_s_rank() + 
+                    this.get_chapter(first_chapter + 3).is_graviton_s_rank() + this.get_chapter(first_chapter + 3).is_time_s_rank() + 
+                    this.get_chapter(first_chapter + 4).is_graviton_s_rank() + this.get_chapter(first_chapter + 4).is_time_s_rank()
+                    
+        return measured(collected == target)
     }
 
     function collected_all_medals_on_page(first_chapter) {
@@ -444,6 +460,16 @@ function medal_collection_logic(first_chapter) {
     )
 }
 
+function s_rank_collection_logic(first_chapter) {
+    return !check_if_on_title_screen() && check_if_in_chapter_results() &&
+    (
+        // TODO: this is a measured, is this fine without delta?
+        get_active_save_slot() == 0 && save_slot_0.earned_all_s_rank_on_page(first_chapter) ||
+        get_active_save_slot() == 1 && save_slot_1.earned_all_s_rank_on_page(first_chapter) ||
+        get_active_save_slot() == 2 && save_slot_2.earned_all_s_rank_on_page(first_chapter)     
+    )
+}
+
 for current_chapter in range(5, 25, 5) {
     achievement(
     title = CHAPTER_CLEAR_ACHIEVEMENT_NAMES[current_chapter],
@@ -465,6 +491,14 @@ for current_chapter in range(5, 25, 5) {
     description = format("Collect all Legacy Medals in Chapters {0} through {1}", current_chapter - 4, current_chapter - 5 + CHAPTERS_WITH_MEDALS[current_chapter]),
     trigger = 
         medal_collection_logic(first_chapter=current_chapter - 4)
+    )
+
+    achievement(
+    title = format("Touring the {0}", MEDAL_COLLECTION_ACHIEVEMENT_NAMES[current_chapter]),
+    points = MEDAL_COLLECTION_PTS_MAP[current_chapter],
+    description = format("Earn all S Ranks in Chapters {0} through {1}", current_chapter - 4, current_chapter - 5 + CHAPTERS_WITH_MEDALS[current_chapter]),
+    trigger = 
+        s_rank_collection_logic(first_chapter=current_chapter - 4)
     )
 }
 
