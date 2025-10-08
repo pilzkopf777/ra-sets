@@ -33,7 +33,7 @@ function get_active_save_slot() {
 }
 
 function check_if_on_title_screen() {
-    return dword_be(0x003F210C) == 0x04
+    return byte(0x003f2108) == 1
 }
 
 function check_if_in_multiplayer() {
@@ -41,7 +41,8 @@ function check_if_in_multiplayer() {
 }
 
 function check_if_in_chapter_select() {
-    return dword_be(0x3f211c) != 0x00 // If pointer points places we are in chapter select
+    // If pointer points places we are in chapter select
+    return byte(0x003f2120) == 1
 }
 
 function check_if_in_chapter_results() {
@@ -51,10 +52,6 @@ function check_if_in_chapter_results() {
 function results_rolled_in() {
     roll_state = ptr(dword_be(0x3f1cfc), [0x00], dword_be)
     return roll_state == 0x08 && prev(roll_state) != 0x08
-}
-
-function in_active_gameplay() {
-    return dword_be(0x3f1478) != 0x00
 }
 
 function get_current_chapter() {
@@ -308,6 +305,10 @@ class RodeaObject
         return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x4b
     }
 
+    function on_wire_cable() {
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x3d
+    }
+
     // Gears
     function has_gear() {
         return this.current_gear != 0xffffffff
@@ -373,14 +374,14 @@ rodea = RodeaObject()
 
 
 function clear_without_spiderweb_logic() {
-    return !check_if_on_title_screen() && get_current_chapter() == 2 &&
+    return get_current_chapter() == 2 &&
     trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose())) &&
     disable_when(rodea.stuck_in_spiderweb() && prev(!rodea.stuck_in_spiderweb()), until=restarted_stage())
 }
 
 function clear_bomber_attack_without_dmg_logic() {
     // TODO: objective id as check
-    return !check_if_on_title_screen() && get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
+    return get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
     // TODO: was it 5 hp?
     disable_when(get_ion_wave_hp() < prev(get_ion_wave_hp()), until=rodea.died()) &&
     trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose()))
@@ -388,7 +389,7 @@ function clear_bomber_attack_without_dmg_logic() {
 
 function escape_bomb_logic() {
     // check objective ids
-    return !check_if_on_title_screen() && get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
+    return get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
     disable_when(get_bomb_time_left() < 30.0 && prev(get_bomb_time_left()) >= 30.0) &&
     // Timer pauses upon explosion and when stopped (todo: check if also during pause menu)
     // Bomb timer runs into negative
@@ -399,10 +400,61 @@ function clear_all_rolling_enemies_logic() {
     // TODO: was it 6?
     chain_target = 6
     // TODO check values
-    return !check_if_on_title_screen() && get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
-    disable_when(rodea.get_chain < prev(rodea.get_chain)) &&
-    trigger_when(rodea.get_chain == chain_target && prev(rodea.get_chain) == chain_target - 1)
+    return get_current_chapter() == 6 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
+    disable_when(rodea.get_chain() < prev(rodea.get_chain())) &&
+    trigger_when(rodea.get_chain() == chain_target && prev(rodea.get_chain()) == chain_target - 1)
 }
+
+function spiderweb_climb_cp_10() {
+    // x -2699 y 390 z -355 to
+    // x -2699 y 387 z -337 for start
+    trigger_loc = rodea.get_pos_z() == -358.0 && prev(rodea.get_pos_z() != -358.0) && rodea.get_pos_y() > 570.0
+
+    return get_current_chapter() == 9 &&
+    once(rodea.get_pos_y() == 390.0 && prev(rodea.get_pos_y() != 390.0) && rodea.get_pos_z() == -355.0 && prev(rodea.get_pos_z() != -355.0) && rodea.on_wire_cable()) &&
+    trigger_when(rodea.get_chain() == 9 && trigger_loc) &&
+    disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9, until=rodea.died())
+}
+
+achievement(
+title = "Getting Around It with Yūji Naka",
+points = 4,
+description = "In Chapter 11, instead of the shortcut, take the long route around the spiderwebs and reach the top with a Chain of 9",
+trigger = 
+    spiderweb_climb_cp_10()
+)
+
+achievement(
+title = "Stop, Do, and Rolls",
+points = 4,
+description = "In Chapter 9, defeat the enemies during the ambush in a single chain",
+trigger = 
+    clear_all_rolling_enemies_logic()
+)
+
+achievement(
+title = "The One That Got Away",
+points = 2,
+description = "In Chapter 6, open the capsule with the Heart item",
+trigger = 
+    !check_if_on_title_screen() && get_current_chapter() == 6 && unused_hp_capsule.capsule_opened() && prev(unused_hp_capsule.capsule_unopened())
+)
+
+achievement(
+title = "Chain Reaction",
+points = 2,
+description = "In Chapter 4, reach a Chain of 30",
+trigger = 
+    !check_if_on_title_screen() && get_current_chapter() == 6 && rodea.get_chain() == 30 && prev(rodea.get_chain() < 30)
+)
+
+achievement(
+title = "Sentient Security System",
+points = 3,
+description = "In Chapter 3, destroy the Bomber without the Ion Wave taking a single hit",
+trigger = 
+    clear_bomber_attack_without_dmg_logic()
+)
 
 CHAPTER_CLEAR_ACHIEVEMENT_NAMES = {
     5: "Proving Your Resolve",
@@ -523,19 +575,22 @@ for current_chapter in range(5, 25, 5) {
 
 rich_presence_conditional_display(check_if_on_title_screen(), "On the Title Screen")
 
+rich_presence_conditional_display(check_if_in_multiplayer(), "Taking to the skies in Multiplayer mode")
+
 for current_save_slot in range(0, 2, 1) {
 
-    rich_presence_conditional_display(check_if_in_chapter_select() && get_active_save_slot() == current_save_slot, "Rodea is choosing his next destination • {0} / 9999 Medals",
+    rich_presence_conditional_display(check_if_in_chapter_select() && get_active_save_slot() == current_save_slot, "Choosing the next destination • {0} / 9999 Medals",
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
 
-    rich_presence_conditional_display(in_active_gameplay() && get_active_save_slot() == current_save_slot,
-        "Rodea is in Chapter {0} • {1} / 9999 Medals",
+    // TODO: need a good check for ingame
+
+    rich_presence_conditional_display(get_active_save_slot() == current_save_slot,
+        "In Chapter {0} • {1} / 9999 Medals",
         rich_presence_value("Chapter", get_current_chapter()),
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
 }
-
 
 
 rich_presence_display("Preparing to take flight!")
