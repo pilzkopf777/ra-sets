@@ -102,6 +102,10 @@ function restarted_stage() {
     return get_stage_time() < prev(get_stage_time()) && get_stage_time() == 0
 }
 
+function get_kills_in_current_attempt_cp_21() {
+    return ptr(dword_be(0x003f2018), [0xffc], dword_be)
+}
+
 // S_RANK_GOALS[0]["grav"] == ...
 S_RANK_GOALS = {
     0:
@@ -451,7 +455,7 @@ trigger =
 achievement(
 title = "Sentient Security System",
 points = 3,
-description = "In Chapter 3, destroy the Bomber without the Ion Wave taking a single hit",
+description = "In Chapter 3, destroy the Bomber without the Ion Wave taking any damage",
 trigger = 
     clear_bomber_attack_without_dmg_logic()
 )
@@ -579,14 +583,18 @@ rich_presence_conditional_display(check_if_in_multiplayer(), "Taking to the skie
 
 for current_save_slot in range(0, 2, 1) {
 
-    rich_presence_conditional_display(check_if_in_chapter_select() && get_active_save_slot() == current_save_slot, "Choosing the next destination • {0} / 9999 Medals",
+    rich_presence_conditional_display((check_if_in_chapter_select() && get_active_save_slot() == current_save_slot) || (get_current_chapter() == 0xffffffff && get_active_save_slot() == current_save_slot), "Choosing the next destination • {0} / 108 Legacy Medals",
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
 
-    // TODO: need a good check for ingame
+    rich_presence_conditional_display(get_active_save_slot() == current_save_slot && get_current_chapter() == 0,
+        "In the Prologue • {1} / 180 Legacy Medals",
+        rich_presence_value("Chapter", get_current_chapter()),
+        rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
+    )
 
     rich_presence_conditional_display(get_active_save_slot() == current_save_slot,
-        "In Chapter {0} • {1} / 9999 Medals",
+        "In Chapter {0} • {1} / 180 Legacy Medals",
         rich_presence_value("Chapter", get_current_chapter()),
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
