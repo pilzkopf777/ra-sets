@@ -583,7 +583,7 @@ rich_presence_conditional_display(check_if_in_multiplayer(), "Taking to the skie
 
 for current_save_slot in range(0, 2, 1) {
 
-    rich_presence_conditional_display((check_if_in_chapter_select() && get_active_save_slot() == current_save_slot) || (get_current_chapter() == 0xffffffff && get_active_save_slot() == current_save_slot), "Choosing the next destination • {0} / 108 Legacy Medals",
+    rich_presence_conditional_display((check_if_in_chapter_select() && get_active_save_slot() == current_save_slot) || (get_current_chapter() == 0xffffffff && get_active_save_slot() == current_save_slot), "Choosing the next destination • {0} / 180 Legacy Medals",
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
 
