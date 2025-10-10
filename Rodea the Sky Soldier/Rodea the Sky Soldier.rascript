@@ -313,6 +313,19 @@ class RodeaObject
         return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x3d
     }
 
+    // State via statistics
+    function has_landed() {
+        return dword_be(0xf58088) > prev(dword_be(0xf58088))
+    }
+
+    function started_flight() {
+        return dword_be(0xf58084) > prev(dword_be(0xf58084))
+    }
+
+    function jumped_off_wall() {
+        return dword_be(0xf5808c) > prev(dword_be(0xf5808c))
+    }
+
     // Gears
     function has_gear() {
         return this.current_gear != 0xffffffff
@@ -394,7 +407,7 @@ function clear_bomber_attack_without_dmg_logic() {
 function escape_bomb_logic() {
     // check objective ids
     return get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
-    disable_when(get_bomb_time_left() < 30.0 && prev(get_bomb_time_left()) >= 30.0) &&
+    disable_when(get_bomb_time_left() < 30.0 && prev(get_bomb_time_left()) >= 30.0, until=rodea.died()) &&
     // Timer pauses upon explosion and when stopped (todo: check if also during pause menu)
     // Bomb timer runs into negative
     trigger_when(bomb_timer_stopped() && get_bomb_time_left() > 0.0)
@@ -405,7 +418,7 @@ function clear_all_rolling_enemies_logic() {
     chain_target = 6
     // TODO check values
     return get_current_chapter() == 6 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
-    disable_when(rodea.get_chain() < prev(rodea.get_chain())) &&
+    disable_when(rodea.get_chain() < prev(rodea.get_chain()), until=rodea.died()) &&
     trigger_when(rodea.get_chain() == chain_target && prev(rodea.get_chain()) == chain_target - 1)
 }
 
@@ -417,11 +430,20 @@ function spiderweb_climb_cp_10() {
     return get_current_chapter() == 9 &&
     once(rodea.get_pos_y() == 390.0 && prev(rodea.get_pos_y() != 390.0) && rodea.get_pos_z() == -355.0 && prev(rodea.get_pos_z() != -355.0) && rodea.on_wire_cable()) &&
     trigger_when(rodea.get_chain() == 9 && trigger_loc) &&
-    disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9, until=rodea.died())
+    disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9) &&
+    never(rodea.died())
+}
+
+function key_cards_without_floor_cp_14_logic() {
+    // todo: id check
+    return get_current_chapter() == 14 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
+    // todo: need to check if all cards collected
+    trigger_when(always_false()) &&
+    disable_when(rodea.has_landed(), until=rodea.died())
 }
 
 achievement(
-title = "Getting Around It with Yūji Naka",
+title = "Getting Around It with Yuji Naka",
 points = 4,
 description = "In Chapter 11, instead of the shortcut, take the long route around the spiderwebs and reach the top with a Chain of 9",
 trigger = 
@@ -447,9 +469,9 @@ trigger =
 achievement(
 title = "Chain Reaction",
 points = 2,
-description = "In Chapter 4, reach a Chain of 30",
+description = "Reach a Chain of 30",
 trigger = 
-    !check_if_on_title_screen() && get_current_chapter() == 6 && rodea.get_chain() == 30 && prev(rodea.get_chain() < 30)
+    !check_if_on_title_screen() && rodea.get_chain() == 30 && prev(rodea.get_chain() < 30)
 )
 
 achievement(
@@ -460,12 +482,28 @@ trigger =
     clear_bomber_attack_without_dmg_logic()
 )
 
+achievement(
+title = "Hit the Ground Running",
+points = 4,
+description = "In Chapter 14, collect the key cards without landing on the floor",
+trigger = 
+    key_cards_without_floor_cp_14_logic()
+)
+
 CHAPTER_CLEAR_ACHIEVEMENT_NAMES = {
     5: "Proving Your Resolve",
     10: "Lingering Memories",
     15: "Burning Desire",
     20: "Leap of Faith",
     25: "May These Feelings Reach the Future"
+}
+
+CHAPTER_CLEAR_ACHIEVEMENT_DESC = {
+    5: "Defeat Deogordam and destroy the Wind Chronos Tower",
+    10: "Defeat Belhemous and destroy the Sand Chronos Tower",
+    15: "Defeat Zolendark and destroy the Fire Chronos Tower",
+    20: "Defeat Odeon and destroy the Ice Chronos Tower",
+    25: "Save Garuda"
 }
 
 CHAPTER_CLEAR_PTS_MAP = {
@@ -533,7 +571,7 @@ achievement(
 title = "More than Just an Order",
 points = 1,
 type = "progression",
-description = "Complete the Prologue",
+description = "Make a Promise",
 trigger = 
     !check_if_on_title_screen() && prev(get_current_chapter()) == 0 &&
     (
@@ -548,7 +586,7 @@ for current_chapter in range(5, 25, 5) {
     title = CHAPTER_CLEAR_ACHIEVEMENT_NAMES[current_chapter],
     points = CHAPTER_CLEAR_PTS_MAP[current_chapter],
     type = get_progression_type(current_chapter),
-    description = format("Complete Chapter {0}", current_chapter),
+    description = CHAPTER_CLEAR_ACHIEVEMENT_DESC[current_chapter],
     trigger = 
     // TODO: All of these need to earn a hit once the chapter clear is recorded and reset the hit once you enter the chapter select
     // Then, trigger the achievement the moment you enter the results screen
@@ -583,7 +621,8 @@ rich_presence_conditional_display(check_if_in_multiplayer(), "Taking to the skie
 
 for current_save_slot in range(0, 2, 1) {
 
-    rich_presence_conditional_display((check_if_in_chapter_select() && get_active_save_slot() == current_save_slot) || (get_current_chapter() == 0xffffffff && get_active_save_slot() == current_save_slot), "Choosing the next destination • {0} / 180 Legacy Medals",
+    rich_presence_conditional_display((check_if_in_chapter_select() && get_active_save_slot() == current_save_slot) || (get_current_chapter() == 0xffffffff && get_active_save_slot() == current_save_slot),
+        "Choosing the next destination • {0} / 180 Legacy Medals",
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
 
