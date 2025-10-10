@@ -40,6 +40,10 @@ function check_if_in_multiplayer() {
     return dword_be(0x003F210C) == 0x03
 }
 
+function booting_up() {
+    return dword_be(0x003f1790) == 0x00
+}
+
 function check_if_in_chapter_select() {
     // If pointer points places we are in chapter select
     return byte(0x003f2120) == 1
@@ -103,7 +107,16 @@ function restarted_stage() {
 }
 
 function get_kills_in_current_attempt_cp_21() {
-    return ptr(dword_be(0x003f2018), [0xffc], dword_be)
+    return ptr(dword_be(0x003f2018), [0xfcc], dword_be)
+}
+
+function get_total_appeared_in_current_attempt_cp_21() {
+    return ptr(dword_be(0x003f2018), [0xfc8], dword_be)
+}
+
+function view_cp_21_special_results() {
+    // todo: find trigger mem/delta
+    return always_false()
 }
 
 // S_RANK_GOALS[0]["grav"] == ...
@@ -313,6 +326,10 @@ class RodeaObject
         return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x3d
     }
 
+    function in_fps_mode() {
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x3B0], byte) == 0x01
+    }
+
     // State via statistics
     function has_landed() {
         return dword_be(0xf58088) > prev(dword_be(0xf58088))
@@ -442,6 +459,10 @@ function key_cards_without_floor_cp_14_logic() {
     disable_when(rodea.has_landed(), until=rodea.died())
 }
 
+function topdown_gun_section_logic() {
+    return get_current_chapter() == 21 && get_kills_in_current_attempt_cp_21() == 196
+}
+
 achievement(
 title = "Getting Around It with Yuji Naka",
 points = 4,
@@ -452,7 +473,7 @@ trigger =
 
 achievement(
 title = "Stop, Do, and Rolls",
-points = 4,
+points = 5,
 description = "In Chapter 9, defeat the enemies during the ambush in a single chain",
 trigger = 
     clear_all_rolling_enemies_logic()
@@ -460,7 +481,7 @@ trigger =
 
 achievement(
 title = "The One That Got Away",
-points = 2,
+points = 3,
 description = "In Chapter 6, open the capsule with the Heart item",
 trigger = 
     !check_if_on_title_screen() && get_current_chapter() == 6 && unused_hp_capsule.capsule_opened() && prev(unused_hp_capsule.capsule_unopened())
@@ -468,7 +489,7 @@ trigger =
 
 achievement(
 title = "Chain Reaction",
-points = 2,
+points = 3,
 description = "Reach a Chain of 30",
 trigger = 
     !check_if_on_title_screen() && rodea.get_chain() == 30 && prev(rodea.get_chain() < 30)
@@ -476,7 +497,7 @@ trigger =
 
 achievement(
 title = "Sentient Security System",
-points = 3,
+points = 4,
 description = "In Chapter 3, destroy the Bomber without the Ion Wave taking any damage",
 trigger = 
     clear_bomber_attack_without_dmg_logic()
@@ -488,6 +509,38 @@ points = 4,
 description = "In Chapter 14, collect the key cards without landing on the floor",
 trigger = 
     key_cards_without_floor_cp_14_logic()
+)
+
+//achievement(
+//title = "The Last Bomb",
+//points = 4,
+//description = "In Chapter 19, complete the chapter before the bomb timer reaches 1:40:00",
+//trigger = 
+//    key_cards_without_floor_cp_14_logic()
+//)
+
+achievement(
+title = "Top Machine Gun",
+points = 10,
+description = "In Chapter 21, defeat all enemies and reach a 100% KO rate",
+trigger = 
+    topdown_gun_section_logic()
+)
+
+achievement(
+title = "Immersive Experience",
+points = 1,
+description = "Press the 2 button after beating the game to enter FPS mode",
+trigger = 
+    !check_if_on_title_screen() && rodea.in_fps_mode() && prev(!rodea.in_fps_mode())
+)
+
+achievement(
+title = "Spare Parts",
+points = 2,
+description = "Earn an extra life",
+trigger = 
+    !check_if_on_title_screen() && rodea.get_lives() == prev(rodea.get_lives() - 1)
 )
 
 CHAPTER_CLEAR_ACHIEVEMENT_NAMES = {
@@ -575,10 +628,15 @@ description = "Make a Promise",
 trigger = 
     !check_if_on_title_screen() && prev(get_current_chapter()) == 0 &&
     (
-        get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(0) && prev(!save_slot_0.is_chapter_beaten_first_time(0)) ||
-        get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(0) && prev(!save_slot_1.is_chapter_beaten_first_time(0)) ||
-        get_active_save_slot() == 2 && save_slot_2.is_chapter_beaten_first_time(0) && prev(!save_slot_2.is_chapter_beaten_first_time(0))
-    )
+    once(get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(0) && prev(!save_slot_0.is_chapter_beaten_first_time(0)))
+    ) ||
+    (
+    once(get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(0) && prev(!save_slot_1.is_chapter_beaten_first_time(0)))
+    ) ||
+    (
+    once(get_active_save_slot() == 2 && save_slot_2.is_chapter_beaten_first_time(0) && prev(!save_slot_2.is_chapter_beaten_first_time(0)))
+    ) &&
+    never(check_if_in_chapter_select() && prev(!check_if_in_chapter_select()))
 )
 
 for current_chapter in range(5, 25, 5) {
@@ -588,14 +646,17 @@ for current_chapter in range(5, 25, 5) {
     type = get_progression_type(current_chapter),
     description = CHAPTER_CLEAR_ACHIEVEMENT_DESC[current_chapter],
     trigger = 
-    // TODO: All of these need to earn a hit once the chapter clear is recorded and reset the hit once you enter the chapter select
-    // Then, trigger the achievement the moment you enter the results screen
         !check_if_on_title_screen() && prev(get_current_chapter()) == current_chapter && check_if_in_chapter_results() &&
         (
-            get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_0.is_chapter_beaten_first_time(current_chapter)) ||
-            get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_1.is_chapter_beaten_first_time(current_chapter)) ||
-            get_active_save_slot() == 2 && save_slot_2.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_2.is_chapter_beaten_first_time(current_chapter))
-        )
+        once(get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_0.is_chapter_beaten_first_time(current_chapter)))
+        ) ||
+        (
+        once(get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_1.is_chapter_beaten_first_time(current_chapter)))
+        ) ||
+        (
+        once(get_active_save_slot() == 2 && save_slot_2.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_2.is_chapter_beaten_first_time(current_chapter)))
+        ) &&
+        never(check_if_in_chapter_select() && prev(!check_if_in_chapter_select()))
     )
 
     achievement(
@@ -615,25 +676,25 @@ for current_chapter in range(5, 25, 5) {
     )
 }
 
-rich_presence_conditional_display(check_if_on_title_screen(), "On the Title Screen")
+rich_presence_conditional_display(booting_up() || check_if_on_title_screen(), "On the Title Screen")
 
 rich_presence_conditional_display(check_if_in_multiplayer(), "Taking to the skies in Multiplayer mode")
 
 for current_save_slot in range(0, 2, 1) {
 
     rich_presence_conditional_display((check_if_in_chapter_select() && get_active_save_slot() == current_save_slot) || (get_current_chapter() == 0xffffffff && get_active_save_slot() == current_save_slot),
-        "Choosing the next destination • {0} / 180 Legacy Medals",
+        "Choosing the next destination • {0} / 172 Legacy Medals",
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
 
     rich_presence_conditional_display(get_active_save_slot() == current_save_slot && get_current_chapter() == 0,
-        "In the Prologue • {1} / 180 Legacy Medals",
+        "In the Prologue • {1} / 172 Legacy Medals",
         rich_presence_value("Chapter", get_current_chapter()),
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
 
     rich_presence_conditional_display(get_active_save_slot() == current_save_slot,
-        "In Chapter {0} • {1} / 180 Legacy Medals",
+        "In Chapter {0} • {1} / 172 Legacy Medals",
         rich_presence_value("Chapter", get_current_chapter()),
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
