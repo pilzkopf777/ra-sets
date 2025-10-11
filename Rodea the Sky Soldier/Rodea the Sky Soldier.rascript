@@ -235,6 +235,15 @@ class SaveSlot
         return true
     }
 
+    function get_medals_collected_on_page(first_chapter) {
+        collected = this.get_chapter(first_chapter + 0).get_amount_of_medals_collected() + 
+                    this.get_chapter(first_chapter + 1).get_amount_of_medals_collected() +
+                    this.get_chapter(first_chapter + 2).get_amount_of_medals_collected() +
+                    this.get_chapter(first_chapter + 3).get_amount_of_medals_collected() +
+                    this.get_chapter(first_chapter + 4).get_amount_of_medals_collected()
+        return collected
+    }
+
     function collected_all_medals_on_page(first_chapter) {
         //return this.get_chapter(first_chapter).all_medals_collected() && // eg 5
         //       this.get_chapter(first_chapter + 1).all_medals_collected() &&  // eg 6
@@ -598,12 +607,21 @@ CHAPTERS_WITH_MEDALS = {
 }
 
 function medal_collection_logic(first_chapter) {
+    if (first_chapter == 21) {
+        target = 27
+    } else {
+        target = 36
+    }
+
+    collected_slot_0 = save_slot_0.get_medals_collected_on_page(first_chapter)
+    collected_slot_1 = save_slot_1.get_medals_collected_on_page(first_chapter)
+    collected_slot_2 = save_slot_2.get_medals_collected_on_page(first_chapter)
+
     return !check_if_on_title_screen() && check_if_in_chapter_results() &&
     (
-        // TODO: this is a measured, is this fine without delta?
-        get_active_save_slot() == 0 && save_slot_0.collected_all_medals_on_page(first_chapter) ||
-        get_active_save_slot() == 1 && save_slot_1.collected_all_medals_on_page(first_chapter) ||
-        get_active_save_slot() == 2 && save_slot_2.collected_all_medals_on_page(first_chapter)     
+        get_active_save_slot() == 0 && measured(collected_slot_0 == target) && prev(collected_slot_0 != target) ||
+        get_active_save_slot() == 1 && measured(collected_slot_1 == target) && prev(collected_slot_1 != target) ||
+        get_active_save_slot() == 2 && measured(collected_slot_2 == target) && prev(collected_slot_2 != target)
     )
 }
 
