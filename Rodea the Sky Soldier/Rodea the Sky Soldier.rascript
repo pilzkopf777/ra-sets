@@ -114,8 +114,12 @@ function get_total_appeared_in_current_attempt_cp_21() {
     return ptr(dword_be(0x003f2018), [0xfc8], dword_be)
 }
 
-function just_collected_all_keycards_cp_14() {
-    return dword_be(0x004105B0) == 3 && prev(dword_be(0x004105B0)) == 2
+function get_amount_of_keycards_collected_cp_14() {
+    return dword_be(0x004105B0)
+}
+
+function checkpoint_bell_hit() {
+    return dword_be(0x003f19f4) > prev(dword_be(0x003f19f4))
 }
 
 // S_RANK_GOALS[0]["grav"] == ...
@@ -218,21 +222,13 @@ class SaveSlot
         return sum
     }
 
-    function earned_all_s_rank_on_page(first_chapter) {
-        if (first_chapter == 21) {
-            target = 8
-        } else {
-            target = 9
-        }
-
-        //collected = this.get_chapter(first_chapter + 0).is_graviton_s_rank() + this.get_chapter(first_chapter + 0).is_time_s_rank() + 
-        //            this.get_chapter(first_chapter + 1).is_graviton_s_rank() + this.get_chapter(first_chapter + 1).is_time_s_rank() + 
-        //            this.get_chapter(first_chapter + 2).is_graviton_s_rank() + this.get_chapter(first_chapter + 2).is_time_s_rank() + 
-        //            this.get_chapter(first_chapter + 3).is_graviton_s_rank() + this.get_chapter(first_chapter + 3).is_time_s_rank() + 
-        //            this.get_chapter(first_chapter + 4).is_graviton_s_rank() + this.get_chapter(first_chapter + 4).is_time_s_rank()
-        //            
-        //return measured(collected == target)
-        return true
+    function get_s_ranks_collected_on_page(first_chapter) {
+        collected = this.get_chapter(first_chapter + 0).get_amount_of_medals_collected() + 
+                    this.get_chapter(first_chapter + 1).get_amount_of_medals_collected() +
+                    this.get_chapter(first_chapter + 2).get_amount_of_medals_collected() +
+                    this.get_chapter(first_chapter + 3).get_amount_of_medals_collected() +
+                    this.get_chapter(first_chapter + 4).get_amount_of_medals_collected()
+        return collected
     }
 
     function get_medals_collected_on_page(first_chapter) {
@@ -242,27 +238,6 @@ class SaveSlot
                     this.get_chapter(first_chapter + 3).get_amount_of_medals_collected() +
                     this.get_chapter(first_chapter + 4).get_amount_of_medals_collected()
         return collected
-    }
-
-    function collected_all_medals_on_page(first_chapter) {
-        //return this.get_chapter(first_chapter).all_medals_collected() && // eg 5
-        //       this.get_chapter(first_chapter + 1).all_medals_collected() &&  // eg 6
-        //       this.get_chapter(first_chapter + 2).all_medals_collected() &&  // eg 7
-        //       this.get_chapter(first_chapter + 3).all_medals_collected() &&  // eg 8
-        //       this.get_chapter(first_chapter + 4).all_medals_collected() // 9
-
-        if (first_chapter == 21) {
-            target = 27
-        } else {
-            target = 36
-        }
-        collected = this.get_chapter(first_chapter + 0).get_amount_of_medals_collected() + 
-                    this.get_chapter(first_chapter + 1).get_amount_of_medals_collected() +
-                    this.get_chapter(first_chapter + 2).get_amount_of_medals_collected() +
-                    this.get_chapter(first_chapter + 3).get_amount_of_medals_collected() +
-                    this.get_chapter(first_chapter + 4).get_amount_of_medals_collected()
-                    
-        return measured(collected == target)
     }
 }
 
@@ -327,6 +302,7 @@ class RodeaObject
         return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x6c
     }
 
+    // Be careful, not all stages end on the victory pose (e.g. chapter 8)
     function in_victory_pose() {
         return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x4a
     }
@@ -454,13 +430,16 @@ function spiderweb_climb_cp_11() {
     disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9, until=rodea.died())
 }
 
-function key_cards_without_floor_cp_14_logic() {
-    // todo: id check
-    return get_current_chapter() == 14 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
-    // todo: need to check if all cards collected
-    trigger_when(just_collected_all_keycards_cp_14()) &&
-    disable_when(rodea.has_landed(), until=rodea.died())
-}
+//function key_cards_without_floor_cp_14_logic() {
+//    return get_current_chapter() == 14 && get_top_objective_id() == 1 && get_bottom_objective_id() == 2 &&
+//    trigger_when(get_amount_of_keycards_collected_cp_14() == 3 && prev(get_amount_of_keycards_collected_cp_14()) == 2) &&
+//    (
+//        disable_when(rodea.has_landed(), until=rodea.died() || get_top_objective_id() != 1 && get_bottom_objective_id() != 2)
+//    ) &&
+//    (
+//        disable_when(checkpoint_bell_hit(), until=restarted_stage())
+//    )
+//}
 
 function topdown_gun_section_logic() {
     return get_current_chapter() == 21 && get_kills_in_current_attempt_cp_21() == 196 && timer_frozen_due_to_cutscene() && prev(!timer_frozen_due_to_cutscene()) 
@@ -506,13 +485,13 @@ trigger =
     clear_bomber_attack_without_dmg_logic()
 )
 
-achievement(
-title = "Hit the Ground Running",
-points = 4,
-description = "In Chapter 14, collect the key cards without landing on the floor",
-trigger = 
-    key_cards_without_floor_cp_14_logic()
-)
+//achievement(
+//title = "Hit the Ground Running",
+//points = 4,
+//description = "In Chapter 14, collect the key cards without landing on the floor or ringing any checkpoint bells",
+//trigger = 
+//    key_cards_without_floor_cp_14_logic()
+//)
 
 //achievement(
 //title = "The Last Bomb",
@@ -535,7 +514,7 @@ title = "Immersive Experience",
 points = 1,
 description = "Complete Chapter 1 while staying in FPS mode, entered by pressing the 2 button after beating the game",
 trigger = 
-    trigger_when(rodea.in_victory_pose()) &&
+    trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose())) &&
     // 73.0 is just a location at the start of the map; if the player moves too far without FPS mode the achievement will be disabled
     disable_when(!rodea.in_fps_mode() && rodea.get_pos_z() < 73.0, until=restarted_stage() || rodea.get_pos_z() >= 73.0) &&
     !check_if_on_title_screen() && rodea.in_fps_mode() && get_current_chapter() == 1
@@ -606,6 +585,110 @@ CHAPTERS_WITH_MEDALS = {
     25: 3
 }
 
+// I hate this
+S_RANK_TABLE = {
+    1: {
+        "time": 70000,
+        "grav": 0
+    },
+    2: {
+        "time": 200000,
+        "grav": 0
+    },
+    3: {
+        "time": 245000,
+        "grav": 0
+    },
+    4: {
+        "time": 235000,
+        "grav": 0
+    },
+    5: {
+        "time": 80000,
+        "grav": 0 // Boss, no Grav
+    },
+    6: {
+        "time": 255000,
+        "grav": 0
+    },
+    7: {
+        "time": 190000,
+        "grav": 0
+    },
+    8: {
+        "time": 300000,
+        "grav": 0
+    },
+    9: {
+        "time": 190000,
+        "grav": 0
+    },
+    10: {
+        "time": 125000,
+        "grav": 0 // Boss
+    },
+    11: {
+        "time": 180000,
+        "grav": 0
+    },
+    12: {
+        "time": 220000,
+        "grav": 0
+    },
+    13: {
+        "time": 145000,
+        "grav": 0
+    },
+    14: {
+        "time": 310000,
+        "grav": 0
+    },
+    15: {
+        "time": 135000,
+        "grav": 0 // Boss
+    },
+    16: {
+        "time": 200000,
+        "grav": 0
+    },
+    17: {
+        "time": 255000,
+        "grav": 0
+    },
+    18: {
+        "time": 220000,
+        "grav": 0
+    },
+    19: {
+        "time": 235000,
+        "grav": 0
+    },
+    20: {
+        "time": 155000,
+        "grav": 0 // Boss
+    },
+    21: {
+        "time": 320000,
+        "grav": 0
+    },
+    22: {
+        "time": 235000,
+        "grav": 0
+    },
+    23: {
+        "time": 300000,
+        "grav": 0
+    },
+    24: {
+        "time": 200000,
+        "grav": 0 // Boss
+    },
+    25: {
+        "time": 410000,
+        "grav": 0 // Boss
+    }
+}
+
 function medal_collection_logic(first_chapter) {
     if (first_chapter == 21) {
         target = 27
@@ -626,12 +709,21 @@ function medal_collection_logic(first_chapter) {
 }
 
 function s_rank_collection_logic(first_chapter) {
+    if (first_chapter == 21) {
+        target = 8
+    } else {
+        target = 9
+    }
+
+    collected_slot_0 = save_slot_0.get_s_ranks_collected_on_page(first_chapter)
+    collected_slot_1 = save_slot_1.get_s_ranks_collected_on_page(first_chapter)
+    collected_slot_2 = save_slot_2.get_s_ranks_collected_on_page(first_chapter)
+
     return !check_if_on_title_screen() && check_if_in_chapter_results() &&
     (
-        // TODO: this is a measured, is this fine without delta?
-        get_active_save_slot() == 0 && save_slot_0.earned_all_s_rank_on_page(first_chapter) ||
-        get_active_save_slot() == 1 && save_slot_1.earned_all_s_rank_on_page(first_chapter) ||
-        get_active_save_slot() == 2 && save_slot_2.earned_all_s_rank_on_page(first_chapter)     
+        get_active_save_slot() == 0 && measured(collected_slot_0 == target) && prev(collected_slot_0 != target) ||
+        get_active_save_slot() == 1 && measured(collected_slot_1 == target) && prev(collected_slot_1 != target) ||
+        get_active_save_slot() == 2 && measured(collected_slot_2 == target) && prev(collected_slot_2 != target)  
     )
 }
 
@@ -698,18 +790,18 @@ rich_presence_conditional_display(check_if_in_multiplayer(), "Taking to the skie
 for current_save_slot in range(0, 2, 1) {
 
     rich_presence_conditional_display((check_if_in_chapter_select() && get_active_save_slot() == current_save_slot) || (get_current_chapter() == 0xffffffff && get_active_save_slot() == current_save_slot),
-        "Choosing the next destination • {0} / 172 Legacy Medals",
+        "Choosing the next destination • {0} / 171 Legacy Medals",
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
 
     rich_presence_conditional_display(get_active_save_slot() == current_save_slot && get_current_chapter() == 0,
-        "In the Prologue • {1} / 172 Legacy Medals",
+        "In the Prologue • {1} / 171 Legacy Medals",
         rich_presence_value("Chapter", get_current_chapter()),
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
 
     rich_presence_conditional_display(get_active_save_slot() == current_save_slot,
-        "In Chapter {0} • {1} / 172 Legacy Medals",
+        "In Chapter {0} • {1} / 171 Legacy Medals",
         rich_presence_value("Chapter", get_current_chapter()),
         rich_presence_value("Medals", SAVE_SLOT_OBJ_LIST[current_save_slot].get_total_medals_collected())
     )
