@@ -83,7 +83,7 @@ function bomb_timer_stopped() {
 }
 
 function timer_frozen_due_to_cutscene() {
-    return dword_be(0x3f19e0) == 0x01
+    return byte(0x3f19e0) == 0x01
 }
 
 function get_boss_hp() {
@@ -306,11 +306,11 @@ class RodeaObject
 
     // Gravitons and Chain
     function get_gravitons() {
-        return ptr(dword_be(0x3f1638), [0xc6], word_be)
+        return ptr(dword_be(0x3f1638), [0xc6], dword_be)
     }
 
     function get_chain() {
-        return ptr(dword_be(0x3f1638), [0xd0], word_be)
+        return ptr(dword_be(0x3f1638), [0xd0], dword_be)
     }
 
     // State
@@ -319,7 +319,7 @@ class RodeaObject
     }
 
     function in_victory_pose() {
-        return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x4b
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x4a
     }
 
     function on_wire_cable() {
@@ -327,7 +327,7 @@ class RodeaObject
     }
 
     function in_fps_mode() {
-        return ptr(PLAYER_DATA_POINTER, [0x08, 0x3B0], byte) == 0x01
+        return byte(0x00a193d0) == 0x01
     }
 
     // State via statistics
@@ -370,11 +370,11 @@ class RodeaObject
     }
 
     function get_pos_y() {
-        return ptr(PLAYER_DATA_POINTER, [0x08, 0x350], float_be)
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x354], float_be)
     }
 
     function get_pos_z() {
-        return ptr(PLAYER_DATA_POINTER, [0x08, 0x350], float_be)
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x358], float_be)
     }
 
     // Flight
@@ -414,9 +414,7 @@ function clear_without_spiderweb_logic() {
 }
 
 function clear_bomber_attack_without_dmg_logic() {
-    // TODO: objective id as check
-    return get_current_chapter() == 3 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
-    // TODO: was it 5 hp?
+    return get_current_chapter() == 3 && get_top_objective_id() == 5 && get_bottom_objective_id() == 6 &&
     disable_when(get_ion_wave_hp() < prev(get_ion_wave_hp()), until=rodea.died()) &&
     trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose()))
 }
@@ -431,24 +429,20 @@ function escape_bomb_logic() {
 }
 
 function clear_all_rolling_enemies_logic() {
-    // TODO: was it 6?
     chain_target = 6
-    // TODO check values
-    return get_current_chapter() == 6 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
+    return get_current_chapter() == 9 && get_top_objective_id() == 2 &&
     disable_when(rodea.get_chain() < prev(rodea.get_chain()), until=rodea.died()) &&
     trigger_when(rodea.get_chain() == chain_target && prev(rodea.get_chain()) == chain_target - 1)
 }
 
-function spiderweb_climb_cp_10() {
-    // x -2699 y 390 z -355 to
-    // x -2699 y 387 z -337 for start
-    trigger_loc = rodea.get_pos_z() == -358.0 && prev(rodea.get_pos_z() != -358.0) && rodea.get_pos_y() > 570.0
+function spiderweb_climb_cp_11() {
+    trigger_loc = rodea.get_pos_z() < -358.0 && prev(rodea.get_pos_z()) > -358.0 && rodea.get_pos_y() > 570.0
 
-    return get_current_chapter() == 9 &&
-    once(rodea.get_pos_y() == 390.0 && prev(rodea.get_pos_y() != 390.0) && rodea.get_pos_z() == -355.0 && prev(rodea.get_pos_z() != -355.0) && rodea.on_wire_cable()) &&
+    return get_current_chapter() == 11 &&
+    (never(rodea.died())) &&
+    once(rodea.get_pos_z() > -363.0 && prev(rodea.get_pos_z()) < -363.0 && rodea.on_wire_cable()) &&
     trigger_when(rodea.get_chain() == 9 && trigger_loc) &&
-    disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9) &&
-    never(rodea.died())
+    disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9, until=rodea.died())
 }
 
 function key_cards_without_floor_cp_14_logic() {
@@ -460,7 +454,7 @@ function key_cards_without_floor_cp_14_logic() {
 }
 
 function topdown_gun_section_logic() {
-    return get_current_chapter() == 21 && get_kills_in_current_attempt_cp_21() == 196
+    return get_current_chapter() == 21 && get_kills_in_current_attempt_cp_21() == 196 && timer_frozen_due_to_cutscene() && prev(!timer_frozen_due_to_cutscene()) 
 }
 
 achievement(
@@ -468,7 +462,7 @@ title = "Getting Around It with Yuji Naka",
 points = 4,
 description = "In Chapter 11, instead of the shortcut, take the long route around the spiderwebs and reach the top with a Chain of 9",
 trigger = 
-    spiderweb_climb_cp_10()
+    spiderweb_climb_cp_11()
 )
 
 achievement(
@@ -530,9 +524,12 @@ trigger =
 achievement(
 title = "Immersive Experience",
 points = 1,
-description = "Press the 2 button after beating the game to enter FPS mode",
+description = "Complete Chapter 1 while staying in FPS mode, entered by pressing the 2 button after beating the game",
 trigger = 
-    !check_if_on_title_screen() && rodea.in_fps_mode() && prev(!rodea.in_fps_mode())
+    trigger_when(rodea.in_victory_pose()) &&
+    // 73.0 is just a location at the start of the map; if the player moves too far without FPS mode the achievement will be disabled
+    disable_when(!rodea.in_fps_mode() && rodea.get_pos_z() < 73.0, until=restarted_stage() || rodea.get_pos_z() >= 73.0) &&
+    !check_if_on_title_screen() && rodea.in_fps_mode() && get_current_chapter() == 1
 )
 
 achievement(
@@ -540,7 +537,7 @@ title = "Spare Parts",
 points = 2,
 description = "Earn an extra life",
 trigger = 
-    !check_if_on_title_screen() && rodea.get_lives() == prev(rodea.get_lives() - 1)
+    !check_if_on_title_screen() && rodea.get_lives() > prev(rodea.get_lives())
 )
 
 CHAPTER_CLEAR_ACHIEVEMENT_NAMES = {
