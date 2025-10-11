@@ -114,9 +114,8 @@ function get_total_appeared_in_current_attempt_cp_21() {
     return ptr(dword_be(0x003f2018), [0xfc8], dword_be)
 }
 
-function view_cp_21_special_results() {
-    // todo: find trigger mem/delta
-    return always_false()
+function just_collected_all_keycards_cp_14() {
+    return dword_be(0x004105B0) == 3 && prev(dword_be(0x004105B0)) == 2
 }
 
 // S_RANK_GOALS[0]["grav"] == ...
@@ -258,7 +257,7 @@ class SaveSlot
     }
 }
 
-INTERACTIVE_ITEM_BASE = 0x3f1818
+INTERACTIVE_ITEM_BASE = dword_be(0x003f1818) & 0x1fffffff
 
 class ItemCapsule
 {
@@ -266,18 +265,19 @@ class ItemCapsule
 
     function _get_state_adr() {
         val = INTERACTIVE_ITEM_BASE + 0x10000
-        offset = this.id * 0x0c
+        offset = this.id * 0x0c // item id array
         val = val + offset
-        val = val - 0x57fc
+        val = val - 0x57fc // fixed calc in assembler
+        val = val + 0x04 // offset for object
         return val
     }
 
     function capsule_opened() {
-        return ptr(dword_be(this._get_state_adr()), [0x04], dword_be) == 0x01
+        return dword_be(this._get_state_adr()) == 0x01
     }
 
     function capsule_unopened() {
-        return ptr(dword_be(this._get_state_adr()), [0x04], dword_be) == 0x00
+        return dword_be(this._get_state_adr()) == 0x00
     }
 }
 
@@ -449,7 +449,7 @@ function key_cards_without_floor_cp_14_logic() {
     // todo: id check
     return get_current_chapter() == 14 && get_top_objective_id() == 0 && get_bottom_objective_id() == 0 &&
     // todo: need to check if all cards collected
-    trigger_when(always_false()) &&
+    trigger_when(just_collected_all_keycards_cp_14()) &&
     disable_when(rodea.has_landed(), until=rodea.died())
 }
 
@@ -484,9 +484,9 @@ trigger =
 achievement(
 title = "Chain Reaction",
 points = 3,
-description = "Reach a Chain of 30",
+description = "Reach a Chain of 20",
 trigger = 
-    !check_if_on_title_screen() && rodea.get_chain() == 30 && prev(rodea.get_chain() < 30)
+    !check_if_on_title_screen() && rodea.get_chain() == 20 && prev(rodea.get_chain() < 20)
 )
 
 achievement(
