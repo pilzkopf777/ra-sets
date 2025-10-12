@@ -122,23 +122,116 @@ function checkpoint_bell_hit() {
     return dword_be(0x003f19f4) > prev(dword_be(0x003f19f4))
 }
 
-// S_RANK_GOALS[0]["grav"] == ...
-S_RANK_GOALS = {
-    0:
-        {
-            "time": 0,
-            "grav": 0
-        },
-    1:
-        {
-            "time": 0,
-            "grav": 0
-        }
+// I hate this
+S_RANK_TABLE = {
+    1: {
+        "time": 70000,
+        "grav": 200
+    },
+    2: {
+        "time": 200000,
+        "grav": 520
+    },
+    3: {
+        "time": 245000,
+        "grav": 660
+    },
+    4: {
+        "time": 235000,
+        "grav": 480
+    },
+    5: {
+        "time": 80000,
+        "grav": 0 // Boss, no Grav
+    },
+    6: {
+        "time": 255000,
+        "grav": 680
+    },
+    7: {
+        "time": 190000,
+        "grav": 590
+    },
+    8: {
+        "time": 300000,
+        "grav": 460
+    },
+    9: {
+        "time": 190000,
+        "grav": 330
+    },
+    10: {
+        "time": 125000,
+        "grav": 0 // Boss
+    },
+    11: {
+        "time": 180000,
+        "grav": 530
+    },
+    12: {
+        "time": 220000,
+        "grav": 740
+    },
+    13: {
+        "time": 145000,
+        "grav": 280
+    },
+    14: {
+        "time": 310000,
+        "grav": 800
+    },
+    15: {
+        "time": 135000,
+        "grav": 0 // Boss
+    },
+    16: {
+        "time": 200000,
+        "grav": 570
+    },
+    17: {
+        "time": 255000,
+        "grav": 660
+    },
+    18: {
+        "time": 220000,
+        "grav": 510
+    },
+    19: {
+        "time": 235000,
+        "grav": 570
+    },
+    20: {
+        "time": 155000,
+        "grav": 0 // Boss
+    },
+    21: {
+        "time": 320000,
+        "grav": 840
+    },
+    22: {
+        "time": 235000,
+        "grav": 520
+    },
+    23: {
+        "time": 300000,
+        "grav": 600
+    },
+    24: {
+        "time": 200000,
+        "grav": 0 // Boss
+    },
+    25: {
+        "time": 410000,
+        "grav": 0 // Boss
+    }
 }
+
 
 PLAYER_DATA_POINTER = dword_be(0x3f1478)
 
 START_OF_SAVE_SLOT_1 = 0x00EDF3D0
+ADR_S_RANK_TIME_1 = 0x3881dc
+ADR_S_RANK_GRAV_1 = 0x00 // todo
 
 class ChapterSaveData
 {
@@ -167,13 +260,17 @@ class ChapterSaveData
         return dword_be(this._get_start_adr_raw() + 0x08)
     }
 
-
     function is_time_s_rank() {
-        return true
+        return this.get_best_time() <= S_RANK_TABLE[this.chapter]["time"]      
     }
 
     function is_graviton_s_rank() {
-        return true    
+        // Not all chapters have graviton S ranks so for those the target is == 0 and should yield false
+        if (S_RANK_TABLE[this.chapter]["grav"] == 0) {
+            return false
+        } else {
+            return this.get_best_graviton_score() >= S_RANK_TABLE[this.chapter]["grav"]
+        }
     }
 
     function get_bronze_medal_count() {
@@ -202,6 +299,7 @@ class ChapterSaveData
 
 }
 
+
 class SaveSlot
 {
     save_slot = 0
@@ -216,28 +314,31 @@ class SaveSlot
 
     function get_total_medals_collected() {
         sum = 0
-        for current_chapter in range(0, 25, 1) {
+
+        for current_chapter in range(1, 25, 1) {
             sum = sum + this.get_chapter(current_chapter).get_amount_of_medals_collected()
         }
+
         return sum
     }
 
-    function get_s_ranks_collected_on_page(first_chapter) {
-        collected = this.get_chapter(first_chapter + 0).get_amount_of_medals_collected() + 
-                    this.get_chapter(first_chapter + 1).get_amount_of_medals_collected() +
-                    this.get_chapter(first_chapter + 2).get_amount_of_medals_collected() +
-                    this.get_chapter(first_chapter + 3).get_amount_of_medals_collected() +
-                    this.get_chapter(first_chapter + 4).get_amount_of_medals_collected()
-        return collected
-    }
+    function get_total_s_ranks_collected() {
+        sum = 0
+               
 
-    function get_medals_collected_on_page(first_chapter) {
-        collected = this.get_chapter(first_chapter + 0).get_amount_of_medals_collected() + 
-                    this.get_chapter(first_chapter + 1).get_amount_of_medals_collected() +
-                    this.get_chapter(first_chapter + 2).get_amount_of_medals_collected() +
-                    this.get_chapter(first_chapter + 3).get_amount_of_medals_collected() +
-                    this.get_chapter(first_chapter + 4).get_amount_of_medals_collected()
-        return collected
+        for current_chapter_id in range(1, 25, 1) {
+            current_chapter_obj = this.get_chapter(current_chapter_id)
+                                                        
+            if (current_chapter_obj.is_time_s_rank()) {
+                sum = sum + 1
+            }
+            
+            if (current_chapter_obj.is_graviton_s_rank()) {
+                sum = sum + 1
+            }
+        }
+        
+        return sum        
     }
 }
 
@@ -585,120 +686,10 @@ CHAPTERS_WITH_MEDALS = {
     25: 3
 }
 
-// I hate this
-S_RANK_TABLE = {
-    1: {
-        "time": 70000,
-        "grav": 0
-    },
-    2: {
-        "time": 200000,
-        "grav": 0
-    },
-    3: {
-        "time": 245000,
-        "grav": 0
-    },
-    4: {
-        "time": 235000,
-        "grav": 0
-    },
-    5: {
-        "time": 80000,
-        "grav": 0 // Boss, no Grav
-    },
-    6: {
-        "time": 255000,
-        "grav": 0
-    },
-    7: {
-        "time": 190000,
-        "grav": 0
-    },
-    8: {
-        "time": 300000,
-        "grav": 0
-    },
-    9: {
-        "time": 190000,
-        "grav": 0
-    },
-    10: {
-        "time": 125000,
-        "grav": 0 // Boss
-    },
-    11: {
-        "time": 180000,
-        "grav": 0
-    },
-    12: {
-        "time": 220000,
-        "grav": 0
-    },
-    13: {
-        "time": 145000,
-        "grav": 0
-    },
-    14: {
-        "time": 310000,
-        "grav": 0
-    },
-    15: {
-        "time": 135000,
-        "grav": 0 // Boss
-    },
-    16: {
-        "time": 200000,
-        "grav": 0
-    },
-    17: {
-        "time": 255000,
-        "grav": 0
-    },
-    18: {
-        "time": 220000,
-        "grav": 0
-    },
-    19: {
-        "time": 235000,
-        "grav": 0
-    },
-    20: {
-        "time": 155000,
-        "grav": 0 // Boss
-    },
-    21: {
-        "time": 320000,
-        "grav": 0
-    },
-    22: {
-        "time": 235000,
-        "grav": 0
-    },
-    23: {
-        "time": 300000,
-        "grav": 0
-    },
-    24: {
-        "time": 200000,
-        "grav": 0 // Boss
-    },
-    25: {
-        "time": 410000,
-        "grav": 0 // Boss
-    }
-}
-
-function medal_collection_logic(first_chapter) {
-    if (first_chapter == 21) {
-        target = 27
-    } else {
-        target = 36
-    }
-
-    collected_slot_0 = save_slot_0.get_medals_collected_on_page(first_chapter)
-    collected_slot_1 = save_slot_1.get_medals_collected_on_page(first_chapter)
-    collected_slot_2 = save_slot_2.get_medals_collected_on_page(first_chapter)
+function medal_collection_logic(target) {
+    collected_slot_0 = save_slot_0.get_total_medals_collected()
+    collected_slot_1 = save_slot_1.get_total_medals_collected()
+    collected_slot_2 = save_slot_2.get_total_medals_collected()
 
     return !check_if_on_title_screen() && check_if_in_chapter_results() &&
     (
@@ -708,16 +699,10 @@ function medal_collection_logic(first_chapter) {
     )
 }
 
-function s_rank_collection_logic(first_chapter) {
-    if (first_chapter == 21) {
-        target = 8
-    } else {
-        target = 9
-    }
-
-    collected_slot_0 = save_slot_0.get_s_ranks_collected_on_page(first_chapter)
-    collected_slot_1 = save_slot_1.get_s_ranks_collected_on_page(first_chapter)
-    collected_slot_2 = save_slot_2.get_s_ranks_collected_on_page(first_chapter)
+function s_rank_collection_logic(target) {
+    collected_slot_0 = save_slot_0.get_total_s_ranks_collected()
+    collected_slot_1 = save_slot_1.get_total_s_ranks_collected()
+    collected_slot_2 = save_slot_2.get_total_s_ranks_collected()
 
     return !check_if_on_title_screen() && check_if_in_chapter_results() &&
     (
@@ -765,21 +750,33 @@ for current_chapter in range(5, 25, 5) {
         ) &&
         never(check_if_in_chapter_select() && prev(!check_if_in_chapter_select()))
     )
+}
 
+MEDAL_TARGET_AMOUNTS = [10, 50, 100, 171]
+MEDAL_TARGET_PTS = [5, 10, 25, 50]
+MEDAL_TARGET_PREFIXES = ["Apprentice", "Dedicated", "Veteran", "Eternal"]
+
+for current in range(0, 3, 1) {
     achievement(
-    title = format("The Legacy of the {0}", MEDAL_COLLECTION_ACHIEVEMENT_NAMES[current_chapter]),
-    points = MEDAL_COLLECTION_PTS_MAP[current_chapter],
-    description = format("Collect all Legacy Medals in Chapters {0} through {1}", current_chapter - 4, current_chapter - 5 + CHAPTERS_WITH_MEDALS[current_chapter]),
+    title = format("{0} Archivist", MEDAL_TARGET_PREFIXES[current]),
+    points = MEDAL_TARGET_PTS[current],
+    description = format("Collect {0} Legacy Medals", MEDAL_TARGET_AMOUNTS[current]),
     trigger = 
-        medal_collection_logic(first_chapter=current_chapter - 4)
+        medal_collection_logic(MEDAL_TARGET_AMOUNTS[current])
     )
+}
 
+S_RANK_TARGET_AMOUNTS = [5, 15, 30, 44]
+S_RANK_TARGET_PTS = [5, 10, 25, 50]
+S_RANK_TARGET_PREFIXES = ["Apprentice", "Dedicated", "Veteran", "Eternal"]
+
+for current in range(0, 3, 1) {
     achievement(
-    title = format("Touring the {0}", MEDAL_COLLECTION_ACHIEVEMENT_NAMES[current_chapter]),
-    points = MEDAL_COLLECTION_PTS_MAP[current_chapter],
-    description = format("Earn all S Ranks in Chapters {0} through {1}", current_chapter - 4, current_chapter - 5 + CHAPTERS_WITH_MEDALS[current_chapter]),
+    title = format("{0} Soldier", MEDAL_TARGET_PREFIXES[current]),
+    points = MEDAL_TARGET_PTS[current],
+    description = format("Earn {0} S Ranks", S_RANK_TARGET_AMOUNTS[current]),
     trigger = 
-        s_rank_collection_logic(first_chapter=current_chapter - 4)
+        s_rank_collection_logic(S_RANK_TARGET_AMOUNTS[current])
     )
 }
 
@@ -809,3 +806,4 @@ for current_save_slot in range(0, 2, 1) {
 
 
 rich_presence_display("Preparing to take flight!")
+
