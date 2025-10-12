@@ -795,6 +795,26 @@ for current in range(0, 3, 1) {
 }
 */
 
+for current_chapter in range(1, 25, 1) {
+        leaderboard(
+        title = format("Chapter {0}: Time Attack", current_chapter),
+        description = "Reach the goal as quickly as possible!",
+        start = 
+            get_current_chapter() == current_chapter &&
+            check_if_in_chapter_results() && prev(!check_if_in_chapter_results()),
+        cancel = (
+            check_if_in_chapter_select() && prev(!check_if_in_chapter_select())
+        ),
+        submit = always_true(),
+        value =
+            measured(
+                prior(get_stage_time() - 1 / 60)
+        ),
+        format = "FRAMES", lower_is_better = true
+    )
+
+}
+
 rich_presence_conditional_display(booting_up() || check_if_on_title_screen(), "On the Title Screen")
 
 rich_presence_conditional_display(check_if_in_multiplayer(), "Taking to the skies in Multiplayer mode")
