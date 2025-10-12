@@ -62,6 +62,10 @@ function get_current_chapter() {
     return dword_be(0x3f0a28)
 }
 
+function check_if_can_get_achievements() {
+    return dword_be(0x003f0a24) > 0 && dword_be(0x003f0a24) < 26
+}
+
 function check_if_save_file_loaded() {
     return dword_be(0x3f210c) <= 2
 }
@@ -142,7 +146,7 @@ S_RANK_TABLE = {
     },
     5: {
         "time": 80000,
-        "grav": 0 // Boss, no Grav
+        "grav": 9999999 // Boss, no Grav
     },
     6: {
         "time": 255000,
@@ -162,7 +166,7 @@ S_RANK_TABLE = {
     },
     10: {
         "time": 125000,
-        "grav": 0 // Boss
+        "grav": 9999999 // Boss
     },
     11: {
         "time": 180000,
@@ -182,7 +186,7 @@ S_RANK_TABLE = {
     },
     15: {
         "time": 135000,
-        "grav": 0 // Boss
+        "grav": 9999999 // Boss
     },
     16: {
         "time": 200000,
@@ -202,7 +206,7 @@ S_RANK_TABLE = {
     },
     20: {
         "time": 155000,
-        "grav": 0 // Boss
+        "grav": 9999999 // Boss
     },
     21: {
         "time": 320000,
@@ -218,11 +222,11 @@ S_RANK_TABLE = {
     },
     24: {
         "time": 200000,
-        "grav": 0 // Boss
+        "grav": 9999999 // Boss
     },
     25: {
         "time": 410000,
-        "grav": 0 // Boss
+        "grav": 9999999 // Boss
     }
 }
 
@@ -320,25 +324,6 @@ class SaveSlot
         }
 
         return sum
-    }
-
-    function get_total_s_ranks_collected() {
-        sum = 0
-               
-
-        for current_chapter_id in range(1, 25, 1) {
-            current_chapter_obj = this.get_chapter(current_chapter_id)
-                                                        
-            if (current_chapter_obj.is_time_s_rank()) {
-                sum = sum + 1
-            }
-            
-            if (current_chapter_obj.is_graviton_s_rank()) {
-                sum = sum + 1
-            }
-        }
-        
-        return sum        
     }
 }
 
@@ -551,7 +536,7 @@ title = "Getting Around It with Yuji Naka",
 points = 4,
 description = "In Chapter 11, instead of the shortcut, take the long route around the spiderwebs and reach the top with a Chain of 9",
 trigger = 
-    spiderweb_climb_cp_11()
+    spiderweb_climb_cp_11() && check_if_can_get_achievements()
 )
 
 achievement(
@@ -559,7 +544,7 @@ title = "Stop, Do, and Rolls",
 points = 5,
 description = "In Chapter 9, defeat the enemies during the ambush in a single chain",
 trigger = 
-    clear_all_rolling_enemies_logic()
+    clear_all_rolling_enemies_logic() && check_if_can_get_achievements()
 )
 
 achievement(
@@ -567,7 +552,7 @@ title = "The One That Got Away",
 points = 3,
 description = "In Chapter 6, open the capsule with the Heart item",
 trigger = 
-    !check_if_on_title_screen() && get_current_chapter() == 6 && unused_hp_capsule.capsule_opened() && prev(unused_hp_capsule.capsule_unopened())
+    !check_if_on_title_screen() && get_current_chapter() == 6 && unused_hp_capsule.capsule_opened() && prev(unused_hp_capsule.capsule_unopened()) && check_if_can_get_achievements()
 )
 
 achievement(
@@ -575,7 +560,7 @@ title = "Chain Reaction",
 points = 3,
 description = "Reach a Chain of 20",
 trigger = 
-    !check_if_on_title_screen() && rodea.get_chain() == 20 && prev(rodea.get_chain() < 20)
+    !check_if_on_title_screen() && rodea.get_chain() == 20 && prev(rodea.get_chain() < 20) && check_if_can_get_achievements()
 )
 
 achievement(
@@ -583,7 +568,7 @@ title = "Sentient Security System",
 points = 4,
 description = "In Chapter 3, destroy the Bomber without the Ion Wave taking any damage",
 trigger = 
-    clear_bomber_attack_without_dmg_logic()
+    clear_bomber_attack_without_dmg_logic() && check_if_can_get_achievements()
 )
 
 //achievement(
@@ -607,7 +592,7 @@ title = "Top Machine Gun",
 points = 10,
 description = "In Chapter 21, defeat all enemies and reach a 100% KO rate",
 trigger = 
-    topdown_gun_section_logic()
+    topdown_gun_section_logic() && check_if_can_get_achievements()
 )
 
 achievement(
@@ -618,7 +603,7 @@ trigger =
     trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose())) &&
     // 73.0 is just a location at the start of the map; if the player moves too far without FPS mode the achievement will be disabled
     disable_when(!rodea.in_fps_mode() && rodea.get_pos_z() < 73.0, until=restarted_stage() || rodea.get_pos_z() >= 73.0) &&
-    !check_if_on_title_screen() && rodea.in_fps_mode() && get_current_chapter() == 1
+    !check_if_on_title_screen() && rodea.in_fps_mode() && get_current_chapter() == 1 && check_if_can_get_achievements()
 )
 
 achievement(
@@ -626,7 +611,7 @@ title = "Spare Parts",
 points = 2,
 description = "Earn an extra life",
 trigger = 
-    !check_if_on_title_screen() && rodea.get_lives() > prev(rodea.get_lives())
+    !check_if_on_title_screen() && rodea.get_lives() > prev(rodea.get_lives()) && check_if_can_get_achievements()
 )
 
 CHAPTER_CLEAR_ACHIEVEMENT_NAMES = {
@@ -691,39 +676,53 @@ function medal_collection_logic(target) {
     collected_slot_1 = save_slot_1.get_total_medals_collected()
     collected_slot_2 = save_slot_2.get_total_medals_collected()
 
-    return !check_if_on_title_screen() && check_if_in_chapter_results() &&
-    (
-        get_active_save_slot() == 0 && measured(collected_slot_0 == target) && prev(collected_slot_0 != target) ||
-        get_active_save_slot() == 1 && measured(collected_slot_1 == target) && prev(collected_slot_1 != target) ||
-        get_active_save_slot() == 2 && measured(collected_slot_2 == target) && prev(collected_slot_2 != target)
-    )
+    start_saved_records = 0x00ee5850
+    offset_bronze = 0x11
+    offset_silver = 0x15
+    offset_gold = 0x13
+    offset_per_obj_in_records = 0x18
+
+    cond = always_true()
+    current_sum = 0
+        current_sum = sum_of(range(1, 25, 1), i =>
+        bitcount(start_saved_records + offset_bronze + offset_per_obj_in_records * i) +
+        bitcount(start_saved_records + offset_silver + offset_per_obj_in_records * i) +
+        bitcount(start_saved_records + offset_gold + offset_per_obj_in_records * i))
+
+    cond = measured(current_sum >= target) && once(current_sum >= target && prev(current_sum) < target)
+    
+    return cond && never(booting_up()) && never(dword_be(0x00ee5850) == 0) && never(check_if_in_chapter_select()) && check_if_in_chapter_results()
 }
 
-//function s_rank_collection_logic(target) {
-    /*
-    collected_slot_0 = save_slot_0.get_total_s_ranks_collected()
-    collected_slot_1 = save_slot_1.get_total_s_ranks_collected()
-    collected_slot_2 = save_slot_2.get_total_s_ranks_collected()
-
-    return !check_if_on_title_screen() && check_if_in_chapter_results() &&
-    (
-        get_active_save_slot() == 0 && measured(collected_slot_0 == target) && prev(collected_slot_0 != target) ||
-        get_active_save_slot() == 1 && measured(collected_slot_1 == target) && prev(collected_slot_1 != target) ||
-        get_active_save_slot() == 2 && measured(collected_slot_2 == target) && prev(collected_slot_2 != target)  
-    )
-    */
- //   return new_s_rank_logic(target) && never(check_if_on_title_screen())
-//}
-
 function s_rank_collection_logic(target) {
-    start_adr = 0x00edf4d0 + 0x04
-    offset_per = 0x40
+    start_adr = 0x00edf4d0
+    start_saved_records = 0x00ee5850
+    obj_offset_time = 0x04
+    obj_offset_grav = 0x08
+    offset_per_obj = 0x40
+    offset_per_obj_in_records = 0x18
+       
+    cond = always_true()
 
-    return measured(tally_of(range(1, 25, 1), target, i => 
-        once(
-            dword_be(start_adr + offset_per * i) <= S_RANK_TABLE[i]["time"]
-        ))
-    ) && never(check_if_on_title_screen())
+    cond = cond && tally_of(range(1, 25, 1), target, i => (
+    once(
+        dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i) <= S_RANK_TABLE[i]["time"] && // new time is smaller than target -> s rank
+        prev(dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i)) > S_RANK_TABLE[i]["time"] || // previously time was larger
+        dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i) <= S_RANK_TABLE[i]["time"] &&
+        prev(dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i)) == 0
+    )
+    )
+    )
+
+    cond = cond && tally_of(range(1, 25, 1), target, i => (
+    once(
+        dword_be(start_saved_records + obj_offset_grav + offset_per_obj_in_records * i) >= S_RANK_TABLE[i]["grav"] && 
+        prev(dword_be(start_saved_records + obj_offset_grav + offset_per_obj_in_records * i)) < S_RANK_TABLE[i]["grav"]
+    )
+    )
+    )
+    
+    return cond && never(booting_up()) && never(dword_be(0x00ee5850) == 0)
 }
 
 achievement(
@@ -784,6 +783,7 @@ S_RANK_TARGET_AMOUNTS = [5, 15, 30, 44]
 S_RANK_TARGET_PTS = [5, 10, 25, 50]
 S_RANK_TARGET_PREFIXES = ["Apprentice", "Dedicated", "Veteran", "Eternal"]
 
+/*
 for current in range(0, 3, 1) {
     achievement(
     title = format("{0} Soldier", MEDAL_TARGET_PREFIXES[current]),
@@ -793,6 +793,7 @@ for current in range(0, 3, 1) {
         s_rank_collection_logic(S_RANK_TARGET_AMOUNTS[current])
     )
 }
+*/
 
 rich_presence_conditional_display(booting_up() || check_if_on_title_screen(), "On the Title Screen")
 
