@@ -398,7 +398,7 @@ class RodeaObject
     }
 
     function in_fps_mode() {
-        return byte(0x00a193d0) == 0x01
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x790], byte) == 0x01
     }
 
     // State via statistics
@@ -486,7 +486,7 @@ function clear_without_spiderweb_logic() {
 
 function clear_bomber_attack_without_dmg_logic() {
     return get_current_chapter() == 3 && get_top_objective_id() == 5 && get_bottom_objective_id() == 6 &&
-    disable_when(get_ion_wave_hp() < prev(get_ion_wave_hp()), until=rodea.died()) &&
+    disable_when(get_ion_wave_hp() < prev(get_ion_wave_hp()), until=rodea.died() || prev(get_stage_time() == 0) && get_stage_time() != 0) &&
     trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose()))
 }
 
@@ -502,7 +502,7 @@ function escape_bomb_logic() {
 function clear_all_rolling_enemies_logic() {
     chain_target = 6
     return get_current_chapter() == 9 && get_top_objective_id() == 2 &&
-    disable_when(rodea.get_chain() < prev(rodea.get_chain()), until=rodea.died()) &&
+    disable_when(rodea.get_chain() < prev(rodea.get_chain()), until=rodea.died() || prev(get_stage_time() == 0) && get_stage_time() != 0) &&
     trigger_when(rodea.get_chain() == chain_target && prev(rodea.get_chain()) == chain_target - 1)
 }
 
@@ -513,19 +513,8 @@ function spiderweb_climb_cp_11() {
     (never(rodea.died())) &&
     once(rodea.get_pos_z() > -363.0 && prev(rodea.get_pos_z()) < -363.0 && rodea.on_wire_cable()) &&
     trigger_when(rodea.get_chain() == 9 && trigger_loc) &&
-    disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9, until=rodea.died())
+    disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9, until=rodea.died() || prev(get_stage_time() == 0) && get_stage_time() != 0)
 }
-
-//function key_cards_without_floor_cp_14_logic() {
-//    return get_current_chapter() == 14 && get_top_objective_id() == 1 && get_bottom_objective_id() == 2 &&
-//    trigger_when(get_amount_of_keycards_collected_cp_14() == 3 && prev(get_amount_of_keycards_collected_cp_14()) == 2) &&
-//    (
-//        disable_when(rodea.has_landed(), until=rodea.died() || get_top_objective_id() != 1 && get_bottom_objective_id() != 2)
-//    ) &&
-//    (
-//        disable_when(checkpoint_bell_hit(), until=restarted_stage())
-//    )
-//}
 
 function topdown_gun_section_logic() {
     return get_current_chapter() == 21 && get_kills_in_current_attempt_cp_21() == 196 && timer_frozen_due_to_cutscene() && prev(!timer_frozen_due_to_cutscene()) 
@@ -534,9 +523,9 @@ function topdown_gun_section_logic() {
 achievement(
 title = "Getting Around It with Yuji Naka",
 points = 4,
-description = "In Chapter 11, instead of the shortcut, take the long route around the spiderwebs and reach the top with a Chain of 9",
+description = "In Chapter 11, instead of the shortcut, take the long route around the spiderwebs and reach the top with a chain of 9",
 trigger = 
-    spiderweb_climb_cp_11() && check_if_can_get_achievements()
+    spiderweb_climb_cp_11() && check_if_can_get_achievements() && !check_if_in_multiplayer()
 )
 
 achievement(
@@ -544,7 +533,7 @@ title = "Stop, Do, and Rolls",
 points = 5,
 description = "In Chapter 9, defeat the enemies during the ambush in a single chain",
 trigger = 
-    clear_all_rolling_enemies_logic() && check_if_can_get_achievements()
+    clear_all_rolling_enemies_logic() && check_if_can_get_achievements() && !check_if_in_multiplayer()
 )
 
 achievement(
@@ -552,47 +541,31 @@ title = "The One That Got Away",
 points = 3,
 description = "In Chapter 6, open the capsule with the Heart item",
 trigger = 
-    !check_if_on_title_screen() && get_current_chapter() == 6 && unused_hp_capsule.capsule_opened() && prev(unused_hp_capsule.capsule_unopened()) && check_if_can_get_achievements()
+    !check_if_on_title_screen() && get_current_chapter() == 6 && unused_hp_capsule.capsule_opened() && prev(unused_hp_capsule.capsule_unopened()) && check_if_can_get_achievements() && !check_if_in_multiplayer()
 )
 
 achievement(
 title = "Chain Reaction",
 points = 3,
-description = "Reach a Chain of 20",
+description = "Reach a chain of 20",
 trigger = 
-    !check_if_on_title_screen() && rodea.get_chain() == 20 && prev(rodea.get_chain() < 20) && check_if_can_get_achievements()
+    !check_if_on_title_screen() && rodea.get_chain() == 20 && prev(rodea.get_chain() < 20) && check_if_can_get_achievements() && !check_if_in_multiplayer()
 )
 
 achievement(
 title = "Sentient Security System",
 points = 4,
-description = "In Chapter 3, destroy the Bomber without the Ion Wave taking any damage",
+description = "In Chapter 3, destroy the Bomber without letting the Ion Wave take any damage",
 trigger = 
-    clear_bomber_attack_without_dmg_logic() && check_if_can_get_achievements()
+    clear_bomber_attack_without_dmg_logic() && check_if_can_get_achievements() && !check_if_in_multiplayer()
 )
-
-//achievement(
-//title = "Hit the Ground Running",
-//points = 4,
-//description = "In Chapter 14, collect the key cards without landing on the floor or ringing any checkpoint bells",
-//trigger = 
-//    key_cards_without_floor_cp_14_logic()
-//)
-
-//achievement(
-//title = "The Last Bomb",
-//points = 4,
-//description = "In Chapter 19, complete the chapter before the bomb timer reaches 1:40:00",
-//trigger = 
-//    key_cards_without_floor_cp_14_logic()
-//)
 
 achievement(
 title = "Top Machine Gun",
 points = 10,
 description = "In Chapter 21, defeat all enemies and reach a 100% KO rate",
 trigger = 
-    topdown_gun_section_logic() && check_if_can_get_achievements()
+    topdown_gun_section_logic() && check_if_can_get_achievements() && get_stage_time() >= 1 && !check_if_in_multiplayer()
 )
 
 achievement(
@@ -603,7 +576,7 @@ trigger =
     trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose())) &&
     // 73.0 is just a location at the start of the map; if the player moves too far without FPS mode the achievement will be disabled
     disable_when(!rodea.in_fps_mode() && rodea.get_pos_z() < 73.0, until=restarted_stage() || rodea.get_pos_z() >= 73.0) &&
-    !check_if_on_title_screen() && rodea.in_fps_mode() && get_current_chapter() == 1 && check_if_can_get_achievements()
+    !check_if_on_title_screen() && rodea.in_fps_mode() && get_current_chapter() == 1 && check_if_can_get_achievements() && get_stage_time() >= 1 && !check_if_in_multiplayer()
 )
 
 achievement(
@@ -611,7 +584,7 @@ title = "Spare Parts",
 points = 2,
 description = "Earn an extra life",
 trigger = 
-    !check_if_on_title_screen() && rodea.get_lives() > prev(rodea.get_lives()) && check_if_can_get_achievements()
+    !check_if_on_title_screen() && rodea.get_lives() > prev(rodea.get_lives()) && check_if_can_get_achievements() && !check_if_in_multiplayer()
 )
 
 CHAPTER_CLEAR_ACHIEVEMENT_NAMES = {
@@ -689,7 +662,7 @@ function medal_collection_logic(target) {
         bitcount(start_saved_records + offset_silver + offset_per_obj_in_records * i) +
         bitcount(start_saved_records + offset_gold + offset_per_obj_in_records * i))
 
-    cond = measured(current_sum >= target) && once(current_sum >= target && prev(current_sum) < target)
+    cond = measured(current_sum >= target) && once(current_sum >= target && prev(current_sum) < target) && !check_if_in_multiplayer()
     
     return cond && never(booting_up()) && never(dword_be(0x00ee5850) == 0) && never(check_if_in_chapter_select()) && check_if_in_chapter_results()
 }
@@ -702,14 +675,14 @@ function s_rank_collection_logic(target) {
     offset_per_obj = 0x40
     offset_per_obj_in_records = 0x18
        
-    cond = always_true()
+    cond = !check_if_in_multiplayer()
 
     cond = cond && tally_of(range(1, 25, 1), target, i => (
     once(
-        dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i) <= S_RANK_TABLE[i]["time"] && // new time is smaller than target -> s rank
-        prev(dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i)) > S_RANK_TABLE[i]["time"] || // previously time was larger
-        dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i) <= S_RANK_TABLE[i]["time"] &&
-        prev(dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i)) == 0
+        // The moment the value updates check if S rank
+        dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i) != prev(dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i)) &&
+        // Is this new value smaller than the S rank target? If so, add a hit
+        dword_be(start_saved_records + obj_offset_time + offset_per_obj_in_records * i) <= S_RANK_TABLE[i]["time"]
     )
     )
     )
@@ -729,19 +702,20 @@ achievement(
 title = "More than Just an Order",
 points = 1,
 type = "progression",
-description = "Make a Promise",
+description = "Make a promise",
 trigger = 
     !check_if_on_title_screen() && prev(get_current_chapter()) == 0 &&
     (
-    once(get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(0) && prev(!save_slot_0.is_chapter_beaten_first_time(0)))
+    (
+        once(get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(0) && prev(!save_slot_0.is_chapter_beaten_first_time(0)))
     ) ||
     (
-    once(get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(0) && prev(!save_slot_1.is_chapter_beaten_first_time(0)))
+        once(get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(0) && prev(!save_slot_1.is_chapter_beaten_first_time(0)))
     ) ||
     (
-    once(get_active_save_slot() == 2 && save_slot_2.is_chapter_beaten_first_time(0) && prev(!save_slot_2.is_chapter_beaten_first_time(0)))
-    ) &&
-    never(check_if_in_chapter_select() && prev(!check_if_in_chapter_select()))
+        once(get_active_save_slot() == 2 && save_slot_2.is_chapter_beaten_first_time(0) && prev(!save_slot_2.is_chapter_beaten_first_time(0)))
+    )
+    ) && never(check_if_in_chapter_select() && prev(!check_if_in_chapter_select())) && !check_if_in_multiplayer()
 )
 
 for current_chapter in range(5, 25, 5) {
@@ -753,20 +727,20 @@ for current_chapter in range(5, 25, 5) {
     trigger = 
         !check_if_on_title_screen() && prev(get_current_chapter()) == current_chapter && check_if_in_chapter_results() &&
         (
+            (
         once(get_active_save_slot() == 0 && save_slot_0.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_0.is_chapter_beaten_first_time(current_chapter)))
-        ) ||
-        (
+            ) || (
         once(get_active_save_slot() == 1 && save_slot_1.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_1.is_chapter_beaten_first_time(current_chapter)))
-        ) ||
-        (
+            ) || (
         once(get_active_save_slot() == 2 && save_slot_2.is_chapter_beaten_first_time(current_chapter) && prev(!save_slot_2.is_chapter_beaten_first_time(current_chapter)))
+            )
         ) &&
-        never(check_if_in_chapter_select() && prev(!check_if_in_chapter_select()))
+        never(check_if_in_chapter_select() && prev(!check_if_in_chapter_select())) && !check_if_in_multiplayer()
     )
 }
 
 MEDAL_TARGET_AMOUNTS = [10, 50, 100, 171]
-MEDAL_TARGET_PTS = [5, 10, 25, 50]
+MEDAL_TARGET_PTS = [5, 10, 25, 25]
 MEDAL_TARGET_PREFIXES = ["Apprentice", "Dedicated", "Veteran", "Eternal"]
 
 for current in range(0, 3, 1) {
@@ -780,9 +754,11 @@ for current in range(0, 3, 1) {
 }
 
 S_RANK_TARGET_AMOUNTS = [5, 15, 30, 44]
-S_RANK_TARGET_PTS = [5, 10, 25, 50]
+S_RANK_TARGET_PTS = [5, 10, 25, 25]
 S_RANK_TARGET_PREFIXES = ["Apprentice", "Dedicated", "Veteran", "Eternal"]
 
+
+// This works and is used but commented out to avoid accidental generation via RATools
 /*
 for current in range(0, 3, 1) {
     achievement(

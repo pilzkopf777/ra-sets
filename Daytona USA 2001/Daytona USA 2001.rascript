@@ -50,6 +50,10 @@ function in_race() {
     return screen_check(0x006c) || screen_check(0x00cf) || screen_check(0x0012)
 }
 
+function on_loading_black_screen() {
+    return CURRENT_SCREEN == 0xffff && prev(CURRENT_SCREEN == 0xffff) || CURRENT_SCREEN == 0xffff && prev(CURRENT_SCREEN == 0x0012) || CURRENT_SCREEN == 0x0012 && prev(CURRENT_SCREEN == 0xffff)
+}
+
 function reset_race() {
     return CURRENT_SCREEN == 0x006c && prev(CURRENT_SCREEN == 0xffff)
 }
@@ -1046,6 +1050,7 @@ achievement(
         // Reset progress when not in a race or restarting race
         never(reset_race()) &&
         never(!in_race()) &&
+        never(on_loading_black_screen()) &&
         // For good measure - also reset when on wrong map
         never(0x01 != RACE_DATA["track"]["map"]) &&
         // Actual logic here
