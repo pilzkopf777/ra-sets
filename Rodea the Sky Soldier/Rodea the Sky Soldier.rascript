@@ -699,7 +699,8 @@ function medal_collection_logic(target) {
     )
 }
 
-function s_rank_collection_logic(target) {
+//function s_rank_collection_logic(target) {
+    /*
     collected_slot_0 = save_slot_0.get_total_s_ranks_collected()
     collected_slot_1 = save_slot_1.get_total_s_ranks_collected()
     collected_slot_2 = save_slot_2.get_total_s_ranks_collected()
@@ -710,6 +711,19 @@ function s_rank_collection_logic(target) {
         get_active_save_slot() == 1 && measured(collected_slot_1 == target) && prev(collected_slot_1 != target) ||
         get_active_save_slot() == 2 && measured(collected_slot_2 == target) && prev(collected_slot_2 != target)  
     )
+    */
+ //   return new_s_rank_logic(target) && never(check_if_on_title_screen())
+//}
+
+function s_rank_collection_logic(target) {
+    start_adr = 0x00edf4d0 + 0x04
+    offset_per = 0x40
+
+    return measured(tally_of(range(1, 25, 1), target, i => 
+        once(
+            dword_be(start_adr + offset_per * i) <= S_RANK_TABLE[i]["time"]
+        ))
+    ) && never(check_if_on_title_screen())
 }
 
 achievement(
