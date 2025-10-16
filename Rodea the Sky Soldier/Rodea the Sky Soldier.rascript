@@ -523,7 +523,7 @@ function topdown_gun_section_logic() {
 achievement(
 title = "Getting Around It with Yuji Naka",
 points = 4,
-description = "In Chapter 11, instead of the shortcut, take the long route around the spiderwebs and reach the top with a chain of 9",
+description = "In Chapter 11, instead of taking the shortcut, take the long route around the spiderwebs and reach the top with a chain of 9",
 trigger = 
     spiderweb_climb_cp_11() && check_if_can_get_achievements() && !check_if_in_multiplayer()
 )
@@ -571,7 +571,7 @@ trigger =
 achievement(
 title = "Immersive Experience",
 points = 1,
-description = "Complete Chapter 1 while staying in FPS mode, entered by pressing the 2 button after beating the game",
+description = "Complete Chapter 1 while staying in FPS mode, which is entered by pressing the 2 button after beating the game",
 trigger = 
     trigger_when(rodea.in_victory_pose() && prev(!rodea.in_victory_pose())) &&
     // 73.0 is just a location at the start of the map; if the player moves too far without FPS mode the achievement will be disabled
