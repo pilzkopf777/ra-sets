@@ -19,6 +19,9 @@ function in_throw_a_roman() {
     return dword(0x082ec8) != 0x00
 }
 
+function is_cheating() {
+    return byte(0x07eaa8) == 1
+}
 // Helper function taken from Souzooka - thanks!
 function ptr(base, offsets, accessor=tbyte)
 {
@@ -84,21 +87,149 @@ class StrategyGame {
 
 strategy_game_obj = StrategyGame()
 
-INGR_NAME  = ["1", "2", "3", "4", "5", "6", "7"]
-INGR_DESC  = ["1", "2", "3", "4", "5", "6", "7"]
-// TODO which of these actually have ingredients...? two seem to be false..
-INGR_LEVEL = [0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa]
+minigame_area_names = {
+    0x2: "the Forest",
+    0x3: "the Roman Fort",
+    0x4: "the French Alps",
+    0x5: "Carnac",
+    0x6: "on Pirate Ship",
+    0x7: "Aquae Calidae",
+    0x8: "Narboa",
+    0x9: "Rome",
+    0x0a: "Pirate City",
+    0x0b: "Strategy",
+    0x0c: "Strategy",
+    0x0d: "Strategy",
+    0x0f: "a Minigame"
+}
 
-for ingredient in range(0, 6, 1) {
+INGR_ACHIEVEMENT_MAP = {
+    0: {
+        "item": "a branch of mistletoe",
+        "loc": minigame_area_names[0x02],
+        "name": "0",
+        "music": 0x02
+    },
+    1: {
+        "item": "a Roman standard",
+        "loc": minigame_area_names[0x03],
+        "name": "1",
+        "music": 0x03
+    },
+    2: {
+        "item": "an amphora of wine",
+        "loc": minigame_area_names[0x08],
+        "name": "2",
+        "music": 0x08
+    },
+    3: {
+        "item": "an edelweiss flower",
+        "loc": minigame_area_names[0x04],
+        "name": "3",
+        "music": 0x04
+    },
+    4: {
+        "item": "a mini-menhir",
+        "loc": minigame_area_names[0x05],
+        "name": "4",
+        "music": 0x05
+    },
+    5: {
+        "item": "the pirates' gold",
+        "loc": minigame_area_names[0x0a],
+        "name": "5",
+        "music": 0x0a
+    },
+    6: {
+        "item": "bath salts",
+        "loc": minigame_area_names[0x07],
+        "name": "6",
+        "music": 0x07
+    }
+}
+
+COLLECTABLE_MAP = {
+    0: {
+        "loc": minigame_area_names[0x02],
+        "name": "Collectables 0",
+        "music": 0x02,
+        "potion": 99,
+        "coin": 99
+    },
+    1: {
+        "loc": minigame_area_names[0x03],
+        "name": "Collectables 1",
+        "music": 0x03,
+        "potion": 99,
+        "coin": 99
+    },
+    2: {
+        "loc": minigame_area_names[0x08],
+        "name": "Collectables 2",
+        "music": 0x08,
+        "potion": 99,
+        "coin": 99
+    },
+    3: {
+        "loc": minigame_area_names[0x04],
+        "name": "Collectables 3",
+        "music": 0x04,
+        "potion": 99,
+        "coin": 99
+    },
+    4: {
+        "loc": minigame_area_names[0x05],
+        "name": "Collectables 4",
+        "music": 0x05,
+        "potion": 4,
+        "coin": 42
+    },
+    5: {
+        "loc": minigame_area_names[0x0a],
+        "name": "Collectables 5",
+        "music": 0x0a,
+        "potion": 99,
+        "coin": 99
+    },
+    6: {
+        "loc": minigame_area_names[0x07],
+        "name": "Collectables 6",
+        "music": 0x07,
+        "potion": 99,
+        "coin": 99
+    }
+}
+
+for count in range(0, 6, 1) {
     achievement(
-    title = INGR_NAME[ingredient],
+    title = INGR_ACHIEVEMENT_MAP[count]["name"],
     points = 0,
-    description = format("Collect {0}", INGR_DESC[ingredient]),
+    description = format("Collect {0} in {1}", INGR_ACHIEVEMENT_MAP[count]["item"], INGR_ACHIEVEMENT_MAP[count]["loc"]),
     trigger = 
-        // Player must be in the correct level
-        // Player must enter victory animation with DELTA
-        // Cheat mode must be off!
-        always_false()
+        // Correct map
+        get_music() == INGR_ACHIEVEMENT_MAP[count]["music"] &&
+        // No cheating!
+        !is_cheating() &&
+        // Victory animation
+        byte(0x083286) == 0x12 && prev(byte(0x083286)) != 0x12
+    )
+}
+
+for count in range(0, 6, 1) {
+    achievement(
+    title = COLLECTABLE_MAP[count]["name"],
+    points = 0,
+    description = format("Collect all gold coins and potions in {0}", COLLECTABLE_MAP[count]["loc"]),
+    trigger = 
+        // Correct map
+        get_music() == INGR_ACHIEVEMENT_MAP[count]["music"] &&
+        // No cheating!
+        !is_cheating() &&
+        // Got all potions and coins?
+        byte(0x08341a) == COLLECTABLE_MAP[count]["potion"] && byte(0x08341e) == COLLECTABLE_MAP[count]["coin"] &&
+        (
+            prev(byte(0x08341a)) == COLLECTABLE_MAP[count]["potion"] - 1 || prev(byte(0x08341e)) == COLLECTABLE_MAP[count]["coin"] - 1
+        )
     )
 }
 
@@ -155,22 +286,6 @@ trigger =
     always_false()
     // strategy_game_obj.get_amount_of_ingredients_gathered()
 )
-
-minigame_area_names = {
-    0x2: "the Forest",
-    0x3: "the Roman Fort",
-    0x4: "the French Alps",
-    0x5: "Carnac",
-    0x6: "on Pirate Ship",
-    0x7: "in Aqua",
-    0x8: "in Narboa",
-    0x9: "in Rome",
-    0x0a: "in Pirate City",
-    0x0b: "Strategy",
-    0x0c: "Strategy",
-    0x0d: "Strategy",
-    0x0f: "in a Minigame"
-}
 
 minigame_character_map = {
     0x02: "Asterix",
