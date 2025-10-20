@@ -10,9 +10,27 @@ function is_in_strategy_game() {
     return dword(0x083450) == 0x0b || dword(0x083450) == 0x0c || dword(0x083450) == 0x0d
 }
 
-function in_game() {
-    // TODO
-    // return ...
+function current_demo() {
+    return byte(0x07e353)
+}
+
+function on_title_screen() {
+    // TODO: This is bad. I need a good way to deduce title screen state...
+    incons_screen_state = dword(0x0828a8)
+
+    cond = incons_screen_state == 1 && get_music() == 5 || incons_screen_state == 0x0d || incons_screen_state == 0x0b
+    // Intro cutscene is ignored
+    // demo_1 = current_demo() == 1
+    // Strategy
+    demo_2 = current_demo() == 2 && is_in_strategy_game()
+    // Throw the Roman
+    demo_3 = current_demo() == 3 && get_music() == 0x0f
+    // Forest
+    demo_4 = current_demo() == 4 && get_music() == 0x02
+    // Alps
+    demo_0 = current_demo() == 0 && get_music() == 0x04
+
+    return cond || demo_2 || demo_3 || demo_4 || demo_0
 }
 
 function in_throw_a_roman() {
@@ -64,12 +82,20 @@ class StrategyGame {
 
     ingredients_gathered = 0
 
-    function get_gaul_regions() {
+    function get_gaul_regions_during_strategy() {
         return ptr(POINTER_STRATEGY_GAME, [0x334, 0x24, 0x0C], dword)
     }
 
-    function get_rome_regions() {
+    function get_rome_regions_during_strategy() {
         return 82 - ptr(POINTER_STRATEGY_GAME, [0x334, 0x24, 0x0C], dword)
+    }
+
+    function get_gaul_regions_during_level() {
+        return ptr(POINTER_STRATEGY_GAME, [0x384], word)
+    }
+
+    function get_rome_regions_during_level() {
+        return 82 - ptr(POINTER_STRATEGY_GAME, [0x384], word)
     }
 
     function get_amount_of_ingredients_gathered() {
@@ -302,10 +328,10 @@ minigame_character_map = {
 
 rich_presence_conditional_display(
     // TODO: ???
-    always_false(),
+    on_title_screen(),
     "On the Title Screen"
 )
-
+/*
 rich_presence_conditional_display(
     // any strategy music
     get_music() == 0x0b || get_music() == 0x0c || get_music() == 0x0d,
@@ -319,26 +345,24 @@ rich_presence_conditional_display(
     rich_presence_lookup("Character", get_music(), minigame_character_map, fallback="what?"),
     rich_presence_lookup("Minigame", get_music(), minigame_area_names, fallback="what?")
 )
+*/
 
-/*
 rich_presence_conditional_display(
     is_in_strategy_game(),
-    "Strategizing the next move • Gauls ({0}) vs. Romans ({1}) • {2} / 7 Ingredients",
-    rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions()),
-    rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions()),
-    rich_presence_value("Ingredients", strategy_game_obj.get_amount_of_ingredients_gathered())
+    "Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
+    rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_strategy()),
+    rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_strategy())
 )
 
 rich_presence_conditional_display(
     !is_in_strategy_game(),
-    "{3} is in {4} • Gauls ({0}) vs. Romans ({1}) • {2} / 7 Ingredients",
-    rich_presence_value("Gaul Regions", prior(strategy_game_obj.get_gaul_regions())),
-    rich_presence_value("Rome Regions", prior(strategy_game_obj.get_rome_regions())),
-    rich_presence_value("Ingredients", prior(strategy_game_obj.get_amount_of_ingredients_gathered())),
+    "{2} is in {3} • Gauls ({0}) vs. Romans ({1})",
+    rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
+    rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level()),
     // rich_presence_value("Character", get_minigame_character()),
-    rich_presence_lookup("Character", get_scene(), minigame_character_map, fallback="what?"),
-    rich_presence_lookup("Minigame", get_scene(), minigame_area_names, fallback="what?")
+    rich_presence_lookup("Character", get_music(), minigame_character_map, fallback="A stranger"),
+    rich_presence_lookup("Minigame", get_music(), minigame_area_names, fallback="an unknown place")
 )
-*/
+
 
 rich_presence_display("Getting ready to bash Romans...")
