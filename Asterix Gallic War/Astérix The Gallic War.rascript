@@ -1,13 +1,13 @@
 // Astérix: The Gallic War
 // #ID = 18222
 
-function get_music() {
-    return dword(0x083450)
+// This works better but I actually need to find something that updates when the new screen loads in - moving data causes problems in the RP display
+function is_in_strategy_game() {
+    return byte(0x07e350) == 1
 }
 
-function is_in_strategy_game() {
-    // Music ID is a consistent source: Enemy turn themes or the strategy music
-    return dword(0x083450) == 0x0b || dword(0x083450) == 0x0c || dword(0x083450) == 0x0d
+function get_level() {
+    return byte(0x07e3da)
 }
 
 function current_demo() {
@@ -15,22 +15,7 @@ function current_demo() {
 }
 
 function on_title_screen() {
-    // TODO: This is bad. I need a good way to deduce title screen state...
-    incons_screen_state = dword(0x0828a8)
-
-    cond = incons_screen_state == 1 && get_music() == 5 || incons_screen_state == 0x0d || incons_screen_state == 0x0b
-    // Intro cutscene is ignored
-    // demo_1 = current_demo() == 1
-    // Strategy
-    demo_2 = current_demo() == 2 && is_in_strategy_game()
-    // Throw the Roman
-    demo_3 = current_demo() == 3 && get_music() == 0x0f
-    // Forest
-    demo_4 = current_demo() == 4 && get_music() == 0x02
-    // Alps
-    demo_0 = current_demo() == 0 && get_music() == 0x04
-
-    return cond || demo_2 || demo_3 || demo_4 || demo_0
+    // TODO: I need a good way to deduce title screen state...
 }
 
 function in_throw_a_roman() {
@@ -91,11 +76,11 @@ class StrategyGame {
     }
 
     function get_gaul_regions_during_level() {
-        return ptr(POINTER_STRATEGY_GAME, [0x384], word)
+        return byte(0x0d330c)
     }
 
     function get_rome_regions_during_level() {
-        return 82 - ptr(POINTER_STRATEGY_GAME, [0x384], word)
+        return 82 - byte(0x0d330c)
     }
 
     function get_amount_of_ingredients_gathered() {
@@ -114,113 +99,117 @@ class StrategyGame {
 strategy_game_obj = StrategyGame()
 
 minigame_area_names = {
-    0x2: "the Forest",
-    0x3: "the Roman Fort",
-    0x4: "the French Alps",
-    0x5: "Carnac",
-    0x6: "on Pirate Ship",
-    0x7: "Aquae Calidae",
-    0x8: "Narboa",
-    0x9: "Rome",
-    0x0a: "Pirate City",
-    0x0b: "Strategy",
-    0x0c: "Strategy",
-    0x0d: "Strategy",
-    0x0f: "a Minigame"
+    0x00: "the Forest",
+    0x01: "the Roman Fort",
+    0x02: "the French Alps",
+    0x03: "Carnac",
+    0x04: "on Pirate Ship",
+    0x05: "Aquae Calidae",
+    0x06: "Narboa",
+    0x07: "Rome",
+    0x08: "Pirate City",
+    0x0a: "Throw a Roman"
 }
 
 INGR_ACHIEVEMENT_MAP = {
     0: {
+        // forest
         "item": "a branch of mistletoe",
-        "loc": minigame_area_names[0x02],
+        "loc": minigame_area_names[0x00],
         "name": "0",
-        "music": 0x02
+        "id": 0x00
     },
     1: {
+        // roman camp
         "item": "a Roman standard",
-        "loc": minigame_area_names[0x03],
+        "loc": minigame_area_names[0x01],
         "name": "1",
-        "music": 0x03
+        "id": 0x01
     },
     2: {
+        // narboa
         "item": "an amphora of wine",
-        "loc": minigame_area_names[0x08],
+        "loc": minigame_area_names[0x06],
         "name": "2",
-        "music": 0x08
+        "id": 0x06
     },
     3: {
+        // alps
         "item": "an edelweiss flower",
-        "loc": minigame_area_names[0x04],
+        "loc": minigame_area_names[0x02],
         "name": "3",
-        "music": 0x04
+        "id": 0x02
     },
     4: {
+        // carnac
         "item": "a mini-menhir",
-        "loc": minigame_area_names[0x05],
+        "loc": minigame_area_names[0x03],
         "name": "4",
-        "music": 0x05
+        "id": 0x03
     },
     5: {
+        // pirate city
         "item": "the pirates' gold",
-        "loc": minigame_area_names[0x0a],
+        "loc": minigame_area_names[0x08],
         "name": "5",
-        "music": 0x0a
+        "id": 0x08
     },
     6: {
+        // aquae
         "item": "bath salts",
-        "loc": minigame_area_names[0x07],
+        "loc": minigame_area_names[0x05],
         "name": "6",
-        "music": 0x07
+        "id": 0x05
     }
 }
 
 COLLECTABLE_MAP = {
     0: {
-        "loc": minigame_area_names[0x02],
+        "loc": minigame_area_names[0x00],
         "name": "Collectables 0",
-        "music": 0x02,
-        "potion": 99,
-        "coin": 99
+        "id": 0x00,
+        "potion": 8,
+        "coin": 181
     },
     1: {
-        "loc": minigame_area_names[0x03],
+        "loc": minigame_area_names[0x01],
         "name": "Collectables 1",
-        "music": 0x03,
+        "id": 0x01,
         "potion": 99,
         "coin": 99
     },
     2: {
-        "loc": minigame_area_names[0x08],
+        "loc": minigame_area_names[0x06],
         "name": "Collectables 2",
-        "music": 0x08,
+        "id": 0x06,
         "potion": 99,
         "coin": 99
     },
     3: {
-        "loc": minigame_area_names[0x04],
+        "loc": minigame_area_names[0x02],
         "name": "Collectables 3",
-        "music": 0x04,
+        "id": 0x02,
         "potion": 99,
         "coin": 99
     },
     4: {
-        "loc": minigame_area_names[0x05],
+        "loc": minigame_area_names[0x03],
         "name": "Collectables 4",
-        "music": 0x05,
+        "id": 0x03,
         "potion": 4,
         "coin": 42
     },
     5: {
-        "loc": minigame_area_names[0x0a],
+        "loc": minigame_area_names[0x08],
         "name": "Collectables 5",
-        "music": 0x0a,
+        "id": 0x08,
         "potion": 99,
         "coin": 99
     },
     6: {
-        "loc": minigame_area_names[0x07],
+        "loc": minigame_area_names[0x05],
         "name": "Collectables 6",
-        "music": 0x07,
+        "id": 0x05,
         "potion": 99,
         "coin": 99
     }
@@ -233,7 +222,7 @@ for count in range(0, 6, 1) {
     description = format("Collect {0} in {1}", INGR_ACHIEVEMENT_MAP[count]["item"], INGR_ACHIEVEMENT_MAP[count]["loc"]),
     trigger = 
         // Correct map
-        get_music() == INGR_ACHIEVEMENT_MAP[count]["music"] &&
+        get_level() == INGR_ACHIEVEMENT_MAP[count]["id"] &&
         // No cheating!
         !is_cheating() &&
         // Victory animation
@@ -248,7 +237,7 @@ for count in range(0, 6, 1) {
     description = format("Collect all gold coins and potions in {0}", COLLECTABLE_MAP[count]["loc"]),
     trigger = 
         // Correct map
-        get_music() == INGR_ACHIEVEMENT_MAP[count]["music"] &&
+        get_level() == INGR_ACHIEVEMENT_MAP[count]["id"] &&
         // No cheating!
         !is_cheating() &&
         // Got all potions and coins?
@@ -269,10 +258,10 @@ points = 0,
 description = "Throw Roman far",
 trigger =
     !is_in_strategy_game() &&
-    get_music() == 0x0f &&
+    get_level() == 0x0a &&
     in_throw_a_roman() &&
     // 30000 dec * 120 = 0x36EE80 target distance
-    trigger_when(roman_throw_distance > 0x36EE80 && roman_throw_state == 4 && prev(roman_throw_state != 4))
+    roman_throw_distance > 0x36EE80 && roman_throw_state == 4 && prev(roman_throw_state != 4)
 )
 
 
@@ -282,7 +271,7 @@ leaderboard(
     start =
     (   
         !is_in_strategy_game() &&
-        get_music() == 0x0f &&
+        get_level() == 0x0a &&
         in_throw_a_roman() &&
         roman_throw_state == 4 && prev(roman_throw_state != 4)
     ),
@@ -314,38 +303,18 @@ trigger =
 )
 
 minigame_character_map = {
-    0x02: "Asterix",
-    0x03: "Asterix",
-    0x04: "Obelix",
-    0x05: "Obelix",
+    0x00: "Asterix",
+    0x01: "Asterix",
+    0x02: "Obelix",
+    0x03: "Obelix",
+    0x04: "Asterix",
+    0x05: "Asterix",
     0x06: "Asterix",
     0x07: "Asterix",
     0x08: "Asterix",
-    0x09: "Asterix",
-    0x0a: "Asterix",
-    0x0f: "Minigame???"
+    0x09: "Minigame???"
 }
 
-rich_presence_conditional_display(
-    // TODO: ???
-    on_title_screen(),
-    "On the Title Screen"
-)
-/*
-rich_presence_conditional_display(
-    // any strategy music
-    get_music() == 0x0b || get_music() == 0x0c || get_music() == 0x0d,
-    "Strategizing the next move"
-)
-
-rich_presence_conditional_display(
-    // not strategy music
-    get_music() != 0x0b || get_music() != 0x0c || get_music() != 0x0d,
-    "{0} is in {1}",
-    rich_presence_lookup("Character", get_music(), minigame_character_map, fallback="what?"),
-    rich_presence_lookup("Minigame", get_music(), minigame_area_names, fallback="what?")
-)
-*/
 
 rich_presence_conditional_display(
     is_in_strategy_game(),
@@ -360,8 +329,8 @@ rich_presence_conditional_display(
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level()),
     // rich_presence_value("Character", get_minigame_character()),
-    rich_presence_lookup("Character", get_music(), minigame_character_map, fallback="A stranger"),
-    rich_presence_lookup("Minigame", get_music(), minigame_area_names, fallback="an unknown place")
+    rich_presence_lookup("Character", get_level(), minigame_character_map, fallback="A stranger"),
+    rich_presence_lookup("Minigame", get_level(), minigame_area_names, fallback="an unknown place")
 )
 
 
