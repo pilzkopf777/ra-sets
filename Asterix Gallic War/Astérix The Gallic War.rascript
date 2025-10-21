@@ -1,9 +1,13 @@
 // Astérix: The Gallic War
 // #ID = 18222
 
-// This works better but I actually need to find something that updates when the new screen loads in - moving data causes problems in the RP display
+// TODO: I need versions that update the moment the screen changes..
 function is_in_strategy_game() {
-    return byte(0x07e350) == 1
+    return byte(0x07e3d4) == 0xa0
+}
+
+function is_in_level() {
+    return byte(0x07e350) != 1
 }
 
 function get_level() {
@@ -315,16 +319,26 @@ minigame_character_map = {
     0x09: "Minigame???"
 }
 
-
+// Fully in Strategy
 rich_presence_conditional_display(
-    is_in_strategy_game(),
+    is_in_strategy_game() && !is_in_level(),
     "Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_strategy()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_strategy())
 )
 
+// Between loading of strategy and level, data is being moved a lot and partially incorrect.
+// Use a mix of the two RP states here to make sure no wrong data is displayed.
 rich_presence_conditional_display(
-    !is_in_strategy_game(),
+    is_in_strategy_game() && is_in_level(),
+    "LOADING Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
+    rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
+    rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level())
+)
+
+// Fully in level
+rich_presence_conditional_display(
+    !is_in_strategy_game() && is_in_level(),
     "{2} is in {3} • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level()),
