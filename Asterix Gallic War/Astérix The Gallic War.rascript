@@ -19,7 +19,7 @@ function current_demo() {
 }
 
 function on_title_screen() {
-    // TODO: I need a good way to deduce title screen state...
+    return byte(0x082b1c) == 0xff
 }
 
 function in_throw_a_roman() {
@@ -319,9 +319,15 @@ minigame_character_map = {
     0x09: "Minigame???"
 }
 
+// Title
+rich_presence_conditional_display(
+    on_title_screen() || byte(0x007504) == 0,
+    "In the Main Menu"
+)
+
 // Fully in Strategy
 rich_presence_conditional_display(
-    is_in_strategy_game() && !is_in_level(),
+    is_in_strategy_game() && !is_in_level() && byte(0x083305) == 0x00,
     "Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_strategy()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_strategy())
@@ -330,7 +336,7 @@ rich_presence_conditional_display(
 // Between loading of strategy and level, data is being moved a lot and partially incorrect.
 // Use a mix of the two RP states here to make sure no wrong data is displayed.
 rich_presence_conditional_display(
-    is_in_strategy_game() && is_in_level(),
+    is_in_strategy_game() && is_in_level() || byte(0x083305) == 0x10,
     "LOADING Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level())
