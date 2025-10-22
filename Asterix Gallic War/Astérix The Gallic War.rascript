@@ -113,16 +113,18 @@ class StrategyGame {
 strategy_game_obj = StrategyGame()
 
 minigame_area_names = {
-    0x00: "the Forest",
-    0x01: "the Roman Fort",
-    0x02: "the French Alps",
-    0x03: "Carnac",
-    0x04: "on Pirate Ship",
-    0x05: "Aquae Calidae",
-    0x06: "Narboa",
-    0x07: "Rome",
-    0x08: "Pirate City",
-    0x0a: "Throw a Roman"
+    0x00: "in the Forest",
+    0x01: "in the Roman Fort",
+    0x02: "in the French Alps",
+    0x03: "in Carnac",
+    0x04: "in on Pirate Ship",
+    0x05: "in Aquae Calidae",
+    0x06: "in Narboa",
+    0x07: "in Rome",
+    0x08: "in Pirate City",
+    0x0a: "Throw a Roman",
+    0x20: "breaking barrels",
+    0x30: "throwing Romans"
 }
 
 INGR_ACHIEVEMENT_MAP = {
@@ -189,8 +191,8 @@ COLLECTABLE_MAP = {
         "loc": minigame_area_names[0x01],
         "name": "Collectables 1",
         "id": 0x01,
-        "potion": 99,
-        "coin": 99
+        "potion": 5,
+        "coin": 100
     },
     2: {
         "loc": minigame_area_names[0x06],
@@ -217,15 +219,15 @@ COLLECTABLE_MAP = {
         "loc": minigame_area_names[0x08],
         "name": "Collectables 5",
         "id": 0x08,
-        "potion": 99,
-        "coin": 99
+        "potion": 3,
+        "coin": 50
     },
     6: {
         "loc": minigame_area_names[0x05],
         "name": "Collectables 6",
         "id": 0x05,
-        "potion": 99,
-        "coin": 99
+        "potion": 2,
+        "coin": 101
     }
 }
 
@@ -233,8 +235,9 @@ for count in range(0, 6, 1) {
     achievement(
     title = INGR_ACHIEVEMENT_MAP[count]["name"],
     points = 0,
-    description = format("Collect {0} in {1}", INGR_ACHIEVEMENT_MAP[count]["item"], INGR_ACHIEVEMENT_MAP[count]["loc"]),
+    description = format("Collect {0} {1}", INGR_ACHIEVEMENT_MAP[count]["item"], INGR_ACHIEVEMENT_MAP[count]["loc"]),
     trigger = 
+        !is_in_strategy_game() &&
         // Correct map
         get_level() == INGR_ACHIEVEMENT_MAP[count]["id"] &&
         // No cheating!
@@ -272,7 +275,7 @@ points = 0,
 description = "Throw Roman far",
 trigger =
     !is_in_strategy_game() &&
-    get_level() == 0x0a &&
+    ( get_level() == 0x0a || get_level() == 0x30 ) &&
     in_throw_a_roman() &&
     // 30000 dec * 120 = 0x36EE80 target distance
     roman_throw_distance > 0x36EE80 && roman_throw_state == 4 && prev(roman_throw_state != 4)
@@ -285,8 +288,10 @@ leaderboard(
     start =
     (   
         !is_in_strategy_game() &&
-        get_level() == 0x0a &&
+        ( get_level() == 0x0a || get_level() == 0x30 ) &&
         in_throw_a_roman() &&
+        // Do not submit scores that failed -> you need 2 units at least..
+        roman_throw_distance / 120 > 1 && 
         roman_throw_state == 4 && prev(roman_throw_state != 4)
     ),
     cancel = 
@@ -326,7 +331,9 @@ minigame_character_map = {
     0x06: "Asterix",
     0x07: "Asterix",
     0x08: "Asterix",
-    0x09: "Minigame???"
+    0x09: "Minigame???",
+    0x20: "Asterix",
+    0x30: "Obelix"
 }
 
 // Title
@@ -355,7 +362,7 @@ rich_presence_conditional_display(
 // Fully in level
 rich_presence_conditional_display(
     !is_in_strategy_game() && is_in_level(),
-    "{2} is in {3} • Gauls ({0}) vs. Romans ({1})",
+    "{2} is {3} • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level()),
     // rich_presence_value("Character", get_minigame_character()),
