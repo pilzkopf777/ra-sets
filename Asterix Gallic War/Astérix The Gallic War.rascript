@@ -1,8 +1,18 @@
 // Astérix: The Gallic War
 // #ID = 18222
 
-// TODO: I need versions that update the moment the screen changes..
+
+// The next two functions are both used for the RP.
+// This is needed since values update at different times when entering vs exiting the strategy game map.
+// With this solution, incorrect data is not displayed. 
+
+// This state uses the music (also set when muted)
 function is_in_strategy_game() {
+    return byte(0x083450) == 0x0b || byte(0x083450) == 0x0c || byte(0x083450) == 0x0d
+}
+
+// This state uses the strategy game ID
+function is_in_strategy_game_alt() {
     return byte(0x07e3d4) == 0xa0
 }
 
@@ -19,7 +29,7 @@ function current_demo() {
 }
 
 function on_title_screen() {
-    return byte(0x082b1c) == 0xff
+    return byte(0x082b1c) == 0xff || byte(0x082e94) == 0x00
 }
 
 function in_throw_a_roman() {
@@ -327,7 +337,7 @@ rich_presence_conditional_display(
 
 // Fully in Strategy
 rich_presence_conditional_display(
-    is_in_strategy_game() && !is_in_level() && byte(0x083305) == 0x00,
+    is_in_strategy_game() && !is_in_level(), // && byte(0x083305) == 0x00,
     "Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_strategy()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_strategy())
@@ -336,8 +346,8 @@ rich_presence_conditional_display(
 // Between loading of strategy and level, data is being moved a lot and partially incorrect.
 // Use a mix of the two RP states here to make sure no wrong data is displayed.
 rich_presence_conditional_display(
-    is_in_strategy_game() && is_in_level() || byte(0x083305) == 0x10,
-    "LOADING Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
+    is_in_strategy_game_alt(), // && is_in_level(), // || byte(0x083305) == 0x10,
+    "Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level())
 )
