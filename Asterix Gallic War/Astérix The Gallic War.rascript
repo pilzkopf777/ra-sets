@@ -117,12 +117,12 @@ minigame_area_names = {
     0x01: "in the Roman Fort",
     0x02: "in the French Alps",
     0x03: "in Carnac",
-    0x04: "in on Pirate Ship",
+    0x04: "in on the Pirate Ship",
     0x05: "in Aquae Calidae",
     0x06: "in Narboa",
     0x07: "in Rome",
     0x08: "in Pirate City",
-    0x0a: "Throw a Roman",
+    0x0a: "throwing Romans",
     0x20: "breaking barrels",
     0x30: "throwing Romans"
 }
@@ -139,7 +139,7 @@ INGR_ACHIEVEMENT_MAP = {
         // roman camp
         "item": "a Roman standard",
         "loc": minigame_area_names[0x01],
-        "name": "1",
+        "name": "",
         "id": 0x01
     },
     2: {
@@ -153,21 +153,21 @@ INGR_ACHIEVEMENT_MAP = {
         // alps
         "item": "an edelweiss flower",
         "loc": minigame_area_names[0x02],
-        "name": "3",
+        "name": "Snow Joke for a Gaul",
         "id": 0x02
     },
     4: {
         // carnac
         "item": "a mini-menhir",
         "loc": minigame_area_names[0x03],
-        "name": "4",
+        "name": "Business Opportunity",
         "id": 0x03
     },
     5: {
         // pirate city
         "item": "the pirates' gold",
         "loc": minigame_area_names[0x08],
-        "name": "5",
+        "name": "",
         "id": 0x08
     },
     6: {
@@ -198,15 +198,15 @@ COLLECTABLE_MAP = {
         "loc": minigame_area_names[0x06],
         "name": "Collectables 2",
         "id": 0x06,
-        "potion": 99,
-        "coin": 99
+        "potion": 6,
+        "coin": 158
     },
     3: {
         "loc": minigame_area_names[0x02],
         "name": "Collectables 3",
         "id": 0x02,
-        "potion": 99,
-        "coin": 99
+        "potion": 6,
+        "coin": 61
     },
     4: {
         "loc": minigame_area_names[0x03],
@@ -228,13 +228,28 @@ COLLECTABLE_MAP = {
         "id": 0x05,
         "potion": 2,
         "coin": 101
-    }
+    },
+    7: { // pirate ship
+        "loc": minigame_area_names[0x04],
+        "name": "Collectables 7",
+        "id": 0x04,
+        "potion": 1,
+        "coin": 53
+    },
+    8: { // rome
+        "loc": minigame_area_names[0x07],
+        "name": "Collectables 8",
+        "id": 0x07,
+        "potion": 10,
+        "coin": 67
+    },
 }
 
 for count in range(0, 6, 1) {
     achievement(
     title = INGR_ACHIEVEMENT_MAP[count]["name"],
-    points = 0,
+    points = 5,
+    type = "progression",
     description = format("Collect {0} {1}", INGR_ACHIEVEMENT_MAP[count]["item"], INGR_ACHIEVEMENT_MAP[count]["loc"]),
     trigger = 
         !is_in_strategy_game() &&
@@ -250,7 +265,7 @@ for count in range(0, 6, 1) {
 for count in range(0, 6, 1) {
     achievement(
     title = COLLECTABLE_MAP[count]["name"],
-    points = 0,
+    points = 10,
     description = format("Collect all gold coins and potions in {0}", COLLECTABLE_MAP[count]["loc"]),
     trigger = 
         // Correct map
@@ -265,20 +280,51 @@ for count in range(0, 6, 1) {
     )
 }
 
+achievement(
+    title = "The Pirate who cried Gaul",
+    points = 10,
+    type = "progression",
+    description = "Take over the Pirate Ship",
+    trigger = 
+        !is_in_strategy_game() &&
+        // Correct map
+        get_level() == 0x04 &&
+        // No cheating!
+        !is_cheating() &&
+        // Victory animation
+        byte(0x083286) == 0x12 && prev(byte(0x083286)) != 0x12
+)
+
+achievement(
+    title = "rome",
+    points = 25,
+    type = "win_condition",
+    description = "Collect the laurels in Rome and complete the recipe",
+    trigger = 
+        !is_in_strategy_game() &&
+        // Correct map
+        get_level() == 0x07 &&
+        // No cheating!
+        !is_cheating() &&
+        // Victory animation
+        byte(0x083286) == 0x12 && prev(byte(0x083286)) != 0x12
+)
+
+
 roman_throw_distance = ptr(tbyte(0x082ec8), [0x58], dword)
 roman_speed_meter = ptr(tbyte(0x082ec8), [0x40], dword)
 roman_throw_state = ptr(tbyte(0x082ec8), [0x4c], word)
 
 achievement(
 title = "Throw far",
-points = 0,
+points = 5,
 description = "Throw Roman far",
 trigger =
     !is_in_strategy_game() &&
     ( get_level() == 0x0a || get_level() == 0x30 ) &&
     in_throw_a_roman() &&
-    // 30000 dec * 120 = 0x36EE80 target distance
-    roman_throw_distance > 0x36EE80 && roman_throw_state == 4 && prev(roman_throw_state != 4)
+    // 40000 dec * 120 = 0x493E00 target distance
+    roman_throw_distance > 0x493E00 && roman_throw_state == 4 && prev(roman_throw_state != 4)
 )
 
 
@@ -312,15 +358,6 @@ leaderboard(
 
 
 
-achievement(
-title = "debug",
-points = 0,
-description = "debug",
-trigger =
-    always_false()
-    // strategy_game_obj.get_amount_of_ingredients_gathered()
-)
-
 minigame_character_map = {
     0x00: "Asterix",
     0x01: "Asterix",
@@ -331,7 +368,7 @@ minigame_character_map = {
     0x06: "Asterix",
     0x07: "Asterix",
     0x08: "Asterix",
-    0x09: "Minigame???",
+    0x09: "Obelix",
     0x20: "Asterix",
     0x30: "Obelix"
 }
@@ -345,7 +382,7 @@ rich_presence_conditional_display(
 // Fully in Strategy
 rich_presence_conditional_display(
     is_in_strategy_game() && !is_in_level(), // && byte(0x083305) == 0x00,
-    "Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
+    "Conquering Gaul • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_strategy()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_strategy())
 )
@@ -354,7 +391,7 @@ rich_presence_conditional_display(
 // Use a mix of the two RP states here to make sure no wrong data is displayed.
 rich_presence_conditional_display(
     is_in_strategy_game_alt(), // && is_in_level(), // || byte(0x083305) == 0x10,
-    "Strategizing the next move • Gauls ({0}) vs. Romans ({1})",
+    "Conquering Gaul • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
     rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level())
 )
