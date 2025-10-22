@@ -5,63 +5,8 @@
 //          Ticks up every frame
 function global_frame_timer() => dword(0x057C6C)
 
-// $06AA78: [32-bit] Map ID
-//          This ID takes priority for state deduction. If there's multiple minigames, refine via the Game ID
-//          
-//          0x03 = Main Menu
-//          0x02 = Food Feast
-//          0x05 = Forest
-//          0x06 = Crossbow
-function map_id() => dword(0x06AA78)
-
-// $071CA0: [32-bit] Mega Madness Score: Asterix Game 1
-function mega_madness_score_asterix_game_1() => dword(0x071CA0)
-
-// $071CA4: [32-bit] Mega Madness Score: Obelix Game 1
-function mega_madness_score_obelix_game_1() => dword(0x071CA4)
-
-// $071CA8: [32-bit] Mega Madness Score: Cacofonix Game 1
-function mega_madness_score_cacofonix_game_1() => dword(0x071CA8)
-
-// $071CAC: [32-bit] Mega Madness Score: Mrs Geriatrix Game 1
-function mega_madness_score_mrs_geriatrix_game_1() => dword(0x071CAC)
-
-// $071CB0: [32-bit] Mega Madness Score: Asterix Game 2
-function mega_madness_score_asterix_game_2() => dword(0x071CB0)
-
-// $071CB4: [32-bit] Mega Madness Score: Obelix Game 2
-function mega_madness_score_obelix_game_2() => dword(0x071CB4)
-
-// $071CB8: [32-bit] Mega Madness Score: Cacofonix Game 2
-function mega_madness_score_cacofonix_game_2() => dword(0x071CB8)
-
-// $071CBC: [32-bit] Mega Madness Score: Mrs Geriatrix Game 2
-function mega_madness_score_mrs_geriatrix_game_2() => dword(0x071CBC)
-
-// $071CC0: [32-bit] Mega Madness Score: Asterix Game 3
-function mega_madness_score_asterix_game_3() => dword(0x071CC0)
-
-// $071CC4: [32-bit] Mega Madness Score: Obelix Game 3
-function mega_madness_score_obelix_game_3() => dword(0x071CC4)
-
-// $071CC8: [32-bit] Mega Madness Score: Cacofonix Game 3
-function mega_madness_score_cacofonix_game_3() => dword(0x071CC8)
-
-// $071CCC: [32-bit] Mega Madness Score: Mrs Geriatrix Game 3
-function mega_madness_score_mrs_geriatrix_game_3() => dword(0x071CCC)
-
 // $075E4A: [16-bit] Button inputs
 function button_inputs() => word(0x075E4A)
-
-// $0760C0: [32-bit] Game ID
-//          Together with the Map ID this can be used to identify minigames
-//          
-//          0x0f = Camp Crashing
-//          0x07 = Shield Chase
-//          0x0d = Food Feast
-//          0x06 = Shoot and Score
-//          0x0c = Recipe Run
-function game_id() => dword(0x0760C0)
 
 // $081B38: [32-bit] Eating minigame: Poison timer
 //          0x00 = Not poisoned
@@ -122,6 +67,19 @@ function carrier_race_minigame_lap() => dword(0x0868A4)
 // $0868D0: [32-bit] Carrier Race minigame: Score
 function carrier_race_minigame_score() => dword(0x0868D0)
 
+// $086BB0: [32-bit] Crossbow minigame: Score P2
+function crossbow_minigame_score_p2() => dword(0x086BB0)
+
+// $086BB4: [32-bit] Crossbow minigame: Stun timer when hit P2
+function crossbow_minigame_stun_timer_when_hit_p2() => dword(0x086BB4)
+
+// $086BC8: [32-bit] Crossbow minigame: Next projectile P2
+function crossbow_minigame_next_projectile_p2() => dword(0x086BC8)
+
+// $086BE8: [32-bit] Crossbow minigame: Shots until reload
+//          0xffffffff = Need to reload
+function crossbow_minigame_shots_until_reload() => dword(0x086BE8)
+
 // $0896BC: [32-bit] Boar Hunt minigame: Blue Potion timer
 //          0x00 = Ran out
 function boar_hunt_minigame_blue_potion_timer() => dword(0x0896BC)
@@ -135,6 +93,9 @@ function boar_hunt_minigame_score() => dword(0x0896E4)
 
 // $0896F2: [16-bit] Boar Hunt minigame: Boars defeated
 function boar_hunt_minigame_boars_defeated() => word(0x0896F2)
+
+// $08CDBC: [32-bit] Shield Bash minigame: HP
+function shield_bash_minigame_hp() => dword(0x08CDBC)
 
 // $08D314: [32-bit] Recipe minigame: Jump state
 //          0x00 = None
@@ -175,13 +136,6 @@ function helmet_hoarding_minigame_score() => dword(0x08D670)
 //          Works in all menus!
 function main_menu_highlighted_option() => byte(0x08E94D)
 
-// $08EE60: [32-bit] Character
-//          0x00 = Obelix
-//          0x01 = Asterix
-//          0x02 = Mrs Geriatrix
-//          0x03 = Cacofonix
-function character() => dword(0x08EE60)
-
 // $091530: [8-bit] Language Selection
 //          0x00 = English
 //          0x01 = French
@@ -206,8 +160,15 @@ function catapult_chase_minigame_lap() => word(0x1A7330)
 // $1A7540: [32-bit] Catapult Chase minigame: Score
 function catapult_chase_minigame_score() => dword(0x1A7540)
 
-// $1CADB8: [32-bit] Score in Rowing minigame
-function score_in_rowing_minigame() => dword(0x1CADB8)
+// $1C95F0: [32-bit] Galley Crash minigame: Score
+function galley_crash_minigame_score() => dword(0x1C95F0)
+
+// $1CAC3C: [32-bit] Rowing Race minigame: Lap
+//          0x02 = End
+function rowing_race_minigame_lap() => dword(0x1CAC3C)
+
+// $1CADB8: [32-bit] Rowing Race minigame: Score
+function rowing_race_minigame_score() => dword(0x1CADB8)
 
 // $1FE899: [8-bit] Sound volume
 //          0x00 through 0xff
@@ -225,3 +186,251 @@ function days_unlocked_in_tournament_mode() => byte(0x1FE8A0)
 //          0x00 = Off
 //          0x01 = On
 function vibration_setting() => byte(0x1FEEBC)
+
+
+
+
+function in_game_timer_tick() {
+    return dword(0x057C6C) > prev(dword(0x057C6C))
+}
+
+// $0760C0: [32-bit] Game ID
+//          Together with the Map ID this can be used to identify minigames
+//          
+//          0x0f = Camp Crashing
+//          0x07 = Shield Chase
+//          0x0d = Food Feast
+//          0x06 = Shoot and Score, Shoot to Survive
+//          0x0c = Recipe Run
+//          0x15 = Boar Bash
+//          0x12 = Catapult Chase
+//          0x0e = Helmet Hoarding
+//          0x11 = Rowing Race
+//          0x14 = Shield Bash
+//          0x17 = Menu
+//          0x0b = Hide and Seek
+//          0x10 = Galley Smash
+//          0x0a = Obstacle Course
+//          
+//          Switches to garbage value during load once. Thus, ignore all values above the listed ones.
+function get_minigame() {
+    return dword(0x0760C0)
+}
+
+minigame_lookup = {
+    0x0f: "Camp Crashing",
+    0x07: "Shield Chase",
+    0x0d: "Food Feast",
+    0x06: "Shoot and Score, Shoot to Survive",
+    0x0c: "Recipe Run",
+    0x15: "Boar Bash",
+    0x12: "Catapult Chase",
+    0x0e: "Helmet Hoarding",
+    0x11: "Rowing Race",
+    0x14: "Shield Bash",
+    0x17: "Menu",
+    0x0b: "Hide and Seek",
+    0x10: "Galley Smash",
+    0x0a: "Obstacle Course"
+}
+
+function is_in_main_menu() {
+    get_minigame() == 0x17
+}
+
+function get_mode() {
+    return 0
+}
+
+mode_lookup = {
+    0x00: "Mega Madness",
+    0x01: "Practice",
+    0x02: "Team Play"
+}
+
+// Day = 1 - 4
+// Round = 1 - 4
+// Character = String
+function get_mega_madness_score(day, round, character) {
+    base = 0x071CA0
+
+    if (character == "Asterix") {
+        character_offset = 0x00
+    } else if (character == "Obelix") {
+        character_offset = 0x04
+    } else if (character == "Cacofonix") {
+        character_offset = 0x08
+    } else if (character == "Mrs Geriatrix") {
+        character_offset = 0x0c
+    }
+
+    day_offset = 0x040 * day - 1
+    round_offset = 0x10 * round - 1
+
+    final = base + day_offset + round_offset + character_offset
+
+    return dword(final)
+}
+
+function get_mega_madness_score_of_day(day, character) {
+    return get_mega_madness_score(day, 1, character) + get_mega_madness_score(day, 2, character) + get_mega_madness_score(day, 3, character) + get_mega_madness_score(day, 4, character)
+}
+
+function get_char_id(player) {
+    base = 0x1fef14
+    offset = player * 0x04 - 0x04
+    return dword(base + offset)
+}
+
+ACH_NAME = ["day 1", "day 2", "day 3", "day 4"]
+ACH_PTS  = [5, 5, 10, 10]
+ACH_PRG  = ["progression", "progression", "progression", "win_condition"]
+
+DAY_ROUNDS = [3, 3, 4, 4]
+
+function day_victory_logic(day) {
+    cond = always_true()
+
+    char_count = dword(0x1fef24)
+
+    asterix_total = get_mega_madness_score_of_day(day, "Asterix")
+    obelix_total = get_mega_madness_score_of_day(day, "Obelix")
+    cacofonix_total = get_mega_madness_score_of_day(day, "Cacofonix")
+    ms_geriatrix_total = get_mega_madness_score_of_day(day, "Mrs Geriatrix")
+
+    rounds_this_day = DAY_ROUNDS[day - 1]
+    
+    cond = (
+        // Single player
+        char_count == 1 &&
+        // Player is using Asterix
+        get_char_id(1) == 0 &&
+        // Asterix has highest score
+        asterix_total > obelix_total && asterix_total > cacofonix_total && asterix_total > ms_geriatrix_total &&
+        (
+            // Final round was played, at least one player scored a point
+            // TODO: Check if you can beat a round with 0 points. If no then we can make this logic simpler.
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+        )
+    ) ||
+    (
+        // Single player
+        char_count == 1 &&
+        // Player is using Obelix
+        get_char_id(1) == 1 &&
+        // Asterix has highest score
+        obelix_total > asterix_total && obelix_total > cacofonix_total && obelix_total > ms_geriatrix_total &&
+        (
+            // Final round was played, at least one player scored a point
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+        )
+    ) ||
+    (
+        // Single player
+        char_count == 1 &&
+        // Player is using Cacofonix
+        get_char_id(1) == 2 &&
+        // Asterix has highest score
+        cacofonix_total > asterix_total && cacofonix_total > obelix_total && cacofonix_total > ms_geriatrix_total &&
+        (
+            // Final round was played, at least one player scored a point
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+        )
+    ) ||
+    (
+        // Single player
+        char_count == 1 &&
+        // Player is using Mrs Geriatrix
+        get_char_id(1) == 3 &&
+        // Asterix has highest score
+        ms_geriatrix_total > asterix_total && ms_geriatrix_total > obelix_total && ms_geriatrix_total > cacofonix_total &&
+        (
+            // Final round was played, at least one player scored a point
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+        )
+    )
+
+    return cond
+}
+
+// Progression and Victory
+for day in range(0, 3, 1) {
+    achievement(
+    title = ACH_NAME[day],
+    points = ACH_PTS[day],
+    type = ACH_PRG[day],
+    description = format("Reach first place in day {0} of Mega Madness mode", day + 1),
+    trigger = 
+        day_victory_logic(day + 1)
+    )
+}
+
+function race_leaderboard_logic(title, desc, mode, target_time) {
+    leaderboard(
+        title = title,
+        description = desc,
+        start = 
+            always_false()
+        cancel = (
+            always_false()
+        ),
+        submit = always_false(),
+        value =
+            measured(
+                tally(0, in_game_timer_tick(), in_game_timer_tick())
+        ),
+        format = "FRAMES", lower_is_better = true
+    )
+}
+
+// For all: Get high score and leaderboard of score (also time?)
+
+// Camp Crashing: Reach 100%
+
+// Shield Chase: Beat time
+
+// Food Feast: No poison
+
+// Shoot and Score: Destroy x Roman units
+
+// Shoot to Survive: x seconds
+
+// Recipe Run: Score all items
+
+// Boar Bash: Kill 50 boars
+
+// Catapult Chase: Beat time
+
+// Helmet Hoarding: Never drop helmets by attack
+
+// Rowing Race: Beat time
+
+// Shield Bash: Win with 50% HP
+
+// Hide and Seek: Win without key?
+
+// Galley Smash: ...?
+
+// Obstacle Course: Beat time
+
+
+
+// competing in x in x mode
+rich_presence_conditional_display(always_true(), "Competing in {0} in {1} mode",
+    rich_presence_lookup("Game", get_minigame(), minigame_lookup, fallback="Unknown Minigame?"),
+    rich_presence_lookup("Mode", get_mode(), mode_lookup, fallback="Unknown mode?")
+)
+
+rich_presence_display("In the Main Menu")
