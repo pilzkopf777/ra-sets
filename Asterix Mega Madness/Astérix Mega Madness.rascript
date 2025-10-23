@@ -217,6 +217,10 @@ function get_minigame() {
     return dword(0x0760C0)
 }
 
+function get_minigame_string() {
+    get_minigame()
+}
+
 minigame_lookup = {
     0x0f: "Camp Crashing",
     0x07: "Shield Chase",
@@ -398,6 +402,14 @@ function race_leaderboard_logic(title, desc, mode, target_time) {
 // For all: Get high score and leaderboard of score (also time?)
 
 // Camp Crashing: Reach 100%
+achievement(
+    title = "Camp Crashing 100%",
+    points = 0,
+    description = "Destroy the entire camp before time runs out",
+    trigger = 
+
+        word(0x097BE6) == 0x4f && prev(word(0x097BE6)) > 0x4f
+)
 
 // Shield Chase: Beat time
 
