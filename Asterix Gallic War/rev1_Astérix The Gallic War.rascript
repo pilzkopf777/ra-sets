@@ -5,7 +5,7 @@ POINTER_STRATEGY_GAME = tbyte(0x1ff5fc)
 
 // This state uses the music (also set when muted)
 function is_in_strategy_game() {
-    return byte(0x089f48) == 0x0b || byte(0x089f48) == 0x0c || byte(0x089f48) == 0x0d
+    return tbyte(0x07e9b4) != 0x00
 }
 
 // This state uses the strategy game ID
@@ -14,7 +14,7 @@ function is_in_strategy_game_alt() {
 }
 
 function is_in_level() {
-    return byte(0x07ea6f) != 1
+    return byte(0x083a3e) == 0x01
 }
 
 function get_level() {
@@ -23,6 +23,10 @@ function get_level() {
 
 function on_title_screen() {
     return byte(0x087EB4) == 0xff && byte(0x089ABC) == 0x00
+}
+
+function in_free_play() {
+    return byte(0x087EB4) == 0xff
 }
 
 function is_cheating() {
@@ -35,6 +39,10 @@ function get_difficulty() {
 
 function minigame_time_just_ended() {
     return byte(0x088a80) == 0 && word(0x087f02) == 0 && prev(word(0x087f02)) == 1
+}
+
+function boot_up_sony_screens() {
+    return dword(0x05ae80) == 0x796e6f53
 }
 
 
@@ -319,7 +327,7 @@ title = "Aerodynamic Armor",
 points = 5,
 description = "In \"Throw the Roman\" throw the Roman 40,000 or more units away",
 trigger =
-    !is_in_strategy_game() &&
+    !is_in_strategy_game() && is_in_level() &&
     ( get_level() == 0x0a || get_level() == 0x30 ) &&
     // 40000 dec * 120 = 0x493E00 target distance
     roman_throw_distance > 0x493E00 && roman_throw_state == 4 && prev(roman_throw_state != 4)
@@ -331,7 +339,7 @@ leaderboard(
     description = "Throw the Roman as far as you can in \"Throw the Roman\"",
     start =
     (   
-        !is_in_strategy_game() &&
+        !is_in_strategy_game() && is_in_level() &&
         ( get_level() == 0x0a || get_level() == 0x30 ) &&
         // Do not submit scores that failed -> you need 2 units at least..
         roman_throw_distance / 120 > 1 && 
@@ -358,7 +366,7 @@ title = "Rolling Thunder",
 points = 5,
 description = "In \"Bowl a Roman\" hit three Romans with a single ball",
 trigger =
-    !is_in_strategy_game() &&
+    !is_in_strategy_game() && is_in_level() &&
     get_level() == 0x70 &&
     byte(0x17be76) == 3 && prev(byte(0x17be76)) == 2
 )
@@ -368,7 +376,7 @@ title = "Strike!",
 points = 5,
 description = "In \"Bowl a Roman\" score 50 or more points",
 trigger =
-    !is_in_strategy_game() &&
+    !is_in_strategy_game() && is_in_level() &&
     get_level() == 0x70 &&
     byte(0x17bd62) >= 50 && prev(byte(0x17bd62)) < 50
 )
@@ -378,7 +386,7 @@ leaderboard(
     description = "Score as high as you can in \"Bowl a Roman\"",
     start =
     (   
-        !is_in_strategy_game() &&
+        !is_in_strategy_game() && is_in_level() &&
         ( get_level() == 0x70 || get_level() == 0x70 ) &&
         minigame_time_just_ended()
     ),
@@ -398,11 +406,11 @@ leaderboard(
 )
 
 achievement(
-title = "Whack Pain",
+title = "Menhir Menace",
 points = 5,
 description = "In \"Whack a Roman\" score 60 or more points",
 trigger =
-    !is_in_strategy_game() &&
+    !is_in_strategy_game() && is_in_level() &&
     get_level() == 0x60 &&
     byte(0x1d156a) >= 60 && prev(byte(0x1d156a)) < 60
 )
@@ -451,30 +459,46 @@ minigame_character_map = {
 
 // Title
 rich_presence_conditional_display(
-    on_title_screen(),
+    on_title_screen() || boot_up_sony_screens(),
     "In the Main Menu"
 )
 
-// Fully in Strategy
+// Free Play
 rich_presence_conditional_display(
-    is_in_strategy_game() && !is_in_level(), // && byte(0x083305) == 0x00,
-    "Conquering Gaul • Gauls ({0}) vs. Romans ({1})",
-    rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_strategy()),
-    rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_strategy())
+    in_free_play() && is_in_level(),
+    "{0} is {1} • Free Play",
+    rich_presence_lookup("Character", get_level(), minigame_character_map, fallback="A stranger"),
+    rich_presence_lookup("Minigame", get_level(), minigame_area_names, fallback="an unknown place")
 )
 
-// Fully in level, alt
+// From Strategy to Level, showing HP bonus
 rich_presence_conditional_display(
-    is_in_strategy_game_alt(),
-    "{2} is {3} • Gauls ({0}) vs. Romans ({1})",
+    is_in_strategy_game() && strategy_game_obj.get_gaul_regions_during_level() == -29,
+    "Conquering Gaul • Gauls ({0}) vs. Romans ({1})",
     rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
-    rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level()),
+    rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level())
+)
+
+// Strategy
+rich_presence_conditional_display(
+    is_in_strategy_game(),
+    "ALT Conquering Gaul • Gauls ({0}) vs. Romans ({1})",
+    rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_level()),
+    rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_level())
+)
+
+// From Strategy to Level, Loading
+rich_presence_conditional_display(
+    is_in_strategy_game() && strategy_game_obj.get_gaul_regions_during_level() == -29,
+    "ALT {2} is {3} • Gauls ({0}) vs. Romans ({1})",
+    rich_presence_value("Gaul Regions", strategy_game_obj.get_gaul_regions_during_strategy()),
+    rich_presence_value("Rome Regions", strategy_game_obj.get_rome_regions_during_strategy()),
     // rich_presence_value("Character", get_minigame_character()),
     rich_presence_lookup("Character", get_level(), minigame_character_map, fallback="A stranger"),
     rich_presence_lookup("Minigame", get_level(), minigame_area_names, fallback="an unknown place")
 )
 
-// Fully in level
+// In Level
 rich_presence_conditional_display(
     !is_in_strategy_game() && is_in_level(),
     "{2} is {3} • Gauls ({0}) vs. Romans ({1})",
