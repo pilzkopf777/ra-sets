@@ -164,7 +164,7 @@ INGR_ACHIEVEMENT_MAP = {
         // narboa
         "item": "an amphora of wine",
         "loc": minigame_area_names[0x06],
-        "name": "Bottoms Up!",
+        "name": "Bottoms up!",
         "id": 0x06
     },
     3: {
@@ -192,7 +192,7 @@ INGR_ACHIEVEMENT_MAP = {
         // aquae
         "item": "bath salts",
         "loc": minigame_area_names[0x05],
-        "name": "Still Don’t Know Where Alesia Is",
+        "name": "Still Don't Know Where Alesia Is",
         "id": 0x05
     }
 }
