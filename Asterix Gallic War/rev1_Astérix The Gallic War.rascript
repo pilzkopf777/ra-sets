@@ -144,7 +144,7 @@ minigame_area_names = {
     0x01: "in the Roman Fort",
     0x02: "in the French Alps",
     0x03: "in Carnac",
-    0x04: "in on the Pirate Ship",
+    0x04: "on the Pirate Ship",
     0x05: "in Aquae Calidae",
     0x06: "in Narboa",
     0x07: "in Rome",
@@ -278,7 +278,7 @@ for count in range(0, 8, 1) {
     achievement(
     title = COLLECTABLE_MAP[count]["name"],
     points = 10,
-    description = format("Collect all gold coins and potions in {0}", COLLECTABLE_MAP[count]["loc"]),
+    description = format("Collect all gold coins and potions {0}", COLLECTABLE_MAP[count]["loc"]),
     trigger = 
         // Correct map
         get_level() == COLLECTABLE_MAP[count]["id"] && !in_demo_mode() &&
