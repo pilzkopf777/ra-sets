@@ -371,7 +371,14 @@ description = "In \"Bowl a Roman\" hit three Romans with a single ball",
 trigger =
     !is_in_strategy_game() && is_in_level() && !in_demo_mode() &&
     get_level() == 0x70 &&
-    byte(0x17be76) == 3 && prev(byte(0x17be76)) == 2
+    ((
+        in_free_play() && byte(0x17be76) == 3 && prev(byte(0x17be76)) == 2
+    ) ||
+    (
+        !in_free_play() && byte(0x17F766) == 3 && prev(byte(0x17F766)) == 2
+    ))
+    
+
 )
 
 achievement(
@@ -381,9 +388,18 @@ description = "In \"Bowl a Roman\" score 50 or more points",
 trigger =
     !is_in_strategy_game() && is_in_level() && !in_demo_mode() &&
     get_level() == 0x70 &&
-    byte(0x17bd62) >= 50 && prev(byte(0x17bd62)) < 50
+    ((
+        in_free_play() &&
+        byte(0x17bd62) >= 50 && prev(byte(0x17bd62)) < 50
+    ) ||
+    (
+        !in_free_play() &&
+        // Need different offsets.. upsetting..
+        byte(0x17F652) >= 50 && prev(byte(0x17F652)) < 50
+    ))
 )
 
+/*
 leaderboard(
     title = "Bowl a Roman!",
     description = "Score as high as you can in \"Bowl a Roman\"",
@@ -406,7 +422,7 @@ leaderboard(
         measured(byte(0x17bd62))
     ),
     format = "VALUE", lower_is_better = false
-)
+)*/
 
 achievement(
 title = "Menhir Menace",
@@ -415,9 +431,17 @@ description = "In \"Whack a Roman\" score 60 or more points",
 trigger =
     !is_in_strategy_game() && is_in_level() && !in_demo_mode() &&
     get_level() == 0x60 &&
-    byte(0x1d156a) >= 60 && prev(byte(0x1d156a)) < 60
+    ((
+        in_free_play() &&
+        byte(0x1d156a) >= 50 && prev(byte(0x1d156a)) < 50
+    ) ||
+    (
+        !in_free_play() &&
+        // Need different offsets.. upsetting..
+        byte(0x1d4e5a) >= 50 && prev(byte(0x1d4e5a)) < 50
+    ))
 )
-
+/*
 leaderboard(
     title = "Whack a Roman!",
     description = "Score as high as you can in \"Whack a Roman\"",
@@ -440,7 +464,7 @@ leaderboard(
         measured(byte(0x1d156a))
     ),
     format = "VALUE", lower_is_better = false
-)
+)*/
 
 
 minigame_character_map = {
