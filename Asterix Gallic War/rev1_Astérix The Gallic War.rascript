@@ -325,7 +325,7 @@ roman_throw_state = ptr(tbyte(0x089a0c), [0x4c], word)
 achievement(
 title = "Aerodynamic Armor",
 points = 3,
-description = "In \"Throw the Roman\" throw the Roman 40,000 or more units away",
+description = "In \"Throw the Roman\" throw the Roman a distance of 40,000 or more units",
 trigger =
     !is_in_strategy_game() && is_in_level() &&
     ( get_level() == 0x0a || get_level() == 0x30 ) &&
