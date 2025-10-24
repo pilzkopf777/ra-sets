@@ -324,7 +324,7 @@ roman_throw_state = ptr(tbyte(0x089a0c), [0x4c], word)
 
 achievement(
 title = "Aerodynamic Armor",
-points = 5,
+points = 3,
 description = "In \"Throw the Roman\" throw the Roman 40,000 or more units away",
 trigger =
     !is_in_strategy_game() && is_in_level() &&
@@ -363,7 +363,7 @@ leaderboard(
 
 achievement(
 title = "Rolling Thunder",
-points = 5,
+points = 3,
 description = "In \"Bowl a Roman\" hit three Romans with a single ball",
 trigger =
     !is_in_strategy_game() && is_in_level() &&
@@ -373,7 +373,7 @@ trigger =
 
 achievement(
 title = "Strike!",
-points = 5,
+points = 3,
 description = "In \"Bowl a Roman\" score 50 or more points",
 trigger =
     !is_in_strategy_game() && is_in_level() &&
@@ -407,7 +407,7 @@ leaderboard(
 
 achievement(
 title = "Menhir Menace",
-points = 5,
+points = 3,
 description = "In \"Whack a Roman\" score 60 or more points",
 trigger =
     !is_in_strategy_game() && is_in_level() &&
