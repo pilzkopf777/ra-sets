@@ -194,27 +194,8 @@ function in_game_timer_tick() {
     return dword(0x057C6C) > prev(dword(0x057C6C))
 }
 
-// $0760C0: [32-bit] Game ID
-//          Together with the Map ID this can be used to identify minigames
-//          
-//          0x0f = Camp Crashing
-//          0x07 = Shield Chase
-//          0x0d = Food Feast
-//          0x06 = Shoot and Score, Shoot to Survive
-//          0x0c = Recipe Run
-//          0x15 = Boar Bash
-//          0x12 = Catapult Chase
-//          0x0e = Helmet Hoarding
-//          0x11 = Rowing Race
-//          0x14 = Shield Bash
-//          0x17 = Menu
-//          0x0b = Hide and Seek
-//          0x10 = Galley Smash
-//          0x0a = Obstacle Course
-//          
-//          Switches to garbage value during load once. Thus, ignore all values above the listed ones.
 function get_minigame() {
-    return dword(0x0760C0)
+    return dword(0x1fef30)
 }
 
 function get_minigame_string() {
@@ -222,28 +203,27 @@ function get_minigame_string() {
 }
 
 minigame_lookup = {
-    0x0f: "Camp Crashing",
-    0x07: "Shield Chase",
-    0x0d: "Food Feast",
-    0x06: "Shoot and Score, Shoot to Survive",
-    0x0c: "Recipe Run",
-    0x15: "Boar Bash",
-    0x12: "Catapult Chase",
-    0x0e: "Helmet Hoarding",
-    0x11: "Rowing Race",
-    0x14: "Shield Bash",
-    0x17: "Menu",
-    0x0b: "Hide and Seek",
-    0x10: "Galley Smash",
-    0x0a: "Obstacle Course"
+    0x0b: "Shoot & Score",
+    0x00: "Recipe Run",
+    0x07: "Food Feast",
+    0x02: "Boar Bash",
+    0x03: "Shield Chase",
+    0x08: "Camp Crashing",
+    0x06: "Catapult Chase",
+    0x04: "Helmet Hoarding",
+    0x01: "Rowing Race",
+    0x05: "Shield Bash",
+    0x0a: "Hide & Seek",
+    0x09: "Galley Smash",
+    0x0e: "Main Menu"
 }
 
 function is_in_main_menu() {
-    get_minigame() == 0x17
+    return get_minigame() == 0x0e
 }
 
 function get_mode() {
-    return 0
+    return byte(0x0907d8)
 }
 
 mode_lookup = {
@@ -386,7 +366,7 @@ function race_leaderboard_logic(title, desc, mode, target_time) {
         title = title,
         description = desc,
         start = 
-            always_false()
+            always_false(),
         cancel = (
             always_false()
         ),
@@ -437,10 +417,10 @@ achievement(
 
 // Obstacle Course: Beat time
 
-
+// rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
 // competing in x in x mode
-rich_presence_conditional_display(always_true(), "Competing in {0} in {1} mode",
+rich_presence_conditional_display(!is_in_main_menu(), "Competing in {0} in {1} mode",
     rich_presence_lookup("Game", get_minigame(), minigame_lookup, fallback="Unknown Minigame?"),
     rich_presence_lookup("Mode", get_mode(), mode_lookup, fallback="Unknown mode?")
 )
