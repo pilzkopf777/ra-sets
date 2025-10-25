@@ -95,6 +95,10 @@ class Character {
         return this.get_coins() == 100 && this.get_cauldrons() == 5
     }
 
+    function collected_all_items_in_rome() {
+        return this.get_coins() == 100 && this.get_cauldrons() == 11
+    }
+
     function get_x() {
         return dword(0x89d58)
     }
@@ -274,7 +278,7 @@ for count in range(0, 6, 1) {
     )
 }
 
-for count in range(0, 8, 1) {
+for count in range(0, 7, 1) {
     achievement(
     title = COLLECTABLE_MAP[count]["name"],
     points = 10,
@@ -289,6 +293,20 @@ for count in range(0, 8, 1) {
         prev(!player.collected_all_items_in_stage())
     )
 }
+
+achievement(
+    title = COLLECTABLE_MAP[8]["name"],
+    points = 10,
+    description = format("Collect all gold coins and potions {0}", COLLECTABLE_MAP[8]["loc"]),
+    trigger = 
+        // Correct map
+        get_level() == COLLECTABLE_MAP[8]["id"] && !in_demo_mode() &&
+        // No cheating!
+        !is_cheating() &&
+        // Got all potions and coins?
+        player.collected_all_items_in_rome() &&
+        prev(!player.collected_all_items_in_rome())
+    )
 
 achievement(
     title = "The Pirate Who Cried Gaul",

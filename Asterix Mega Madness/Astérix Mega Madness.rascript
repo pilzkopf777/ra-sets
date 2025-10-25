@@ -195,7 +195,11 @@ function in_game_timer_tick() {
 }
 
 function get_minigame() {
-    return dword(0x1fef30)
+    current_mg_index = dword(0x1fef70)
+    offset = 0x04 * current_mg_index - 0x04
+    target_adr = 0x1fef34 + offset
+
+    return dword(target_adr)
 }
 
 function get_minigame_string() {
@@ -207,7 +211,7 @@ function get_mega_madness_day() {
 }
 
 minigame_lookup = {
-    0x0b: "Shoot & Score AND Shoot to Survive?",
+    0x0b: "Shoot & Score",
     0x00: "Recipe Run",
     0x07: "Food Feast",
     0x02: "Boar Bash",
@@ -221,11 +225,11 @@ minigame_lookup = {
     0x09: "Galley Smash",
     0x0d: "Obstacle Course",
     0x0c: "Shoot to Survive",
-    0x0e: "Main Menu"
 }
 
 function is_in_main_menu() {
-    return get_minigame() == 0x0e || byte(0x0760C0) == 0x17
+    // TODO: 0x1fef34 in undocumented
+    return dword(0x1fef34) == 0x0e || byte(0x0760C0) == 0x17
 }
 
 function get_mode() {
