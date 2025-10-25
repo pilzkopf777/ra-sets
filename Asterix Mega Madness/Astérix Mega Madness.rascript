@@ -228,8 +228,8 @@ minigame_lookup = {
 }
 
 function is_in_main_menu() {
-    // TODO: 0x1fef34 in undocumented
-    return dword(0x1fef34) == 0x0e || byte(0x0760C0) == 0x17
+    // Main Menu, Boot-up, Transition bewteen modes..
+    return byte(0x0760C0) == 0x17 || byte(0x0760C0) == 0x00 || byte(0x0760C0) == 0xbe
 }
 
 function get_mode() {
