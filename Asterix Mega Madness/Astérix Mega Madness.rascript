@@ -202,8 +202,12 @@ function get_minigame_string() {
     get_minigame()
 }
 
+function get_mega_madness_day() {
+    return byte(0x0907d9) + 1
+}
+
 minigame_lookup = {
-    0x0b: "Shoot & Score",
+    0x0b: "Shoot & Score AND Shoot to Survive?",
     0x00: "Recipe Run",
     0x07: "Food Feast",
     0x02: "Boar Bash",
@@ -215,11 +219,13 @@ minigame_lookup = {
     0x05: "Shield Bash",
     0x0a: "Hide & Seek",
     0x09: "Galley Smash",
+    0x0d: "Obstacle Course",
+    0x0c: "Shoot to Survive",
     0x0e: "Main Menu"
 }
 
 function is_in_main_menu() {
-    return get_minigame() == 0x0e
+    return get_minigame() == 0x0e || byte(0x0760C0) == 0x17
 }
 
 function get_mode() {
@@ -387,13 +393,23 @@ achievement(
     points = 0,
     description = "Destroy the entire camp before time runs out",
     trigger = 
-
-        word(0x097BE6) == 0x4f && prev(word(0x097BE6)) > 0x4f
+        get_minigame() == 0x08 &&
+        word(0x097BE6) == 0x4f && prev(word(0x097BE6)) < 0x4f
 )
 
 // Shield Chase: Beat time
 
+
 // Food Feast: No poison
+achievement(
+    title = "Food Feast Score W/O Poison",
+    points = 0,
+    description = "Get Food Feast Score W/O Poison",
+    trigger = 
+        get_minigame() == 0x07 &&
+        dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
+        disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
+)
 
 // Shoot and Score: Destroy x Roman units
 
@@ -419,7 +435,7 @@ achievement(
 
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
-// competing in x in x mode
+// Generic competing in x in x mode
 rich_presence_conditional_display(!is_in_main_menu(), "Competing in {0} in {1} mode",
     rich_presence_lookup("Game", get_minigame(), minigame_lookup, fallback="Unknown Minigame?"),
     rich_presence_lookup("Mode", get_mode(), mode_lookup, fallback="Unknown mode?")
