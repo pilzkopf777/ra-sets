@@ -459,15 +459,19 @@ achievement(
     trigger = 
         get_minigame() == 0x0b &&
         (
+        (
             get_player_count() == 1 &&
             dword(0x086658) >= prev(dword(0x086658))
         ) || 
         (
             get_player_count() == 2 &&
-            dword(0x086658) >= prev(dword(0x086658)) ||
+            dword(0x086658) >= prev(dword(0x086658))
+        ) ||
+        (
+            get_player_count() == 2 &&
             dword(0x086bb0) >= prev(dword(0x086bb0))
         )
-        
+        )        
 )
 
 achievement(
@@ -525,7 +529,8 @@ leaderboard(
     start =
     (   
         get_minigame() == 0x0b &&
-        results_just_popped_up()
+        results_just_popped_up() &&
+        dword(0x86658) != 0
     ),
     cancel = 
     (
@@ -538,11 +543,11 @@ leaderboard(
     value = max_of(
                 measured(tally(0, always_true())),
                 // P1 alone
-                measured(dword(0x86658), when=dword(0x1FEF24) == 1),
+                measured(dword(0x86658), when=get_player_count() == 1),
                 // P1 vs 2, P1 won
-                measured(dword(0x86658), when=dword(0x1FEF24) == 2 && dword(0x86658) >= dword(0x86bb0)),
+                measured(dword(0x86658), when=get_player_count() == 2 && dword(0x86658) >= dword(0x86bb0)),
                 // P1 vs 2, P2 won
-                measured(dword(0x86bb0), when=dword(0x1FEF24) == 2 && dword(0x86658) < dword(0x86bb0))
+                measured(dword(0x86bb0), when=get_player_count() == 2 && dword(0x86658) < dword(0x86bb0))
             ),
     format = "VALUE", lower_is_better = false
 )
@@ -553,7 +558,8 @@ leaderboard(
     start =
     (   
         get_minigame() == 0x0c &&
-        results_just_popped_up()
+        results_just_popped_up() &&
+        dword(0x86658) != 0
     ),
     cancel = 
     (
@@ -566,11 +572,11 @@ leaderboard(
     value = max_of(
                 measured(tally(0, always_true())),
                 // P1 alone
-                measured(dword(0x86658), when=dword(0x1FEF24) == 1),
+                measured(dword(0x86658), when=get_player_count() == 1),
                 // P1 vs 2, P1 won
-                measured(dword(0x86658), when=dword(0x1FEF24) == 2 && dword(0x86658) >= dword(0x86bb0)),
+                measured(dword(0x86658), when=get_player_count() == 2 && dword(0x86658) >= dword(0x86bb0)),
                 // P1 vs 2, P2 won
-                measured(dword(0x86bb0), when=dword(0x1FEF24) == 2 && dword(0x86658) < dword(0x86bb0))
+                measured(dword(0x86bb0), when=get_player_count() == 2 && dword(0x86658) < dword(0x86bb0))
             ),
     format = "VALUE", lower_is_better = false
 )
@@ -581,7 +587,8 @@ leaderboard(
     start =
     (   
         get_minigame() == 0x02 &&
-        results_just_popped_up()
+        results_just_popped_up() &&
+        dword(0x896e4) != 0
     ),
     cancel = 
     (
@@ -594,11 +601,40 @@ leaderboard(
     value = max_of(
                 measured(tally(0, always_true())),
                 // P1 alone
-                measured(dword(0x896e4), when=dword(0x1FEF24) == 1),
+                measured(dword(0x896e4), when=get_player_count() == 1),
                 // P1 vs 2, P1 won
-                measured(dword(0x896e4), when=dword(0x1FEF24) == 2 && dword(0x896e4) >= dword(0x89a2c)),
+                measured(dword(0x896e4), when=get_player_count() == 2 && dword(0x896e4) >= dword(0x89a2c)),
                 // P1 vs 2, P2 won
-                measured(dword(0x89a2c), when=dword(0x1FEF24) == 2 && dword(0x896e4) < dword(0x89a2c))
+                measured(dword(0x89a2c), when=get_player_count() == 2 && dword(0x896e4) < dword(0x89a2c))
+            ),
+    format = "VALUE", lower_is_better = false
+)
+
+leaderboard(
+    title = "Recipe Run",
+    description = "Get the highest score in \"Recipe Run\"",
+    start =
+    (   
+        get_minigame() == 0x00 &&
+        results_just_popped_up() &&
+        dword(0x8d438) != 0
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value = max_of(
+                measured(tally(0, always_true())),
+                // P1 alone
+                measured(dword(0x8d438), when=get_player_count() == 1),
+                // P1 vs 2, P1 won
+                measured(dword(0x8d438), when=get_player_count() == 2 && dword(0x8d438) >= dword(0x8d790)),
+                // P1 vs 2, P2 won
+                measured(dword(0x8d790), when=get_player_count() == 2 && dword(0x8d438) < dword(0x8d790))
             ),
     format = "VALUE", lower_is_better = false
 )
@@ -609,7 +645,8 @@ leaderboard(
     start =
     (   
         get_minigame() == 0x07 &&
-        results_just_popped_up()
+        results_just_popped_up() &&
+        dword(0x081B7C) != 0
     ),
     cancel = 
     (
@@ -622,13 +659,51 @@ leaderboard(
     value = max_of(
                 measured(tally(0, always_true())),
                 // P1 alone
-                measured(dword(0x081B7C), when=dword(0x1FEF24) == 1),
+                measured(dword(0x081B7C), when=get_player_count() == 1),
                 // P1 vs 2, P1 won
-                measured(dword(0x081B7C), when=dword(0x1FEF24) == 2 && dword(0x081B7C) >= dword(0x082A40)),
+                measured(dword(0x081B7C), when=get_player_count() == 2 && dword(0x081B7C) >= dword(0x082A40)),
                 // P1 vs 2, P2 won
-                measured(dword(0x082A40), when=dword(0x1FEF24) == 2 && dword(0x081B7C) < dword(0x082A40))
+                measured(dword(0x082A40), when=get_player_count() == 2 && dword(0x081B7C) < dword(0x082A40))
             ),
     format = "VALUE", lower_is_better = false
+)
+
+leaderboard(
+    title = "Shield Chase",
+    description = "Reach the goal as quickly as possible in \"Shield Chase\"",
+    start =
+    (   
+        get_minigame() == 0x03 &&
+        results_just_popped_up()
+    ),
+    cancel = 
+    (
+        dword(0x057C6C) < prev(dword(0x057C6C))
+    ),
+    submit = 
+    (
+        (
+            // p1 alone
+            get_player_count() == 1 &&
+            dword(0x0868a4) == 3 && prev(dword(0x0868a4)) == 2
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 2 &&
+            dword(0x0868a4) == 3 && prev(dword(0x0868a4)) == 2
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 2 &&
+            dword(0x086bf0) == 3 && prev(dword(0x086bf0)) == 2
+        )
+    ),
+    value = 
+    // TODO: Two problems - pause this when in pause menu or when race did not yet start AND FRAMES seems wrong
+        measured(
+            tally(0, in_game_timer_tick(), in_game_timer_tick())
+        ),
+    format = "FRAMES", lower_is_better = false
 )
 
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
