@@ -520,6 +520,90 @@ achievement(
 // Obstacle Course: Beat time
 
 leaderboard(
+    title = "Shoot & Score",
+    description = "Get the highest score in \"Shoot & Score\"",
+    start =
+    (   
+        get_minigame() == 0x0b &&
+        results_just_popped_up()
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value = max_of(
+                measured(tally(0, always_true())),
+                // P1 alone
+                measured(dword(0x86658), when=dword(0x1FEF24) == 1),
+                // P1 vs 2, P1 won
+                measured(dword(0x86658), when=dword(0x1FEF24) == 2 && dword(0x86658) >= dword(0x86bb0)),
+                // P1 vs 2, P2 won
+                measured(dword(0x86bb0), when=dword(0x1FEF24) == 2 && dword(0x86658) < dword(0x86bb0))
+            ),
+    format = "VALUE", lower_is_better = false
+)
+
+leaderboard(
+    title = "Shoot to Survive",
+    description = "Get the highest score in \"Shoot to Survive\"",
+    start =
+    (   
+        get_minigame() == 0x0c &&
+        results_just_popped_up()
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value = max_of(
+                measured(tally(0, always_true())),
+                // P1 alone
+                measured(dword(0x86658), when=dword(0x1FEF24) == 1),
+                // P1 vs 2, P1 won
+                measured(dword(0x86658), when=dword(0x1FEF24) == 2 && dword(0x86658) >= dword(0x86bb0)),
+                // P1 vs 2, P2 won
+                measured(dword(0x86bb0), when=dword(0x1FEF24) == 2 && dword(0x86658) < dword(0x86bb0))
+            ),
+    format = "VALUE", lower_is_better = false
+)
+
+leaderboard(
+    title = "Boar Bash",
+    description = "Get the highest score in \"Boar Bash\"",
+    start =
+    (   
+        get_minigame() == 0x02 &&
+        results_just_popped_up()
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value = max_of(
+                measured(tally(0, always_true())),
+                // P1 alone
+                measured(dword(0x896e4), when=dword(0x1FEF24) == 1),
+                // P1 vs 2, P1 won
+                measured(dword(0x896e4), when=dword(0x1FEF24) == 2 && dword(0x896e4) >= dword(0x89a2c)),
+                // P1 vs 2, P2 won
+                measured(dword(0x89a2c), when=dword(0x1FEF24) == 2 && dword(0x896e4) < dword(0x89a2c))
+            ),
+    format = "VALUE", lower_is_better = false
+)
+
+leaderboard(
     title = "Food Feast",
     description = "Get the highest score in \"Food Feast\"",
     start =
