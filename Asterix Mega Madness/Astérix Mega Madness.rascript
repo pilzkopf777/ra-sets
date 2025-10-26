@@ -229,7 +229,7 @@ minigame_lookup = {
 
 function is_in_main_menu() {
     // Main Menu, Boot-up, Transition bewteen modes..
-    return byte(0x0760C0) == 0x17 || byte(0x0760C0) == 0x00 || byte(0x0760C0) == 0xbe
+    return byte(0x0760C0) == 0x17 || byte(0x0760C0) == 0x00 || byte(0x0760C0) == 0xbe || dword(0x090a1c) == 0
 }
 
 function get_mode() {
@@ -258,8 +258,10 @@ function get_mega_madness_score(day, round, character) {
         character_offset = 0x0c
     }
 
-    day_offset = 0x040 * day - 1
-    round_offset = 0x10 * round - 1
+    t_day = day - 1
+    day_offset = 0x40 * t_day
+    t_round = round - 1
+    round_offset = 0x10 * t_round
 
     final = base + day_offset + round_offset + character_offset
 
@@ -267,13 +269,21 @@ function get_mega_madness_score(day, round, character) {
 }
 
 function get_mega_madness_score_of_day(day, character) {
-    return get_mega_madness_score(day, 1, character) + get_mega_madness_score(day, 2, character) + get_mega_madness_score(day, 3, character) + get_mega_madness_score(day, 4, character)
+    if (day == 1 || day == 2) {
+        return get_mega_madness_score(day, 1, character) + get_mega_madness_score(day, 2, character) + get_mega_madness_score(day, 3, character)
+    } else if (day == 3 || day == 4) {
+        return get_mega_madness_score(day, 1, character) + get_mega_madness_score(day, 2, character) + get_mega_madness_score(day, 3, character) + get_mega_madness_score(day, 4, character)
+    }
 }
 
 function get_char_id(player) {
     base = 0x1fef14
     offset = player * 0x04 - 0x04
     return dword(base + offset)
+}
+
+function get_player_count() {
+    return dword(0x1fef24)
 }
 
 ACH_NAME = ["day 1", "day 2", "day 3", "day 4"]
@@ -283,6 +293,7 @@ ACH_PRG  = ["progression", "progression", "progression", "win_condition"]
 DAY_ROUNDS = [3, 3, 4, 4]
 
 function day_victory_logic(day) {
+    // day = 1, 2, 3, 4
     cond = always_true()
 
     char_count = dword(0x1fef24)
@@ -298,12 +309,11 @@ function day_victory_logic(day) {
         // Single player
         char_count == 1 &&
         // Player is using Asterix
-        get_char_id(1) == 0 &&
+        get_char_id(player=1) == 0 &&
         // Asterix has highest score
         asterix_total > obelix_total && asterix_total > cacofonix_total && asterix_total > ms_geriatrix_total &&
         (
             // Final round was played, at least one player scored a point
-            // TODO: Check if you can beat a round with 0 points. If no then we can make this logic simpler.
             get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
             get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
             get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
@@ -314,7 +324,7 @@ function day_victory_logic(day) {
         // Single player
         char_count == 1 &&
         // Player is using Obelix
-        get_char_id(1) == 1 &&
+        get_char_id(player=1) == 1 &&
         // Asterix has highest score
         obelix_total > asterix_total && obelix_total > cacofonix_total && obelix_total > ms_geriatrix_total &&
         (
@@ -329,7 +339,7 @@ function day_victory_logic(day) {
         // Single player
         char_count == 1 &&
         // Player is using Cacofonix
-        get_char_id(1) == 2 &&
+        get_char_id(player=1) == 2 &&
         // Asterix has highest score
         cacofonix_total > asterix_total && cacofonix_total > obelix_total && cacofonix_total > ms_geriatrix_total &&
         (
@@ -344,7 +354,7 @@ function day_victory_logic(day) {
         // Single player
         char_count == 1 &&
         // Player is using Mrs Geriatrix
-        get_char_id(1) == 3 &&
+        get_char_id(player=1) == 3 &&
         // Asterix has highest score
         ms_geriatrix_total > asterix_total && ms_geriatrix_total > obelix_total && ms_geriatrix_total > cacofonix_total &&
         (
@@ -392,14 +402,14 @@ function race_leaderboard_logic(title, desc, mode, target_time) {
 // For all: Get high score and leaderboard of score (also time?)
 
 // Camp Crashing: Reach 100%
-achievement(
-    title = "Camp Crashing 100%",
-    points = 0,
-    description = "Destroy the entire camp before time runs out",
-    trigger = 
-        get_minigame() == 0x08 &&
-        word(0x097BE6) == 0x4f && prev(word(0x097BE6)) < 0x4f
-)
+//achievement(
+//    title = "Camp Crashing 100%",
+//    points = 0,
+//    description = "Destroy the entire camp before time runs out",
+//    trigger = 
+//        get_minigame() == 0x08 &&
+//        word(0x097BE6) == 0x4f && prev(word(0x097BE6)) < 0x4f
+//)
 
 // Shield Chase: Beat time
 
@@ -411,11 +421,69 @@ achievement(
     description = "Get Food Feast Score W/O Poison",
     trigger = 
         get_minigame() == 0x07 &&
-        dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
-        disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
+        (
+            get_player_count() == 1 &&
+            dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
+            disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
+        ) || 
+        (
+            get_player_count() == 2 &&
+            (
+                dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
+                disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
+            ) ||
+            (
+                dword(0x082a40) >= 200 && prev(dword(0x082a40)) < 200 &&
+                disable_when(dword(0x0829fc) != 0 && prev(dword(0x0829fc) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
+            )
+        )
+        
 )
 
-// Shoot and Score: Destroy x Roman units
+achievement(
+    title = "Shoot & Score 3000 pts",
+    points = 0,
+    description = "Shoot & Score 3000 pts",
+    trigger = 
+        get_minigame() == 0x0b &&
+        (
+            get_player_count() == 1 &&
+            dword(0x086658) >= prev(dword(0x086658))
+        ) || 
+        (
+            get_player_count() == 2 &&
+            dword(0x086658) >= prev(dword(0x086658)) ||
+            dword(0x086bb0) >= prev(dword(0x086bb0))
+        )
+        
+)
+
+achievement(
+    title = "Shoot & Score No Hit",
+    points = 0,
+    description = "Shoot & Score No Hit",
+    trigger = 
+        get_minigame() == 0x0b &&
+        (
+            get_player_count() == 1 &&
+            dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000 &&
+            disable_when(dword(0x08665c) != 0 && prev(dword(0x08665c) == 0), until=dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0) != 0x00bd1000))
+        ) || 
+        (
+            get_player_count() == 2 &&
+            dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000 &&
+            (
+                dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
+                disable_when(dword(0x08665c) != 0 && prev(dword(0x08665c) == 0), until=dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0) != 0x00bd1000))
+            ) ||
+            (
+                dword(0x082a40) >= 200 && prev(dword(0x082a40)) < 200 &&
+                disable_when(dword(0x086bb4) != 0 && prev(dword(0x086bb4) == 0), until=dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0) != 0x00bd1000))
+            )
+        )
+        
+)
+
 
 // Shoot to Survive: x seconds
 
@@ -436,6 +504,41 @@ achievement(
 // Galley Smash: ...?
 
 // Obstacle Course: Beat time
+
+
+leaderboard(
+    title = "Food Feast Score",
+    description = "Food Feast Score",
+    start =
+    (   
+        get_minigame() == 0x07 &&
+        dword(0x080cbc) == 0 && prev(dword(0x080cbc) != 0)
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value =
+    (
+        // p1 version
+        (
+            measured(0x081b7c, when=get_player_count() == 1 && dword(0x081b7c) >= dword(0x082a40))
+        ) &&
+        // multiplayer, p1 version
+        (
+            measured(0x081b7c, when=get_player_count() == 2 && dword(0x081b7c) >= dword(0x082a40))
+        ) &&
+        // multiplayer, p2 version
+        (
+            measured(0x081b7c, when=get_player_count() == 2 && dword(0x082a40) > dword(0x081b7c))
+        )
+    ),
+    format = "VALUE", lower_is_better = false
+)
 
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
