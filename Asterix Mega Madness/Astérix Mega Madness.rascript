@@ -294,6 +294,10 @@ function get_player_count() {
     return dword(0x1fef24)
 }
 
+function results_just_popped_up() {
+    return dword(0x06b060) == 0x50 && prev(dword(0x06b060)) < 0x50
+}
+
 ACH_NAME = ["day 1", "day 2", "day 3", "day 4"]
 ACH_PTS  = [5, 5, 10, 10]
 ACH_PRG  = ["progression", "progression", "progression", "win_condition"]
@@ -515,14 +519,13 @@ achievement(
 
 // Obstacle Course: Beat time
 
-
 leaderboard(
-    title = "Food Feast Score",
-    description = "Food Feast Score",
+    title = "Food Feast",
+    description = "Get the highest score in \"Food Feast\"",
     start =
     (   
         get_minigame() == 0x07 &&
-        dword(0x080cbc) == 0 && prev(dword(0x080cbc) != 0)
+        results_just_popped_up()
     ),
     cancel = 
     (
@@ -532,21 +535,15 @@ leaderboard(
     (
         always_true()
     ),
-    value =
-    (
-        // p1 version
-        (
-            measured(0x081b7c, when=get_player_count() == 1 && dword(0x081b7c) >= dword(0x082a40))
-        ) &&
-        // multiplayer, p1 version
-        (
-            measured(0x081b7c, when=get_player_count() == 2 && dword(0x081b7c) >= dword(0x082a40))
-        ) &&
-        // multiplayer, p2 version
-        (
-            measured(0x081b7c, when=get_player_count() == 2 && dword(0x082a40) > dword(0x081b7c))
-        )
-    ),
+    value = max_of(
+                measured(tally(0, always_true())),
+                // P1 alone
+                measured(dword(0x081B7C), when=dword(0x1FEF24) == 1),
+                // P1 vs 2, P1 won
+                measured(dword(0x081B7C), when=dword(0x1FEF24) == 2 && dword(0x081B7C) >= dword(0x082A40)),
+                // P1 vs 2, P2 won
+                measured(dword(0x082A40), when=dword(0x1FEF24) == 2 && dword(0x081B7C) < dword(0x082A40))
+            ),
     format = "VALUE", lower_is_better = false
 )
 
