@@ -210,6 +210,14 @@ function get_mega_madness_day() {
     return byte(0x0907d9) + 1
 }
 
+function countdown_ended() {
+    return dword(0x06b028) == 0 && prev(dword(0x06b028)) > 0
+}
+
+function countdown_starting_again() {
+    return dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff
+}
+
 minigame_lookup = {
     0x0b: "Shoot & Score",
     0x00: "Recipe Run",
@@ -465,23 +473,25 @@ achievement(
     trigger = 
         get_minigame() == 0x0b &&
         (
-            get_player_count() == 1 &&
-            dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000 &&
-            disable_when(dword(0x08665c) != 0 && prev(dword(0x08665c) == 0), until=dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0) != 0x00bd1000))
-        ) || 
-        (
-            get_player_count() == 2 &&
-            dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000 &&
             (
-                dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
-                disable_when(dword(0x08665c) != 0 && prev(dword(0x08665c) == 0), until=dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0) != 0x00bd1000))
+                once(countdown_ended()) && never(dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff) &&
+                get_player_count() == 1 &&
+                trigger_when(dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000) &&
+                disable_when(dword(0x08665c) != 0 && prev(dword(0x08665c) == 0), until=countdown_starting_again())
             ) ||
             (
-                dword(0x082a40) >= 200 && prev(dword(0x082a40)) < 200 &&
-                disable_when(dword(0x086bb4) != 0 && prev(dword(0x086bb4) == 0), until=dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0) != 0x00bd1000))
+                once(countdown_ended()) && never(dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff) &&
+                get_player_count() == 2 &&
+                trigger_when(dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000) &&
+                disable_when(dword(0x08665c) != 0 && prev(dword(0x08665c) == 0), until=countdown_starting_again())
+            ) ||
+            (
+                once(countdown_ended()) && never(dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff) &&
+                get_player_count() == 2 &&
+                trigger_when(dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000) &&
+                disable_when(dword(0x086bb4) != 0 && prev(dword(0x086bb4) == 0), until=countdown_starting_again())
             )
         )
-        
 )
 
 
