@@ -218,6 +218,10 @@ function countdown_starting_again() {
     return dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff
 }
 
+function is_paused() {
+    return byte(0x06af60) == 0x02
+}
+
 minigame_lookup = {
     0x0b: "Shoot & Score",
     0x00: "Recipe Run",
@@ -674,11 +678,14 @@ leaderboard(
     start =
     (   
         get_minigame() == 0x03 &&
-        results_just_popped_up()
+        results_just_popped_up() &&
+        // Only start the LB if someone has not started the race yet; do not start it on the results
+        dword(0x0868a4) == 0 && dword(0x086bf0) == 0
     ),
     cancel = 
     (
-        dword(0x057C6C) < prev(dword(0x057C6C))
+        // Race time was reset -> restart
+        dword(0x085a68) == 0x01770000 && prev(dword(0x085a68)) < 0x01770000 
     ),
     submit = 
     (
@@ -699,11 +706,12 @@ leaderboard(
         )
     ),
     value = 
-    // TODO: Two problems - pause this when in pause menu or when race did not yet start AND FRAMES seems wrong
+        unless(dword(0x06b028) != 0) &&
+        unless(is_paused()) &&
         measured(
             tally(0, in_game_timer_tick(), in_game_timer_tick())
         ),
-    format = "FRAMES", lower_is_better = false
+    format = "MILLISECS", lower_is_better = false
 )
 
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
