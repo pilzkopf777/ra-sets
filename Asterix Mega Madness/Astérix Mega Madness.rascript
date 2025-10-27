@@ -1,195 +1,6 @@
 // Astérix: Mega Madness
 // #ID = 18223
 
-// $057C6C: [32-bit] Global frame timer
-//          Ticks up every frame
-function global_frame_timer() => dword(0x057C6C)
-
-// $075E4A: [16-bit] Button inputs
-function button_inputs() => word(0x075E4A)
-
-// $081B38: [32-bit] Eating minigame: Poison timer
-//          0x00 = Not poisoned
-function eating_minigame_poison_timer() => dword(0x081B38)
-
-// $081B7C: [32-bit] Eating minigame: Score
-function eating_minigame_score() => dword(0x081B7C)
-
-// $083ED0: [32-bit] Score in Obstacle Course minigame
-function score_in_obstacle_course_minigame() => dword(0x083ED0)
-
-// $084FF0: [32-bit] Crossbow minigame: Time Limit
-//          Ends on 0x00bd1000
-function crossbow_minigame_time_limit() => dword(0x084FF0)
-
-// $086658: [32-bit] Crossbow minigame: Score
-function crossbow_minigame_score() => dword(0x086658)
-
-// $08665C: [32-bit] Crossbow minigame: Stun timer when hit
-//          0x00 = Not hit
-function crossbow_minigame_stun_timer_when_hit() => dword(0x08665C)
-
-// $086670: [32-bit] Crossbow minigame: Next projectile
-//          
-//          0x00 = Cow
-//          0x01 = Roman in Gold Armor
-//          0x02 = Roman with Gold Helmet
-//          0x03 = Roman
-//          0x04 = Chicken
-//          0x05 = Barrel
-//          0x06 = Pirate
-//          0x07 = Captain
-//          0x08 = Boar
-//          0x09 = Menhir
-//          0x0a = Hay
-//          0x0b = Weird cat thing?
-//          0x0c = Frog?
-function crossbow_minigame_next_projectile() => dword(0x086670)
-
-// $086690: [32-bit] Crossbow minigame: Shots until reload
-//          0xffffffff = Need to reload
-function crossbow_minigame_shots_until_reload() => dword(0x086690)
-
-// $086770: [32-bit] Carrier Race minigame: Balance
-//          0xe9ea0000 = Fell off the right
-//          0x155c0000 = Fell off the left
-function carrier_race_minigame_balance() => dword(0x086770)
-
-// $086868: [32-bit] Carrier Race minigame: Carry state
-//          0x00 = Can move
-//          0x01 = Tripped, movement lock
-function carrier_race_minigame_carry_state() => dword(0x086868)
-
-// $0868A4: [32-bit] Carrier Race minigame: Lap
-//          0x03 = Race ended
-function carrier_race_minigame_lap() => dword(0x0868A4)
-
-// $0868D0: [32-bit] Carrier Race minigame: Score
-function carrier_race_minigame_score() => dword(0x0868D0)
-
-// $086BB0: [32-bit] Crossbow minigame: Score P2
-function crossbow_minigame_score_p2() => dword(0x086BB0)
-
-// $086BB4: [32-bit] Crossbow minigame: Stun timer when hit P2
-function crossbow_minigame_stun_timer_when_hit_p2() => dword(0x086BB4)
-
-// $086BC8: [32-bit] Crossbow minigame: Next projectile P2
-function crossbow_minigame_next_projectile_p2() => dword(0x086BC8)
-
-// $086BE8: [32-bit] Crossbow minigame: Shots until reload
-//          0xffffffff = Need to reload
-function crossbow_minigame_shots_until_reload() => dword(0x086BE8)
-
-// $0896BC: [32-bit] Boar Hunt minigame: Blue Potion timer
-//          0x00 = Ran out
-function boar_hunt_minigame_blue_potion_timer() => dword(0x0896BC)
-
-// $0896C4: [32-bit] Boar Hunt minigame: Red Potion timer
-//          0x00 = Ran out
-function boar_hunt_minigame_red_potion_timer() => dword(0x0896C4)
-
-// $0896E4: [32-bit] Boar Hunt minigame: Score
-function boar_hunt_minigame_score() => dword(0x0896E4)
-
-// $0896F2: [16-bit] Boar Hunt minigame: Boars defeated
-function boar_hunt_minigame_boars_defeated() => word(0x0896F2)
-
-// $08CDBC: [32-bit] Shield Bash minigame: HP
-function shield_bash_minigame_hp() => dword(0x08CDBC)
-
-// $08D314: [32-bit] Recipe minigame: Jump state
-//          0x00 = None
-//          0x14 = Falling
-//          0x0e = Short jump
-//          0x0f = High jump
-function recipe_minigame_jump_state() => dword(0x08D314)
-
-// $08D318: [32-bit] Recipe minigame: Attack
-//          0x0a through 0x0c = Attacking
-//          0x00 = None
-function recipe_minigame_attack() => dword(0x08D318)
-
-// $08D330: [32-bit] Recipe minigame: Coordinate 1
-function recipe_minigame_coordinate_1() => dword(0x08D330)
-
-// $08D338: [32-bit] Recipe minigame: Coordinate 2
-function recipe_minigame_coordinate_2() => dword(0x08D338)
-
-// $08D40C: [32-bit] Recipe minigame: Blue Potion timer
-//          0x00 = Ran out
-function recipe_minigame_blue_potion_timer() => dword(0x08D40C)
-
-// $08D414: [32-bit] Recipe minigame: Red Potion timer
-//          0x00 = Ran out
-function recipe_minigame_red_potion_timer() => dword(0x08D414)
-
-// $08D438: [32-bit] Recipe minigame: Score
-function recipe_minigame_score() => dword(0x08D438)
-
-// $08D5FC: [16-bit] Helmet Hoarding minigame: Helmets held
-function helmet_hoarding_minigame_helmets_held() => word(0x08D5FC)
-
-// $08D670: [32-bit] Helmet Hoarding minigame: Score
-function helmet_hoarding_minigame_score() => dword(0x08D670)
-
-// $08E94D: [8-bit] Main menu: Highlighted option
-//          Works in all menus!
-function main_menu_highlighted_option() => byte(0x08E94D)
-
-// $091530: [8-bit] Language Selection
-//          0x00 = English
-//          0x01 = French
-//          0x02 = Italian
-//          0x03 = Spanish
-//          0x04 = German
-//          0x05 = Dutch
-function language_selection() => byte(0x091530)
-
-// $097BE6: [16-bit] Camp Crashing minigame: Progress %
-//          Ticks up every time the % meter goes up. Thus, does not match the actual percentage.
-//          0x4f = Max
-function camp_crashing_minigame_progress() => word(0x097BE6)
-
-// $097BEC: [32-bit] Camp Crashing minigame: Score
-function camp_crashing_minigame_score() => dword(0x097BEC)
-
-// $1A7330: [16-bit] Catapult Chase minigame: Lap
-//          0x05 = End
-function catapult_chase_minigame_lap() => word(0x1A7330)
-
-// $1A7540: [32-bit] Catapult Chase minigame: Score
-function catapult_chase_minigame_score() => dword(0x1A7540)
-
-// $1C95F0: [32-bit] Galley Crash minigame: Score
-function galley_crash_minigame_score() => dword(0x1C95F0)
-
-// $1CAC3C: [32-bit] Rowing Race minigame: Lap
-//          0x02 = End
-function rowing_race_minigame_lap() => dword(0x1CAC3C)
-
-// $1CADB8: [32-bit] Rowing Race minigame: Score
-function rowing_race_minigame_score() => dword(0x1CADB8)
-
-// $1FE899: [8-bit] Sound volume
-//          0x00 through 0xff
-function sound_volume() => byte(0x1FE899)
-
-// $1FE89C: [8-bit] Music volume
-//          0x00 through 0x7f
-function music_volume() => byte(0x1FE89C)
-
-// $1FE8A0: [8-bit] Days unlocked in tournament mode
-//          0x01 through 0x04
-function days_unlocked_in_tournament_mode() => byte(0x1FE8A0)
-
-// $1FEEBC: [8-bit] Vibration setting
-//          0x00 = Off
-//          0x01 = On
-function vibration_setting() => byte(0x1FEEBC)
-
-
-
-
 function in_game_timer_tick() {
     return dword(0x057C6C) > prev(dword(0x057C6C))
 }
@@ -534,7 +345,7 @@ leaderboard(
     (   
         get_minigame() == 0x0b &&
         results_just_popped_up() &&
-        dword(0x86658) != 0
+        dword(0x86658) != 0 && dword(0x86bb0) != 0
     ),
     cancel = 
     (
@@ -563,7 +374,7 @@ leaderboard(
     (   
         get_minigame() == 0x0c &&
         results_just_popped_up() &&
-        dword(0x86658) != 0
+        dword(0x86658) != 0 && dword(0x86bb0) != 0
     ),
     cancel = 
     (
@@ -586,13 +397,43 @@ leaderboard(
 )
 
 leaderboard(
+    title = "Camp Crashing",
+    description = "Get the highest score in \"Camp Crashing\"",
+    start =
+    (   
+        get_minigame() == 0x08 &&
+        results_just_popped_up() &&
+        dword(0x97bec) != 0 && dword(?) != 0
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value = max_of(
+                measured(tally(0, always_true())),
+                // P1 alone
+                measured(dword(0x97bec), when=get_player_count() == 1),
+                // P1 vs 2, P1 won
+                measured(dword(0x97bec), when=get_player_count() == 2 && dword(0x97bec) >= dword(?)),
+                // P1 vs 2, P2 won
+                measured(dword(?), when=get_player_count() == 2 && dword(0x97bec) < dword(?))
+            ),
+    format = "VALUE", lower_is_better = false
+)
+
+
+leaderboard(
     title = "Boar Bash",
     description = "Get the highest score in \"Boar Bash\"",
     start =
     (   
         get_minigame() == 0x02 &&
         results_just_popped_up() &&
-        dword(0x896e4) != 0
+        dword(0x896e4) != 0 && dword(0x89a2c) != 0
     ),
     cancel = 
     (
@@ -621,7 +462,7 @@ leaderboard(
     (   
         get_minigame() == 0x00 &&
         results_just_popped_up() &&
-        dword(0x8d438) != 0
+        dword(0x8d438) != 0 && dword(0x8d790) != 0
     ),
     cancel = 
     (
@@ -650,7 +491,7 @@ leaderboard(
     (   
         get_minigame() == 0x07 &&
         results_just_popped_up() &&
-        dword(0x081B7C) != 0
+        dword(0x081B7C) != 0 && dword(0x82a40) != 0
     ),
     cancel = 
     (
@@ -711,7 +552,134 @@ leaderboard(
         measured(
             tally(0, in_game_timer_tick(), in_game_timer_tick())
         ),
-    format = "MILLISECS", lower_is_better = false
+    format = "MILLISECS", lower_is_better = true
+)
+
+leaderboard(
+    title = "Catapult Chase",
+    description = "Reach the goal as quickly as possible in \"Catapult Chase\"",
+    start =
+    (   
+        get_minigame() == 0x06 &&
+        results_just_popped_up() &&
+        // Only start the LB if someone has not started the race yet; do not start it on the results
+        dword(0x1a7330) == 0 && dword(?) == 0
+    ),
+    cancel = 
+    (
+        // Race time was reset -> restart
+        dword(?) == ? && prev(dword(?)) < ? 
+    ),
+    submit = 
+    (
+        (
+            // p1 alone
+            get_player_count() == 1 &&
+            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 2 &&
+            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 2 &&
+            dword(?) == 3 && prev(dword(?)) == 2
+        )
+    ),
+    value = 
+        unless(dword(0x06b028) != 0) &&
+        unless(is_paused()) &&
+        measured(
+            tally(0, in_game_timer_tick(), in_game_timer_tick())
+        ),
+    format = "MILLISECS", lower_is_better = true
+)
+
+leaderboard(
+    title = "Rowing Race",
+    description = "Reach the goal as quickly as possible in \"Rowing Race\"",
+    start =
+    (   
+        get_minigame() == 0x01 &&
+        results_just_popped_up() &&
+        // Only start the LB if someone has not started the race yet; do not start it on the results
+        dword(0x1cac3c) == 0 && dword(?) == 0
+    ),
+    cancel = 
+    (
+        // Race time was reset -> restart
+        dword(?) == ? && prev(dword(?)) < ? 
+    ),
+    submit = 
+    (
+        (
+            // p1 alone
+            get_player_count() == 1 &&
+            dword(0x1cac3c) == 3 && prev(dword(0x1cac3c)) == 2
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 2 &&
+            dword(0x1cac3c) == 3 && prev(dword(0x1cac3c)) == 2
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 2 &&
+            dword(?) == 3 && prev(dword(?)) == 2
+        )
+    ),
+    value = 
+        unless(dword(0x06b028) != 0) &&
+        unless(is_paused()) &&
+        measured(
+            tally(0, in_game_timer_tick(), in_game_timer_tick())
+        ),
+    format = "MILLISECS", lower_is_better = true
+)
+
+
+leaderboard(
+    title = "Obstacle Course",
+    description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
+    start =
+    (   
+        get_minigame() == 0x0d &&
+        results_just_popped_up() &&
+        // Only start the LB if someone has not started the race yet; do not start it on the results
+        dword(?) == 0 && dword(?) == 0
+    ),
+    cancel = 
+    (
+        // Race time was reset -> restart
+        dword(?) == ? && prev(dword(?)) < ? 
+    ),
+    submit = 
+    (
+        (
+            // p1 alone
+            get_player_count() == 1 &&
+            dword(?) == 3 && prev(dword(?)) == 2
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 2 &&
+            dword(?) == 3 && prev(dword(?)) == 2
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 2 &&
+            dword(?) == 3 && prev(dword(?)) == 2
+        )
+    ),
+    value = 
+        unless(dword(0x06b028) != 0) &&
+        unless(is_paused()) &&
+        measured(
+            tally(0, in_game_timer_tick(), in_game_timer_tick())
+        ),
+    format = "MILLISECS", lower_is_better = true
 )
 
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
