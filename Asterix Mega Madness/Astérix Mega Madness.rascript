@@ -138,7 +138,14 @@ function day_victory_logic(day) {
         // Player is using Asterix
         get_char_id(player=1) == 0 &&
         // Asterix has highest score
-        asterix_total > obelix_total && asterix_total > cacofonix_total && asterix_total > ms_geriatrix_total &&
+        // Possible scenarios with this logic:
+        // -> If A won, then A=60 and B=50 -> A-B == 60-50=10 -> A_result > 0
+        // -> If B won, then A=30 and B=60 -> A-B == 30-60=-30 -> A_result > 0?
+        // B won should fail/be false -> Check if left-most bit is 0 == Is result negative? For that logic also check == 0 though 
+        // TODO: What happens on a tie? Who wins? Both?
+        // TODO: Edit logic for all 4 cases
+        //OLD: asterix_total > obelix_total && asterix_total > cacofonix_total && asterix_total > ms_geriatrix_total &&
+        asterix_total - obelix_total >= 0 && asterix_total - cacofonix_total >= 0 && asterix_total - ms_geriatrix_total >= 0 &&
         (
             // Final round was played, at least one player scored a point
             get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
@@ -152,7 +159,7 @@ function day_victory_logic(day) {
         char_count == 1 &&
         // Player is using Obelix
         get_char_id(player=1) == 1 &&
-        // Asterix has highest score
+        // Obelix has highest score
         obelix_total > asterix_total && obelix_total > cacofonix_total && obelix_total > ms_geriatrix_total &&
         (
             // Final round was played, at least one player scored a point
@@ -167,7 +174,7 @@ function day_victory_logic(day) {
         char_count == 1 &&
         // Player is using Cacofonix
         get_char_id(player=1) == 2 &&
-        // Asterix has highest score
+        // Cacofonix has highest score
         cacofonix_total > asterix_total && cacofonix_total > obelix_total && cacofonix_total > ms_geriatrix_total &&
         (
             // Final round was played, at least one player scored a point
@@ -180,9 +187,9 @@ function day_victory_logic(day) {
     (
         // Single player
         char_count == 1 &&
-        // Player is using Mrs Geriatrix
+        // Player is using Ms Geriatrix
         get_char_id(player=1) == 3 &&
-        // Asterix has highest score
+        // Ms Geriatrix has highest score
         ms_geriatrix_total > asterix_total && ms_geriatrix_total > obelix_total && ms_geriatrix_total > cacofonix_total &&
         (
             // Final round was played, at least one player scored a point
