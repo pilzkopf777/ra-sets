@@ -215,35 +215,15 @@ for day in range(0, 3, 1) {
     )
 }
 
-function race_leaderboard_logic(title, desc, mode, target_time) {
-    leaderboard(
-        title = title,
-        description = desc,
-        start = 
-            always_false(),
-        cancel = (
-            always_false()
-        ),
-        submit = always_false(),
-        value =
-            measured(
-                tally(0, in_game_timer_tick(), in_game_timer_tick())
-        ),
-        format = "FRAMES", lower_is_better = true
-    )
-}
-
-// For all: Get high score and leaderboard of score (also time?)
-
 // Camp Crashing: Reach 100%
-//achievement(
-//    title = "Camp Crashing 100%",
-//    points = 0,
-//    description = "Destroy the entire camp before time runs out",
-//    trigger = 
-//        get_minigame() == 0x08 &&
-//        word(0x097BE6) == 0x4f && prev(word(0x097BE6)) < 0x4f
-//)
+achievement(
+    title = "Camp Crashing 100%",
+    points = 0,
+    description = "Destroy the entire camp before time runs out",
+    trigger = 
+        get_minigame() == 0x08 &&
+        word(0x097BE6) == 0x4f && prev(word(0x097BE6)) < 0x4f
+)
 
 // Shield Chase: Beat time
 
@@ -330,6 +310,27 @@ achievement(
 // Recipe Run: Score all items
 
 // Boar Bash: Kill 50 boars
+achievement(
+    title = "Boar Bash 50 kills",
+    points = 0,
+    description = "Boar Bash 50 kills",
+    trigger = 
+        get_minigame() == 0x02 &&
+        (
+        (
+            get_player_count() == 1 &&
+            word(0x896f2) >= 50 && prev(word(0x896f2)) < 50
+        ) || 
+        (
+            get_player_count() == 2 &&
+            word(0x896f2) >= 50 && prev(word(0x896f2)) < 50
+        ) ||
+        (
+            get_player_count() == 2 &&
+            word(0x89a3a) >= 50 && prev(word(0x89a3a)) < 50
+        )
+        )        
+)
 
 // Catapult Chase: Beat time
 
