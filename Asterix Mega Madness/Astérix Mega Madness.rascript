@@ -220,16 +220,6 @@ for day in range(0, 3, 1) {
     )
 }
 
-// Camp Crashing: Reach 100%
-achievement(
-    title = "Camp Crashing 100%",
-    points = 0,
-    description = "Destroy the entire camp before time runs out",
-    trigger = 
-        get_minigame() == 0x08 &&
-        word(0x097BE6) == 0x4f && prev(word(0x097BE6)) < 0x4f
-)
-
 // Shield Chase: Beat time
 
 
@@ -343,7 +333,87 @@ achievement(
         )        
 )
 
-// Catapult Chase: Beat time
+achievement(
+    title = "Shield Chase Both potions",
+    points = 0,
+    description = "Shield Chase Both potions",
+    trigger = 
+        get_minigame() == 0x03 &&
+        minigame_not_finished() &&
+        (
+        (
+            get_player_count() == 1 &&
+            // p1 potion 1 and 2 active
+        ) || 
+        (
+            get_player_count() == 2 &&
+            // p1 potion 1 and 2 active
+        ) ||
+        (
+            get_player_count() == 2 &&
+            // p2 potion 1 and 2 active
+        )
+        )        
+)
+
+achievement(
+    title = "Shield Bash win with 50%",
+    points = 0,
+    description = "Shield Bash win with 50% against CPU opponent",
+    trigger = 
+        get_minigame() == 0x05 &&
+        minigame_not_finished() &&
+        (
+        (
+            get_player_count() == 1 &&
+            // P1 HP must be over 50%
+            // P2 HP must be 0
+        ) || 
+        (
+            get_player_count() == 2 &&
+            // One player must be CPU -> P1 human
+            // P1 HP must be over 50%
+            // P2 HP must be 0
+        ) ||
+        (
+            get_player_count() == 2 &&
+            // One player must be CPU -> P2 human
+            // P2 HP must be over 50%
+            // P1 HP must be 0
+        )
+        )        
+)
+
+achievement(
+    title = "Catapult Chase Win in x sec",
+    points = 0,
+    description = "Catapult Chase Win in x sec",
+    trigger = 
+        get_minigame() == 0x06 &&
+        results_just_popped_up() &&
+        // Only start the LB if someone has not started the race yet; do not start it on the results
+        dword(0x1a7330) == 0 && dword(0x1a754c) == 0
+        // Trigger/Disable when time is up
+        (
+        (
+            // p1 alone
+            get_player_count() == 1 &&
+            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 2 &&
+            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 2 &&
+            dword(0x1a7528) == 3 && prev(dword(0x1a7528)) == 2
+        )
+        )        
+)
+
+// Do the same for other race minigames..
 
 leaderboard(
     title = "Helmet Hoarding",
@@ -373,6 +443,7 @@ leaderboard(
             ),
     format = "VALUE", lower_is_better = false
 )
+
 
 leaderboard(
     title = "Galley Smash",
