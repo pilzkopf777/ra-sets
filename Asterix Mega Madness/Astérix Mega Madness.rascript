@@ -146,9 +146,6 @@ function day_victory_logic(day) {
         // -> If A won, then A=60 and B=50 -> A-B == 60-50=10 -> A_result > 0
         // -> If B won, then A=30 and B=60 -> A-B == 30-60=-30 -> A_result > 0?
         // B won should fail/be false -> Check if left-most bit is 0 == Is result negative? For that logic also check == 0 though 
-        // TODO: What happens on a tie? Who wins? Both?
-        // TODO: Edit logic for all 4 cases
-        //OLD: asterix_total > obelix_total && asterix_total > cacofonix_total && asterix_total > ms_geriatrix_total &&
         asterix_total - obelix_total >= 0 && asterix_total - cacofonix_total >= 0 && asterix_total - ms_geriatrix_total >= 0 &&
         asterix_total - obelix_total < 0x80000000 && asterix_total - cacofonix_total < 0x80000000 && asterix_total - ms_geriatrix_total < 0x80000000 && 
         (
@@ -167,7 +164,6 @@ function day_victory_logic(day) {
         // Obelix has highest score
         obelix_total - asterix_total >= 0 && obelix_total - cacofonix_total >= 0 && obelix_total - ms_geriatrix_total >= 0 &&
         obelix_total - asterix_total < 0x80000000 && obelix_total - cacofonix_total < 0x80000000 && obelix_total - ms_geriatrix_total < 0x80000000 && 
-        // obelix_total > asterix_total && obelix_total > cacofonix_total && obelix_total > ms_geriatrix_total &&
         (
             // Final round was played, at least one player scored a point
             get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
@@ -182,7 +178,6 @@ function day_victory_logic(day) {
         // Player is using Cacofonix
         get_char_id(player=1) == 2 &&
         // Cacofonix has highest score
-        // cacofonix_total > asterix_total && cacofonix_total > obelix_total && cacofonix_total > ms_geriatrix_total &&
         cacofonix_total - asterix_total >= 0 && cacofonix_total - obelix_total >= 0 && cacofonix_total - ms_geriatrix_total >= 0 &&
         cacofonix_total - asterix_total < 0x80000000 && cacofonix_total - obelix_total < 0x80000000 && cacofonix_total - ms_geriatrix_total < 0x80000000 && 
         (
@@ -199,7 +194,6 @@ function day_victory_logic(day) {
         // Player is using Ms Geriatrix
         get_char_id(player=1) == 3 &&
         // Ms Geriatrix has highest score
-        // ms_geriatrix_total > asterix_total && ms_geriatrix_total > obelix_total && ms_geriatrix_total > cacofonix_total &&
         ms_geriatrix_total - asterix_total >= 0 && ms_geriatrix_total - obelix_total >= 0 && ms_geriatrix_total - cacofonix_total >= 0 &&
         ms_geriatrix_total - asterix_total < 0x80000000 && ms_geriatrix_total - obelix_total < 0x80000000 && ms_geriatrix_total - cacofonix_total < 0x80000000 && 
         (
@@ -246,18 +240,20 @@ achievement(
     description = "Get Food Feast Score W/O Poison",
     trigger = 
         get_minigame() == 0x07 &&
+        minigame_not_finished() &&
         (
-            get_player_count() == 1 &&
-            dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
-            disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
-        ) || 
-        (
-            get_player_count() == 2 &&
             (
+                get_player_count() == 1 &&
                 dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
                 disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
             ) ||
             (
+                get_player_count() == 2 &&
+                dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
+                disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
+            ) ||
+            (
+                get_player_count() == 2 &&
                 dword(0x082a40) >= 200 && prev(dword(0x082a40)) < 200 &&
                 disable_when(dword(0x0829fc) != 0 && prev(dword(0x0829fc) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
             )
@@ -265,6 +261,7 @@ achievement(
         
 )
 
+/*
 achievement(
     title = "Shoot & Score 3000 pts",
     points = 0,
@@ -287,6 +284,7 @@ achievement(
         )
         )        
 )
+*/
 
 achievement(
     title = "Shoot & Score No Hit",
@@ -347,17 +345,100 @@ achievement(
 
 // Catapult Chase: Beat time
 
-// Helmet Hoarding: Never drop helmets by attack
+leaderboard(
+    title = "Helmet Hoarding",
+    description = "Get the highest score in \"Helmet Hoarding\"",
+    start =
+    (   
+        get_minigame() == 0x04 &&
+        results_just_popped_up() &&
+        dword(0x8d670) != 0 && dword(0x8d9ac) != 0
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value = max_of(
+                measured(tally(0, always_true())),
+                // P1 alone
+                measured(dword(0x8d670), when=get_player_count() == 1),
+                // P1 vs 2, P1 won
+                measured(dword(0x8d670), when=get_player_count() == 2 && dword(0x8d670) >= dword(0x8d9ac)),
+                // P1 vs 2, P2 won
+                measured(dword(0x8d9ac), when=get_player_count() == 2 && dword(0x8d670) < dword(0x8d9ac))
+            ),
+    format = "VALUE", lower_is_better = false
+)
+
+leaderboard(
+    title = "Galley Smash",
+    description = "Get the highest score in \"Galley Smash\"",
+    start =
+    (   
+        get_minigame() == 0x09 &&
+        results_just_popped_up() &&
+        dword(0x1c95f0) != 0 && dword(0x1c94c4) != 0
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value = max_of(
+                measured(tally(0, always_true())),
+                // P1 alone
+                measured(dword(0x1c95f0), when=get_player_count() == 1),
+                // P1 vs 2, P1 won
+                measured(dword(0x1c95f0), when=get_player_count() == 2 && dword(0x1c95f0) >= dword(0x1c94c4)),
+                // P1 vs 2, P2 won
+                measured(dword(0x1c94c4), when=get_player_count() == 2 && dword(0x1c95f0) < dword(0x1c94c4))
+            ),
+    format = "VALUE", lower_is_better = false
+)
+
 
 // Rowing Race: Beat time
 
 // Shield Bash: Win with 50% HP
-
-// Hide and Seek: Win without key?
-
-// Galley Smash: ...?
+// TODO: Shield Bash cannot really use a LB...?
 
 // Obstacle Course: Beat time
+
+leaderboard(
+    title = "Hide & Seek",
+    description = "Get the highest score in \"Hide & Seek\"",
+    start =
+    (   
+        get_minigame() == 0x0a &&
+        results_just_popped_up() &&
+        dword(0x8dce4) != 0 && dword(0x8dff8) != 0
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value = max_of(
+                measured(tally(0, always_true())),
+                // P1 alone
+                measured(dword(0x8dce4), when=get_player_count() == 1),
+                // P1 vs 2, P1 won
+                measured(dword(0x8dce4), when=get_player_count() == 2 && dword(0x8dce4) >= dword(0x8dff8)),
+                // P1 vs 2, P2 won
+                measured(dword(0x8dff8), when=get_player_count() == 2 && dword(0x8dce4) < dword(0x8dff8))
+            ),
+    format = "VALUE", lower_is_better = false
+)
 
 leaderboard(
     title = "Shoot & Score",
@@ -660,7 +741,7 @@ leaderboard(
     format = "MILLISECS", lower_is_better = true
 )
 
-/*
+
 leaderboard(
     title = "Obstacle Course",
     description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
@@ -669,29 +750,29 @@ leaderboard(
         get_minigame() == 0x0d &&
         results_just_popped_up() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(?) == 0 && dword(?) == 0
+        dword(0x83ed0) == 0 && dword(0x842b0) == 0
     ),
     cancel = 
     (
         // Race time was reset -> restart
-        dword(?) == ? && prev(dword(?)) < ? 
+        dword(0x084ef0) == 0x01770000 && prev(dword(0x084ef0)) < 0x01770000 
     ),
     submit = 
     (
         (
             // p1 alone
             get_player_count() == 1 &&
-            dword(?) == 3 && prev(dword(?)) == 2
+            dword(0x83ee4) == 0 && prev(dword(0x83ee4)) == 1
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            dword(?) == 3 && prev(dword(?)) == 2
+            dword(0x83ee4) == 0 && prev(dword(0x83ee4)) == 1
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            dword(?) == 3 && prev(dword(?)) == 2
+            dword(0x842c4) == 0 && prev(dword(0x842c4)) == 1
         )
     ),
     value = 
@@ -702,7 +783,7 @@ leaderboard(
         ),
     format = "MILLISECS", lower_is_better = true
 )
-*/
+
 
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
