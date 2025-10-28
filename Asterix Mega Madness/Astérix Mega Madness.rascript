@@ -113,6 +113,10 @@ function results_just_popped_up() {
     return dword(0x06b060) == 0x50 && prev(dword(0x06b060)) < 0x50
 }
 
+function minigame_not_finished() {
+    return dword(0x06b060) == 0x00
+}
+
 ACH_NAME = ["day 1", "day 2", "day 3", "day 4"]
 ACH_PTS  = [5, 5, 10, 10]
 ACH_PRG  = ["progression", "progression", "progression", "win_condition"]
@@ -260,6 +264,7 @@ achievement(
     description = "Shoot & Score 3000 pts",
     trigger = 
         get_minigame() == 0x0b &&
+        minigame_not_finished() &&
         (
         (
             get_player_count() == 1 &&
@@ -316,6 +321,7 @@ achievement(
     description = "Boar Bash 50 kills",
     trigger = 
         get_minigame() == 0x02 &&
+        minigame_not_finished() &&
         (
         (
             get_player_count() == 1 &&
@@ -411,7 +417,7 @@ leaderboard(
     (   
         get_minigame() == 0x08 &&
         results_just_popped_up() &&
-        dword(0x97bec) != 0 && dword(?) != 0
+        dword(0x97bec) != 0 && dword(0x97f6c) != 0
     ),
     cancel = 
     (
@@ -426,9 +432,9 @@ leaderboard(
                 // P1 alone
                 measured(dword(0x97bec), when=get_player_count() == 1),
                 // P1 vs 2, P1 won
-                measured(dword(0x97bec), when=get_player_count() == 2 && dword(0x97bec) >= dword(?)),
+                measured(dword(0x97bec), when=get_player_count() == 2 && dword(0x97bec) >= dword(0x97f6c)),
                 // P1 vs 2, P2 won
-                measured(dword(?), when=get_player_count() == 2 && dword(0x97bec) < dword(?))
+                measured(dword(0x97f6c), when=get_player_count() == 2 && dword(0x97bec) < dword(0x97f6c))
             ),
     format = "VALUE", lower_is_better = false
 )
@@ -571,12 +577,12 @@ leaderboard(
         get_minigame() == 0x06 &&
         results_just_popped_up() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(0x1a7330) == 0 && dword(?) == 0
+        dword(0x1a7330) == 0 && dword(0x1a754c) == 0
     ),
     cancel = 
     (
         // Race time was reset -> restart
-        dword(?) == ? && prev(dword(?)) < ? 
+        dword(0x97bd0) == 0x01964000 && prev(dword(0x97bd0)) < 0x01964000
     ),
     submit = 
     (
@@ -593,7 +599,7 @@ leaderboard(
         (
             // p2 first
             get_player_count() == 2 &&
-            dword(?) == 3 && prev(dword(?)) == 2
+            dword(0x1a7528) == 3 && prev(dword(0x1a7528)) == 2
         )
     ),
     value = 
@@ -613,29 +619,29 @@ leaderboard(
         get_minigame() == 0x01 &&
         results_just_popped_up() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(0x1cac3c) == 0 && dword(?) == 0
+        dword(0x1cadb8) == 0 && dword(0x1caf94) == 0
     ),
     cancel = 
     (
         // Race time was reset -> restart
-        dword(?) == ? && prev(dword(?)) < ? 
+        dword(0x8d644) == 0x01194000 && prev(dword(0x8d644)) == 0x01194000 && results_just_popped_up()
     ),
     submit = 
     (
         (
             // p1 alone
             get_player_count() == 1 &&
-            dword(0x1cac3c) == 3 && prev(dword(0x1cac3c)) == 2
+            dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            dword(0x1cac3c) == 3 && prev(dword(0x1cac3c)) == 2
+            dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            dword(?) == 3 && prev(dword(?)) == 2
+            dword(0x1cb010) != 0 && prev(dword(0x1cb010)) == 0
         )
     ),
     value = 
@@ -647,7 +653,7 @@ leaderboard(
     format = "MILLISECS", lower_is_better = true
 )
 
-
+/*
 leaderboard(
     title = "Obstacle Course",
     description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
@@ -689,6 +695,7 @@ leaderboard(
         ),
     format = "MILLISECS", lower_is_better = true
 )
+*/
 
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
