@@ -18,7 +18,7 @@ function get_minigame_string() {
 }
 
 function get_mega_madness_day() {
-    return byte(0x0907d9) + 1
+    return byte(0x1fef74) + 1
 }
 
 function countdown_ended() {
@@ -52,16 +52,16 @@ minigame_lookup = {
 
 function is_in_main_menu() {
     // Main Menu, Boot-up, Transition bewteen modes..
-    return byte(0x0760C0) == 0x17 || byte(0x0760C0) == 0x00 || byte(0x0760C0) == 0xbe || dword(0x090a1c) == 0
+    return byte(0x0760C0) == 0x17 || byte(0x0760C0) == 0x00 || byte(0x0760C0) == 0xbe //|| dword(0x090a1c) == 0
 }
 
 function get_mode() {
-    return byte(0x0907d8)
+    return byte(0x1fef76)
 }
 
 mode_lookup = {
-    0x00: "Mega Madness",
-    0x01: "Practice",
+    0x01: "Mega Madness",
+    0x00: "Practice",
     0x02: "Team Play"
 }
 
@@ -150,6 +150,7 @@ function day_victory_logic(day) {
         // TODO: Edit logic for all 4 cases
         //OLD: asterix_total > obelix_total && asterix_total > cacofonix_total && asterix_total > ms_geriatrix_total &&
         asterix_total - obelix_total >= 0 && asterix_total - cacofonix_total >= 0 && asterix_total - ms_geriatrix_total >= 0 &&
+        asterix_total - obelix_total < 0x80000000 && asterix_total - cacofonix_total < 0x80000000 && asterix_total - ms_geriatrix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
             get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
@@ -164,7 +165,9 @@ function day_victory_logic(day) {
         // Player is using Obelix
         get_char_id(player=1) == 1 &&
         // Obelix has highest score
-        obelix_total > asterix_total && obelix_total > cacofonix_total && obelix_total > ms_geriatrix_total &&
+        obelix_total - asterix_total >= 0 && obelix_total - cacofonix_total >= 0 && obelix_total - ms_geriatrix_total >= 0 &&
+        obelix_total - asterix_total < 0x80000000 && obelix_total - cacofonix_total < 0x80000000 && obelix_total - ms_geriatrix_total < 0x80000000 && 
+        // obelix_total > asterix_total && obelix_total > cacofonix_total && obelix_total > ms_geriatrix_total &&
         (
             // Final round was played, at least one player scored a point
             get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
@@ -179,7 +182,9 @@ function day_victory_logic(day) {
         // Player is using Cacofonix
         get_char_id(player=1) == 2 &&
         // Cacofonix has highest score
-        cacofonix_total > asterix_total && cacofonix_total > obelix_total && cacofonix_total > ms_geriatrix_total &&
+        // cacofonix_total > asterix_total && cacofonix_total > obelix_total && cacofonix_total > ms_geriatrix_total &&
+        cacofonix_total - asterix_total >= 0 && cacofonix_total - obelix_total >= 0 && cacofonix_total - ms_geriatrix_total >= 0 &&
+        cacofonix_total - asterix_total < 0x80000000 && cacofonix_total - obelix_total < 0x80000000 && cacofonix_total - ms_geriatrix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
             get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
@@ -194,7 +199,9 @@ function day_victory_logic(day) {
         // Player is using Ms Geriatrix
         get_char_id(player=1) == 3 &&
         // Ms Geriatrix has highest score
-        ms_geriatrix_total > asterix_total && ms_geriatrix_total > obelix_total && ms_geriatrix_total > cacofonix_total &&
+        // ms_geriatrix_total > asterix_total && ms_geriatrix_total > obelix_total && ms_geriatrix_total > cacofonix_total &&
+        ms_geriatrix_total - asterix_total >= 0 && ms_geriatrix_total - obelix_total >= 0 && ms_geriatrix_total - cacofonix_total >= 0 &&
+        ms_geriatrix_total - asterix_total < 0x80000000 && ms_geriatrix_total - obelix_total < 0x80000000 && ms_geriatrix_total - cacofonix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
             get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
