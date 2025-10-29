@@ -136,9 +136,12 @@ function day_victory_logic(day) {
 
     rounds_this_day = DAY_ROUNDS[day - 1]
     
-    cond = (
+    cond = 
         // Single player
-        char_count == 1 &&
+        get_player_count() == 1 &&
+        // Mode
+        get_mode() == 1 &&
+        (
         // Player is using Asterix
         get_char_id(player=1) == 0 &&
         // Asterix has highest score
@@ -157,8 +160,6 @@ function day_victory_logic(day) {
         )
     ) ||
     (
-        // Single player
-        char_count == 1 &&
         // Player is using Obelix
         get_char_id(player=1) == 1 &&
         // Obelix has highest score
@@ -173,8 +174,6 @@ function day_victory_logic(day) {
         )
     ) ||
     (
-        // Single player
-        char_count == 1 &&
         // Player is using Cacofonix
         get_char_id(player=1) == 2 &&
         // Cacofonix has highest score
@@ -189,8 +188,6 @@ function day_victory_logic(day) {
         )
     ) ||
     (
-        // Single player
-        char_count == 1 &&
         // Player is using Ms Geriatrix
         get_char_id(player=1) == 3 &&
         // Ms Geriatrix has highest score
@@ -251,30 +248,138 @@ achievement(
         
 )
 
-/*
-achievement(
-    title = "Shoot & Score 3000 pts",
-    points = 0,
-    description = "Shoot & Score 3000 pts",
+// Minigame get score iteration:
+minigame_score_data = {
+    0x0b: {
+        "game_name": "Shoot & Score",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x86658,
+        "p2_score_adr": 0x86bb0
+    },
+    0x00: {
+        "game_name": "Recipe Run",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x8d438,
+        "p2_score_adr": 0x8d790
+    },
+    0x07: {
+        "game_name": "Food Feast",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x81b7c,
+        "p2_score_adr": 0x82a40
+    },
+    0x02: {
+        "game_name": "Boar Bash",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x896e4,
+        "p2_score_adr": 0x89a2c
+    },
+    0x03: {
+        "game_name": "Shield Chase",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x868d0,
+        "p2_score_adr": 0x86c1c
+    },
+    0x08: {
+        "game_name": "Camp Crashing",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x97bec,
+        "p2_score_adr": 0x97f6c
+    },
+    0x06: {
+        "game_name": "Catapult Chase",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x1a7540,
+        "p2_score_adr": 0x1a754c
+    },
+    0x04: {
+        "game_name": "Helmet Hoarding",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x8d670,
+        "p2_score_adr": 0x8d9ac
+    },
+    0x01: {
+        "game_name": "Rowing Race",
+        "target": 3000,
+        "title": "Life is but a dream",
+        "p1_score_adr": 0x1cadb8,
+        "p2_score_adr": 0x1caf94
+    },
+    0x05: {
+        "game_name": "Shield Bash",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0,
+        "p2_score_adr": 0
+    },
+    0x0a: {
+        "game_name": "Hide & Seek",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x8dce4,
+        "p2_score_adr": 0x8dff8
+    },
+    0x09: {
+        "game_name": "Galley Smash",
+        "target": 3000,
+        "title": "my cool name",
+// TODO: Double-check these addresses, are they perhaps flipped?
+        "p1_score_adr": 0x1c95f0,
+        "p2_score_adr": 0x1c94c4
+    },
+    0x0d: {
+        "game_name": "Obstacle Course",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x83ed0,
+        "p2_score_adr": 0x842b0
+    },
+    0x0c: {
+        "game_name": "Shoot to Survive",
+        "target": 3000,
+        "title": "my cool name",
+        "p1_score_adr": 0x86658,
+        "p2_score_adr": 0x86bb0
+    }
+}
+
+for gameid_key in minigame_score_data:
+    game_name = minigame_score_data[gameid_key]["game_name"]
+    target = minigame_score_data[gameid_key]["target"]
+    ach_title = minigame_score_data[gameid_key]["title"]
+    p1_score_adr = minigame_score_data[gameid_key]["p1_score_adr"]
+    p2_score_adr = minigame_score_data[gameid_key]["p2_score_adr"]
+
+    achievement(
+    title = ach_title,
+    points = 5,
+    description = format("Score {0} points in {1}", target, game_name),
     trigger = 
-        get_minigame() == 0x0b &&
+        get_minigame() == gameid_key &&
         minigame_not_finished() &&
         (
         (
             get_player_count() == 1 &&
-            dword(0x086658) >= prev(dword(0x086658))
+            dword(p1_score_adr) >= prev(dword(p1_score_adr))
         ) || 
         (
             get_player_count() == 2 &&
-            dword(0x086658) >= prev(dword(0x086658))
+            dword(p1_score_adr) >= prev(dword(p1_score_adr))
         ) ||
         (
             get_player_count() == 2 &&
-            dword(0x086bb0) >= prev(dword(0x086bb0))
+            dword(p2_score_adr) >= prev(dword(p2_score_adr))
         )
         )        
-)
-*/
+    )
 
 achievement(
     title = "Shoot & Score No Hit",
@@ -390,25 +495,29 @@ achievement(
     description = "Catapult Chase Win in x sec",
     trigger = 
         get_minigame() == 0x06 &&
-        results_just_popped_up() &&
-        // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(0x1a7330) == 0 && dword(0x1a754c) == 0
-        // Trigger/Disable when time is up
+        // TODO: Does this make sense? Is it needed?
+        never(is_in_main_menu()) &&
+        // Show Trigger badge when tutorial pops up at start
+        once(results_just_popped_up()) &&
+        dword(0x1a7330) == 0 && dword(0x1a754c) == 0 &&
+        // Trigger/Disable when time is up -> minigame time limit hit certain time
+        // Here: Disable achievement if certain time spent
+        dword(0x86d00) > 0x100 &&
         (
         (
             // p1 alone
             get_player_count() == 1 &&
-            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+            trigger_when(dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2)
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+            trigger_when(dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2)
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            dword(0x1a7528) == 3 && prev(dword(0x1a7528)) == 2
+            trigger_when(dword(0x1a7528) == 3 && prev(dword(0x1a7528)) == 2)
         )
         )        
 )
