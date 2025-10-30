@@ -351,7 +351,7 @@ minigame_score_data = {
     }
 }
 
-for gameid_key in minigame_score_data:
+for gameid_key in minigame_score_data {
     game_name = minigame_score_data[gameid_key]["game_name"]
     target = minigame_score_data[gameid_key]["target"]
     ach_title = minigame_score_data[gameid_key]["title"]
@@ -380,6 +380,7 @@ for gameid_key in minigame_score_data:
         )
         )        
     )
+}
 
 achievement(
     title = "Shoot & Score No Hit",
