@@ -343,14 +343,17 @@ achievement(
         (
         (
             get_player_count() == 1 &&
+            always_true()
             // p1 potion 1 and 2 active
         ) || 
         (
             get_player_count() == 2 &&
+            always_true()
             // p1 potion 1 and 2 active
         ) ||
         (
             get_player_count() == 2 &&
+            always_true()
             // p2 potion 1 and 2 active
         )
         )        
@@ -368,18 +371,21 @@ achievement(
             get_player_count() == 1 &&
             // P1 HP must be over 50%
             // P2 HP must be 0
+            always_true()
         ) || 
         (
             get_player_count() == 2 &&
             // One player must be CPU -> P1 human
             // P1 HP must be over 50%
             // P2 HP must be 0
+            always_true()
         ) ||
         (
             get_player_count() == 2 &&
             // One player must be CPU -> P2 human
             // P2 HP must be over 50%
             // P1 HP must be 0
+            always_true()
         )
         )        
 )
@@ -392,23 +398,23 @@ achievement(
         get_minigame() == 0x06 &&
         results_just_popped_up() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(0x1a7330) == 0 && dword(0x1a754c) == 0
+        word(0x1a7330) == 0 && word(0x1a754c) == 0 &&
         // Trigger/Disable when time is up
         (
         (
             // p1 alone
             get_player_count() == 1 &&
-            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+            word(0x1a7330) == 3 && prev(word(0x1a7330)) == 2
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+            word(0x1a7330) == 3 && prev(word(0x1a7330)) == 2
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            dword(0x1a7528) == 3 && prev(dword(0x1a7528)) == 2
+            word(0x1a7528) == 3 && prev(word(0x1a7528)) == 2
         )
         )        
 )
@@ -445,6 +451,7 @@ leaderboard(
 )
 
 
+// TODO: Score adr also wrong? F9
 leaderboard(
     title = "Galley Smash",
     description = "Get the highest score in \"Galley Smash\"",
@@ -502,6 +509,7 @@ leaderboard(
     value = max_of(
                 measured(tally(0, always_true())),
                 // P1 alone
+                // TODO: Wrong address?? Check F8
                 measured(dword(0x8dce4), when=get_player_count() == 1),
                 // P1 vs 2, P1 won
                 measured(dword(0x8dce4), when=get_player_count() == 2 && dword(0x8dce4) >= dword(0x8dff8)),
@@ -736,7 +744,7 @@ leaderboard(
         get_minigame() == 0x06 &&
         results_just_popped_up() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(0x1a7330) == 0 && dword(0x1a754c) == 0
+        word(0x1a7330) == 0 && word(0x1a7528) == 0
     ),
     cancel = 
     (
@@ -748,17 +756,17 @@ leaderboard(
         (
             // p1 alone
             get_player_count() == 1 &&
-            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+            word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2
+            word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            dword(0x1a7528) == 3 && prev(dword(0x1a7528)) == 2
+            word(0x1a7528) == 5 && prev(word(0x1a7528)) == 4
         )
     ),
     value = 
@@ -770,6 +778,7 @@ leaderboard(
     format = "MILLISECS", lower_is_better = true
 )
 
+// TODO: Restart after winning bugged?
 leaderboard(
     title = "Rowing Race",
     description = "Reach the goal as quickly as possible in \"Rowing Race\"",
@@ -813,6 +822,7 @@ leaderboard(
 )
 
 
+// TODO: Submit rule is actually a check for if you fell off the carrier..
 leaderboard(
     title = "Obstacle Course",
     description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
