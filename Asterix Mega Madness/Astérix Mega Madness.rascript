@@ -117,6 +117,10 @@ function get_player_count() {
     return dword(0x1fef24)
 }
 
+function entered_black_screen_for_loading() {
+    return dword(0x06b4dc) == 0x00 && prev(dword(0x06b4dc)) != 0x00
+}
+
 function results_just_popped_up() {
     return dword(0x06b060) == 0x50 && prev(dword(0x06b060)) < 0x50
 }
@@ -824,7 +828,7 @@ leaderboard(
     (
         // Race time was reset -> restart
         //dword(0x085a68) == 0x01770000 && prev(dword(0x085a68)) < 0x01770000 
-        always_false()
+        entered_black_screen_for_loading()
     ),
     submit = 
     (
@@ -845,7 +849,7 @@ leaderboard(
         )
     ),
     value = 
-        unless(dword(0x06b028) != 0) &&
+        never(countdown_starting_again() || dword(0x06b028) != 0) &&
         unless(is_paused()) &&
         measured(
             tally(0, in_game_timer_tick(), in_game_timer_tick())
@@ -867,7 +871,7 @@ leaderboard(
     (
         // Race time was reset -> restart
         //dword(0x97bd0) == 0x01964000 && prev(dword(0x97bd0)) < 0x01964000
-        always_false()
+        entered_black_screen_for_loading()
     ),
     submit = 
     (
@@ -888,7 +892,7 @@ leaderboard(
         )
     ),
     value = 
-        unless(dword(0x06b028) != 0) &&
+        never(countdown_starting_again() || dword(0x06b028) != 0) &&
         unless(is_paused()) &&
         measured(
             tally(0, in_game_timer_tick(), in_game_timer_tick())
@@ -909,9 +913,8 @@ leaderboard(
     ),
     cancel = 
     (
-        // Race time was reset -> restart
-        //dword(0x8d644) == 0x01194000 && prev(dword(0x8d644)) == 0x01194000 && results_just_popped_up()
-        always_false()
+        // TODO: need a good cancel condition
+        entered_black_screen_for_loading()
     ),
     submit = 
     (
@@ -932,7 +935,7 @@ leaderboard(
         )
     ),
     value = 
-        unless(dword(0x06b028) != 0) &&
+        never(countdown_starting_again() || dword(0x06b028) != 0) &&
         unless(is_paused()) &&
         measured(
             tally(0, in_game_timer_tick(), in_game_timer_tick())
@@ -957,7 +960,8 @@ leaderboard(
         // Race time was reset -> restart
         //dword(0x084ef0) == 0x01770000 && prev(dword(0x084ef0)) < 0x01770000 
         // TODO: for all race leaderboards make sure cancel is executed when restarting but not on the same frame as the new start?
-        always_false()
+        // OR: since i am using measured -> reset on start condition?
+        entered_black_screen_for_loading()
     ),
     submit = 
     (
@@ -978,7 +982,7 @@ leaderboard(
         )
     ),
     value = 
-        unless(dword(0x06b028) != 0) &&
+        never(countdown_starting_again() || dword(0x06b028) != 0) &&
         unless(is_paused()) &&
         measured(
             tally(0, in_game_timer_tick(), in_game_timer_tick())
