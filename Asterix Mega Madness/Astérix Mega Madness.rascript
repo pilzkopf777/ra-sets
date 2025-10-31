@@ -29,6 +29,14 @@ function countdown_starting_again() {
     return dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff
 }
 
+function tutorial_on_screen() {
+    return dword(0x06b074) == 0x00
+}
+
+function tutorial_just_popped_up() {
+    return dword(0x06b074) == 0x00 && prev(dword(0x06b074)) == 0x01
+}
+
 function is_paused() {
     return byte(0x06af60) == 0x02
 }
@@ -259,21 +267,21 @@ minigame_score_data = {
     },
     0x00: {
         "game_name": "Recipe Run",
-        "target": 3000,
+        "target": 2000,
         "title": "my cool name",
         "p1_score_adr": 0x8d438,
         "p2_score_adr": 0x8d790
     },
     0x07: {
         "game_name": "Food Feast",
-        "target": 3000,
+        "target": 2500,
         "title": "my cool name",
         "p1_score_adr": 0x81b7c,
         "p2_score_adr": 0x82a40
     },
     0x02: {
         "game_name": "Boar Bash",
-        "target": 3000,
+        "target": 3500,
         "title": "my cool name",
         "p1_score_adr": 0x896e4,
         "p2_score_adr": 0x89a2c
@@ -310,7 +318,7 @@ minigame_score_data = {
         "game_name": "Rowing Race",
         "target": 3000,
         "title": "Life is but a dream",
-        "p1_score_adr": 0x1cadb8,
+        "p1_score_adr": 0x1cabc4,
         "p2_score_adr": 0x1caf94
     },
     0x05: {
@@ -331,8 +339,7 @@ minigame_score_data = {
         "game_name": "Galley Smash",
         "target": 3000,
         "title": "my cool name",
-// TODO: Double-check these addresses, are they perhaps flipped?
-        "p1_score_adr": 0x1c95f0,
+        "p1_score_adr": 0x1c914c,
         "p2_score_adr": 0x1c94c4
     },
     0x0d: {
@@ -415,26 +422,27 @@ achievement(
 
 // Recipe Run: Score all items
 
-// Boar Bash: Kill 50 boars
+target_boar_kills = 45
+
 achievement(
-    title = "Boar Bash 50 kills",
+    title = "Boar Bash 45 kills",
     points = 0,
-    description = "Boar Bash 50 kills",
+    description = format("Boar Bash {0} kills", target_boar_kills),
     trigger = 
         get_minigame() == 0x02 &&
         minigame_not_finished() &&
         (
         (
             get_player_count() == 1 &&
-            word(0x896f2) >= 50 && prev(word(0x896f2)) < 50
+            word(0x896f2) >= target_boar_kills && prev(word(0x896f2)) < target_boar_kills
         ) || 
         (
             get_player_count() == 2 &&
-            word(0x896f2) >= 50 && prev(word(0x896f2)) < 50
+            word(0x896f2) >= target_boar_kills && prev(word(0x896f2)) < target_boar_kills
         ) ||
         (
             get_player_count() == 2 &&
-            word(0x89a3a) >= 50 && prev(word(0x89a3a)) < 50
+            word(0x89a3a) >= target_boar_kills && prev(word(0x89a3a)) < target_boar_kills
         )
         )        
 )
@@ -561,7 +569,6 @@ leaderboard(
 )
 
 
-// TODO: Score adr also wrong? F9
 leaderboard(
     title = "Galley Smash",
     description = "Get the highest score in \"Galley Smash\"",
@@ -569,7 +576,7 @@ leaderboard(
     (   
         get_minigame() == 0x09 &&
         results_just_popped_up() &&
-        dword(0x1c95f0) != 0 && dword(0x1c94c4) != 0
+        dword(0x1c914c) != 0 && dword(0x1c94c4) != 0
     ),
     cancel = 
     (
@@ -582,11 +589,11 @@ leaderboard(
     value = max_of(
                 measured(tally(0, always_true())),
                 // P1 alone
-                measured(dword(0x1c95f0), when=get_player_count() == 1),
+                measured(dword(0x1c914c), when=get_player_count() == 1),
                 // P1 vs 2, P1 won
-                measured(dword(0x1c95f0), when=get_player_count() == 2 && dword(0x1c95f0) >= dword(0x1c94c4)),
+                measured(dword(0x1c914c), when=get_player_count() == 2 && dword(0x1c914c) >= dword(0x1c94c4)),
                 // P1 vs 2, P2 won
-                measured(dword(0x1c94c4), when=get_player_count() == 2 && dword(0x1c95f0) < dword(0x1c94c4))
+                measured(dword(0x1c94c4), when=get_player_count() == 2 && dword(0x1c914c) < dword(0x1c94c4))
             ),
     format = "VALUE", lower_is_better = false
 )
@@ -606,7 +613,7 @@ leaderboard(
     (   
         get_minigame() == 0x0a &&
         results_just_popped_up() &&
-        dword(0x8dce4) != 0 && dword(0x8dff8) != 0
+        word(0x8dce4) != 0 && word(0x8dff8) != 0
     ),
     cancel = 
     (
@@ -619,12 +626,11 @@ leaderboard(
     value = max_of(
                 measured(tally(0, always_true())),
                 // P1 alone
-                // TODO: Wrong address?? Check F8
-                measured(dword(0x8dce4), when=get_player_count() == 1),
+                measured(word(0x8dce4), when=get_player_count() == 1),
                 // P1 vs 2, P1 won
-                measured(dword(0x8dce4), when=get_player_count() == 2 && dword(0x8dce4) >= dword(0x8dff8)),
+                measured(word(0x8dce4), when=get_player_count() == 2 && word(0x8dce4) >= word(0x8dff8)),
                 // P1 vs 2, P2 won
-                measured(dword(0x8dff8), when=get_player_count() == 2 && dword(0x8dce4) < dword(0x8dff8))
+                measured(word(0x8dff8), when=get_player_count() == 2 && word(0x8dce4) < word(0x8dff8))
             ),
     format = "VALUE", lower_is_better = false
 )
@@ -810,14 +816,15 @@ leaderboard(
     start =
     (   
         get_minigame() == 0x03 &&
-        results_just_popped_up() &&
+        tutorial_just_popped_up() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         dword(0x0868a4) == 0 && dword(0x086bf0) == 0
     ),
     cancel = 
     (
         // Race time was reset -> restart
-        dword(0x085a68) == 0x01770000 && prev(dword(0x085a68)) < 0x01770000 
+        //dword(0x085a68) == 0x01770000 && prev(dword(0x085a68)) < 0x01770000 
+        always_false()
     ),
     submit = 
     (
@@ -852,14 +859,15 @@ leaderboard(
     start =
     (   
         get_minigame() == 0x06 &&
-        results_just_popped_up() &&
+        tutorial_just_popped_up() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         word(0x1a7330) == 0 && word(0x1a7528) == 0
     ),
     cancel = 
     (
         // Race time was reset -> restart
-        dword(0x97bd0) == 0x01964000 && prev(dword(0x97bd0)) < 0x01964000
+        //dword(0x97bd0) == 0x01964000 && prev(dword(0x97bd0)) < 0x01964000
+        always_false()
     ),
     submit = 
     (
@@ -895,14 +903,15 @@ leaderboard(
     start =
     (   
         get_minigame() == 0x01 &&
-        results_just_popped_up() &&
+        tutorial_just_popped_up() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(0x1cadb8) == 0 && dword(0x1caf94) == 0
+        dword(0x1cabc4) == 0 && dword(0x1caf94) == 0
     ),
     cancel = 
     (
         // Race time was reset -> restart
-        dword(0x8d644) == 0x01194000 && prev(dword(0x8d644)) == 0x01194000 && results_just_popped_up()
+        //dword(0x8d644) == 0x01194000 && prev(dword(0x8d644)) == 0x01194000 && results_just_popped_up()
+        always_false()
     ),
     submit = 
     (
@@ -932,38 +941,40 @@ leaderboard(
 )
 
 
-// TODO: Submit rule is actually a check for if you fell off the carrier..
+// TODO: restart does not work
 leaderboard(
     title = "Obstacle Course",
     description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
     start =
     (   
         get_minigame() == 0x0d &&
-        results_just_popped_up() &&
+        tutorial_just_popped_up() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(0x83ed0) == 0 && dword(0x842b0) == 0
+        byte(0x083ec8) == 0 && byte(0x0842a8) == 0
     ),
     cancel = 
     (
         // Race time was reset -> restart
-        dword(0x084ef0) == 0x01770000 && prev(dword(0x084ef0)) < 0x01770000 
+        //dword(0x084ef0) == 0x01770000 && prev(dword(0x084ef0)) < 0x01770000 
+        // TODO: for all race leaderboards make sure cancel is executed when restarting but not on the same frame as the new start?
+        always_false()
     ),
     submit = 
     (
         (
             // p1 alone
             get_player_count() == 1 &&
-            dword(0x83ee4) == 0 && prev(dword(0x83ee4)) == 1
+            byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            dword(0x83ee4) == 0 && prev(dword(0x83ee4)) == 1
+            byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            dword(0x842c4) == 0 && prev(dword(0x842c4)) == 1
+            byte(0x0842a8) == 1 && prev(byte(0x0842a8)) == 0
         )
     ),
     value = 
