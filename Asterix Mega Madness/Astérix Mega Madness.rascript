@@ -265,56 +265,56 @@ minigame_score_data = {
     0x0b: {
         "game_name": "Shoot & Score",
         "target": 3000,
-        "title": "my cool name",
+        "title": "Shot and Scored",
         "p1_score_adr": 0x86658,
         "p2_score_adr": 0x86bb0
     },
     0x00: {
         "game_name": "Recipe Run",
         "target": 2000,
-        "title": "my cool name",
+        "title": "Just use beetroot juice",
         "p1_score_adr": 0x8d438,
         "p2_score_adr": 0x8d790
     },
     0x07: {
         "game_name": "Food Feast",
         "target": 2500,
-        "title": "my cool name",
+        "title": "The Final Page",
         "p1_score_adr": 0x81b7c,
         "p2_score_adr": 0x82a40
     },
     0x02: {
         "game_name": "Boar Bash",
         "target": 3500,
-        "title": "my cool name",
+        "title": "Breakfast is served",
         "p1_score_adr": 0x896e4,
         "p2_score_adr": 0x89a2c
     },
     0x03: {
         "game_name": "Shield Chase",
         "target": 3000,
-        "title": "my cool name",
+        "title": "Carry on",
         "p1_score_adr": 0x868d0,
         "p2_score_adr": 0x86c1c
     },
     0x08: {
         "game_name": "Camp Crashing",
         "target": 3000,
-        "title": "my cool name",
+        "title": "Just Cleaning up here",
         "p1_score_adr": 0x97bec,
         "p2_score_adr": 0x97f6c
     },
     0x06: {
         "game_name": "Catapult Chase",
         "target": 3000,
-        "title": "my cool name",
+        "title": "Do the Heavy Lifting",
         "p1_score_adr": 0x1a7540,
         "p2_score_adr": 0x1a754c
     },
     0x04: {
         "game_name": "Helmet Hoarding",
         "target": 3000,
-        "title": "my cool name",
+        "title": "Stash Superstar",
         "p1_score_adr": 0x8d670,
         "p2_score_adr": 0x8d9ac
     },
@@ -328,35 +328,35 @@ minigame_score_data = {
     0x05: {
         "game_name": "Shield Bash",
         "target": 3000,
-        "title": "my cool name",
+        "title": "Combo Fodder",
         "p1_score_adr": 0,
         "p2_score_adr": 0
     },
     0x0a: {
         "game_name": "Hide & Seek",
         "target": 3000,
-        "title": "my cool name",
+        "title": "Lost and Found",
         "p1_score_adr": 0x8dce4,
         "p2_score_adr": 0x8dff8
     },
     0x09: {
         "game_name": "Galley Smash",
         "target": 3000,
-        "title": "my cool name",
+        "title": "All at Sea",
         "p1_score_adr": 0x1c914c,
         "p2_score_adr": 0x1c94c4
     },
     0x0d: {
         "game_name": "Obstacle Course",
         "target": 3000,
-        "title": "my cool name",
+        "title": "Who's on top?",
         "p1_score_adr": 0x83ed0,
         "p2_score_adr": 0x842b0
     },
     0x0c: {
         "game_name": "Shoot to Survive",
         "target": 3000,
-        "title": "my cool name",
+        "title": "Last Line of Defense",
         "p1_score_adr": 0x86658,
         "p2_score_adr": 0x86bb0
     }
@@ -515,7 +515,7 @@ achievement(
     trigger = 
         get_minigame() == 0x06 &&
         // TODO: Does this make sense? Is it needed?
-        never(is_in_main_menu()) &&
+        never(entered_black_screen_for_loading()) &&
         // Show Trigger badge when tutorial pops up at start
         once(results_just_popped_up()) &&
         dword(0x1a7330) == 0 && dword(0x1a754c) == 0 &&
@@ -544,7 +544,7 @@ achievement(
 // Do the same for other race minigames..
 
 leaderboard(
-    title = "Helmet Hoarding",
+    title = "High Score: Helmet Hoarding",
     description = "Get the highest score in \"Helmet Hoarding\"",
     start =
     (   
@@ -574,7 +574,7 @@ leaderboard(
 
 
 leaderboard(
-    title = "Galley Smash",
+    title = "High Score: Galley Smash",
     description = "Get the highest score in \"Galley Smash\"",
     start =
     (   
@@ -611,7 +611,7 @@ leaderboard(
 // Obstacle Course: Beat time
 
 leaderboard(
-    title = "Hide & Seek",
+    title = "High Score: Hide & Seek",
     description = "Get the highest score in \"Hide & Seek\"",
     start =
     (   
@@ -640,7 +640,7 @@ leaderboard(
 )
 
 leaderboard(
-    title = "Shoot & Score",
+    title = "High Score: Shoot & Score",
     description = "Get the highest score in \"Shoot & Score\"",
     start =
     (   
@@ -669,7 +669,7 @@ leaderboard(
 )
 
 leaderboard(
-    title = "Shoot to Survive",
+    title = "High Score: Shoot to Survive",
     description = "Get the highest score in \"Shoot to Survive\"",
     start =
     (   
@@ -698,7 +698,7 @@ leaderboard(
 )
 
 leaderboard(
-    title = "Camp Crashing",
+    title = "High Score: Camp Crashing",
     description = "Get the highest score in \"Camp Crashing\"",
     start =
     (   
@@ -728,7 +728,7 @@ leaderboard(
 
 
 leaderboard(
-    title = "Boar Bash",
+    title = "High Score: Boar Bash",
     description = "Get the highest score in \"Boar Bash\"",
     start =
     (   
@@ -757,7 +757,7 @@ leaderboard(
 )
 
 leaderboard(
-    title = "Recipe Run",
+    title = "High Score: Recipe Run",
     description = "Get the highest score in \"Recipe Run\"",
     start =
     (   
@@ -786,7 +786,7 @@ leaderboard(
 )
 
 leaderboard(
-    title = "Food Feast",
+    title = "High Score: Food Feast",
     description = "Get the highest score in \"Food Feast\"",
     start =
     (   
@@ -815,7 +815,7 @@ leaderboard(
 )
 
 leaderboard(
-    title = "Shield Chase",
+    title = "Fastest Time: Shield Chase",
     description = "Reach the goal as quickly as possible in \"Shield Chase\"",
     start =
     (   
@@ -858,7 +858,7 @@ leaderboard(
 )
 
 leaderboard(
-    title = "Catapult Chase",
+    title = "Fastest Time: Catapult Chase",
     description = "Reach the goal as quickly as possible in \"Catapult Chase\"",
     start =
     (   
@@ -902,7 +902,7 @@ leaderboard(
 
 // TODO: Restart after winning bugged?
 leaderboard(
-    title = "Rowing Race",
+    title = "Fastest Time: Rowing Race",
     description = "Reach the goal as quickly as possible in \"Rowing Race\"",
     start =
     (   
@@ -946,7 +946,7 @@ leaderboard(
 
 // TODO: restart does not work
 leaderboard(
-    title = "Obstacle Course",
+    title = "Fastest Time: Obstacle Course",
     description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
     start =
     (   
