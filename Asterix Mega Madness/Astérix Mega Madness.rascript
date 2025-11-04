@@ -377,14 +377,6 @@ minigame_score_data = {
         "p1_score_adr": 0x1cabc4,
         "p2_score_adr": 0x1caf94
     },
-    0x05: {
-        "game_name": "Shield Bash",
-        "target": 3000,
-        "title": "Combo Fodder",
-        "score_size": 64,
-        "p1_score_adr": 0,
-        "p2_score_adr": 0
-    },
     0x0a: {
         "game_name": "Hide & Seek",
         "target": 3000,
@@ -731,10 +723,10 @@ lb_team_score_obj = {
 
 
 for gameid_key in lb_score_obj {
-    game_name = minigame_score_data[gameid_key]["game_name"]
-    p1_score_adr = minigame_score_data[gameid_key]["p1_score_adr"]
-    p2_score_adr = minigame_score_data[gameid_key]["p2_score_adr"]
-    score_size = minigame_score_data[gameid_key]["score_size"]
+    game_name = lb_score_obj[gameid_key]["game_name"]
+    p1_score_adr = lb_score_obj[gameid_key]["p1_score_adr"]
+    p2_score_adr = lb_score_obj[gameid_key]["p2_score_adr"]
+    score_size = lb_score_obj[gameid_key]["score_size"]
 
     if (score_size == 32) {
         start_add_cond = word(p1_score_adr) != 0 && word(p2_score_adr) != 0
