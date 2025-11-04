@@ -316,7 +316,7 @@ minigame_score_data = {
     0x00: {
         "game_name": "Recipe Run",
         "target": 2000,
-        "title": "Just use beetroot juice",
+        "title": "Just Use Beetroot Juice",
         "score_size": 64,
         "p1_score_adr": 0x8d438,
         "p2_score_adr": 0x8d790
@@ -332,7 +332,7 @@ minigame_score_data = {
     0x02: {
         "game_name": "Boar Bash",
         "target": 3500,
-        "title": "Breakfast is served",
+        "title": "Breakfast Is Served",
         "score_size": 64,
         "p1_score_adr": 0x896e4,
         "p2_score_adr": 0x89a2c
@@ -340,7 +340,7 @@ minigame_score_data = {
     0x03: {
         "game_name": "Shield Chase",
         "target": 3000,
-        "title": "Carry on",
+        "title": "Holding on to What I Am",
         "score_size": 64,
         "p1_score_adr": 0x868d0,
         "p2_score_adr": 0x86c1c
@@ -348,7 +348,7 @@ minigame_score_data = {
     0x08: {
         "game_name": "Camp Crashing",
         "target": 3000,
-        "title": "Just Cleaning up here",
+        "title": "Cleanup Crew",
         "score_size": 64,
         "p1_score_adr": 0x97bec,
         "p2_score_adr": 0x97f6c
@@ -356,7 +356,7 @@ minigame_score_data = {
     0x06: {
         "game_name": "Catapult Chase",
         "target": 3000,
-        "title": "Do the Heavy Lifting",
+        "title": "Doing the Heavy Lifting",
         "score_size": 64,
         "p1_score_adr": 0x1a7540,
         "p2_score_adr": 0x1a754c
@@ -372,7 +372,7 @@ minigame_score_data = {
     0x01: {
         "game_name": "Rowing Race",
         "target": 3000,
-        "title": "Life is but a dream",
+        "title": "Life Is but a Dream",
         "score_size": 64,
         "p1_score_adr": 0x1cabc4,
         "p2_score_adr": 0x1caf94
@@ -404,7 +404,7 @@ minigame_score_data = {
     0x0d: {
         "game_name": "Obstacle Course",
         "target": 3000,
-        "title": "Who's on top?",
+        "title": "Who's on Top?",
         "score_size": 64,
         "p1_score_adr": 0x83ed0,
         "p2_score_adr": 0x842b0
@@ -722,18 +722,10 @@ lb_team_score_obj = {
     0x08: {
         "game_name": "Camp Crashing",
         "score_size": 64,
-        "t1_p1": 0x97bec,
-        "t1_p2": 0,
-        "t2_p1": 0x97f6c,
-        "t2_p2": 0
-    },
-    0x05: {
-        "game_name": "Shield Bash", // todo: makes sense?
-        "score_size": 64,
-        "t1_p1": 0,
-        "t1_p2": 0,
-        "t2_p1": 0,
-        "t2_p2": 0,
+        "t1_p1": 0x097bec,
+        "t1_p2": 0x097f6c,
+        "t2_p1": 0x0982ec,
+        "t2_p2": 0x09866c
     }
 }
 
