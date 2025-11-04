@@ -137,6 +137,14 @@ function minigame_fully_loaded() {
     return byte(0x06a94d) == 0x01
 }
 
+function is_in_demo() {
+    return dword(0x06a948) == 0x002ee000
+}
+
+function is_not_in_demo() {
+    return dword(0x06a948) == 0x00
+}
+
 ACH_NAME = ["day 1", "day 2", "day 3", "day 4"]
 ACH_PTS  = [5, 5, 10, 10]
 ACH_PRG  = ["progression", "progression", "progression", "win_condition"]
@@ -158,7 +166,7 @@ function day_victory_logic(day) {
     
     cond = 
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Single player
         get_player_count() == 1 &&
         // Mode
@@ -250,7 +258,7 @@ achievement(
     trigger = 
         get_minigame() == 0x07 &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         minigame_not_finished() &&
         (
             (
@@ -278,6 +286,7 @@ minigame_score_data = {
         "game_name": "Shoot & Score",
         "target": 3000,
         "title": "Shot and Scored",
+        "score_size": 64,
         "p1_score_adr": 0x86658,
         "p2_score_adr": 0x86bb0
     },
@@ -285,6 +294,7 @@ minigame_score_data = {
         "game_name": "Recipe Run",
         "target": 2000,
         "title": "Just use beetroot juice",
+        "score_size": 64,
         "p1_score_adr": 0x8d438,
         "p2_score_adr": 0x8d790
     },
@@ -292,6 +302,7 @@ minigame_score_data = {
         "game_name": "Food Feast",
         "target": 2500,
         "title": "The Final Page",
+        "score_size": 64,
         "p1_score_adr": 0x81b7c,
         "p2_score_adr": 0x82a40
     },
@@ -299,6 +310,7 @@ minigame_score_data = {
         "game_name": "Boar Bash",
         "target": 3500,
         "title": "Breakfast is served",
+        "score_size": 64,
         "p1_score_adr": 0x896e4,
         "p2_score_adr": 0x89a2c
     },
@@ -306,6 +318,7 @@ minigame_score_data = {
         "game_name": "Shield Chase",
         "target": 3000,
         "title": "Carry on",
+        "score_size": 64,
         "p1_score_adr": 0x868d0,
         "p2_score_adr": 0x86c1c
     },
@@ -313,6 +326,7 @@ minigame_score_data = {
         "game_name": "Camp Crashing",
         "target": 3000,
         "title": "Just Cleaning up here",
+        "score_size": 64,
         "p1_score_adr": 0x97bec,
         "p2_score_adr": 0x97f6c
     },
@@ -320,6 +334,7 @@ minigame_score_data = {
         "game_name": "Catapult Chase",
         "target": 3000,
         "title": "Do the Heavy Lifting",
+        "score_size": 64,
         "p1_score_adr": 0x1a7540,
         "p2_score_adr": 0x1a754c
     },
@@ -327,6 +342,7 @@ minigame_score_data = {
         "game_name": "Helmet Hoarding",
         "target": 3000,
         "title": "Stash Superstar",
+        "score_size": 64,
         "p1_score_adr": 0x8d670,
         "p2_score_adr": 0x8d9ac
     },
@@ -334,6 +350,7 @@ minigame_score_data = {
         "game_name": "Rowing Race",
         "target": 3000,
         "title": "Life is but a dream",
+        "score_size": 64,
         "p1_score_adr": 0x1cabc4,
         "p2_score_adr": 0x1caf94
     },
@@ -341,6 +358,7 @@ minigame_score_data = {
         "game_name": "Shield Bash",
         "target": 3000,
         "title": "Combo Fodder",
+        "score_size": 64,
         "p1_score_adr": 0,
         "p2_score_adr": 0
     },
@@ -348,6 +366,7 @@ minigame_score_data = {
         "game_name": "Hide & Seek",
         "target": 3000,
         "title": "Lost and Found",
+        "score_size": 32,
         "p1_score_adr": 0x8dce4,
         "p2_score_adr": 0x8dff8
     },
@@ -355,6 +374,7 @@ minigame_score_data = {
         "game_name": "Galley Smash",
         "target": 3000,
         "title": "All at Sea",
+        "score_size": 64,
         "p1_score_adr": 0x1c914c,
         "p2_score_adr": 0x1c94c4
     },
@@ -362,6 +382,7 @@ minigame_score_data = {
         "game_name": "Obstacle Course",
         "target": 3000,
         "title": "Who's on top?",
+        "score_size": 64,
         "p1_score_adr": 0x83ed0,
         "p2_score_adr": 0x842b0
     },
@@ -369,6 +390,7 @@ minigame_score_data = {
         "game_name": "Shoot to Survive",
         "target": 3000,
         "title": "Last Line of Defense",
+        "score_size": 64,
         "p1_score_adr": 0x86658,
         "p2_score_adr": 0x86bb0
     }
@@ -380,42 +402,73 @@ for gameid_key in minigame_score_data {
     ach_title = minigame_score_data[gameid_key]["title"]
     p1_score_adr = minigame_score_data[gameid_key]["p1_score_adr"]
     p2_score_adr = minigame_score_data[gameid_key]["p2_score_adr"]
+    score_size = minigame_score_data[gameid_key]["score_size"]
+
+    if (score_size == 32) {
+        cond = get_minigame() == gameid_key &&
+        minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        (
+        (
+            get_player_count() == 1 &&
+            word(p1_score_adr) > prev(word(p1_score_adr)) &&
+            word(p1_score_adr) >= target
+        ) || 
+        (
+            get_player_count() == 2 &&
+            word(p1_score_adr) > prev(word(p1_score_adr)) &&
+            word(p1_score_adr) >= target
+        ) ||
+        (
+            get_player_count() == 2 &&
+            word(p2_score_adr) > prev(word(p2_score_adr)) &&
+            word(p2_score_adr) >= target
+        )
+        )
+
+    } else if (score_size == 64) {
+        cond = get_minigame() == gameid_key &&
+        minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        (
+        (
+            get_player_count() == 1 &&
+            dword(p1_score_adr) > prev(dword(p1_score_adr)) &&
+            dword(p1_score_adr) >= target
+        ) || 
+        (
+            get_player_count() == 2 &&
+            dword(p1_score_adr) > prev(dword(p1_score_adr)) &&
+            dword(p1_score_adr) >= target
+        ) ||
+        (
+            get_player_count() == 2 &&
+            dword(p2_score_adr) > prev(dword(p2_score_adr)) &&
+            dword(p2_score_adr) >= target
+        )
+        )
+    }
 
     achievement(
     title = ach_title,
     points = 5,
     description = format("Score {0} points in {1}", target, game_name),
     trigger = 
-        get_minigame() == gameid_key &&
-        minigame_not_finished() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
-        (
-        (
-            get_player_count() == 1 &&
-            dword(p1_score_adr) >= prev(dword(p1_score_adr)) &&
-            dword(p1_score_adr) >= target
-        ) || 
-        (
-            get_player_count() == 2 &&
-            dword(p1_score_adr) >= prev(dword(p1_score_adr)) &&
-            dword(p1_score_adr) >= target
-        ) ||
-        (
-            get_player_count() == 2 &&
-            dword(p2_score_adr) >= prev(dword(p2_score_adr)) &&
-            dword(p2_score_adr) >= target
-        )
-        )        
+        cond
     )
 }
-/*
+
 achievement(
     title = "Shoot & Score No Hit",
     points = 0,
     description = "Shoot & Score No Hit",
     trigger = 
         get_minigame() == 0x0b &&
+        minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         (
             (
                 once(countdown_ended()) && never(dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff) &&
@@ -453,6 +506,8 @@ achievement(
     trigger = 
         get_minigame() == 0x02 &&
         minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         (
         (
             get_player_count() == 1 &&
@@ -476,6 +531,8 @@ achievement(
     trigger = 
         get_minigame() == 0x03 &&
         minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         (
         (
             get_player_count() == 1 &&
@@ -502,6 +559,8 @@ achievement(
     trigger = 
         get_minigame() == 0x05 &&
         minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         (
         (
             get_player_count() == 1 &&
@@ -532,6 +591,9 @@ achievement(
     description = "Catapult Chase Win in x sec",
     trigger = 
         get_minigame() == 0x06 &&
+        minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // TODO: Does this make sense? Is it needed?
         never(entered_black_screen_for_loading()) &&
         // Show Trigger badge when tutorial pops up at start
@@ -558,7 +620,6 @@ achievement(
         )
         )        
 )
-*/
 
 // Do the same for other race minigames..
 
@@ -570,7 +631,7 @@ leaderboard(
         get_minigame() == 0x04 &&
         results_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         dword(0x8d670) != 0 && dword(0x8d9ac) != 0
     ),
     cancel = 
@@ -602,7 +663,7 @@ leaderboard(
         get_minigame() == 0x09 &&
         results_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         dword(0x1c914c) != 0 && dword(0x1c94c4) != 0
     ),
     cancel = 
@@ -641,7 +702,7 @@ leaderboard(
         get_minigame() == 0x0a &&
         results_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         word(0x8dce4) != 0 && word(0x8dff8) != 0
     ),
     cancel = 
@@ -672,7 +733,7 @@ leaderboard(
         get_minigame() == 0x0b &&
         results_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         dword(0x86658) != 0 && dword(0x86bb0) != 0
     ),
     cancel = 
@@ -703,7 +764,7 @@ leaderboard(
         get_minigame() == 0x0c &&
         results_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         dword(0x86658) != 0 && dword(0x86bb0) != 0
     ),
     cancel = 
@@ -734,7 +795,7 @@ leaderboard(
         get_minigame() == 0x08 &&
         results_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         dword(0x97bec) != 0 && dword(0x97f6c) != 0
     ),
     cancel = 
@@ -766,7 +827,7 @@ leaderboard(
         get_minigame() == 0x02 &&
         results_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         dword(0x896e4) != 0 && dword(0x89a2c) != 0
     ),
     cancel = 
@@ -797,7 +858,7 @@ leaderboard(
         get_minigame() == 0x00 &&
         results_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         dword(0x8d438) != 0 && dword(0x8d790) != 0
     ),
     cancel = 
@@ -828,7 +889,7 @@ leaderboard(
         get_minigame() == 0x07 &&
         results_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         dword(0x081B7C) != 0 && dword(0x82a40) != 0
     ),
     cancel = 
@@ -859,7 +920,7 @@ leaderboard(
         get_minigame() == 0x03 &&
         tutorial_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         dword(0x0868a4) == 0 && dword(0x086bf0) == 0
     ),
@@ -904,7 +965,7 @@ leaderboard(
         get_minigame() == 0x06 &&
         tutorial_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         word(0x1a7330) == 0 && word(0x1a7528) == 0
     ),
@@ -950,7 +1011,7 @@ leaderboard(
         get_minigame() == 0x01 &&
         tutorial_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         dword(0x1cabc4) == 0 && dword(0x1caf94) == 0
     ),
@@ -996,7 +1057,7 @@ leaderboard(
         get_minigame() == 0x0d &&
         tutorial_just_popped_up() &&
         !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         byte(0x083ec8) == 0 && byte(0x0842a8) == 0
     ),
@@ -1039,7 +1100,7 @@ leaderboard(
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
 // Generic competing in x in x mode
-rich_presence_conditional_display(!is_in_main_menu(), "Competing in {0} in {1} mode",
+rich_presence_conditional_display(!is_in_main_menu() && is_not_in_demo(), "Competing in {0} in {1} mode",
     rich_presence_lookup("Game", get_minigame(), minigame_lookup, fallback="Unknown Minigame?"),
     rich_presence_lookup("Mode", get_mode(), mode_lookup, fallback="Unknown mode?")
 )
