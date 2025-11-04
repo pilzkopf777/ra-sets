@@ -137,6 +137,10 @@ function minigame_fully_loaded() {
     return byte(0x06a94d) == 0x01
 }
 
+function player_quit_minigame() {
+    return byte(0x06a94d) == 0x00 && prev(byte(0x06a94d) == 0x01)
+}
+
 function is_in_demo() {
     return dword(0x06a948) == 0x002ee000
 }
@@ -145,7 +149,7 @@ function is_not_in_demo() {
     return dword(0x06a948) == 0x00
 }
 
-ACH_NAME = ["day 1", "day 2", "day 3", "day 4"]
+ACH_NAME = ["All Warmed Up", "Smashing Performance", "Hot Streak", "Village Champion"]
 ACH_PTS  = [5, 5, 10, 10]
 ACH_PRG  = ["progression", "progression", "progression", "win_condition"]
 
@@ -165,13 +169,13 @@ function day_victory_logic(day) {
     rounds_this_day = DAY_ROUNDS[day - 1]
     
     cond = 
+    (
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Single player
         get_player_count() == 1 &&
         // Mode
         get_mode() == 1 &&
-        (
         // Player is using Asterix
         get_char_id(player=1) == 0 &&
         // Asterix has highest score
@@ -190,6 +194,12 @@ function day_victory_logic(day) {
         )
     ) ||
     (
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        // Single player
+        get_player_count() == 1 &&
+        // Mode
+        get_mode() == 1 &&
         // Player is using Obelix
         get_char_id(player=1) == 1 &&
         // Obelix has highest score
@@ -204,6 +214,12 @@ function day_victory_logic(day) {
         )
     ) ||
     (
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        // Single player
+        get_player_count() == 1 &&
+        // Mode
+        get_mode() == 1 &&
         // Player is using Cacofonix
         get_char_id(player=1) == 2 &&
         // Cacofonix has highest score
@@ -218,6 +234,12 @@ function day_victory_logic(day) {
         )
     ) ||
     (
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        // Single player
+        get_player_count() == 1 &&
+        // Mode
+        get_mode() == 1 &&
         // Player is using Ms Geriatrix
         get_char_id(player=1) == 3 &&
         // Ms Geriatrix has highest score
@@ -692,20 +714,26 @@ lb_team_score_obj = {
     0x07: {
         "game_name": "Food Feast",
         "score_size": 64,
-        "p1_score_adr": 0x81b7c,
-        "p2_score_adr": 0x82a40
+        "t1_p1": 0x081b7c,
+        "t1_p2": 0x080cb8,
+        "t2_p1": 0x082a40,
+        "t2_p2": 0x083904
     },
     0x08: {
         "game_name": "Camp Crashing",
         "score_size": 64,
-        "p1_score_adr": 0x97bec,
-        "p2_score_adr": 0x97f6c
+        "t1_p1": 0x97bec,
+        "t1_p2": 0,
+        "t2_p1": 0x97f6c,
+        "t2_p2": 0
     },
     0x05: {
         "game_name": "Shield Bash", // todo: makes sense?
         "score_size": 64,
-        "p1_score_adr": 0,
-        "p2_score_adr": 0
+        "t1_p1": 0,
+        "t1_p2": 0,
+        "t2_p1": 0,
+        "t2_p2": 0,
     }
 }
 
@@ -768,22 +796,27 @@ for gameid_key in lb_score_obj {
     )
 }
 
-for gameid_key in lb_score_obj {
-    game_name = minigame_score_data[gameid_key]["game_name"]
-    p1_score_adr = minigame_score_data[gameid_key]["p1_score_adr"]
-    p2_score_adr = minigame_score_data[gameid_key]["p2_score_adr"]
+for gameid_key in lb_team_score_obj {
+    game_name = lb_team_score_obj[gameid_key]["game_name"]
+    p1_1_score_adr = lb_team_score_obj[gameid_key]["t1_p1"]
+    p1_2_score_adr = lb_team_score_obj[gameid_key]["t1_p2"]
+    p2_1_score_adr = lb_team_score_obj[gameid_key]["t2_p1"]
+    p2_2_score_adr = lb_team_score_obj[gameid_key]["t2_p2"]
+
+    team_1_score = dword(p1_1_score_adr) + dword(p1_2_score_adr)
+    team_2_score = dword(p2_1_score_adr) + dword(p2_2_score_adr)
 
 
-    start_add_cond = dword(p1_score_adr) != 0 && dword(p2_score_adr) != 0
+    start_add_cond = team_1_score != 0 && team_2_score != 0
     value_add_cond = max_of(
         // TODO: check logic
                             measured(tally(0, always_true())),
                             // P1 alone
-                            measured(dword(p1_score_adr), when=get_player_count() == 3),
+                            measured(team_1_score, when=get_player_count() == 3),
                             // P1 vs 2, P1 won
-                            measured(dword(p1_score_adr), when=get_player_count() == 4 && dword(p1_score_adr) >= dword(p2_score_adr)),
+                            measured(team_1_score, when=get_player_count() == 4 && team_1_score >= team_2_score),
                             // P1 vs 2, P2 won
-                            measured(dword(p2_score_adr), when=get_player_count() == 4 && dword(p1_score_adr) < dword(p2_score_adr))
+                            measured(team_2_score, when=get_player_count() == 4 && team_1_score < team_2_score)
                         )
 
     leaderboard(
@@ -816,6 +849,7 @@ for gameid_key in lb_score_obj {
 
 
 // Time Trials Solo or Duo
+// TODO: Addresses probably bad
 
 leaderboard(
     title = "Fastest Time: Shield Chase",
@@ -834,9 +868,7 @@ leaderboard(
     ),
     cancel = 
     (
-        // Race time was reset -> restart
-        //dword(0x085a68) == 0x01770000 && prev(dword(0x085a68)) < 0x01770000 
-        entered_black_screen_for_loading()
+        player_quit_minigame()
     ),
     submit = 
     (
@@ -882,9 +914,7 @@ leaderboard(
     ),
     cancel = 
     (
-        // Race time was reset -> restart
-        //dword(0x97bd0) == 0x01964000 && prev(dword(0x97bd0)) < 0x01964000
-        entered_black_screen_for_loading()
+        player_quit_minigame()
     ),
     submit = 
     (
@@ -931,8 +961,7 @@ leaderboard(
     ),
     cancel = 
     (
-        // TODO: need a good cancel condition
-        entered_black_screen_for_loading()
+        player_quit_minigame()
     ),
     submit = 
     (
@@ -962,7 +991,6 @@ leaderboard(
 )
 
 
-// TODO: restart does not work
 leaderboard(
     title = "Fastest Time: Obstacle Course",
     description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
@@ -980,11 +1008,7 @@ leaderboard(
     ),
     cancel = 
     (
-        // Race time was reset -> restart
-        //dword(0x084ef0) == 0x01770000 && prev(dword(0x084ef0)) < 0x01770000 
-        // TODO: for all race leaderboards make sure cancel is executed when restarting but not on the same frame as the new start?
-        // OR: since i am using measured -> reset on start condition?
-        entered_black_screen_for_loading()
+        player_quit_minigame()
     ),
     submit = 
     (
@@ -1013,6 +1037,51 @@ leaderboard(
     format = "MILLISECS", lower_is_better = true
 )
 
+leaderboard(
+    title = "Fastest Time: Obstacle Course (Team)",
+    description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
+    start =
+    (   
+        (
+            get_player_count() == 3 || get_player_count() == 4
+        ) &&
+        get_minigame() == 0x0d &&
+        tutorial_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        // Only start the LB if someone has not started the race yet; do not start it on the results
+        byte(0x083ec8) == 0 && byte(0x0842a8) == 0
+    ),
+    cancel = 
+    (
+        player_quit_minigame()
+    ),
+    submit = 
+    (
+        (
+            // p1 alone
+            get_player_count() == 3 &&
+            byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 4 &&
+            byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 4 &&
+            byte(0x0842a8) == 1 && prev(byte(0x0842a8)) == 0
+        )
+    ),
+    value = 
+        never(countdown_starting_again() || dword(0x06b028) != 0) &&
+        unless(is_paused()) &&
+        measured(
+            tally(0, in_game_timer_tick(), in_game_timer_tick())
+        ),
+    format = "MILLISECS", lower_is_better = true
+)
 
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
