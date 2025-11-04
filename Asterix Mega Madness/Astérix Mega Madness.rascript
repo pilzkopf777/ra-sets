@@ -129,6 +129,10 @@ function minigame_not_finished() {
     return dword(0x06b060) == 0x00
 }
 
+function in_loading_screen() {
+    return dword(0x06a92c) == 0x01
+}
+
 ACH_NAME = ["day 1", "day 2", "day 3", "day 4"]
 ACH_PTS  = [5, 5, 10, 10]
 ACH_PRG  = ["progression", "progression", "progression", "win_condition"]
@@ -149,6 +153,8 @@ function day_victory_logic(day) {
     rounds_this_day = DAY_ROUNDS[day - 1]
     
     cond = 
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         // Single player
         get_player_count() == 1 &&
         // Mode
@@ -239,6 +245,8 @@ achievement(
     description = "Get Food Feast Score W/O Poison",
     trigger = 
         get_minigame() == 0x07 &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         minigame_not_finished() &&
         (
             (
@@ -376,23 +384,28 @@ for gameid_key in minigame_score_data {
     trigger = 
         get_minigame() == gameid_key &&
         minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         (
         (
             get_player_count() == 1 &&
-            dword(p1_score_adr) >= prev(dword(p1_score_adr))
+            dword(p1_score_adr) >= prev(dword(p1_score_adr)) &&
+            dword(p1_score_adr) >= target
         ) || 
         (
             get_player_count() == 2 &&
-            dword(p1_score_adr) >= prev(dword(p1_score_adr))
+            dword(p1_score_adr) >= prev(dword(p1_score_adr)) &&
+            dword(p1_score_adr) >= target
         ) ||
         (
             get_player_count() == 2 &&
-            dword(p2_score_adr) >= prev(dword(p2_score_adr))
+            dword(p2_score_adr) >= prev(dword(p2_score_adr)) &&
+            dword(p2_score_adr) >= target
         )
         )        
     )
 }
-
+/*
 achievement(
     title = "Shoot & Score No Hit",
     points = 0,
@@ -425,6 +438,7 @@ achievement(
 // Shoot to Survive: x seconds
 
 // Recipe Run: Score all items
+
 
 target_boar_kills = 45
 
@@ -540,6 +554,7 @@ achievement(
         )
         )        
 )
+*/
 
 // Do the same for other race minigames..
 
@@ -550,6 +565,8 @@ leaderboard(
     (   
         get_minigame() == 0x04 &&
         results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         dword(0x8d670) != 0 && dword(0x8d9ac) != 0
     ),
     cancel = 
@@ -580,6 +597,8 @@ leaderboard(
     (   
         get_minigame() == 0x09 &&
         results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         dword(0x1c914c) != 0 && dword(0x1c94c4) != 0
     ),
     cancel = 
@@ -617,6 +636,8 @@ leaderboard(
     (   
         get_minigame() == 0x0a &&
         results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         word(0x8dce4) != 0 && word(0x8dff8) != 0
     ),
     cancel = 
@@ -646,6 +667,8 @@ leaderboard(
     (   
         get_minigame() == 0x0b &&
         results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         dword(0x86658) != 0 && dword(0x86bb0) != 0
     ),
     cancel = 
@@ -675,6 +698,8 @@ leaderboard(
     (   
         get_minigame() == 0x0c &&
         results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         dword(0x86658) != 0 && dword(0x86bb0) != 0
     ),
     cancel = 
@@ -704,6 +729,8 @@ leaderboard(
     (   
         get_minigame() == 0x08 &&
         results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         dword(0x97bec) != 0 && dword(0x97f6c) != 0
     ),
     cancel = 
@@ -734,6 +761,8 @@ leaderboard(
     (   
         get_minigame() == 0x02 &&
         results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         dword(0x896e4) != 0 && dword(0x89a2c) != 0
     ),
     cancel = 
@@ -763,6 +792,8 @@ leaderboard(
     (   
         get_minigame() == 0x00 &&
         results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         dword(0x8d438) != 0 && dword(0x8d790) != 0
     ),
     cancel = 
@@ -792,6 +823,8 @@ leaderboard(
     (   
         get_minigame() == 0x07 &&
         results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         dword(0x081B7C) != 0 && dword(0x82a40) != 0
     ),
     cancel = 
@@ -821,6 +854,8 @@ leaderboard(
     (   
         get_minigame() == 0x03 &&
         tutorial_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         dword(0x0868a4) == 0 && dword(0x086bf0) == 0
     ),
@@ -864,6 +899,8 @@ leaderboard(
     (   
         get_minigame() == 0x06 &&
         tutorial_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         word(0x1a7330) == 0 && word(0x1a7528) == 0
     ),
@@ -908,6 +945,8 @@ leaderboard(
     (   
         get_minigame() == 0x01 &&
         tutorial_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         dword(0x1cabc4) == 0 && dword(0x1caf94) == 0
     ),
@@ -952,6 +991,8 @@ leaderboard(
     (   
         get_minigame() == 0x0d &&
         tutorial_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
         byte(0x083ec8) == 0 && byte(0x0842a8) == 0
     ),
