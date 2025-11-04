@@ -251,6 +251,7 @@ for day in range(0, 3, 1) {
 
 
 // Food Feast: No poison
+/*
 achievement(
     title = "Food Feast Score W/O Poison",
     points = 0,
@@ -276,9 +277,9 @@ achievement(
                 dword(0x082a40) >= 200 && prev(dword(0x082a40)) < 200 &&
                 disable_when(dword(0x0829fc) != 0 && prev(dword(0x0829fc) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
             )
-        )
-        
+        )       
 )
+*/
 
 // Minigame get score iteration:
 minigame_score_data = {
@@ -396,6 +397,7 @@ minigame_score_data = {
     }
 }
 
+
 for gameid_key in minigame_score_data {
     game_name = minigame_score_data[gameid_key]["game_name"]
     target = minigame_score_data[gameid_key]["target"]
@@ -456,10 +458,14 @@ for gameid_key in minigame_score_data {
     points = 5,
     description = format("Score {0} points in {1}", target, game_name),
     trigger = 
+        (
+            get_player_count() == 1 || get_player_count() == 2
+        ) &&
         cond
     )
 }
 
+/*
 achievement(
     title = "Shoot & Score No Hit",
     points = 0,
@@ -490,12 +496,6 @@ achievement(
             )
         )
 )
-
-
-// Shoot to Survive: x seconds
-
-// Recipe Run: Score all items
-
 
 target_boar_kills = 45
 
@@ -620,303 +620,211 @@ achievement(
         )
         )        
 )
+*/
 
-// Do the same for other race minigames..
+// Leaderboard iteration: Score target
+lb_score_obj = {
+    0x0b: {
+        "game_name": "Shoot & Score",
+        "score_size": 64,
+        "p1_score_adr": 0x86658,
+        "p2_score_adr": 0x86bb0
+    },
+    0x00: {
+        "game_name": "Recipe Run",
+        "score_size": 64,
+        "p1_score_adr": 0x8d438,
+        "p2_score_adr": 0x8d790
+    },
+    0x07: {
+        "game_name": "Food Feast",
+        "score_size": 64,
+        "p1_score_adr": 0x81b7c,
+        "p2_score_adr": 0x82a40
+    },
+    0x02: {
+        "game_name": "Boar Bash",
+        "score_size": 64,
+        "p1_score_adr": 0x896e4,
+        "p2_score_adr": 0x89a2c
+    },
+    0x08: {
+        "game_name": "Camp Crashing",
+        "score_size": 64,
+        "p1_score_adr": 0x97bec,
+        "p2_score_adr": 0x97f6c
+    },
+    0x04: {
+        "game_name": "Helmet Hoarding",
+        "score_size": 64,
+        "p1_score_adr": 0x8d670,
+        "p2_score_adr": 0x8d9ac
+    },
+    0x05: {
+        "game_name": "Shield Bash", // todo: makes sense?
+        "score_size": 64,
+        "p1_score_adr": 0,
+        "p2_score_adr": 0
+    },
+    0x0a: {
+        "game_name": "Hide & Seek",
+        "score_size": 32,
+        "p1_score_adr": 0x8dce4,
+        "p2_score_adr": 0x8dff8
+    },
+    0x09: {
+        "game_name": "Galley Smash",
+        "score_size": 64,
+        "p1_score_adr": 0x1c914c,
+        "p2_score_adr": 0x1c94c4
+    },
+    0x0c: {
+        "game_name": "Shoot to Survive",
+        "score_size": 64,
+        "p1_score_adr": 0x86658,
+        "p2_score_adr": 0x86bb0
+    }
+}
 
-leaderboard(
-    title = "High Score: Helmet Hoarding",
-    description = "Get the highest score in \"Helmet Hoarding\"",
-    start =
-    (   
-        get_minigame() == 0x04 &&
-        results_just_popped_up() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        dword(0x8d670) != 0 && dword(0x8d9ac) != 0
-    ),
-    cancel = 
-    (
-        always_false()
-    ),
-    submit = 
-    (
-        always_true()
-    ),
-    value = max_of(
-                measured(tally(0, always_true())),
-                // P1 alone
-                measured(dword(0x8d670), when=get_player_count() == 1),
-                // P1 vs 2, P1 won
-                measured(dword(0x8d670), when=get_player_count() == 2 && dword(0x8d670) >= dword(0x8d9ac)),
-                // P1 vs 2, P2 won
-                measured(dword(0x8d9ac), when=get_player_count() == 2 && dword(0x8d670) < dword(0x8d9ac))
-            ),
-    format = "VALUE", lower_is_better = false
-)
-
-
-leaderboard(
-    title = "High Score: Galley Smash",
-    description = "Get the highest score in \"Galley Smash\"",
-    start =
-    (   
-        get_minigame() == 0x09 &&
-        results_just_popped_up() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        dword(0x1c914c) != 0 && dword(0x1c94c4) != 0
-    ),
-    cancel = 
-    (
-        always_false()
-    ),
-    submit = 
-    (
-        always_true()
-    ),
-    value = max_of(
-                measured(tally(0, always_true())),
-                // P1 alone
-                measured(dword(0x1c914c), when=get_player_count() == 1),
-                // P1 vs 2, P1 won
-                measured(dword(0x1c914c), when=get_player_count() == 2 && dword(0x1c914c) >= dword(0x1c94c4)),
-                // P1 vs 2, P2 won
-                measured(dword(0x1c94c4), when=get_player_count() == 2 && dword(0x1c914c) < dword(0x1c94c4))
-            ),
-    format = "VALUE", lower_is_better = false
-)
-
-
-// Rowing Race: Beat time
-
-// Shield Bash: Win with 50% HP
-// TODO: Shield Bash cannot really use a LB...?
-
-// Obstacle Course: Beat time
-
-leaderboard(
-    title = "High Score: Hide & Seek",
-    description = "Get the highest score in \"Hide & Seek\"",
-    start =
-    (   
-        get_minigame() == 0x0a &&
-        results_just_popped_up() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        word(0x8dce4) != 0 && word(0x8dff8) != 0
-    ),
-    cancel = 
-    (
-        always_false()
-    ),
-    submit = 
-    (
-        always_true()
-    ),
-    value = max_of(
-                measured(tally(0, always_true())),
-                // P1 alone
-                measured(word(0x8dce4), when=get_player_count() == 1),
-                // P1 vs 2, P1 won
-                measured(word(0x8dce4), when=get_player_count() == 2 && word(0x8dce4) >= word(0x8dff8)),
-                // P1 vs 2, P2 won
-                measured(word(0x8dff8), when=get_player_count() == 2 && word(0x8dce4) < word(0x8dff8))
-            ),
-    format = "VALUE", lower_is_better = false
-)
-
-leaderboard(
-    title = "High Score: Shoot & Score",
-    description = "Get the highest score in \"Shoot & Score\"",
-    start =
-    (   
-        get_minigame() == 0x0b &&
-        results_just_popped_up() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        dword(0x86658) != 0 && dword(0x86bb0) != 0
-    ),
-    cancel = 
-    (
-        always_false()
-    ),
-    submit = 
-    (
-        always_true()
-    ),
-    value = max_of(
-                measured(tally(0, always_true())),
-                // P1 alone
-                measured(dword(0x86658), when=get_player_count() == 1),
-                // P1 vs 2, P1 won
-                measured(dword(0x86658), when=get_player_count() == 2 && dword(0x86658) >= dword(0x86bb0)),
-                // P1 vs 2, P2 won
-                measured(dword(0x86bb0), when=get_player_count() == 2 && dword(0x86658) < dword(0x86bb0))
-            ),
-    format = "VALUE", lower_is_better = false
-)
-
-leaderboard(
-    title = "High Score: Shoot to Survive",
-    description = "Get the highest score in \"Shoot to Survive\"",
-    start =
-    (   
-        get_minigame() == 0x0c &&
-        results_just_popped_up() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        dword(0x86658) != 0 && dword(0x86bb0) != 0
-    ),
-    cancel = 
-    (
-        always_false()
-    ),
-    submit = 
-    (
-        always_true()
-    ),
-    value = max_of(
-                measured(tally(0, always_true())),
-                // P1 alone
-                measured(dword(0x86658), when=get_player_count() == 1),
-                // P1 vs 2, P1 won
-                measured(dword(0x86658), when=get_player_count() == 2 && dword(0x86658) >= dword(0x86bb0)),
-                // P1 vs 2, P2 won
-                measured(dword(0x86bb0), when=get_player_count() == 2 && dword(0x86658) < dword(0x86bb0))
-            ),
-    format = "VALUE", lower_is_better = false
-)
-
-leaderboard(
-    title = "High Score: Camp Crashing",
-    description = "Get the highest score in \"Camp Crashing\"",
-    start =
-    (   
-        get_minigame() == 0x08 &&
-        results_just_popped_up() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        dword(0x97bec) != 0 && dword(0x97f6c) != 0
-    ),
-    cancel = 
-    (
-        always_false()
-    ),
-    submit = 
-    (
-        always_true()
-    ),
-    value = max_of(
-                measured(tally(0, always_true())),
-                // P1 alone
-                measured(dword(0x97bec), when=get_player_count() == 1),
-                // P1 vs 2, P1 won
-                measured(dword(0x97bec), when=get_player_count() == 2 && dword(0x97bec) >= dword(0x97f6c)),
-                // P1 vs 2, P2 won
-                measured(dword(0x97f6c), when=get_player_count() == 2 && dword(0x97bec) < dword(0x97f6c))
-            ),
-    format = "VALUE", lower_is_better = false
-)
+// Leaderboard iteration: Score target
+// These 3 plus Obstacle course as solo
+lb_team_score_obj = {
+    0x07: {
+        "game_name": "Food Feast",
+        "score_size": 64,
+        "p1_score_adr": 0x81b7c,
+        "p2_score_adr": 0x82a40
+    },
+    0x08: {
+        "game_name": "Camp Crashing",
+        "score_size": 64,
+        "p1_score_adr": 0x97bec,
+        "p2_score_adr": 0x97f6c
+    },
+    0x05: {
+        "game_name": "Shield Bash", // todo: makes sense?
+        "score_size": 64,
+        "p1_score_adr": 0,
+        "p2_score_adr": 0
+    }
+}
 
 
-leaderboard(
-    title = "High Score: Boar Bash",
-    description = "Get the highest score in \"Boar Bash\"",
-    start =
-    (   
-        get_minigame() == 0x02 &&
-        results_just_popped_up() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        dword(0x896e4) != 0 && dword(0x89a2c) != 0
-    ),
-    cancel = 
-    (
-        always_false()
-    ),
-    submit = 
-    (
-        always_true()
-    ),
-    value = max_of(
-                measured(tally(0, always_true())),
-                // P1 alone
-                measured(dword(0x896e4), when=get_player_count() == 1),
-                // P1 vs 2, P1 won
-                measured(dword(0x896e4), when=get_player_count() == 2 && dword(0x896e4) >= dword(0x89a2c)),
-                // P1 vs 2, P2 won
-                measured(dword(0x89a2c), when=get_player_count() == 2 && dword(0x896e4) < dword(0x89a2c))
-            ),
-    format = "VALUE", lower_is_better = false
-)
+for gameid_key in lb_score_obj {
+    game_name = minigame_score_data[gameid_key]["game_name"]
+    p1_score_adr = minigame_score_data[gameid_key]["p1_score_adr"]
+    p2_score_adr = minigame_score_data[gameid_key]["p2_score_adr"]
+    score_size = minigame_score_data[gameid_key]["score_size"]
 
-leaderboard(
-    title = "High Score: Recipe Run",
-    description = "Get the highest score in \"Recipe Run\"",
-    start =
-    (   
-        get_minigame() == 0x00 &&
-        results_just_popped_up() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        dword(0x8d438) != 0 && dword(0x8d790) != 0
-    ),
-    cancel = 
-    (
-        always_false()
-    ),
-    submit = 
-    (
-        always_true()
-    ),
-    value = max_of(
-                measured(tally(0, always_true())),
-                // P1 alone
-                measured(dword(0x8d438), when=get_player_count() == 1),
-                // P1 vs 2, P1 won
-                measured(dword(0x8d438), when=get_player_count() == 2 && dword(0x8d438) >= dword(0x8d790)),
-                // P1 vs 2, P2 won
-                measured(dword(0x8d790), when=get_player_count() == 2 && dword(0x8d438) < dword(0x8d790))
-            ),
-    format = "VALUE", lower_is_better = false
-)
+    if (score_size == 32) {
+        start_add_cond = word(p1_score_adr) != 0 && word(p2_score_adr) != 0
+        value_add_cond = max_of(
+                             measured(tally(0, always_true())),
+                             // P1 alone
+                             measured(word(p1_score_adr), when=get_player_count() == 1),
+                             // P1 vs 2, P1 won
+                             measured(word(p1_score_adr), when=get_player_count() == 2 && word(p1_score_adr) >= word(p2_score_adr)),
+                             // P1 vs 2, P2 won
+                             measured(word(p2_score_adr), when=get_player_count() == 2 && word(p1_score_adr) < word(p2_score_adr))
+                         )
+    }
+    else if (score_size == 64) {
+        start_add_cond = dword(p1_score_adr) != 0 && dword(p2_score_adr) != 0
+        value_add_cond = max_of(
+                             measured(tally(0, always_true())),
+                             // P1 alone
+                             measured(dword(p1_score_adr), when=get_player_count() == 1),
+                             // P1 vs 2, P1 won
+                             measured(dword(p1_score_adr), when=get_player_count() == 2 && dword(p1_score_adr) >= dword(p2_score_adr)),
+                             // P1 vs 2, P2 won
+                             measured(dword(p2_score_adr), when=get_player_count() == 2 && dword(p1_score_adr) < dword(p2_score_adr))
+                         )
+    }
 
-leaderboard(
-    title = "High Score: Food Feast",
-    description = "Get the highest score in \"Food Feast\"",
-    start =
-    (   
-        get_minigame() == 0x07 &&
-        results_just_popped_up() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        dword(0x081B7C) != 0 && dword(0x82a40) != 0
-    ),
-    cancel = 
-    (
-        always_false()
-    ),
-    submit = 
-    (
-        always_true()
-    ),
-    value = max_of(
-                measured(tally(0, always_true())),
-                // P1 alone
-                measured(dword(0x081B7C), when=get_player_count() == 1),
-                // P1 vs 2, P1 won
-                measured(dword(0x081B7C), when=get_player_count() == 2 && dword(0x081B7C) >= dword(0x082A40)),
-                // P1 vs 2, P2 won
-                measured(dword(0x082A40), when=get_player_count() == 2 && dword(0x081B7C) < dword(0x082A40))
-            ),
-    format = "VALUE", lower_is_better = false
-)
+    leaderboard(
+        title = format("High Score: {0}", game_name),
+        description = format("Get the highest score in \"{0}\"", game_name),
+        start =
+        (   
+            (
+            get_player_count() == 1 || get_player_count() == 2
+            ) &&
+            get_minigame() == gameid_key &&
+            results_just_popped_up() &&
+            !is_in_main_menu() &&
+            !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+            start_add_cond
+        ),
+        cancel = 
+        (
+            always_false()
+        ),
+        submit = 
+        (
+            always_true()
+        ),
+        value = value_add_cond,
+        format = "VALUE", lower_is_better = false
+    )
+}
+
+for gameid_key in lb_score_obj {
+    game_name = minigame_score_data[gameid_key]["game_name"]
+    p1_score_adr = minigame_score_data[gameid_key]["p1_score_adr"]
+    p2_score_adr = minigame_score_data[gameid_key]["p2_score_adr"]
+
+
+    start_add_cond = dword(p1_score_adr) != 0 && dword(p2_score_adr) != 0
+    value_add_cond = max_of(
+        // TODO: check logic
+                            measured(tally(0, always_true())),
+                            // P1 alone
+                            measured(dword(p1_score_adr), when=get_player_count() == 3),
+                            // P1 vs 2, P1 won
+                            measured(dword(p1_score_adr), when=get_player_count() == 4 && dword(p1_score_adr) >= dword(p2_score_adr)),
+                            // P1 vs 2, P2 won
+                            measured(dword(p2_score_adr), when=get_player_count() == 4 && dword(p1_score_adr) < dword(p2_score_adr))
+                        )
+
+    leaderboard(
+        title = format("High Score: {0} (Team)", game_name),
+        description = format("Get the highest score in \"{0}\"", game_name),
+        start =
+        (   
+            (
+                get_player_count() == 3 || get_player_count() == 4
+            ) &&
+            get_minigame() == gameid_key &&
+            results_just_popped_up() &&
+            !is_in_main_menu() &&
+            !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+            start_add_cond
+        ),
+        cancel = 
+        (
+            always_false()
+        ),
+        submit = 
+        (
+            always_true()
+        ),
+        value = value_add_cond,
+        format = "VALUE", lower_is_better = false
+    )
+}
+
+
+
+// Time Trials Solo or Duo
 
 leaderboard(
     title = "Fastest Time: Shield Chase",
     description = "Reach the goal as quickly as possible in \"Shield Chase\"",
     start =
     (   
+        (
+            get_player_count() == 1 || get_player_count() == 2
+        ) &&
         get_minigame() == 0x03 &&
         tutorial_just_popped_up() &&
         !is_in_main_menu() &&
@@ -962,6 +870,9 @@ leaderboard(
     description = "Reach the goal as quickly as possible in \"Catapult Chase\"",
     start =
     (   
+        (
+            get_player_count() == 1 || get_player_count() == 2
+        ) &&
         get_minigame() == 0x06 &&
         tutorial_just_popped_up() &&
         !is_in_main_menu() &&
@@ -1008,6 +919,9 @@ leaderboard(
     description = "Reach the goal as quickly as possible in \"Rowing Race\"",
     start =
     (   
+        (
+            get_player_count() == 1 || get_player_count() == 2
+        ) &&
         get_minigame() == 0x01 &&
         tutorial_just_popped_up() &&
         !is_in_main_menu() &&
@@ -1054,6 +968,9 @@ leaderboard(
     description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
     start =
     (   
+        (
+            get_player_count() == 1 || get_player_count() == 2
+        ) &&
         get_minigame() == 0x0d &&
         tutorial_just_popped_up() &&
         !is_in_main_menu() &&
