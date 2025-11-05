@@ -63,8 +63,8 @@ function is_in_main_menu() {
     return byte(0x0760C0) == 0x17 || byte(0x0760C0) == 0x00 || byte(0x0760C0) == 0xbe //|| dword(0x090a1c) == 0
 }
 
-function get_mode() {
-    return byte(0x1fef76)
+function is_in_mega_madness() {
+    return byte(0x1fef76) == 0x01
 }
 
 mode_lookup = {
@@ -172,10 +172,10 @@ function day_victory_logic(day) {
     (
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        // Single player
-        get_player_count() == 1 &&
+        // Single player - check for P1
+        get_player_count() <= 2 &&
         // Mode
-        get_mode() == 1 &&
+        is_in_mega_madness() &&
         // Player is using Asterix
         get_char_id(player=1) == 0 &&
         // Asterix has highest score
@@ -196,10 +196,10 @@ function day_victory_logic(day) {
     (
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        // Single player
-        get_player_count() == 1 &&
+        // Single player - check for P1
+        get_player_count() <= 2 &&
         // Mode
-        get_mode() == 1 &&
+        is_in_mega_madness() &&
         // Player is using Obelix
         get_char_id(player=1) == 1 &&
         // Obelix has highest score
@@ -216,10 +216,10 @@ function day_victory_logic(day) {
     (
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        // Single player
-        get_player_count() == 1 &&
+        // Single player - check for P1
+        get_player_count() <= 2 &&
         // Mode
-        get_mode() == 1 &&
+        is_in_mega_madness() &&
         // Player is using Cacofonix
         get_char_id(player=1) == 2 &&
         // Cacofonix has highest score
@@ -236,12 +236,97 @@ function day_victory_logic(day) {
     (
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        // Single player
-        get_player_count() == 1 &&
+        // Single player - check for P1
+        get_player_count() <= 2 &&
         // Mode
-        get_mode() == 1 &&
+        is_in_mega_madness() &&
         // Player is using Ms Geriatrix
         get_char_id(player=1) == 3 &&
+        // Ms Geriatrix has highest score
+        ms_geriatrix_total - asterix_total >= 0 && ms_geriatrix_total - obelix_total >= 0 && ms_geriatrix_total - cacofonix_total >= 0 &&
+        ms_geriatrix_total - asterix_total < 0x80000000 && ms_geriatrix_total - obelix_total < 0x80000000 && ms_geriatrix_total - cacofonix_total < 0x80000000 && 
+        (
+            // Final round was played, at least one player scored a point
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+        )
+    ) ||
+    // But if it's Coop, Player 2 can also win!
+    (
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        // Coop - check for P2
+        get_player_count() == 2 &&
+        // Mode
+        is_in_mega_madness() &&
+        // Player is using Asterix
+        get_char_id(player=2) == 0 &&
+        // Asterix has highest score
+        // Possible scenarios with this logic:
+        // -> If A won, then A=60 and B=50 -> A-B == 60-50=10 -> A_result > 0
+        // -> If B won, then A=30 and B=60 -> A-B == 30-60=-30 -> A_result > 0?
+        // B won should fail/be false -> Check if left-most bit is 0 == Is result negative? For that logic also check == 0 though 
+        asterix_total - obelix_total >= 0 && asterix_total - cacofonix_total >= 0 && asterix_total - ms_geriatrix_total >= 0 &&
+        asterix_total - obelix_total < 0x80000000 && asterix_total - cacofonix_total < 0x80000000 && asterix_total - ms_geriatrix_total < 0x80000000 && 
+        (
+            // Final round was played, at least one player scored a point
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+        )
+    ) ||
+    (
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        // Coop - check for P2
+        get_player_count() == 2 &&
+        // Mode
+        is_in_mega_madness() &&
+        // Player is using Obelix
+        get_char_id(player=2) == 1 &&
+        // Obelix has highest score
+        obelix_total - asterix_total >= 0 && obelix_total - cacofonix_total >= 0 && obelix_total - ms_geriatrix_total >= 0 &&
+        obelix_total - asterix_total < 0x80000000 && obelix_total - cacofonix_total < 0x80000000 && obelix_total - ms_geriatrix_total < 0x80000000 && 
+        (
+            // Final round was played, at least one player scored a point
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+        )
+    ) ||
+    (
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        // Coop - check for P2
+        get_player_count() == 2 &&
+        // Mode
+        is_in_mega_madness() &&
+        // Player is using Cacofonix
+        get_char_id(player=2) == 2 &&
+        // Cacofonix has highest score
+        cacofonix_total - asterix_total >= 0 && cacofonix_total - obelix_total >= 0 && cacofonix_total - ms_geriatrix_total >= 0 &&
+        cacofonix_total - asterix_total < 0x80000000 && cacofonix_total - obelix_total < 0x80000000 && cacofonix_total - ms_geriatrix_total < 0x80000000 && 
+        (
+            // Final round was played, at least one player scored a point
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+        )
+    ) ||
+    (
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        // Coop - check for P2
+        get_player_count() == 2 &&
+        // Mode
+        is_in_mega_madness() &&
+        // Player is using Ms Geriatrix
+        get_char_id(player=2) == 3 &&
         // Ms Geriatrix has highest score
         ms_geriatrix_total - asterix_total >= 0 && ms_geriatrix_total - obelix_total >= 0 && ms_geriatrix_total - cacofonix_total >= 0 &&
         ms_geriatrix_total - asterix_total < 0x80000000 && ms_geriatrix_total - obelix_total < 0x80000000 && ms_geriatrix_total - cacofonix_total < 0x80000000 && 
@@ -263,45 +348,11 @@ for day in range(0, 3, 1) {
     title = ACH_NAME[day],
     points = ACH_PTS[day],
     type = ACH_PRG[day],
-    description = format("Reach first place in day {0} of Mega Madness mode", day + 1),
+    description = format("Finish in first place on day {0} of Mega Madness mode", day + 1),
     trigger = 
         day_victory_logic(day + 1)
     )
 }
-
-// Shield Chase: Beat time
-
-
-// Food Feast: No poison
-/*
-achievement(
-    title = "Food Feast Score W/O Poison",
-    points = 0,
-    description = "Get Food Feast Score W/O Poison",
-    trigger = 
-        get_minigame() == 0x07 &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        minigame_not_finished() &&
-        (
-            (
-                get_player_count() == 1 &&
-                dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
-                disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
-            ) ||
-            (
-                get_player_count() == 2 &&
-                dword(0x081b7c) >= 200 && prev(dword(0x081b7c)) < 200 &&
-                disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
-            ) ||
-            (
-                get_player_count() == 2 &&
-                dword(0x082a40) >= 200 && prev(dword(0x082a40)) < 200 &&
-                disable_when(dword(0x0829fc) != 0 && prev(dword(0x0829fc) == 0), until=dword(0x080cbc) == 0x008ca000 && prev(dword(0x080cbc) != 0x008ca000))
-            )
-        )       
-)
-*/
 
 // Minigame get score iteration:
 minigame_score_data = {
@@ -479,163 +530,6 @@ for gameid_key in minigame_score_data {
     )
 }
 
-/*
-achievement(
-    title = "Shoot & Score No Hit",
-    points = 0,
-    description = "Shoot & Score No Hit",
-    trigger = 
-        get_minigame() == 0x0b &&
-        minigame_not_finished() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        (
-            (
-                once(countdown_ended()) && never(dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff) &&
-                get_player_count() == 1 &&
-                trigger_when(dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000) &&
-                disable_when(dword(0x08665c) != 0 && prev(dword(0x08665c) == 0), until=countdown_starting_again())
-            ) ||
-            (
-                once(countdown_ended()) && never(dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff) &&
-                get_player_count() == 2 &&
-                trigger_when(dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000) &&
-                disable_when(dword(0x08665c) != 0 && prev(dword(0x08665c) == 0), until=countdown_starting_again())
-            ) ||
-            (
-                once(countdown_ended()) && never(dword(0x06b028) == 0x7fffffff && prev(dword(0x06b028)) != 0x7fffffff) &&
-                get_player_count() == 2 &&
-                trigger_when(dword(0x084ff0) == 0x00bd1000 && prev(dword(0x084ff0)) != 0x00bd1000) &&
-                disable_when(dword(0x086bb4) != 0 && prev(dword(0x086bb4) == 0), until=countdown_starting_again())
-            )
-        )
-)
-
-target_boar_kills = 45
-
-achievement(
-    title = "Boar Bash 45 kills",
-    points = 0,
-    description = format("Boar Bash {0} kills", target_boar_kills),
-    trigger = 
-        get_minigame() == 0x02 &&
-        minigame_not_finished() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        (
-        (
-            get_player_count() == 1 &&
-            word(0x896f2) >= target_boar_kills && prev(word(0x896f2)) < target_boar_kills
-        ) || 
-        (
-            get_player_count() == 2 &&
-            word(0x896f2) >= target_boar_kills && prev(word(0x896f2)) < target_boar_kills
-        ) ||
-        (
-            get_player_count() == 2 &&
-            word(0x89a3a) >= target_boar_kills && prev(word(0x89a3a)) < target_boar_kills
-        )
-        )        
-)
-
-achievement(
-    title = "Shield Chase Both potions",
-    points = 0,
-    description = "Shield Chase Both potions",
-    trigger = 
-        get_minigame() == 0x03 &&
-        minigame_not_finished() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        (
-        (
-            get_player_count() == 1 &&
-            always_true()
-            // p1 potion 1 and 2 active
-        ) || 
-        (
-            get_player_count() == 2 &&
-            always_true()
-            // p1 potion 1 and 2 active
-        ) ||
-        (
-            get_player_count() == 2 &&
-            always_true()
-            // p2 potion 1 and 2 active
-        )
-        )        
-)
-
-achievement(
-    title = "Shield Bash win with 50%",
-    points = 0,
-    description = "Shield Bash win with 50% against CPU opponent",
-    trigger = 
-        get_minigame() == 0x05 &&
-        minigame_not_finished() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        (
-        (
-            get_player_count() == 1 &&
-            // P1 HP must be over 50%
-            // P2 HP must be 0
-            always_true()
-        ) || 
-        (
-            get_player_count() == 2 &&
-            // One player must be CPU -> P1 human
-            // P1 HP must be over 50%
-            // P2 HP must be 0
-            always_true()
-        ) ||
-        (
-            get_player_count() == 2 &&
-            // One player must be CPU -> P2 human
-            // P2 HP must be over 50%
-            // P1 HP must be 0
-            always_true()
-        )
-        )        
-)
-
-achievement(
-    title = "Catapult Chase Win in x sec",
-    points = 0,
-    description = "Catapult Chase Win in x sec",
-    trigger = 
-        get_minigame() == 0x06 &&
-        minigame_not_finished() &&
-        !is_in_main_menu() &&
-        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        // TODO: Does this make sense? Is it needed?
-        never(entered_black_screen_for_loading()) &&
-        // Show Trigger badge when tutorial pops up at start
-        once(results_just_popped_up()) &&
-        dword(0x1a7330) == 0 && dword(0x1a754c) == 0 &&
-        // Trigger/Disable when time is up -> minigame time limit hit certain time
-        // Here: Disable achievement if certain time spent
-        dword(0x86d00) > 0x100 &&
-        (
-        (
-            // p1 alone
-            get_player_count() == 1 &&
-            trigger_when(dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2)
-        ) ||
-        (
-            // p1 first
-            get_player_count() == 2 &&
-            trigger_when(dword(0x1a7330) == 3 && prev(dword(0x1a7330)) == 2)
-        ) ||
-        (
-            // p2 first
-            get_player_count() == 2 &&
-            trigger_when(dword(0x1a7528) == 3 && prev(dword(0x1a7528)) == 2)
-        )
-        )        
-)
-*/
-
 // Leaderboard iteration: Score target
 lb_score_obj = {
     0x0b: {
@@ -673,12 +567,6 @@ lb_score_obj = {
         "score_size": 64,
         "p1_score_adr": 0x8d670,
         "p2_score_adr": 0x8d9ac
-    },
-    0x05: {
-        "game_name": "Shield Bash", // todo: makes sense?
-        "score_size": 64,
-        "p1_score_adr": 0,
-        "p2_score_adr": 0
     },
     0x0a: {
         "game_name": "Hide & Seek",
@@ -833,8 +721,6 @@ for gameid_key in lb_team_score_obj {
 
 
 // Time Trials Solo or Duo
-// TODO: Addresses probably bad
-
 leaderboard(
     title = "Fastest Time: Shield Chase",
     description = "Reach the goal as quickly as possible in \"Shield Chase\"",
@@ -927,7 +813,6 @@ leaderboard(
     format = "MILLISECS", lower_is_better = true
 )
 
-// TODO: Restart after winning bugged?
 leaderboard(
     title = "Fastest Time: Rowing Race",
     description = "Reach the goal as quickly as possible in \"Rowing Race\"",
@@ -1069,10 +954,19 @@ leaderboard(
 
 // rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
-// Generic competing in x in x mode
-rich_presence_conditional_display(!is_in_main_menu() && is_not_in_demo(), "Competing in {0} in {1} mode",
-    rich_presence_lookup("Game", get_minigame(), minigame_lookup, fallback="Unknown Minigame?"),
-    rich_presence_lookup("Mode", get_mode(), mode_lookup, fallback="Unknown mode?")
+// Generic competing in x in Mega Madness mode
+rich_presence_conditional_display(!is_in_main_menu() && is_not_in_demo() && is_in_mega_madness(), "Competing in {0} in Mega Madness mode",
+    rich_presence_lookup("Game", get_minigame(), minigame_lookup, fallback="Unknown Minigame?")
+)
+
+// Not Mega Madness? What if in a team?
+rich_presence_conditional_display(!is_in_main_menu() && is_not_in_demo() && get_player_count() > 2, "Competing in {0} in Team Play mode",
+    rich_presence_lookup("Game", get_minigame(), minigame_lookup, fallback="Unknown Minigame?")
+)
+
+// Neither? Practice Mode
+rich_presence_conditional_display(!is_in_main_menu() && is_not_in_demo(), "Competing in {0} in Practice mode",
+    rich_presence_lookup("Game", get_minigame(), minigame_lookup, fallback="Unknown Minigame?")
 )
 
 rich_presence_display("In the Main Menu")
