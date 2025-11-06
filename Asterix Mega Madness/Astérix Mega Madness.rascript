@@ -187,10 +187,10 @@ function day_victory_logic(day) {
         asterix_total - obelix_total < 0x80000000 && asterix_total - cacofonix_total < 0x80000000 && asterix_total - ms_geriatrix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
-            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Asterix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Obelix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Cacofonix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") == 0)
         )
     ) ||
     (
@@ -207,10 +207,10 @@ function day_victory_logic(day) {
         obelix_total - asterix_total < 0x80000000 && obelix_total - cacofonix_total < 0x80000000 && obelix_total - ms_geriatrix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
-            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Asterix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Obelix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Cacofonix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") == 0)
         )
     ) ||
     (
@@ -227,10 +227,10 @@ function day_victory_logic(day) {
         cacofonix_total - asterix_total < 0x80000000 && cacofonix_total - obelix_total < 0x80000000 && cacofonix_total - ms_geriatrix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
-            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Asterix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Obelix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Cacofonix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") == 0)
         )
     ) ||
     (
@@ -247,10 +247,10 @@ function day_victory_logic(day) {
         ms_geriatrix_total - asterix_total < 0x80000000 && ms_geriatrix_total - obelix_total < 0x80000000 && ms_geriatrix_total - cacofonix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
-            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Asterix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Obelix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Cacofonix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") == 0)
         )
     ) ||
     // But if it's Coop, Player 2 can also win!
@@ -272,10 +272,10 @@ function day_victory_logic(day) {
         asterix_total - obelix_total < 0x80000000 && asterix_total - cacofonix_total < 0x80000000 && asterix_total - ms_geriatrix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
-            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Asterix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Obelix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Cacofonix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") == 0)
         )
     ) ||
     (
@@ -292,10 +292,10 @@ function day_victory_logic(day) {
         obelix_total - asterix_total < 0x80000000 && obelix_total - cacofonix_total < 0x80000000 && obelix_total - ms_geriatrix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
-            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Asterix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Obelix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Cacofonix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") == 0)
         )
     ) ||
     (
@@ -312,10 +312,10 @@ function day_victory_logic(day) {
         cacofonix_total - asterix_total < 0x80000000 && cacofonix_total - obelix_total < 0x80000000 && cacofonix_total - ms_geriatrix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
-            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Asterix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Obelix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Cacofonix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") == 0)
         )
     ) ||
     (
@@ -332,10 +332,10 @@ function day_victory_logic(day) {
         ms_geriatrix_total - asterix_total < 0x80000000 && ms_geriatrix_total - obelix_total < 0x80000000 && ms_geriatrix_total - cacofonix_total < 0x80000000 && 
         (
             // Final round was played, at least one player scored a point
-            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 ||
-            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0
+            get_mega_madness_score(day, rounds_this_day, "Asterix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Asterix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Obelix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Obelix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Cacofonix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Cacofonix") == 0) ||
+            get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") > 0 && prev(get_mega_madness_score(day, rounds_this_day, "Mrs Geriatrix") == 0)
         )
     )
 
