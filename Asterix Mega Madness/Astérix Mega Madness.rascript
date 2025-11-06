@@ -366,7 +366,7 @@ target_boar_kills = 45
 achievement(
     title = "No Boars Were Harmed in the Making of This Achievement",
     points = 10,
-    description = format("In Boar Bash, defeat {0} boars", target_boar_kills),
+    description = format("In \"Boar Bash\", defeat {0} boars", target_boar_kills),
     trigger = 
         get_minigame() == 0x02 &&
         minigame_not_finished() &&
@@ -704,6 +704,18 @@ achievement(
                 // ...and the right-side player HP being 0
                 trigger_when(shield_bash_player_died("right"))
             ) || (
+                // Two players - P2 checks right
+                get_player_count() == 2 &&
+                // P2 character must be on the right side
+                get_char_id(player=2) == dword(0x08d3d4) &&
+                // Opponent cannot be P1
+                get_char_id(player=1) != dword(0x08cd64) &&
+                // ...it's all about the right-side player HP being high...
+                disable_when(shield_bash_player_took_half_dmg("right"), until=countdown_starting_again() || dword(0x06b028) != 0) &&
+                // ...and the light-side player HP being 0
+                trigger_when(shield_bash_player_died("left"))
+            ) ||
+            (
                 // One team in Coop
                 get_player_count() == 3 &&
                 // Team is always on left side, no check needed
