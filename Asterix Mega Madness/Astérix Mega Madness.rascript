@@ -354,6 +354,164 @@ for day in range(0, 3, 1) {
     )
 }
 
+
+// Variety Showcase - a bunch of achievements with special challenges tied to them:
+// TODO: Let's roll
+target_boar_kills = 45
+
+achievement(
+    title = "No Boars Were Harmed in the Making of This Achievement",
+    points = 10,
+    description = format("In Boar Bash, defeat {0} boars", target_boar_kills),
+    trigger = 
+        get_minigame() == 0x02 &&
+        minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        (
+        (
+            get_player_count() == 1 &&
+            word(0x896f2) >= target_boar_kills && prev(word(0x896f2)) < target_boar_kills
+        ) || 
+        (
+            get_player_count() == 2 &&
+            word(0x896f2) >= target_boar_kills && prev(word(0x896f2)) < target_boar_kills
+        ) ||
+        (
+            get_player_count() == 2 &&
+            word(0x89a3a) >= target_boar_kills && prev(word(0x89a3a)) < target_boar_kills
+        )
+        )        
+)
+
+
+achievement(
+    title = "Gaulish Defence System",
+    points = 5,
+    description = "Complete a round of Shoot & Score without getting hit",
+    trigger = 
+        get_minigame() == 0x0b &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        never(countdown_starting_again()) &&
+        (
+        (
+            get_player_count() <= 2 &&
+            // Game just ended
+            // Time limit is not the most reliable, so...
+            // Results must show, players must have scored any pts
+            // The latter checks if the game was finished (you need to destroy stuff and score points to even meet the achievement requirement..)
+            trigger_when(results_just_popped_up() && dword(0x086658) != 0) &&
+            // Player hit? Disable
+            disable_when(dword(0x08665c) != 0 && prev(dword(0x08665c) == 0))
+        ) || 
+        (
+            get_player_count() == 2 &&
+            // Game just ended
+            trigger_when(results_just_popped_up() && dword(0x086bb0) != 0) &&
+            // Player hit? Disable
+            disable_when(dword(0x086bb4) != 0 && prev(dword(0x086bb4) == 0))
+        )
+        )        
+)
+
+food_target = 20
+
+achievement(
+    title = "I'll Eat Almost Anything",
+    points = 10,
+    description = format("Eat {0} things in a round of Food Feast", food_target),
+    trigger = 
+        get_minigame() == 0x07 &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        never(countdown_starting_again()) &&
+        (
+            // Solo or Team, P1
+        (
+            get_player_count() <= 2 &&
+            // Game just ended
+            // Time limit is not the most reliable, so...
+            // Results must show, players must have scored any pts
+            // The latter checks if the game was finished (you need to destroy stuff and score points to even meet the achievement requirement..)
+            results_just_popped_up() && dword(0x081b7c) != 0 &&
+            (
+            // Eat x items
+            repeated(food_target, dword(0x081b7c) > prev(dword(0x081b7c)))
+            // Player poisoned? Disable
+            //disable_when(dword(0x081b38) != 0 && prev(dword(0x081b38) == 0))
+            )
+        ) || 
+            // Solo or Team, P2
+        (
+            get_player_count() == 2 &&
+            // Game just ended
+            results_just_popped_up() && dword(0x082a40) != 0 &&
+            (
+            // Eat x items
+            repeated(food_target, dword(0x082a40) > prev(dword(0x082a40)))
+            // Player poisoned? Disable
+            //disable_when(dword(0x0829fc) != 0 && prev(dword(0x0829fc) == 0))
+            )
+        ) || 
+            // Team mode, P1
+        (
+            get_player_count() == 3 &&
+            results_just_popped_up() && dword(0x081b7c) != 0 &&
+            (
+            repeated(food_target, dword(0x081b7c) > prev(dword(0x081b7c)))
+            )
+        ) || 
+            // Team mode, P2
+        (
+            get_player_count() == 3 &&
+            results_just_popped_up() && dword(0x080cb8) != 0 &&
+            (
+            repeated(food_target, dword(0x080cb8) > prev(dword(0x080cb8)))
+            )
+        ) ||
+            // 4 Player P1
+        (
+            get_player_count() == 4 &&
+            results_just_popped_up() && dword(0x081b7c) != 0 &&
+            (
+            repeated(food_target, dword(0x081b7c) > prev(dword(0x081b7c)))
+            )
+        ) ||
+            // 4 Player P2
+        (
+            get_player_count() == 4 &&
+            results_just_popped_up() && dword(0x080cb8) != 0 &&
+            (
+            repeated(food_target, dword(0x080cb8) > prev(dword(0x080cb8)))
+            )
+        ) ||
+            // 4 Player P3
+        (
+            get_player_count() == 4 &&
+            results_just_popped_up() && dword(0x082a40) != 0 &&
+            (
+            repeated(food_target, dword(0x082a40) > prev(dword(0x082a40)))
+            )
+        ) ||
+            // 4 Player P4
+        (
+            get_player_count() == 4 &&
+            results_just_popped_up() && dword(0x083904) != 0 &&
+            (
+            repeated(food_target, dword(0x083904) > prev(dword(0x083904)))
+            )
+        )
+        )        
+)
+
+
+
+
+
+
+
+
 // Minigame get score iteration:
 minigame_score_data = {
     0x0b: {
