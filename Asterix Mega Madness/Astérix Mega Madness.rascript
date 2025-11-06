@@ -546,7 +546,189 @@ achievement(
     )
 )
 
+time_limit = 9500
 
+achievement(
+    title = "Making Rounds",
+    points = 5,
+    description = "Reach the goal in Catapult Chase in 1:35.00 or less",
+    trigger = 
+        get_minigame() == 0x06 &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+
+        // unless(is_paused()) &&
+        disable_when(
+            // player took too long
+            tally(time_limit, in_game_timer_tick_while_unpaused_only(), in_game_timer_tick_while_unpaused_only()),
+            // game restarted, reset hits from time limit
+            until=countdown_starting_again() || dword(0x06b028) != 0
+        ) &&
+        (
+        (
+            // p1 alone
+            get_player_count() == 1 &&
+            trigger_when(word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4)
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 2 &&
+            trigger_when(word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4)
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 2 &&
+            trigger_when(word(0x1a7528) == 5 && prev(word(0x1a7528)) == 4)
+        )
+    )
+)
+
+function shield_bash_player_took_half_dmg(side) {
+    if (side == "left") {
+        target_adr = 0x08cdbc
+    } else if (side == "right") {
+        target_adr = 0x08d42c
+    }
+
+    // now has 50 or less; had more than 50 prev -> triggers when too much hp lost
+    return dword(target_adr) <= 50 && prev(dword(target_adr)) > 50
+}
+
+function shield_bash_player_died(side) {
+    if (side == "left") {
+        target_adr = 0x08cdbc
+    } else if (side == "right") {
+        target_adr = 0x08d42c
+    }
+
+    // now has 0; had more than 0 prev -> triggers when dead
+    return dword(target_adr) == 0 && prev(dword(target_adr)) > 0
+}
+
+achievement(
+    title = "Tis but a scratch",
+    points = 5,
+    description = "Win against a computer-controlled opponent in Shield Bash with at least half your health remaining",
+    trigger = 
+        get_minigame() == 0x05 &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        (
+            (
+                // Single player left
+                get_player_count() == 1 &&
+                // P1 character must be on the left side - in that case...
+                get_char_id(player=1) == dword(0x08cd64) &&
+                // ...it's all about the left-side player HP being high...
+                disable_when(shield_bash_player_took_half_dmg("left"), until=countdown_starting_again() || dword(0x06b028) != 0) &&
+                // ...and the right-side player HP being 0
+                trigger_when(shield_bash_player_died("right"))
+            ) || (
+                // Single player right
+                get_player_count() == 1 &&
+                // P1 character must be on the right side - in that case...
+                get_char_id(player=1) == dword(0x08d3d4) &&
+                // ...it's all about the right-side player HP being high...
+                disable_when(shield_bash_player_took_half_dmg("right"), until=countdown_starting_again() || dword(0x06b028) != 0) &&
+                // ...and the light-side player HP being 0
+                trigger_when(shield_bash_player_died("left"))
+            ) || (
+                // Two players - P1 checks left
+                get_player_count() == 2 &&
+                // P1 character must be on the left side
+                get_char_id(player=1) == dword(0x08cd64) &&
+                // Opponent cannot be P2
+                get_char_id(player=2) != dword(0x08d3d4) &&
+                // ...it's all about the left-side player HP being high...
+                disable_when(shield_bash_player_took_half_dmg("left"), until=countdown_starting_again() || dword(0x06b028) != 0) &&
+                // ...and the right-side player HP being 0
+                trigger_when(shield_bash_player_died("right"))
+            ) || (
+                // Two players - P1 checks right
+                get_player_count() == 2 &&
+                // P1 character must be on the right side
+                get_char_id(player=1) == dword(0x08d3d4) &&
+                // Opponent cannot be P2
+                get_char_id(player=2) != dword(0x08cd64) &&
+                // ...it's all about the right-side player HP being high...
+                disable_when(shield_bash_player_took_half_dmg("right"), until=countdown_starting_again() || dword(0x06b028) != 0) &&
+                // ...and the left-side player HP being 0
+                trigger_when(shield_bash_player_died("left"))
+            ) || (
+                // Two players - P2 checks left
+                get_player_count() == 2 &&
+                // P2 character must be on the left side
+                get_char_id(player=2) == dword(0x08cd64) &&
+                // Opponent cannot be P1
+                get_char_id(player=1) != dword(0x08d3d4) &&
+                // ...it's all about the left-side player HP being high...
+                disable_when(shield_bash_player_took_half_dmg("left"), until=countdown_starting_again() || dword(0x06b028) != 0) &&
+                // ...and the right-side player HP being 0
+                trigger_when(shield_bash_player_died("right"))
+            ) || (
+                // One team in Coop
+                get_player_count() == 3 &&
+                // Team is always on left side, no check needed
+                // So left-side player HP being high...
+                disable_when(shield_bash_player_took_half_dmg("left"), until=countdown_starting_again() || dword(0x06b028) != 0) &&
+                // ...and the right-side player HP being 0
+                trigger_when(shield_bash_player_died("right"))
+            )
+            // Two coop teams - not valid since human vs human
+        )
+)
+
+time_limit = 8000
+
+achievement(
+    title = "Jump, Man",
+    points = 10,
+    description = "Reach the goal in Obstacle Course in 1:20.00 or less",
+    trigger = 
+        get_minigame() == 0x0d &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+
+        // unless(is_paused()) &&
+        disable_when(
+            // player took too long
+            tally(time_limit, in_game_timer_tick_while_unpaused_only(), in_game_timer_tick_while_unpaused_only()),
+            // game restarted, reset hits from time limit
+            until=countdown_starting_again() || dword(0x06b028) != 0
+        ) &&
+        (
+        (
+            // p1 alone
+            get_player_count() == 1 &&
+            trigger_when(byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0)
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 2 &&
+            trigger_when(byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0)
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 2 &&
+            trigger_when(byte(0x0842a8) == 1 && prev(byte(0x0842a8)) == 0)
+        ) ||
+        (
+            // team alone
+            get_player_count() == 3 &&
+            trigger_when(byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0)
+        ) ||
+        (
+            // team vs team, p1 first
+            get_player_count() == 4 &&
+            trigger_when(byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0)
+        ) ||
+        (
+            // team vs team, p2 first
+            get_player_count() == 4 &&
+            trigger_when(byte(0x0842a8) == 1 && prev(byte(0x0842a8)) == 0)
+        )
+    )
+)
 
 
 
@@ -586,7 +768,7 @@ minigame_score_data = {
     },
     0x03: {
         "game_name": "Shield Chase",
-        "target": 3000,
+        "target": 2000,
         "title": "Holding on to What I Am",
         "score_size": 64,
         "p1_score_adr": 0x868d0,
@@ -602,15 +784,15 @@ minigame_score_data = {
     },
     0x06: {
         "game_name": "Catapult Chase",
-        "target": 3000,
+        "target": 2000,
         "title": "Doing the Heavy Lifting",
         "score_size": 64,
-        "p1_score_adr": 0x1a7540,
+        "p1_score_adr": 0x1a7354,
         "p2_score_adr": 0x1a754c
     },
     0x04: {
         "game_name": "Helmet Hoarding",
-        "target": 3000,
+        "target": 2000,
         "title": "Stash Superstar",
         "score_size": 64,
         "p1_score_adr": 0x8d670,
@@ -618,7 +800,7 @@ minigame_score_data = {
     },
     0x01: {
         "game_name": "Rowing Race",
-        "target": 3000,
+        "target": 2000,
         "title": "Life Is but a Dream",
         "score_size": 64,
         "p1_score_adr": 0x1cabc4,
@@ -626,7 +808,7 @@ minigame_score_data = {
     },
     0x0a: {
         "game_name": "Hide & Seek",
-        "target": 3000,
+        "target": 2000,
         "title": "Lost and Found",
         "score_size": 32,
         "p1_score_adr": 0x8dce4,
@@ -634,7 +816,7 @@ minigame_score_data = {
     },
     0x09: {
         "game_name": "Galley Smash",
-        "target": 3000,
+        "target": 2000,
         "title": "All at Sea",
         "score_size": 64,
         "p1_score_adr": 0x1c914c,
@@ -642,14 +824,14 @@ minigame_score_data = {
     },
     0x0d: {
         "game_name": "Obstacle Course",
-        "target": 3000,
+        "target": 2000,
         "title": "Who's on Top?",
         "score_size": 64,
         "p1_score_adr": 0x83ed0,
         "p2_score_adr": 0x842b0
     },
     0x0c: {
-        "game_name": "Shoot to Survive",
+        "game_name": "Shoot to Survive", // todo: get good score
         "target": 3000,
         "title": "Last Line of Defense",
         "score_size": 64,
@@ -1124,17 +1306,17 @@ leaderboard(
     submit = 
     (
         (
-            // p1 alone
+            // team alone
             get_player_count() == 3 &&
             byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0
         ) ||
         (
-            // p1 first
+            // team vs team, p1 first
             get_player_count() == 4 &&
             byte(0x083ec8) == 1 && prev(byte(0x083ec8)) == 0
         ) ||
         (
-            // p2 first
+            // team vs team, p2 first
             get_player_count() == 4 &&
             byte(0x0842a8) == 1 && prev(byte(0x0842a8)) == 0
         )
