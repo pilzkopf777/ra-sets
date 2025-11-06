@@ -550,7 +550,7 @@ time_limit = 9500
 
 achievement(
     title = "Doing the Heavy Lifting",
-    points = 5,
+    points = 10,
     description = "In \"Catapult Chase\", reach the goal in 1:35.00 or less",
     trigger = 
         get_minigame() == 0x06 &&
