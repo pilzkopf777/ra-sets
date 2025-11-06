@@ -392,7 +392,7 @@ achievement(
 achievement(
     title = "Gaulish Defence System",
     points = 5,
-    description = "Complete a round of Shoot & Score without getting hit",
+    description = "In \"Shoot & Score\", complete a round without getting hit",
     trigger = 
         get_minigame() == 0x0b &&
         !is_in_main_menu() &&
@@ -424,7 +424,7 @@ food_target = 20
 achievement(
     title = "I'll Eat Almost Anything",
     points = 10,
-    description = format("Eat {0} things in a round of Food Feast", food_target),
+    description = format("In \"Food Feast\", eat {0} things in a single round", food_target),
     trigger = 
         get_minigame() == 0x07 &&
         !is_in_main_menu() &&
@@ -514,7 +514,7 @@ time_limit = 11500
 achievement(
     title = "You're Hired!",
     points = 5,
-    description = "Reach the goal in Shield Chase in 1:55.00 or less",
+    description = "In \"Shield Chase\", reach the goal in 1:55.00 or less",
     trigger = 
         get_minigame() == 0x03 &&
         !is_in_main_menu() &&
@@ -549,9 +549,9 @@ achievement(
 time_limit = 9500
 
 achievement(
-    title = "Making Rounds",
+    title = "Doing the Heavy Lifting",
     points = 5,
-    description = "Reach the goal in Catapult Chase in 1:35.00 or less",
+    description = "In \"Catapult Chase\", reach the goal in 1:35.00 or less",
     trigger = 
         get_minigame() == 0x06 &&
         !is_in_main_menu() &&
@@ -583,6 +583,44 @@ achievement(
     )
 )
 
+
+time_limit = 8500
+
+achievement(
+    title = "Life Is but a Dream",
+    points = 10,
+    description = "In \"Rowing Race\", reach the goal in 1:25.00 or less",
+    trigger = 
+        get_minigame() == 0x01 &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+
+        // unless(is_paused()) &&
+        disable_when(
+            // player took too long
+            tally(time_limit, in_game_timer_tick_while_unpaused_only(), in_game_timer_tick_while_unpaused_only()),
+            // game restarted, reset hits from time limit
+            until=countdown_starting_again() || dword(0x06b028) != 0
+        ) &&
+        (
+        (
+            // p1 alone
+            get_player_count() == 1 &&
+            trigger_when(dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0)
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 2 &&
+            trigger_when(dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0)
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 2 &&
+            trigger_when(dword(0x1cb010) != 0 && prev(dword(0x1cb010)) == 0)
+        )
+    )
+)
+
 function shield_bash_player_took_half_dmg(side) {
     if (side == "left") {
         target_adr = 0x08cdbc
@@ -606,9 +644,9 @@ function shield_bash_player_died(side) {
 }
 
 achievement(
-    title = "Tis but a scratch",
+    title = "Tis but a Scratch",
     points = 5,
-    description = "Win against a computer-controlled opponent in Shield Bash with at least half your health remaining",
+    description = "In \"Shield Bash\", win against a computer-controlled opponent with at least half your health remaining",
     trigger = 
         get_minigame() == 0x05 &&
         !is_in_main_menu() &&
@@ -683,7 +721,7 @@ time_limit = 8000
 achievement(
     title = "Jump, Man",
     points = 10,
-    description = "Reach the goal in Obstacle Course in 1:20.00 or less",
+    description = "In \"Obstacle Course\", reach the goal in 1:20.00 or less",
     trigger = 
         get_minigame() == 0x0d &&
         !is_in_main_menu() &&
@@ -766,14 +804,14 @@ minigame_score_data = {
         "p1_score_adr": 0x896e4,
         "p2_score_adr": 0x89a2c
     },
-    0x03: {
-        "game_name": "Shield Chase",
-        "target": 2000,
-        "title": "Holding on to What I Am",
-        "score_size": 64,
-        "p1_score_adr": 0x868d0,
-        "p2_score_adr": 0x86c1c
-    },
+    //0x03: {
+    //    "game_name": "Shield Chase",
+    //    "target": 2000,
+    //    "title": "Holding on to What I Am",
+    //    "score_size": 64,
+    //    "p1_score_adr": 0x868d0,
+    //    "p2_score_adr": 0x86c1c
+    //},
     0x08: {
         "game_name": "Camp Crashing",
         "target": 3000,
@@ -782,14 +820,14 @@ minigame_score_data = {
         "p1_score_adr": 0x97bec,
         "p2_score_adr": 0x97f6c
     },
-    0x06: {
-        "game_name": "Catapult Chase",
-        "target": 2000,
-        "title": "Doing the Heavy Lifting",
-        "score_size": 64,
-        "p1_score_adr": 0x1a7354,
-        "p2_score_adr": 0x1a754c
-    },
+    //0x06: {
+    //    "game_name": "Catapult Chase",
+    //    "target": 2000,
+    //    "title": "Doing the Heavy Lifting",
+    //    "score_size": 64,
+    //    "p1_score_adr": 0x1a7354,
+    //    "p2_score_adr": 0x1a754c
+    //},
     0x04: {
         "game_name": "Helmet Hoarding",
         "target": 2000,
@@ -798,14 +836,14 @@ minigame_score_data = {
         "p1_score_adr": 0x8d670,
         "p2_score_adr": 0x8d9ac
     },
-    0x01: {
-        "game_name": "Rowing Race",
-        "target": 2000,
-        "title": "Life Is but a Dream",
-        "score_size": 64,
-        "p1_score_adr": 0x1cabc4,
-        "p2_score_adr": 0x1caf94
-    },
+    //0x01: {
+    //    "game_name": "Rowing Race",
+    //    "target": 2000,
+    //    "title": "Life Is but a Dream",
+    //    "score_size": 64,
+    //    "p1_score_adr": 0x1cabc4,
+    //    "p2_score_adr": 0x1caf94
+    //},
     0x0a: {
         "game_name": "Hide & Seek",
         "target": 2000,
@@ -822,17 +860,17 @@ minigame_score_data = {
         "p1_score_adr": 0x1c914c,
         "p2_score_adr": 0x1c94c4
     },
-    0x0d: {
-        "game_name": "Obstacle Course",
-        "target": 2000,
-        "title": "Who's on Top?",
-        "score_size": 64,
-        "p1_score_adr": 0x83ed0,
-        "p2_score_adr": 0x842b0
-    },
+    //0x0d: {
+    //    "game_name": "Obstacle Course",
+    //    "target": 2000,
+    //    "title": "Who's on Top?",
+    //    "score_size": 64,
+    //    "p1_score_adr": 0x83ed0,
+    //    "p2_score_adr": 0x842b0
+    //},
     0x0c: {
-        "game_name": "Shoot to Survive", // todo: get good score
-        "target": 3000,
+        "game_name": "Shoot to Survive",
+        "target": 2500,
         "title": "Last Line of Defense",
         "score_size": 64,
         "p1_score_adr": 0x86658,
@@ -899,7 +937,7 @@ for gameid_key in minigame_score_data {
     achievement(
     title = ach_title,
     points = 5,
-    description = format("Score {0} points in {1}", target, game_name),
+    description = format("Score {0} points in \"{1}\" in Mega Madness or Practice mode", target, game_name),
     trigger = 
         (
             get_player_count() == 1 || get_player_count() == 2
@@ -1021,7 +1059,7 @@ for gameid_key in lb_score_obj {
 
     leaderboard(
         title = format("High Score: {0}", game_name),
-        description = format("Get the highest score in \"{0}\"", game_name),
+        description = format("Get the highest score in \"{0}\" in Mega Madness or Practice mode", game_name),
         start =
         (   
             (
@@ -1071,7 +1109,7 @@ for gameid_key in lb_team_score_obj {
 
     leaderboard(
         title = format("High Score: {0} (Team)", game_name),
-        description = format("Get the highest score in \"{0}\"", game_name),
+        description = format("Get the highest score in \"{0}\" in Team Play mode", game_name),
         start =
         (   
             (
@@ -1101,7 +1139,7 @@ for gameid_key in lb_team_score_obj {
 // Time Trials Solo or Duo
 leaderboard(
     title = "Fastest Time: Shield Chase",
-    description = "Reach the goal as quickly as possible in \"Shield Chase\"",
+    description = "Reach the goal as quickly as possible in \"Shield Chase\" in Mega Madness or Practice mode",
     start =
     (   
         (
@@ -1147,7 +1185,7 @@ leaderboard(
 
 leaderboard(
     title = "Fastest Time: Catapult Chase",
-    description = "Reach the goal as quickly as possible in \"Catapult Chase\"",
+    description = "Reach the goal as quickly as possible in \"Catapult Chase\" in Mega Madness or Practice mode",
     start =
     (   
         (
@@ -1193,7 +1231,7 @@ leaderboard(
 
 leaderboard(
     title = "Fastest Time: Rowing Race",
-    description = "Reach the goal as quickly as possible in \"Rowing Race\"",
+    description = "Reach the goal as quickly as possible in \"Rowing Race\" in Mega Madness or Practice mode",
     start =
     (   
         (
@@ -1240,7 +1278,7 @@ leaderboard(
 
 leaderboard(
     title = "Fastest Time: Obstacle Course",
-    description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
+    description = "Reach the goal as quickly as possible in \"Obstacle Course\" in Mega Madness or Practice mode",
     start =
     (   
         (
@@ -1286,7 +1324,7 @@ leaderboard(
 
 leaderboard(
     title = "Fastest Time: Obstacle Course (Team)",
-    description = "Reach the goal as quickly as possible in \"Obstacle Course\"",
+    description = "Reach the goal as quickly as possible in \"Obstacle Course\" in Team Play mode",
     start =
     (   
         (
