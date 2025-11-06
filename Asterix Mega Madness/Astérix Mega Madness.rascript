@@ -1,8 +1,16 @@
 // Astérix: Mega Madness
 // #ID = 18223
 
+function is_paused() {
+    return byte(0x06af60) == 0x02
+}
+
 function in_game_timer_tick() {
     return dword(0x057C6C) > prev(dword(0x057C6C))
+}
+
+function in_game_timer_tick_while_unpaused_only() {
+    return dword(0x057C6C) > prev(dword(0x057C6C)) && !is_paused()
 }
 
 function get_minigame() {
@@ -35,10 +43,6 @@ function tutorial_on_screen() {
 
 function tutorial_just_popped_up() {
     return dword(0x06b074) == 0x00 && prev(dword(0x06b074)) == 0x01
-}
-
-function is_paused() {
-    return byte(0x06af60) == 0x02
 }
 
 minigame_lookup = {
@@ -505,8 +509,42 @@ achievement(
         )        
 )
 
+time_limit = 11500
 
+achievement(
+    title = "You're Hired!",
+    points = 5,
+    description = "Reach the goal in Shield Chase in 1:55.00 or less",
+    trigger = 
+        get_minigame() == 0x03 &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
 
+        // unless(is_paused()) &&
+        disable_when(
+            // player took too long
+            tally(time_limit, in_game_timer_tick_while_unpaused_only(), in_game_timer_tick_while_unpaused_only()),
+            // game restarted, reset hits from time limit
+            until=countdown_starting_again() || dword(0x06b028) != 0
+        ) &&
+        (
+        (
+            // p1 alone
+            get_player_count() == 1 &&
+            trigger_when(dword(0x0868a4) == 3 && prev(dword(0x0868a4)) == 2)
+        ) ||
+        (
+            // p1 first
+            get_player_count() == 2 &&
+            trigger_when(dword(0x0868a4) == 3 && prev(dword(0x0868a4)) == 2)
+        ) ||
+        (
+            // p2 first
+            get_player_count() == 2 &&
+            trigger_when(dword(0x086bf0) == 3 && prev(dword(0x086bf0)) == 2)
+        )
+    )
+)
 
 
 
