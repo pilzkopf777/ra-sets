@@ -366,7 +366,7 @@ target_boar_kills = 45
 achievement(
     title = "No Boars Were Harmed in the Making of This Achievement",
     points = 10,
-    description = format("In \"Boar Bash\", defeat {0} boars", target_boar_kills),
+    description = format("In \"Boar Bash\", defeat {0} boars in a single round", target_boar_kills),
     trigger = 
         get_minigame() == 0x02 &&
         minigame_not_finished() &&
@@ -949,7 +949,7 @@ for gameid_key in minigame_score_data {
     achievement(
     title = ach_title,
     points = 5,
-    description = format("Score {0} points in \"{1}\" in Mega Madness or Practice mode", target, game_name),
+    description = format("In \"{1}\", score {0} points in Mega Madness or Practice mode", target, game_name),
     trigger = 
         (
             get_player_count() == 1 || get_player_count() == 2
