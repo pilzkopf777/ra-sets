@@ -1,6 +1,27 @@
 // Astérix: Mega Madness
 // #ID = 18223
 
+// Helper function taken from Souzooka - thanks!
+function ptr(base, offsets, accessor=tbyte)
+{
+    val = base
+    
+    for i in range(0, length(offsets) - 1)
+    {
+        addr = val + offsets[i]
+        if (i == length(offsets) - 1)
+        {
+            val = accessor(addr)
+        }
+        else
+        {
+            val = tbyte(addr)
+        }
+    }
+    
+    return val
+}
+
 function is_paused() {
     return byte(0x06af60) == 0x02
 }
@@ -568,17 +589,20 @@ achievement(
         (
             // p1 alone
             get_player_count() == 1 &&
-            trigger_when(word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4)
+            trigger_when(ptr(tbyte(0x06a868), [0x19c], word) == 5 && prev(ptr(tbyte(0x06a868), [0x19c], word)) == 4)
+            // trigger_when(word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4)
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            trigger_when(word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4)
+            trigger_when(ptr(tbyte(0x06a868), [0x19c], word) == 5 && prev(ptr(tbyte(0x06a868), [0x19c], word)) == 4)
+            // trigger_when(word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4)
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            trigger_when(word(0x1a7528) == 5 && prev(word(0x1a7528)) == 4)
+            trigger_when(ptr(tbyte(0x06a868), [0x394], word) == 5 && prev(ptr(tbyte(0x06a868), [0x394], word)) == 4)
+            // trigger_when(word(0x1a7528) == 5 && prev(word(0x1a7528)) == 4)
         )
     )
 )
@@ -606,17 +630,20 @@ achievement(
         (
             // p1 alone
             get_player_count() == 1 &&
-            trigger_when(dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0)
+            trigger_when(ptr(tbyte(0x06b0e0), [0xC76C], dword) != 0 && prev(ptr(tbyte(0x06a868), [0xC76C], word)) == 0)
+            // trigger_when(dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0)
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            trigger_when(dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0)
+            trigger_when(ptr(tbyte(0x06b0e0), [0xC76C], dword) != 0 && prev(ptr(tbyte(0x06a868), [0xC76C], word)) == 0)
+            // trigger_when(dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0)
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            trigger_when(dword(0x1cb010) != 0 && prev(dword(0x1cb010)) == 0)
+            trigger_when(ptr(tbyte(0x06b0e0), [0xCB3C], dword) != 0 && prev(ptr(tbyte(0x06a868), [0xCB3C], word)) == 0)
+            // trigger_when(dword(0x1cb010) != 0 && prev(dword(0x1cb010)) == 0)
         )
     )
 )
@@ -864,14 +891,14 @@ minigame_score_data = {
         "p1_score_adr": 0x8dce4,
         "p2_score_adr": 0x8dff8
     },
-    0x09: {
-        "game_name": "Galley Smash",
-        "target": 2000,
-        "title": "All at Sea",
-        "score_size": 64,
-        "p1_score_adr": 0x1c914c,
-        "p2_score_adr": 0x1c94c4
-    },
+  //  0x09: {
+  //      "game_name": "Galley Smash",
+  //      "target": 2000,
+  //      "title": "All at Sea",
+  //      "score_size": 64,
+  //      "p1_score_adr": ptr(tbyte(0x06b0e0), [0x1958], dword), // prev 0x1c914c
+  //      "p2_score_adr": ptr(tbyte(0x06b0e0), [0x1CD0], dword)  // prev 0x1c94c4
+  //  },
     //0x0d: {
     //    "game_name": "Obstacle Course",
     //    "target": 2000,
@@ -958,6 +985,42 @@ for gameid_key in minigame_score_data {
     )
 }
 
+
+// Raw call due to pointer; dirty fix for the time being
+achievement(
+    title = "All at Sea",
+    points = 5,
+    description = format("In \"{1}\", score {0} points in Mega Madness or Practice mode", 2000, "Galley Smash"),
+    trigger = 
+        (
+            get_player_count() == 1 || get_player_count() == 2
+        ) &&
+        get_minigame() == 0x09 &&
+        minigame_not_finished() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        (
+        (
+            get_player_count() == 1 &&
+            ptr(tbyte(0x06b0e0), [0x1958], dword) > prev(ptr(tbyte(0x06b0e0), [0x1958], dword)) &&
+            ptr(tbyte(0x06b0e0), [0x1958], dword) >= 2000
+        ) || 
+        (
+            get_player_count() == 2 &&
+            ptr(tbyte(0x06b0e0), [0x1958], dword) > prev(ptr(tbyte(0x06b0e0), [0x1958], dword)) &&
+            ptr(tbyte(0x06b0e0), [0x1958], dword) >= 2000
+        ) ||
+        (
+            get_player_count() == 2 &&
+            ptr(tbyte(0x06b0e0), [0x1CD0], dword) > prev(ptr(tbyte(0x06b0e0), [0x1CD0], dword)) &&
+            ptr(tbyte(0x06b0e0), [0x1CD0], dword) >= 2000
+        )
+        )
+    )
+
+
+
+
 // Leaderboard iteration: Score target
 lb_score_obj = {
     0x0b: {
@@ -1002,12 +1065,12 @@ lb_score_obj = {
         "p1_score_adr": 0x8dce4,
         "p2_score_adr": 0x8dff8
     },
-    0x09: {
-        "game_name": "Galley Smash",
-        "score_size": 64,
-        "p1_score_adr": 0x1c914c,
-        "p2_score_adr": 0x1c94c4
-    },
+  //  0x09: {
+  //      "game_name": "Galley Smash",
+  //      "score_size": 64,
+  //      "p1_score_adr": ptr(tbyte(0x06b0e0), [0x1958], dword), // prev 0x1c914c
+  //      "p2_score_adr": ptr(tbyte(0x06b0e0), [0x1CD0], dword)  // prev 0x1c94c4
+  //  },
     0x0c: {
         "game_name": "Shoot to Survive",
         "score_size": 64,
@@ -1095,6 +1158,41 @@ for gameid_key in lb_score_obj {
         format = "VALUE", lower_is_better = false
     )
 }
+
+// Exception for Galley Smash due to pointer...
+leaderboard(
+    title = format("High Score: {0}", "Galley Smash"),
+    description = format("Get the highest score in \"{0}\" in Mega Madness or Practice mode", "Galley Smash"),
+    start =
+    (   
+        (
+        get_player_count() == 1 || get_player_count() == 2
+        ) &&
+        get_minigame() == 0x09 &&
+        results_just_popped_up() &&
+        !is_in_main_menu() &&
+        !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
+        ptr(tbyte(0x06b0e0), [0x1958], dword) != 0 && ptr(tbyte(0x06b0e0), [0x1CD0], dword) != 0
+    ),
+    cancel = 
+    (
+        always_false()
+    ),
+    submit = 
+    (
+        always_true()
+    ),
+    value = max_of(
+                    measured(tally(0, always_true())),
+                    // P1 alone
+                    measured(ptr(tbyte(0x06b0e0), [0x1958], dword), when=get_player_count() == 1),
+                    // P1 vs 2, P1 won
+                    measured(ptr(tbyte(0x06b0e0), [0x1958], dword), when=get_player_count() == 2 && ptr(tbyte(0x06b0e0), [0x1958], dword) >= ptr(tbyte(0x06b0e0), [0x1CD0], dword)),
+                    // P1 vs 2, P2 won
+                    measured(ptr(tbyte(0x06b0e0), [0x1958], dword), when=get_player_count() == 2 && ptr(tbyte(0x06b0e0), [0x1958], dword) < ptr(tbyte(0x06b0e0), [0x1CD0], dword))
+                ),
+    format = "VALUE", lower_is_better = false
+)
 
 for gameid_key in lb_team_score_obj {
     game_name = lb_team_score_obj[gameid_key]["game_name"]
@@ -1208,7 +1306,7 @@ leaderboard(
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        word(0x1a7330) == 0 && word(0x1a7528) == 0
+        ptr(tbyte(0x06a868), [0x19c], word)  == 0 && ptr(tbyte(0x06a868), [0x394], word) == 0
     ),
     cancel = 
     (
@@ -1219,17 +1317,17 @@ leaderboard(
         (
             // p1 alone
             get_player_count() == 1 &&
-            word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4
+            ptr(tbyte(0x06a868), [0x19c], word) == 5 && prev(ptr(tbyte(0x06a868), [0x19c], word)) == 4
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            word(0x1a7330) == 5 && prev(word(0x1a7330)) == 4
+            ptr(tbyte(0x06a868), [0x19c], word) == 5 && prev(ptr(tbyte(0x06a868), [0x19c], word)) == 4
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            word(0x1a7528) == 5 && prev(word(0x1a7528)) == 4
+            ptr(tbyte(0x06a868), [0x394], word) == 5 && prev(ptr(tbyte(0x06a868), [0x394], word)) == 4
         )
     ),
     value = 
@@ -1254,7 +1352,7 @@ leaderboard(
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(0x1cabc4) == 0 && dword(0x1caf94) == 0
+        ptr(tbyte(0x06b0e0), [0xC76C], dword) == 0 && ptr(tbyte(0x06b0e0), [0xC76C], dword) == 0
     ),
     cancel = 
     (
@@ -1265,17 +1363,17 @@ leaderboard(
         (
             // p1 alone
             get_player_count() == 1 &&
-            dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0
+            ptr(tbyte(0x06b0e0), [0xC76C], dword) != 0 && prev(ptr(tbyte(0x06b0e0), [0xC76C], dword)) == 0
         ) ||
         (
             // p1 first
             get_player_count() == 2 &&
-            dword(0x1cac40) != 0 && prev(dword(0x1cac40)) == 0
+            ptr(tbyte(0x06b0e0), [0xC76C], dword) != 0 && prev(ptr(tbyte(0x06b0e0), [0xC76C], dword)) == 0
         ) ||
         (
             // p2 first
             get_player_count() == 2 &&
-            dword(0x1cb010) != 0 && prev(dword(0x1cb010)) == 0
+            ptr(tbyte(0x06b0e0), [0xCB3C], dword) != 0 && prev(ptr(tbyte(0x06b0e0), [0xCB3C], dword)) == 0
         )
     ),
     value = 
