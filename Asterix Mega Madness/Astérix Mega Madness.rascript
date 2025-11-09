@@ -1189,7 +1189,7 @@ leaderboard(
                     // P1 vs 2, P1 won
                     measured(ptr(tbyte(0x06b0e0), [0x1958], dword), when=get_player_count() == 2 && ptr(tbyte(0x06b0e0), [0x1958], dword) >= ptr(tbyte(0x06b0e0), [0x1CD0], dword)),
                     // P1 vs 2, P2 won
-                    measured(ptr(tbyte(0x06b0e0), [0x1958], dword), when=get_player_count() == 2 && ptr(tbyte(0x06b0e0), [0x1958], dword) < ptr(tbyte(0x06b0e0), [0x1CD0], dword))
+                    measured(ptr(tbyte(0x06b0e0), [0x1CD0], dword), when=get_player_count() == 2 && ptr(tbyte(0x06b0e0), [0x1958], dword) < ptr(tbyte(0x06b0e0), [0x1CD0], dword))
                 ),
     format = "VALUE", lower_is_better = false
 )
