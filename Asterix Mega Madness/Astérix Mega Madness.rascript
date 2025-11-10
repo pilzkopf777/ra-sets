@@ -1108,7 +1108,7 @@ for gameid_key in lb_score_obj {
     score_size = lb_score_obj[gameid_key]["score_size"]
 
     if (score_size == 32) {
-        start_add_cond = word(p1_score_adr) != 0 && word(p2_score_adr) != 0
+        start_add_cond = word(p1_score_adr) != 0 || word(p2_score_adr) != 0
         value_add_cond = max_of(
                              measured(tally(0, always_true())),
                              // P1 alone
@@ -1120,7 +1120,7 @@ for gameid_key in lb_score_obj {
                          )
     }
     else if (score_size == 64) {
-        start_add_cond = dword(p1_score_adr) != 0 && dword(p2_score_adr) != 0
+        start_add_cond = dword(p1_score_adr) != 0 || dword(p2_score_adr) != 0
         value_add_cond = max_of(
                              measured(tally(0, always_true())),
                              // P1 alone
@@ -1172,7 +1172,7 @@ leaderboard(
         results_just_popped_up() &&
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
-        ptr(tbyte(0x06b0e0), [0x1958], dword) != 0 && ptr(tbyte(0x06b0e0), [0x1CD0], dword) != 0
+        ptr(tbyte(0x06b0e0), [0x1958], dword) != 0 || ptr(tbyte(0x06b0e0), [0x1CD0], dword) != 0
     ),
     cancel = 
     (
@@ -1260,7 +1260,7 @@ leaderboard(
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        dword(0x0868a4) == 0 && dword(0x086bf0) == 0
+        dword(0x0868a4) == 0 || dword(0x086bf0) == 0
     ),
     cancel = 
     (
@@ -1306,7 +1306,7 @@ leaderboard(
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        ptr(tbyte(0x06a868), [0x19c], word)  == 0 && ptr(tbyte(0x06a868), [0x394], word) == 0
+        ptr(tbyte(0x06a868), [0x19c], word) == 0 || ptr(tbyte(0x06a868), [0x394], word) == 0
     ),
     cancel = 
     (
@@ -1352,7 +1352,7 @@ leaderboard(
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        ptr(tbyte(0x06b0e0), [0xC76C], dword) == 0 && ptr(tbyte(0x06b0e0), [0xC76C], dword) == 0
+        ptr(tbyte(0x06b0e0), [0xC76C], dword) == 0 || ptr(tbyte(0x06b0e0), [0xC76C], dword) == 0
     ),
     cancel = 
     (
@@ -1399,7 +1399,7 @@ leaderboard(
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        byte(0x083ec8) == 0 && byte(0x0842a8) == 0
+        byte(0x083ec8) == 0 || byte(0x0842a8) == 0
     ),
     cancel = 
     (
@@ -1445,7 +1445,7 @@ leaderboard(
         !is_in_main_menu() &&
         !in_loading_screen() && minigame_fully_loaded() && is_not_in_demo() &&
         // Only start the LB if someone has not started the race yet; do not start it on the results
-        byte(0x083ec8) == 0 && byte(0x0842a8) == 0
+        byte(0x083ec8) == 0 || byte(0x0842a8) == 0
     ),
     cancel = 
     (
