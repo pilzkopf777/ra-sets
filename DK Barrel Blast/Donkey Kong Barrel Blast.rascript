@@ -127,3 +127,5 @@ rich_presence_conditional_display(always_true(), "{0} is in {1} on {2}",
     rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
     rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track")
 )
+
+rich_presence_display("Playing Donkey Kong Barrel Blast")
