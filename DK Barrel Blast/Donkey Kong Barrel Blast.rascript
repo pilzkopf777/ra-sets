@@ -126,17 +126,21 @@ character_map = {
     0x10: "Ultra Barrel DK"
 }
 
-function get_candy_challenge_num() {
-    return dword_be(0x352068)
-}
-
-function get_candy_challenge_page() {
-    // todo
-    return 0
-}
-
 function get_track() {
     return byte(0x535773)
+}
+
+function get_gp() {
+    return dword_be(0x352048)
+}
+
+gp_map = {
+    0x00: "Topaz",
+    0x01: "Sapphire",
+    0x02: "Diamond",
+    0x03: "Platinum",
+    0x04: "Selection",
+    0x05: "Random"
 }
 
 item_map = {
@@ -167,37 +171,37 @@ function get_candy_chal() {
 // flag = Unlock flag location
 challenge_data = {
     0x00: {
-        "track_id": 0x00,
+        "track_id": 0xfe,
         "number": 01,
         "flag": bit1(0x524ea9)
     },
     0x01: {
-        "track_id": ,
+        "track_id": 0xfe,
         "number": 11,
         "flag": bit1(0x524ed1)
     },
     0x02: {
-        "track_id": ,
+        "track_id": 0xfe,
         "number": 07,
         "flag": bit1(0x524ef9)
     },
     0x03: {
-        "track_id": ,
+        "track_id": 0xfe,
         "number": 13,
         "flag": bit1(0x524f21)
     },
     0x04: {
-        "track_id": ,
+        "track_id": 0xfe,
         "number": 04,
         "flag": bit1(0x524f49)
     },
     0x05: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 12,
         "flag": bit1(0x524f71)
     },
     0x06: {
-        "track_id": ,
+        "track_id": 0xfe,
         "number": 20,
         "flag": bit1(0x524f99)
     },
@@ -207,37 +211,37 @@ challenge_data = {
         "flag": bit1(0x524fc1)
     },
     0x08: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 08,
         "flag": bit1(0x524fe9)
     },
     0x09: {
-        "track_id": ,
+        "track_id": 0x0e,
         "number": 16,
         "flag": bit1(0x525011)
     },
     0x10: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 21,
         "flag": bit1(0x525129)
     },
     0x0a: {
-        "track_id": ,
+        "track_id": 0x09,
         "number": 24,
         "flag": bit1(0x525039)
     },
     0x0b: {
-        "track_id": ,
+        "track_id": 0x0f,
         "number": 31,
         "flag": bit1(0x525061)
     },
     0x0c: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 06,
         "flag": bit1(0x525089)
     },
     0x0d: {
-        "track_id": ,
+        "track_id": 0x0d,
         "number": 19,
         "flag": bit1(0x5250b1)
     },
@@ -247,13 +251,13 @@ challenge_data = {
         "flag": bit1(0x5250d9)
     },
     0x0f: {
-        "track_id": ,
+        "track_id": 0x06,
         "number": 14,
         "flag": bit1(0x525101)
     },
     // There is no mission mapped to 0x10
     0x11: {
-        "track_id": ,
+        "track_id": 0x03,
         "number": 26,
         "flag": bit1(0x525151)
     },
@@ -273,60 +277,96 @@ challenge_data = {
         "flag": bit1(0x5251c9)
     },
     0x15: {
-        "track_id": ,
+        "track_id": 0x04,
         "number": 09,
         "flag": bit1(0x5251f1)
     },
     0x16: {
-        "track_id": ,
+        "track_id": 0x0c,
         "number": 18,
         "flag": bit1(0x525219)
     },
     0x17: {
-        "track_id": ,
+        "track_id": 0x0d,
         "number": 28,
         "flag": bit1(0x525241)
     },
     0x18: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 17,
         "flag": bit1(0x525269)
     },
     0x19: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 05,
         "flag": bit1(0x525291)
     },
     0x1a: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 22,
         "flag": bit1(0x5252b9)
     },
     0x1b: {
-        "track_id": ,
+        "track_id": 0x02,
         "number": 29,
         "flag": bit1(0x5252e1)
     },
     0x1c: {
-        "track_id": ,
+        "track_id": 0x03,
         "number": 02,
         "flag": bit1(0x525309)
     },
     0x1d: {
-        "track_id": ,
+        "track_id": 0x07,
         "number": 10,
         "flag": bit1(0x525331)
     },
     0x1e: {
-        "track_id": ,
+        "track_id": 0x08,
         "number": 25,
         "flag": bit1(0x525359)
     },
     0x1f: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 03,
         "flag": bit1(0x525381)
     }
+}
+
+challenge_data_true_id_map = {
+    0x00: "01",
+    0x01: "11",
+    0x02: "07",
+    0x03: "13",
+    0x04: "04",
+    0x05: "12",
+    0x06: "20",
+    0x07: "27",
+    0x08: "08",
+    0x09: "16",
+    0x10: "21",
+    0x0a: "24",
+    0x0b: "31",
+    0x0c: "06",
+    0x0d: "19",
+    0x0e: "30",
+    0x0f: "14",
+    // There is no mission mapped to 0x10
+    0x11: "26",
+    0x12: "15",
+    0x13: "23",
+    0x14: "32",
+    0x15: "09",
+    0x16: "18",
+    0x17: "28",
+    0x18: "17",
+    0x19: "05",
+    0x1a: "22",
+    0x1b: "29",
+    0x1c: "02",
+    0x1d: "10",
+    0x1e: "25",
+    0x1f: "03"
 }
 
 track_map = {
@@ -354,11 +394,21 @@ player_1_obj = PlayerData(1)
 // In Challenge mode
 rich_presence_conditional_display(get_mode() == 0x04 && in_a_race_state(), "Donkey Kong is tackling Candy's Challenge No. {1}",
     rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
-    rich_presence_lookup("Challenge ID", get_candy_chal(), challenge_data["number"], fallback="??")
+    rich_presence_lookup("Challenge ID", get_candy_chal(), challenge_data_true_id_map, fallback="??")
 )
 
+// In GP mode
+rich_presence_conditional_display(get_mode() == 0x00 && in_a_race_state(), "{0} is competing in the {1} Cup on {2}",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
+    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track")
+)
 
-rich_presence_conditional_display(get_mode() != 0x04 && in_a_race_state(), "{0} is in {1} on {2}",
+// In Tutorial
+rich_presence_conditional_display(get_mode() == 0x07 && in_a_race_state(), "Donkey Kong is learning the ropes at Cranky's Flight School")
+
+// Single Race, Time Trial, Free Run
+rich_presence_conditional_display(get_mode() <= 0x03 && in_a_race_state(), "{0} is in {1} on {2}",
     rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
     rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
     rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track")
