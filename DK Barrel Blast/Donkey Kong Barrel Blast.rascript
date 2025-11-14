@@ -39,6 +39,11 @@ class PlayerData
         return dword_be(target_adr)
     }
 
+    function is_human_player() {
+        target_adr = 0x352028 + this.player_id * 0x04 - 0x04
+        return dword_be(target_adr) != 0xffffffff
+    }
+
     function get_item() {
         target_offset = 0x2A44 + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
         return ptr(dword_be(0x3e7ba8), [target_offset], dword_be)
@@ -74,9 +79,8 @@ class PlayerData
     }
 
     function get_style_barrel_progress() {
-        first_adr = 0x53861c
-        target_adr = first_adr + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
-        return ptr(dword_be(target_adr), [0xE0], dword_be) 
+        target_offset = 0x2C5C + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(0x3e7ba8), [target_offset, 0xE0], dword_be)
     }
 
     function player_got_50_in_style_barrel() {
@@ -93,6 +97,11 @@ function in_a_race_state() {
 
 function get_mode() {
     return byte(0x351FA1)
+}
+
+function demo_playing() {
+    demo_ends_in = ptr(dword_be(0x0048c10c), [0x78], float_be)
+    return demo_ends_in < 3000.0 && demo_ends_in <= 0.0 && demo_ends_in != 0.0
 }
 
 mode_map = {
@@ -386,32 +395,128 @@ track_map = {
     0x0d: "Parched Palace",
     0x0e: "Mammoth Glacier",
     0x0f: "Alpine Peak",
-    0xfe: "Practice Course" // not a regular track, should never show up here..
+    0xfe: "Practice Course" // not a regular track, should never show up here..; value for this is made up
+}
+
+function count_cleared_challenges() {
+    return sum_of(
+        challenge_data,
+        item => challenge_data[item]["flag"]
+    )
+}
+
+function count_cleared_challenges_per_level(level) {
+    start_of_range = 1 + level * 8 - 8
+    lower_range = start_of_range
+    upper_range = lower_range + 7
+
+    array_with_ids_of_relevant_chal = array_filter(challenge_data, item => challenge_data[item]["number"] >= lower_range && challenge_data[item]["number"] <= upper_range)
+    
+    return array_reduce(array_with_ids_of_relevant_chal, 0, (acc, item) => acc + challenge_data[item]["flag"])
 }
 
 player_1_obj = PlayerData(1)
+player_2_obj = PlayerData(2)
+player_3_obj = PlayerData(3)
+player_4_obj = PlayerData(4)
+
+achievement(
+    title = "Style Barrel",
+    points = 1,
+    description = "Land all four tricks in a Style Barrel",
+    trigger = 
+    !demo_playing() &&
+    (
+        (
+            player_1_obj.is_human_player() && player_1_obj.player_got_50_in_style_barrel()
+        )
+        ||
+        (
+            player_2_obj.is_human_player() && player_2_obj.player_got_50_in_style_barrel()
+        )
+        ||
+        (
+            player_3_obj.is_human_player() && player_3_obj.player_got_50_in_style_barrel()
+        )
+        ||
+        (
+            player_4_obj.is_human_player() && player_4_obj.player_got_50_in_style_barrel()
+        )
+    )
+)
+
+target = 15
+achievement(
+    title = "Wild Moves Combo",
+    points = 1,
+    description = format("Reach a Wild Move combo of {0}", target),
+    trigger = 
+    !demo_playing() &&
+    (
+        (
+            player_1_obj.is_human_player() && player_1_obj.get_wild_move_combo() == 15 && prev(player_1_obj.get_wild_move_combo() == 14)
+        )
+        ||
+        (
+            player_2_obj.is_human_player() && player_2_obj.get_wild_move_combo() == 15 && prev(player_2_obj.get_wild_move_combo() == 14)
+        )
+        ||
+        (
+            player_3_obj.is_human_player() && player_3_obj.get_wild_move_combo() == 15 && prev(player_3_obj.get_wild_move_combo() == 14)
+        )
+        ||
+        (
+            player_4_obj.is_human_player() && player_4_obj.get_wild_move_combo() == 15 && prev(player_4_obj.get_wild_move_combo() == 14)
+        )
+    )
+)
+
+
+for element in range(1, 4, 1) {
+    achievement(
+    title = format("Challenges Page {0}", element),
+    points = 5,
+    description = format("Clear all of Candy's Challenges in Level {0}", element),
+    trigger = 
+        get_mode() == 04 &&
+        measured(
+            count_cleared_challenges_per_level(element) == 8
+        ) &&
+        prev(count_cleared_challenges_per_level(element) == 7)
+    )
+}
+
+
+
+
 
 // In Challenge mode
-rich_presence_conditional_display(get_mode() == 0x04 && in_a_race_state(), "Donkey Kong is tackling Candy's Challenge No. {1}",
+rich_presence_conditional_display(!demo_playing() && get_mode() == 0x04 && in_a_race_state(), "Donkey Kong is tackling Candy's Challenge No. {1} • {2} / 32 Challenges Cleared",
     rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
-    rich_presence_lookup("Challenge ID", get_candy_chal(), challenge_data_true_id_map, fallback="??")
+    rich_presence_lookup("Challenge ID", get_candy_chal(), challenge_data_true_id_map, fallback="??"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
 )
 
 // In GP mode
-rich_presence_conditional_display(get_mode() == 0x00 && in_a_race_state(), "{0} is competing in the {1} Cup on {2}",
+rich_presence_conditional_display(!demo_playing() && get_mode() == 0x00 && in_a_race_state(), "{0} is competing in the {1} Cup on {2} • {3} / 32 Challenges Cleared",
     rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
     rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
-    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track")
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
 )
 
 // In Tutorial
-rich_presence_conditional_display(get_mode() == 0x07 && in_a_race_state(), "Donkey Kong is learning the ropes at Cranky's Flight School")
-
-// Single Race, Time Trial, Free Run
-rich_presence_conditional_display(get_mode() <= 0x03 && in_a_race_state(), "{0} is in {1} on {2}",
-    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
-    rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
-    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track")
+rich_presence_conditional_display(!demo_playing() && get_mode() == 0x07 && in_a_race_state(), "Donkey Kong is learning the ropes at Cranky's Flight School • {0} / 32 Challenges Cleared",
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
 )
 
+// Single Race, Time Trial, Free Run
+rich_presence_conditional_display(!demo_playing() && get_mode() <= 0x03 && in_a_race_state(), "{0} is in {1} on {2} • {3} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
+    rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
+)
+
+// TODO: Need title screen vs other screens that do not involve gameplay like the victory ceremony..
 rich_presence_display("Playing Donkey Kong Barrel Blast")
