@@ -58,6 +58,33 @@ class PlayerData
     function get_total_time() {
         return this.get_lap_time(1) + this.get_lap_time(2) + this.get_lap_time(3)
     }
+
+    // Todo check if valid for all four
+    function get_banana_combo() {
+        first_adr = 0x4892c8
+        target_adr = first_adr + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(target_adr), [0x288], dword_be)  
+    }
+
+    // Todo check if valid for all four
+    function get_wild_move_combo() {
+        first_adr = 0x48934c
+        target_adr = first_adr + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(target_adr), [0x288], dword_be)  
+    }
+
+    function get_style_barrel_progress() {
+        first_adr = 0x53861c
+        target_adr = first_adr + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(target_adr), [0xE0], dword_be) 
+    }
+
+    function player_got_50_in_style_barrel() {
+        return this.get_style_barrel_progress() == 4 &&
+        // Banana combo value must have increased by 50 or more
+        this.get_banana_combo() >= prev(this.get_banana_combo()) + 50 &&
+        prev(this.get_style_barrel_progress() == 3)
+    }
 }
 
 function in_a_race_state() {
@@ -175,7 +202,7 @@ challenge_data = {
         "flag": bit1(0x524f99)
     },
     0x07: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 27,
         "flag": bit1(0x524fc1)
     },
@@ -215,7 +242,7 @@ challenge_data = {
         "flag": bit1(0x5250b1)
     },
     0x0e: {
-        "track_id": ,
+        "track_id": 0xfe,
         "number": 30,
         "flag": bit1(0x5250d9)
     },
@@ -231,17 +258,17 @@ challenge_data = {
         "flag": bit1(0x525151)
     },
     0x12: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 15,
         "flag": bit1(0x525179)
     },
     0x13: {
-        "track_id": ,
+        "track_id": 0x0d,
         "number": 23,
         "flag": bit1(0x5251a1)
     },
     0x14: {
-        "track_id": ,
+        "track_id": 0x00,
         "number": 32,
         "flag": bit1(0x5251c9)
     },
@@ -318,7 +345,8 @@ track_map = {
     0x0c: "Scorching Canyon",
     0x0d: "Parched Palace",
     0x0e: "Mammoth Glacier",
-    0x0f: "Alpine Peak"
+    0x0f: "Alpine Peak",
+    0xfe: "Practice Course" // not a regular track, should never show up here..
 }
 
 player_1_obj = PlayerData(1)
