@@ -64,6 +64,10 @@ class PlayerData
         return this.get_lap_time(1) + this.get_lap_time(2) + this.get_lap_time(3)
     }
 
+    function finished_race() {
+        return always_false()
+    }
+
     // Todo check if valid for all four
     function get_banana_combo() {
         first_adr = 0x4892c8
@@ -398,6 +402,129 @@ track_map = {
     0xfe: "Practice Course" // not a regular track, should never show up here..; value for this is made up
 }
 
+time_trial_data = [
+    {
+        "track_id": 0x00, // DK Jungle
+        "target_time": 5107.0,
+        "valid_characters": [0x00, 0x05]
+    },
+    {
+        "track_id": 0x01, // DK J Falls
+        "target_time": 6883.0,
+        "valid_characters": [0x01, 0x06]
+    },
+    {
+        "track_id": 0x02, // DK J Sunset
+        "target_time": 00,
+        "valid_characters": [0x02, 0x07]
+    },
+    {
+        "track_id": 0x03, // Salty Sea
+        "target_time": 00,
+        "valid_characters": [0x0c, 0x0e]
+    },
+    {
+        "track_id": 0x04, // Shimmering Sea
+        "target_time": 00,
+        "valid_characters": [0x03, 0x08]
+    },
+    {
+        "track_id": 0x05, // Open Ocean
+        "target_time": 00,
+        "valid_characters": [0x04, 0x09]
+    },
+    {
+        "track_id": 0x06, // Mt. Dynamite
+        "target_time": 00,
+        "valid_characters": [0x0a, 0x0f]
+    },
+    {
+        "track_id": 0x07, // Mt. Dynamite Remix
+        "target_time": 00,
+        "valid_characters": [0x0d, 0x0b]
+    },
+    {
+        "track_id": 0x08, // Dynamite Run
+        "target_time": 00,
+        "valid_characters": [0x00, 0x05]
+    },
+    {
+        "track_id": 0x09, // Cranky Temple
+        "target_time": 00,
+        "valid_characters": [0x01, 0x06]
+    },
+    {
+        "track_id": 0x0a, // Temple Heights
+        "target_time": 00,
+        "valid_characters": [0x02, 0x07]
+    },
+    {
+        "track_id": 0x0b, // Cosmic Highway
+        "target_time": 00,
+        "valid_characters": [0x0c, 0x0e]
+    },
+    {
+        "track_id": 0x0c, // Scorching Canyon
+        "target_time": 00,
+        "valid_characters": [0x03, 0x08]
+    },
+    {
+        "track_id": 0x0d, // Parched Palace
+        "target_time": 00,
+        "valid_characters": [0x04, 0x09]
+    },
+    {
+        "track_id": 0x0e, // Mammoth Glacier
+        "target_time": 00,
+        "valid_characters": [0x0a, 0x0f]
+    },
+    {
+        "track_id": 0x0f, // Alpine Peak
+        "target_time": 00,
+        "valid_characters": [0x0d, 0x0b]
+    },
+]
+
+function frame_time_to_readable_string(frames) {
+    fps = 60
+
+    total_seconds = frames / fps
+    minutes = total_seconds / 60
+    seconds = total_seconds % 60
+
+    leftover_frames = frames % fps
+    millis = leftover_frames / fps * 1000
+
+    return format("{0}:{1}:{2}", minutes, seconds, millis)
+}
+
+player_1_obj = PlayerData(1)
+player_2_obj = PlayerData(2)
+player_3_obj = PlayerData(3)
+player_4_obj = PlayerData(4)
+
+
+for element in time_trial_data {
+    achievement(
+    title = format("The Fastest Ape in {0}", track_map[element["track_id"]]),
+    points = 10,
+    description = format("As either {0} or {1}, reach the goal in {2} on {3} in a Time Trial on Expert difficulty",
+        character_map[element["valid_characters"][0]], // char 1
+        character_map[element["valid_characters"][1]], // char 2
+        frame_time_to_readable_string(element["target_time"]), // time
+        track_map[element["track_id"]] // track
+    ),
+    trigger = 
+        get_mode() == 02 &&
+        get_track() == element["track_id"] &&
+        (
+            player_1_obj.get_character() == element["valid_characters"][0] || player_1_obj.get_character() == element["valid_characters"][1]
+        ) &&
+        player_1_obj.get_total_time() >= element["target_time"] &&
+        trigger_when(player_1_obj.finished_race())
+    )
+}
+
 function count_cleared_challenges() {
     return sum_of(
         challenge_data,
@@ -414,11 +541,6 @@ function count_cleared_challenges_per_level(level) {
     
     return array_reduce(array_with_ids_of_relevant_chal, 0, (acc, item) => acc + challenge_data[item]["flag"])
 }
-
-player_1_obj = PlayerData(1)
-player_2_obj = PlayerData(2)
-player_3_obj = PlayerData(3)
-player_4_obj = PlayerData(4)
 
 achievement(
     title = "Style Barrel",
