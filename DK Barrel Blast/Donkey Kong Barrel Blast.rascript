@@ -61,11 +61,13 @@ class PlayerData
     }
 
     function get_total_time() {
-        return this.get_lap_time(1) + this.get_lap_time(2) + this.get_lap_time(3)
+        target_offset = 0x298C + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(0x3e7ba8), [target_offset], float_be)
     }
 
     function finished_race() {
-        return always_false()
+        target_offset = 0x2984 + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(0x3e7ba8), [target_offset], dword_be) == 3 && prev(ptr(dword_be(0x3e7ba8), [target_offset], dword_be)) == 2
     }
 
     // Todo check if valid for all four
@@ -405,86 +407,96 @@ track_map = {
 time_trial_data = [
     {
         "track_id": 0x00, // DK Jungle
-        "target_time": 5107.0,
+        "target_time": 5107,
         "valid_characters": [0x00, 0x05]
     },
     {
         "track_id": 0x01, // DK J Falls
-        "target_time": 6883.0,
+        "target_time": 6883,
         "valid_characters": [0x01, 0x06]
     },
     {
         "track_id": 0x02, // DK J Sunset
-        "target_time": 7308.0, // 02:01:80
+        "target_time": 7308, // 02:01:80
         "valid_characters": [0x02, 0x07]
     },
     {
         "track_id": 0x03, // Salty Sea
-        "target_time": 6781.0,
+        "target_time": 6781,
         "valid_characters": [0x0c, 0x0e]
     },
     {
         "track_id": 0x04, // Shimmering Sea
-        "target_time": 7128.0,
+        "target_time": 7128,
         "valid_characters": [0x03, 0x08]
     },
     {
         "track_id": 0x05, // Open Ocean
-        "target_time": 6943.0, // 1:55:70
+        "target_time": 6943, // 1:55:70
         "valid_characters": [0x04, 0x09]
     },
     {
         "track_id": 0x06, // Mt. Dynamite
-        "target_time": 8675.0,
+        "target_time": 8675,
         "valid_characters": [0x0a, 0x0f]
     },
     {
         "track_id": 0x07, // Mt. Dynamite Remix
-        "target_time": 00,
+        "target_time": 11744,
         "valid_characters": [0x0d, 0x0b]
     },
     {
         "track_id": 0x08, // Dynamite Run
-        "target_time": 00,
+        "target_time": 11489,
         "valid_characters": [0x00, 0x05]
     },
     {
         "track_id": 0x09, // Cranky Temple
-        "target_time": 00,
+        "target_time": 8618,
         "valid_characters": [0x01, 0x06]
     },
     {
         "track_id": 0x0a, // Temple Heights
-        "target_time": 00,
+        "target_time": 10277,
         "valid_characters": [0x02, 0x07]
     },
     {
         "track_id": 0x0b, // Cosmic Highway
-        "target_time": 00,
+        "target_time": 10796,
         "valid_characters": [0x0c, 0x0e]
     },
     {
         "track_id": 0x0c, // Scorching Canyon
-        "target_time": 00,
+        "target_time": 7356,
         "valid_characters": [0x03, 0x08]
     },
     {
         "track_id": 0x0d, // Parched Palace
-        "target_time": 00,
+        "target_time": 10825,
         "valid_characters": [0x04, 0x09]
     },
     {
         "track_id": 0x0e, // Mammoth Glacier
-        "target_time": 00,
+        "target_time": 7708,
         "valid_characters": [0x0a, 0x0f]
     },
     {
         "track_id": 0x0f, // Alpine Peak
-        "target_time": 00,
+        "target_time": 10321,
         "valid_characters": [0x0d, 0x0b]
     },
 ]
 
+function pad_to_twos(input) {
+    input = "" + input
+    if (length(input) == 1) {
+        res = "0" + input
+    } else {
+        res = input
+    }
+    
+    return res
+}
 
 function frame_time_to_readable_string(frames) {
     fps = 60
@@ -495,14 +507,9 @@ function frame_time_to_readable_string(frames) {
 
     leftover_frames = frames % fps
     millis = leftover_frames / fps * 1000
-    
-    no_dec_pos_min = substring(format("{0}", minutes), 0, 1)
-    no_dec_pos_sec = substring(format("{0}", seconds), 0, 2)
-    no_dec_pos_mil = substring(format("{0}", millis), 0, 2)
-    
-    return format("{0}:{1}:{2}", no_dec_pos_min, no_dec_pos_sec, no_dec_pos_mil)
-}
 
+    return format("{0}:{1}:{2}", pad_to_twos(minutes), pad_to_twos(seconds), pad_to_twos(millis))
+}
 
 player_1_obj = PlayerData(1)
 player_2_obj = PlayerData(2)
@@ -521,6 +528,7 @@ for element in time_trial_data {
         track_map[element["track_id"]] // track
     ),
     trigger = 
+        !demo_playing() &&
         get_mode() == 02 &&
         get_track() == element["track_id"] &&
         (
@@ -528,6 +536,30 @@ for element in time_trial_data {
         ) &&
         player_1_obj.get_total_time() >= element["target_time"] &&
         trigger_when(player_1_obj.finished_race())
+    )
+
+    leaderboard(
+        title = format("Time Attack: {0} (Expert)", track_map[element["track_id"]]),
+        description = format("Reach the goal on {0} in a Time Trial on Expert difficulty as quickly as possible!",
+        track_map[element["track_id"]] // track
+    ),
+        start = 
+        (
+            in_a_race_state() &&
+            !demo_playing() &&
+            get_mode() == 02 &&
+            get_track() == element["track_id"] &&
+            player_1_obj.finished_race()
+        ),
+        cancel = (
+            !in_a_race_state() && prev(in_a_race_state())
+        ),
+        submit = always_true(),
+        value =
+            measured(
+                player_1_obj.get_total_time()
+        ),
+        format = "FRAMES", lower_is_better = true
     )
 }
 
@@ -606,6 +638,7 @@ for element in range(1, 4, 1) {
     points = 5,
     description = format("Clear all of Candy's Challenges in Level {0}", element),
     trigger = 
+        !demo_playing() &&
         get_mode() == 04 &&
         measured(
             count_cleared_challenges_per_level(element) == 8
@@ -639,10 +672,17 @@ rich_presence_conditional_display(!demo_playing() && get_mode() == 0x07 && in_a_
 )
 
 // Single Race, Time Trial, Free Run
-rich_presence_conditional_display(!demo_playing() && get_mode() <= 0x03 && in_a_race_state(), "{0} is in {1} on {2} • {3} / 32 Challenges Cleared",
+rich_presence_conditional_display(!demo_playing() && get_mode() <= 0x03 && in_a_race_state(), "{0} is in a {1} on {2} • {3} / 32 Challenges Cleared",
     rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
     rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
     rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
+)
+
+// Not in race: Ceremony?
+rich_presence_conditional_display(!!demo_playing() && get_mode() == 0x00 && !in_a_race_state(), "{0} is in the victory ceremony of the {1} Cup • {2} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
+    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
     rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
 )
 
