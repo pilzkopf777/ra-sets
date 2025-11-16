@@ -70,18 +70,26 @@ class PlayerData
         return ptr(dword_be(0x3e7ba8), [target_offset], dword_be) == 3 && prev(ptr(dword_be(0x3e7ba8), [target_offset], dword_be)) == 2
     }
 
-    // Todo check if valid for all four
     function get_banana_combo() {
-        first_adr = 0x4892c8
-        target_adr = first_adr + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
-        return ptr(dword_be(target_adr), [0x288], dword_be)  
+        offset_map = {
+            0x01: 0x288,
+            0x02: 0x534,
+            0x03: 0x7E0,
+            0x04: 0xA8C
+        }
+
+        return ptr(dword_be(0x488eb8), [0x358, 0x24C, 0x298, offset_map[this.player_id]], dword_be)  
     }
 
-    // Todo check if valid for all four
     function get_wild_move_combo() {
-        first_adr = 0x48934c
-        target_adr = first_adr + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
-        return ptr(dword_be(target_adr), [0x288], dword_be)  
+        offset_map = {
+            0x01: 0x288,
+            0x02: 0x520,
+            0x03: 0x7B8,
+            0x04: 0xA50
+        }
+
+        return ptr(dword_be(0x488eb8), [0x358, 0x24C, 0x2A8, offset_map[this.player_id]], dword_be)  
     }
 
     function get_style_barrel_progress() {
@@ -105,6 +113,7 @@ function get_mode() {
     return byte(0x351FA1)
 }
 
+// TODO: bad pointer
 function demo_playing() {
     demo_ends_in = ptr(dword_be(0x0048c10c), [0x78], float_be)
     return demo_ends_in < 3000.0 && demo_ends_in <= 0.0 && demo_ends_in != 0.0
@@ -659,33 +668,94 @@ rich_presence_conditional_display(!demo_playing() && get_mode() == 0x04 && in_a_
     rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
 )
 
-// In GP mode
-rich_presence_conditional_display(!demo_playing() && get_mode() == 0x00 && in_a_race_state(), "{0} is competing in the {1} Cup on {2} • {3} / 32 Challenges Cleared",
-    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
-    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
-    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
-    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
-)
-
 // In Tutorial
 rich_presence_conditional_display(!demo_playing() && get_mode() == 0x07 && in_a_race_state(), "Donkey Kong is learning the ropes at Cranky's Flight School • {0} / 32 Challenges Cleared",
     rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
 )
 
+// In GP mode, alone
+rich_presence_conditional_display(!demo_playing() && get_mode() == 0x00 && in_a_race_state() && !player_2_obj.is_human_player(), "{0} is competing in the {1} Cup on {2} • {3} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
+)
+
+// In GP mode, with 2 players
+rich_presence_conditional_display(!demo_playing() && get_mode() == 0x00 && in_a_race_state() && !player_3_obj.is_human_player(), "{0} and {4} are competing in the {1} Cup on {2} • {3} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE"),
+    rich_presence_lookup("Character 2", player_2_obj.get_character(), character_map, fallback="an unknown character")
+)
+
+// In GP mode, with 3 players
+rich_presence_conditional_display(!demo_playing() && get_mode() == 0x00 && in_a_race_state() && !player_4_obj.is_human_player(), "{0}, {4} and {5} are competing in the {1} Cup on {2} • {3} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE"),
+    rich_presence_lookup("Character 2", player_2_obj.get_character(), character_map, fallback="an unknown character"),
+    rich_presence_lookup("Character 3", player_3_obj.get_character(), character_map, fallback="an unknown character")
+)
+
+// In GP mode, with 4 players
+rich_presence_conditional_display(!demo_playing() && get_mode() == 0x00 && in_a_race_state() && player_4_obj.is_human_player(), "{0}, {4}, {5} and {6} are competing in the {1} Cup on {2} • {3} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE"),
+    rich_presence_lookup("Character 2", player_2_obj.get_character(), character_map, fallback="an unknown character"),
+    rich_presence_lookup("Character 3", player_3_obj.get_character(), character_map, fallback="an unknown character"),
+    rich_presence_lookup("Character 4", player_4_obj.get_character(), character_map, fallback="an unknown character")
+)
+
+
 // Single Race, Time Trial, Free Run
-rich_presence_conditional_display(!demo_playing() && get_mode() <= 0x03 && in_a_race_state(), "{0} is in a {1} on {2} • {3} / 32 Challenges Cleared",
-    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
+rich_presence_conditional_display(!demo_playing() && get_mode() <= 0x03 && in_a_race_state() && !player_2_obj.is_human_player(), "{0} is in a {1} on {2} • {3} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
     rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
     rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
     rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
 )
 
+// Single Race, Time Trial, Free Run 2 players
+rich_presence_conditional_display(!demo_playing() && get_mode() <= 0x03 && in_a_race_state() && !player_3_obj.is_human_player(), "{0} and {4} are in a {1} on {2} • {3} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE"),
+    rich_presence_lookup("Character 2", player_2_obj.get_character(), character_map, fallback="an unknown character")
+)
+
+// Single Race, Time Trial, Free Run 3 players 
+rich_presence_conditional_display(!demo_playing() && get_mode() <= 0x03 && in_a_race_state() && !player_4_obj.is_human_player(), "{0}, {4} and {5} are a {1} on {2} • {3} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE"),
+    rich_presence_lookup("Character 2", player_2_obj.get_character(), character_map, fallback="an unknown character"),
+    rich_presence_lookup("Character 3", player_3_obj.get_character(), character_map, fallback="an unknown character")
+)
+
+// Single Race, Time Trial, Free Run 4 players
+rich_presence_conditional_display(!demo_playing() && get_mode() <= 0x03 && in_a_race_state() && player_4_obj.is_human_player(), "{0}, {4}, {5} and {6} are in a {1} on {2} • {3} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
+    rich_presence_lookup("Track", get_track(), track_map, fallback="an unknown track"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE"),
+    rich_presence_lookup("Character 2", player_2_obj.get_character(), character_map, fallback="an unknown character"),
+    rich_presence_lookup("Character 3", player_3_obj.get_character(), character_map, fallback="an unknown character"),
+    rich_presence_lookup("Character 4", player_4_obj.get_character(), character_map, fallback="an unknown character")
+)
+
 // Not in race: Ceremony?
 rich_presence_conditional_display(!!demo_playing() && get_mode() == 0x00 && !in_a_race_state(), "{0} is in the victory ceremony of the {1} Cup • {2} / 32 Challenges Cleared",
-    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="A unknown character"),
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
     rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
     rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
 )
 
 // TODO: Need title screen vs other screens that do not involve gameplay like the victory ceremony..
-rich_presence_display("Playing Donkey Kong Barrel Blast")
+rich_presence_display("In the Main Menu")
