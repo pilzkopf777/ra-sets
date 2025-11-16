@@ -540,11 +540,12 @@ for element in time_trial_data {
 
     leaderboard(
         title = format("Time Attack: {0} (Expert)", track_map[element["track_id"]]),
-        description = format("Reach the goal on {0} in a Time Trial on Expert difficulty as quickly as possible!",
+        description = format("Reach the goal as quickly as possible on {0} in a Time Trial on Expert difficulty as any character except Ultra Barrel DK!",
         track_map[element["track_id"]] // track
     ),
         start = 
         (
+            player_1_obj.get_character() != 0x10 && // no ultra barrel dk
             in_a_race_state() &&
             !demo_playing() &&
             get_mode() == 02 &&
