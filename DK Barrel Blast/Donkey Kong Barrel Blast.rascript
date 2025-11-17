@@ -163,6 +163,12 @@ character_map = {
     0x10: "Ultra Barrel DK"
 }
 
+difficulty_map = {
+    0x00: "Rookie",
+    0x01: "Pro",
+    0x02: "Expert"
+}
+
 function get_track() {
     return ptr(dword_be(0x53560c), [0x30], dword_be)
 }
@@ -662,12 +668,15 @@ function banana_combo_went_up_by_x(player_id, amount) {
 }
 
 function banana_fairy_logic_for_player(player_id) {
-    cond = always_true()
-    for count in range(1, 60, 1) {
-        cond = cond && banana_combo_went_up_by_x(player_id, count)
+    cond = []
+
+    for count in range(1, 100, 1) {
+        array_push(cond, banana_combo_went_up_by_x(player_id, count))
     }
+
     return cond
 }
+
 
 // todo: limit busted, sad days all around
 target_fairy = 150
@@ -676,7 +685,6 @@ achievement(
     points = 1,
     description = format("Earn {0} bananas using the Banana Fairy before it runs out", target_fairy),
     trigger = 
-    !demo_playing() &&
     (
         (
             player_1_obj.is_human_player() &&
@@ -684,7 +692,7 @@ achievement(
             (
                 never(!player_1_obj.using_banana_fairy()) &&
                 tally(
-                    target_fairy, banana_fairy_logic_for_player(1)
+                   target_fairy, banana_fairy_logic_for_player(1)
                 )
             )
         )
@@ -724,23 +732,30 @@ achievement(
     )
 )
 
+chal_names = ["Chal P1", "Chal P2", "Chal P3", "Chal All"]
 
-
-for element in range(1, 4, 1) {
+for element in range(0, 3, 1) {
     achievement(
-    title = format("Challenges Page {0}", element),
+    title = chal_names[element],
     points = 5,
-    description = format("Clear all of Candy's Challenges in Level {0}", element),
+    description = format("Clear all of Candy's Challenges in Level {0}", element + 1),
     trigger = 
         !demo_playing() &&
         get_mode() == 04 &&
         measured(
-            count_cleared_challenges_per_level(element) == 8
+            count_cleared_challenges_per_level(element + 1) == 8
         ) &&
-        prev(count_cleared_challenges_per_level(element) == 7)
+        prev(count_cleared_challenges_per_level(element + 1) == 7)
     )
 }
 
+for difficulty in difficulty_map {
+    current_difficulty = difficulty_map[difficulty]
+
+    for cup in gp_map {
+        a = cup
+    }
+}
 
 
 
