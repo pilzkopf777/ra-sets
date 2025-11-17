@@ -103,6 +103,16 @@ class PlayerData
         this.get_banana_combo() >= prev(this.get_banana_combo()) + 50 &&
         prev(this.get_style_barrel_progress() == 3)
     }
+
+    function using_banana_fairy() {
+        target_offset = 0x29E8 + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(0x3e7ba8), [target_offset], float_be) > 0.0
+    }
+
+    function using_tasty_melon() {
+        target_offset = 0x29F4 + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(0x3e7ba8), [target_offset], float_be) > 0.0
+    }
 }
 
 function in_a_race_state() {
@@ -113,10 +123,13 @@ function get_mode() {
     return byte(0x351FA1)
 }
 
-// TODO: bad pointer
+// TODO: invalid...
 function demo_playing() {
-    demo_ends_in = ptr(dword_be(0x0048c10c), [0x78], float_be)
-    return demo_ends_in < 3000.0 && demo_ends_in <= 0.0 && demo_ends_in != 0.0
+    demo_ends_in = ptr(dword_be(0x00535790), [0x78], float_be)
+    cond_demo_time = demo_ends_in < 3000.0 && demo_ends_in >= 0.0 && demo_ends_in != 0.0
+    cond_race_state = in_a_race_state()
+    cond_ptr_valid = dword_be(0x00535790) != 0x00
+    return cond_demo_time && cond_race_state && cond_ptr_valid
 }
 
 mode_map = {
@@ -151,7 +164,7 @@ character_map = {
 }
 
 function get_track() {
-    return byte(0x535773)
+    return ptr(dword_be(0x53560c), [0x30], dword_be)
 }
 
 function get_gp() {
@@ -615,31 +628,102 @@ achievement(
     )
 )
 
-target = 15
+target_wild = 15
 achievement(
     title = "Wild Moves Combo",
     points = 1,
-    description = format("Reach a Wild Move combo of {0}", target),
+    description = format("Reach a Wild Move combo of {0}", target_wild),
     trigger = 
     !demo_playing() &&
     (
         (
-            player_1_obj.is_human_player() && player_1_obj.get_wild_move_combo() == 15 && prev(player_1_obj.get_wild_move_combo() == 14)
+            player_1_obj.is_human_player() && player_1_obj.get_wild_move_combo() == target_wild && prev(player_1_obj.get_wild_move_combo() == target_wild - 1)
         )
         ||
         (
-            player_2_obj.is_human_player() && player_2_obj.get_wild_move_combo() == 15 && prev(player_2_obj.get_wild_move_combo() == 14)
+            player_2_obj.is_human_player() && player_2_obj.get_wild_move_combo() == target_wild && prev(player_2_obj.get_wild_move_combo() == target_wild - 1)
         )
         ||
         (
-            player_3_obj.is_human_player() && player_3_obj.get_wild_move_combo() == 15 && prev(player_3_obj.get_wild_move_combo() == 14)
+            player_3_obj.is_human_player() && player_3_obj.get_wild_move_combo() == target_wild && prev(player_3_obj.get_wild_move_combo() == target_wild - 1)
         )
         ||
         (
-            player_4_obj.is_human_player() && player_4_obj.get_wild_move_combo() == 15 && prev(player_4_obj.get_wild_move_combo() == 14)
+            player_4_obj.is_human_player() && player_4_obj.get_wild_move_combo() == target_wild && prev(player_4_obj.get_wild_move_combo() == target_wild - 1)
         )
     )
 )
+
+function banana_combo_went_up_by_x(player_id, amount) {
+    player_obj = PlayerData(player_id)
+    // eg. was 5, now 7, amount is 2:
+    // 7 - 5 = 2 -> true
+    return player_obj.get_banana_combo() - prev(player_obj.get_banana_combo()) >= amount
+}
+
+function banana_fairy_logic_for_player(player_id) {
+    cond = always_true()
+    for count in range(1, 60, 1) {
+        cond = cond && banana_combo_went_up_by_x(player_id, count)
+    }
+    return cond
+}
+
+// todo: limit busted, sad days all around
+target_fairy = 150
+achievement(
+    title = "Banana Fairy chain",
+    points = 1,
+    description = format("Earn {0} bananas using the Banana Fairy before it runs out", target_fairy),
+    trigger = 
+    !demo_playing() &&
+    (
+        (
+            player_1_obj.is_human_player() &&
+            // reset hits if player has no banana fairy
+            (
+                never(!player_1_obj.using_banana_fairy()) &&
+                tally(
+                    target_fairy, banana_fairy_logic_for_player(1)
+                )
+            )
+        )
+        ||
+        (
+            player_2_obj.is_human_player() &&
+            // reset hits if player has no banana fairy
+            (
+                never(!player_2_obj.using_banana_fairy()) &&
+                tally(
+                    target_fairy, banana_fairy_logic_for_player(2)
+                )
+            )
+        )
+        ||
+        (
+            player_3_obj.is_human_player() &&
+            // reset hits if player has no banana fairy
+            (
+                never(!player_3_obj.using_banana_fairy()) &&
+                tally(
+                    target_fairy, banana_fairy_logic_for_player(3)
+                )
+            )
+        )
+        ||
+        (
+            player_4_obj.is_human_player() &&
+            // reset hits if player has no banana fairy
+            (
+                never(!player_4_obj.using_banana_fairy()) &&
+                tally(
+                    target_fairy, banana_fairy_logic_for_player(4)
+                )
+            )
+        )
+    )
+)
+
 
 
 for element in range(1, 4, 1) {
