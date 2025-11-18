@@ -823,7 +823,7 @@ for element in buddy_data {
     achievement(
         title = buddy_data[element]["title"],
         points = 3,
-        description = format("While riding {0} on {1}, reach a combo of {2}", buddy_data[element]["bud_name"], track_map[element], buddy_data[element]["target"]),
+        description = format("While riding {0} on {1}, reach a combo of {2}", buddy_data[element]["bud_name"], track_map[buddy_data[element]["map"]], buddy_data[element]["target"]),
         trigger = 
         !demo_playing() && get_track() == buddy_data[element]["map"] &&
         (
@@ -863,11 +863,13 @@ for element in buddy_data {
 
 chal_names = ["Lightly Sprinkled", "Double-Dipped", "Fully Frosted", "Candy-Crystalized"]
 chal_score = [5, 10, 10, 25]
+//chal_prog = ["progression", "progression", "progression", "win_condition"]
 
 for element in range(0, 3, 1) {
     achievement(
         title = chal_names[element],
         points = chal_score[element],
+        // type = chal_prog[element],
         description = format("Clear all of Candy's Challenges in Level {0}", element + 1),
         trigger = 
             !demo_playing() &&
@@ -893,6 +895,14 @@ function trophy_revealed() {
 escalation = ["Run", "Rush", "Rampage"]
 esc_score = [3, 5, 10]
 
+function check_if_cup_is_victory_cond(cup, difficulty) {
+    if (cup == 0x03 && difficulty == 0x02) {
+        return "win_condition"
+    } else {
+        return "progression"
+    }
+}
+
 for difficulty in difficulty_map {
     current_difficulty = difficulty_map[difficulty]
     dif_text = escalation[difficulty]
@@ -903,6 +913,7 @@ for difficulty in difficulty_map {
         achievement(
             title = format("{0} {1}", gp_map[cup], dif_text),
             points = score,
+            type = check_if_cup_is_victory_cond(cup, difficulty),
             description = format("Reach first place in the {0} Jungle Grand Prix on {1} difficulty", gp_map[cup], difficulty_map[difficulty]),
             trigger = 
             get_mode() == 0 &&
