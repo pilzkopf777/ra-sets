@@ -72,11 +72,11 @@ class PlayerData
 
     function get_speed() {
         target_offset = 0x2678 + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
-        return ptr(dword_be(0x3e7ba8), [target_offset], word_be)
+        return ptr(dword_be(0x3e7ba8), [target_offset], float_be)
     }
 
     function zero_to_full_speed() {
-        this.get_speed() == 1.0 && prev(this.get_speed() == 0.0)
+        return this.get_speed() == 1.0 && prev(this.get_speed() == 0.0)
     }
 
     function get_banana_combo() {
@@ -795,6 +795,13 @@ function human_player_is_1st_in_gp(character_id) {
     return dword_be(0x3511ac) == character_id
 }
 
+function trophy_revealed() {
+    trophy_state = ptr(dword_be(0x0048319c), [0x01], byte)
+    cup_prog = ptr(dword_be(0x53560c), [0x3c], dword_be)
+    // trophy revealed and players was on final race of cup, timecode done
+    return trophy_state == 0x05 && prev(trophy_state < 0x05) && cup_prog == dword_be(0x35204c) && float_be(0x0053f368) > 1200.0
+}
+
 cup_clr_names = ["1-1", "1-2", "1-3", "1-4", "2-1", "2-2", "2-3", "2-4", "3-1", "3-2", "3-3", "3-4"]
 
 for difficulty in difficulty_map {
@@ -811,19 +818,19 @@ for difficulty in difficulty_map {
             get_gp() == cup && get_difficulty() == difficulty &&
             (
                 (
-                    player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character())
+                    player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character()) && trophy_revealed()
                 )
                 ||
                 (
-                    player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character())
+                    player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character()) && trophy_revealed()
                 )
                 ||
                 (
-                    player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character())
+                    player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character()) && trophy_revealed()
                 )
                 ||
                 (
-                    player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character())
+                    player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character()) && trophy_revealed()
                 )
             )
         )
