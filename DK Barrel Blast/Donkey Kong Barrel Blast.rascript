@@ -605,7 +605,7 @@ for element in time_trial_data {
     )
 
     leaderboard(
-        title = format("Time Attack: {0} (Expert)", track_map[element["track_id"]]),
+        title = format("Time Trial: {0} (Expert)", track_map[element["track_id"]]),
         description = format("Reach the goal as quickly as possible on {0} in a Time Trial on Expert difficulty as any character except Ultra Barrel DK!",
         track_map[element["track_id"]] // track
     ),
@@ -771,7 +771,7 @@ achievement(
 )
 
 achievement(
-    title = "Peak Condition",
+    title = "Peak Position",
     points = 1,
     description = "Perform a Boost Start",
     trigger = 
