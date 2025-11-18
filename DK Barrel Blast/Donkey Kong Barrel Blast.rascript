@@ -177,6 +177,10 @@ function get_gp() {
     return dword_be(0x352048)
 }
 
+function get_difficulty() {
+    return dword_be(0x352024)
+}
+
 gp_map = {
     0x00: "Topaz",
     0x01: "Sapphire",
@@ -736,24 +740,55 @@ chal_names = ["Chal P1", "Chal P2", "Chal P3", "Chal All"]
 
 for element in range(0, 3, 1) {
     achievement(
-    title = chal_names[element],
-    points = 5,
-    description = format("Clear all of Candy's Challenges in Level {0}", element + 1),
-    trigger = 
-        !demo_playing() &&
-        get_mode() == 04 &&
-        measured(
-            count_cleared_challenges_per_level(element + 1) == 8
-        ) &&
-        prev(count_cleared_challenges_per_level(element + 1) == 7)
+        title = chal_names[element],
+        points = 5,
+        description = format("Clear all of Candy's Challenges in Level {0}", element + 1),
+        trigger = 
+            !demo_playing() &&
+            get_mode() == 04 &&
+            measured(
+                count_cleared_challenges_per_level(element + 1) == 8
+            ) &&
+            prev(count_cleared_challenges_per_level(element + 1) == 7)
     )
 }
+
+function human_player_is_1st_in_gp(character_id) {
+    return dword_be(0x3511ac) == character_id
+}
+
+cup_clr_names = ["1-1", "1-2", "1-3", "1-4", "2-1", "2-2", "2-3", "2-4", "3-1", "3-2", "3-3", "3-4"]
 
 for difficulty in difficulty_map {
     current_difficulty = difficulty_map[difficulty]
 
-    for cup in gp_map {
-        a = cup
+    // Go over all four default cups, excluding Choice and Random
+    for cup in range(0, 3, 1) {
+        achievement(
+            title = cup_clr_names[cup + difficulty * 4],
+            points = 5,
+            description = format("Reach first place in the {0} Jungle Grand Prix on {1} difficulty", gp_map[cup], difficulty_map[difficulty]),
+            trigger = 
+            get_mode() == 0 &&
+            get_gp() == cup && get_difficulty() == difficulty &&
+            (
+                (
+                    player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character())
+                )
+                ||
+                (
+                    player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character())
+                )
+                ||
+                (
+                    player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character())
+                )
+                ||
+                (
+                    player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character())
+                )
+            )
+        )
     }
 }
 
