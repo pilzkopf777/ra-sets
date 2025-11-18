@@ -539,8 +539,24 @@ function pad_to_twos(input) {
     return res
 }
 
+function frame_time_to_next_second(frames) {
+    fps = 60
+
+    // truncate any fractional frames
+    frames = frames - (frames % 1)
+
+    leftover = frames % fps
+    if (leftover == 0) {
+        return frames
+    }
+    return frames + (fps - leftover)
+}
+
+
 function frame_time_to_readable_string(frames) {
     fps = 60
+
+    frames = frame_time_to_next_second(frames)
 
     total_seconds = frames / fps
     minutes = total_seconds / 60
@@ -575,7 +591,7 @@ for element in time_trial_data {
         (
             player_1_obj.get_character() == element["valid_characters"][0] || player_1_obj.get_character() == element["valid_characters"][1]
         ) &&
-        player_1_obj.get_total_time() >= element["target_time"] &&
+        player_1_obj.get_total_time() >= frame_time_to_next_second(element["target_time"]) &&
         trigger_when(player_1_obj.finished_race())
     )
 
