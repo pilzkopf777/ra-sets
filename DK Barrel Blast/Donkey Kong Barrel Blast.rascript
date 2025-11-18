@@ -122,6 +122,11 @@ class PlayerData
         target_offset = 0x29F4 + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
         return ptr(dword_be(0x3e7ba8), [target_offset], float_be) > 0.0
     }
+
+    function is_riding_buddy() {
+        target_offset = 0x2BB4 + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(0x3e7ba8), [target_offset], dword_be) == 1
+    }
 }
 
 function in_a_race_state() {
@@ -132,13 +137,13 @@ function get_mode() {
     return byte(0x351FA1)
 }
 
-// TODO: invalid...
+// TODO: test this
 function demo_playing() {
     demo_ends_in = ptr(dword_be(0x00535790), [0x78], float_be)
-    cond_demo_time = demo_ends_in < 3000.0 && demo_ends_in >= 0.0 && demo_ends_in != 0.0
-    cond_race_state = in_a_race_state()
-    cond_ptr_valid = dword_be(0x00535790) != 0x00
-    return cond_demo_time && cond_race_state && cond_ptr_valid
+    // cond_demo_time = demo_ends_in < 3000.0 && demo_ends_in >= 0.0 && demo_ends_in != 0.0
+    // cond_race_state = in_a_race_state()
+    // cond_ptr_valid = dword_be(0x00535790) != 0x00
+    return dword_be(0x00535790) != 0xffffffff && dword_be(0x00535790) != 0x00 && demo_ends_in != 0.0
 }
 
 mode_map = {
@@ -219,6 +224,10 @@ item_map = {
 
 function get_candy_chal() {
     return dword_be(0x352068)
+}
+
+function in_victory_ceremony() {
+    return float_be(0x53f368) > 0.0 && float_be(0x53f368) < 1300.0
 }
 
 // Key = Internal Challenge ID 
@@ -576,8 +585,8 @@ player_4_obj = PlayerData(4)
 
 for element in time_trial_data {
     achievement(
-    title = format("The Fastest Ape in {0}", track_map[element["track_id"]]),
-    points = 10,
+    title = format("Going Ape in {0}", track_map[element["track_id"]]),
+    points = 25,
     description = format("As either {0} or {1}, reach the goal in {2} on {3} in a Time Trial on Expert difficulty",
         character_map[element["valid_characters"][0]], // char 1
         character_map[element["valid_characters"][1]], // char 2
@@ -639,7 +648,7 @@ function count_cleared_challenges_per_level(level) {
 }
 
 achievement(
-    title = "Style Barrel",
+    title = "Tricked out",
     points = 1,
     description = "Land all four tricks in a Style Barrel",
     trigger = 
@@ -665,8 +674,8 @@ achievement(
 
 target_wild = 15
 achievement(
-    title = "Wild Moves Combo",
-    points = 1,
+    title = "Finally, a racing game with a Wild Move meter!",
+    points = 5,
     description = format("Reach a Wild Move combo of {0}", target_wild),
     trigger = 
     !demo_playing() &&
@@ -707,11 +716,11 @@ function banana_fairy_logic_for_player(player_id) {
 }
 
 
-// todo: limit busted, sad days all around
+// This is just for generation of the logic, replace Resetif with Resetnextif if generating this or things will go horribly wrong
 target_fairy = 150
 achievement(
-    title = "Banana Fairy chain",
-    points = 1,
+    title = "Blessed with Potassium",
+    points = 3,
     description = format("Earn {0} bananas using the Banana Fairy before it runs out", target_fairy),
     trigger = 
     (
@@ -762,7 +771,7 @@ achievement(
 )
 
 achievement(
-    title = "Boost Start",
+    title = "Peak Condition",
     points = 1,
     description = "Perform a Boost Start",
     trigger = 
@@ -789,13 +798,76 @@ achievement(
     )
 )
 
+buddy_data = {
+    0x00: {
+        "map": 0x03,
+        "title": "Coral Capers",
+        "bud_name": "Enguarde",
+        "target": 1
+    },
+    0x01: {
+        "map": 0x05,
+        "title": "Clam City",
+        "bud_name": "Enguarde",
+        "target": 1
+    },
+    0x02: {
+        "map": 0x08,
+        "title": "Jungle Hijinxs",
+        "bud_name": "Rambi",
+        "target": 1
+    },
+}
 
-chal_names = ["Chal P1", "Chal P2", "Chal P3", "Chal All"]
+for element in buddy_data {
+    achievement(
+        title = buddy_data[element]["title"],
+        points = 3,
+        description = format("While riding {0} on {1}, reach a combo of {2}", buddy_data[element]["bud_name"], track_map[element], buddy_data[element]["target"]),
+        trigger = 
+        !demo_playing() && get_track() == buddy_data[element]["map"] &&
+        (
+            (
+                player_1_obj.is_human_player() &&
+                player_1_obj.is_riding_buddy() &&
+                player_1_obj.get_wild_move_combo() == buddy_data[element]["target"] &&
+                prev(player_1_obj.get_wild_move_combo()) == buddy_data[element]["target"] - 1
+            )
+            ||
+            (
+                player_2_obj.is_human_player() &&
+                player_2_obj.is_riding_buddy() &&
+                player_2_obj.get_wild_move_combo() == buddy_data[element]["target"] &&
+                prev(player_2_obj.get_wild_move_combo()) == buddy_data[element]["target"] - 1
+            )
+            ||
+            (
+                player_3_obj.is_human_player() &&
+                player_3_obj.is_riding_buddy() &&
+                player_3_obj.get_wild_move_combo() == buddy_data[element]["target"] &&
+                prev(player_3_obj.get_wild_move_combo()) == buddy_data[element]["target"] - 1
+            )
+            ||
+            (
+                player_4_obj.is_human_player() &&
+                player_4_obj.is_riding_buddy() &&
+                player_4_obj.get_wild_move_combo() == buddy_data[element]["target"] &&
+                prev(player_4_obj.get_wild_move_combo()) == buddy_data[element]["target"] - 1
+            )
+        )
+    )
+
+}
+
+
+
+chal_names = ["Lightly Sprinkled", "Double-Dipped", "Fully Frosted", "Candy-Crystalized"]
+chal_score = [5, 10, 10, 25]
 
 for element in range(0, 3, 1) {
     achievement(
         title = chal_names[element],
-        points = 5,
+        points = chal_score[element],
         description = format("Clear all of Candy's Challenges in Level {0}", element + 1),
         trigger = 
             !demo_playing() &&
@@ -818,16 +890,19 @@ function trophy_revealed() {
     return trophy_state == 0x05 && prev(trophy_state < 0x05) && cup_prog == dword_be(0x35204c) && float_be(0x0053f368) > 1200.0
 }
 
-cup_clr_names = ["1-1", "1-2", "1-3", "1-4", "2-1", "2-2", "2-3", "2-4", "3-1", "3-2", "3-3", "3-4"]
+escalation = ["Run", "Rush", "Rampage"]
+esc_score = [3, 5, 10]
 
 for difficulty in difficulty_map {
     current_difficulty = difficulty_map[difficulty]
+    dif_text = escalation[difficulty]
+    score = esc_score[difficulty]
 
     // Go over all four default cups, excluding Choice and Random
     for cup in range(0, 3, 1) {
         achievement(
-            title = cup_clr_names[cup + difficulty * 4],
-            points = 5,
+            title = format("{0} {1}", gp_map[cup], dif_text),
+            points = score,
             description = format("Reach first place in the {0} Jungle Grand Prix on {1} difficulty", gp_map[cup], difficulty_map[difficulty]),
             trigger = 
             get_mode() == 0 &&
@@ -854,8 +929,59 @@ for difficulty in difficulty_map {
 }
 
 
-// Salty Sea x bananas with buddy
-// Dynamite Run x bananas with buddy
+achievement(
+    title = "The Choice is Yours",
+    points = 3,
+    description = "Reach first place in the Choice Cup in Jungle Grand Prix on any difficulty",
+    trigger = 
+    get_mode() == 0 &&
+    get_gp() == 0x04 &&
+    (
+        (
+            player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character()) && trophy_revealed()
+        )
+        ||
+        (
+            player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character()) && trophy_revealed()
+        )
+        ||
+        (
+            player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character()) && trophy_revealed()
+        )
+        ||
+        (
+            player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character()) && trophy_revealed()
+        )
+    )
+)
+
+achievement(
+    title = "You Have No Choice",
+    points = 3,
+    description = "Reach first place in the Random Cup in Jungle Grand Prix on any difficulty",
+    trigger = 
+    get_mode() == 0 &&
+    get_gp() == 0x05 &&
+    (
+        (
+            player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character()) && trophy_revealed()
+        )
+        ||
+        (
+            player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character()) && trophy_revealed()
+        )
+        ||
+        (
+            player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character()) && trophy_revealed()
+        )
+        ||
+        (
+            player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character()) && trophy_revealed()
+        )
+    )
+)
+
+
 // Parched Palace get golden banana
 // Shortcut barrel in Mt Dynamite
 
@@ -952,11 +1078,36 @@ rich_presence_conditional_display(!demo_playing() && get_mode() <= 0x03 && in_a_
 )
 
 // Not in race: Ceremony?
-rich_presence_conditional_display(!!demo_playing() && get_mode() == 0x00 && !in_a_race_state(), "{0} is in the victory ceremony of the {1} Cup • {2} / 32 Challenges Cleared",
+/*
+rich_presence_conditional_display(!!demo_playing() && get_mode() == 0x00 && in_victory_ceremony() && !player_2_obj.is_human_player(), "{0} is in the victory ceremony of the {1} Cup • {2} / 32 Challenges Cleared",
     rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
     rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
     rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
 )
 
-// TODO: Need title screen vs other screens that do not involve gameplay like the victory ceremony..
+rich_presence_conditional_display(!!demo_playing() && get_mode() == 0x00 && in_victory_ceremony() && !player_3_obj.is_human_player(), "{0} and {3} are in the victory ceremony of the {1} Cup • {2} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE"),
+    rich_presence_lookup("Character 2", player_2_obj.get_character(), character_map, fallback="an unknown character")
+)
+
+rich_presence_conditional_display(!!demo_playing() && get_mode() == 0x00 && in_victory_ceremony() && !player_4_obj.is_human_player(), "{0}, {3} and {4} are in the victory ceremony of the {1} Cup • {2} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE"),
+    rich_presence_lookup("Character 2", player_2_obj.get_character(), character_map, fallback="an unknown character"),
+    rich_presence_lookup("Character 3", player_3_obj.get_character(), character_map, fallback="an unknown character")
+)
+
+rich_presence_conditional_display(!!demo_playing() && get_mode() == 0x00 && in_victory_ceremony() && player_4_obj.is_human_player(), "{0}, {3}, {4} and {5} are in the victory ceremony of the {1} Cup • {2} / 32 Challenges Cleared",
+    rich_presence_lookup("Character", player_1_obj.get_character(), character_map, fallback="An unknown character"),
+    rich_presence_lookup("GP", get_gp(), gp_map, fallback="an unknown GP"),
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE"),
+    rich_presence_lookup("Character 2", player_2_obj.get_character(), character_map, fallback="an unknown character"),
+    rich_presence_lookup("Character 3", player_3_obj.get_character(), character_map, fallback="an unknown character"),
+    rich_presence_lookup("Character 4", player_4_obj.get_character(), character_map, fallback="an unknown character")
+)
+*/
+
 rich_presence_display("In the Main Menu")
