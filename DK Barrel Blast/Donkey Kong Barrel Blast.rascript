@@ -803,19 +803,19 @@ buddy_data = {
         "map": 0x03,
         "title": "Coral Capers",
         "bud_name": "Enguarde",
-        "target": 1
+        "target": 140
     },
     0x01: {
         "map": 0x05,
         "title": "Clam City",
         "bud_name": "Enguarde",
-        "target": 1
+        "target": 85
     },
     0x02: {
         "map": 0x08,
         "title": "Jungle Hijinxs",
         "bud_name": "Rambi",
-        "target": 1
+        "target": 105
     },
 }
 
@@ -823,36 +823,40 @@ for element in buddy_data {
     achievement(
         title = buddy_data[element]["title"],
         points = 3,
-        description = format("While riding {0} on {1}, reach a combo of {2}", buddy_data[element]["bud_name"], track_map[buddy_data[element]["map"]], buddy_data[element]["target"]),
+        description = format("While riding {0} on {1}, collect {2} bananas", buddy_data[element]["bud_name"], track_map[buddy_data[element]["map"]], buddy_data[element]["target"]),
         trigger = 
-        !demo_playing() && get_track() == buddy_data[element]["map"] &&
+        get_track() == buddy_data[element]["map"] &&
         (
             (
                 player_1_obj.is_human_player() &&
-                player_1_obj.is_riding_buddy() &&
-                player_1_obj.get_wild_move_combo() == buddy_data[element]["target"] &&
-                prev(player_1_obj.get_wild_move_combo()) == buddy_data[element]["target"] - 1
+                never(!player_1_obj.is_riding_buddy()) &&
+                tally(
+                   buddy_data[element]["target"], banana_fairy_logic_for_player(1)
+                )
             )
             ||
             (
                 player_2_obj.is_human_player() &&
-                player_2_obj.is_riding_buddy() &&
-                player_2_obj.get_wild_move_combo() == buddy_data[element]["target"] &&
-                prev(player_2_obj.get_wild_move_combo()) == buddy_data[element]["target"] - 1
+                never(!player_2_obj.is_riding_buddy()) &&
+                tally(
+                   buddy_data[element]["target"], banana_fairy_logic_for_player(2)
+                )
             )
             ||
             (
                 player_3_obj.is_human_player() &&
-                player_3_obj.is_riding_buddy() &&
-                player_3_obj.get_wild_move_combo() == buddy_data[element]["target"] &&
-                prev(player_3_obj.get_wild_move_combo()) == buddy_data[element]["target"] - 1
+                never(!player_3_obj.is_riding_buddy()) &&
+                tally(
+                   buddy_data[element]["target"], banana_fairy_logic_for_player(3)
+                )
             )
             ||
             (
                 player_4_obj.is_human_player() &&
-                player_4_obj.is_riding_buddy() &&
-                player_4_obj.get_wild_move_combo() == buddy_data[element]["target"] &&
-                prev(player_4_obj.get_wild_move_combo()) == buddy_data[element]["target"] - 1
+                never(!player_4_obj.is_riding_buddy()) &&
+                tally(
+                   buddy_data[element]["target"], banana_fairy_logic_for_player(4)
+                )
             )
         )
     )
