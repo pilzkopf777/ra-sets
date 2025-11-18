@@ -70,6 +70,15 @@ class PlayerData
         return ptr(dword_be(0x3e7ba8), [target_offset], dword_be) == 3 && prev(ptr(dword_be(0x3e7ba8), [target_offset], dword_be)) == 2
     }
 
+    function get_speed() {
+        target_offset = 0x2678 + this.player_id * this.OFFSET_PLAYER_OBJ - this.OFFSET_PLAYER_OBJ
+        return ptr(dword_be(0x3e7ba8), [target_offset], word_be)
+    }
+
+    function zero_to_full_speed() {
+        this.get_speed() == 1.0 && prev(this.get_speed() == 0.0)
+    }
+
     function get_banana_combo() {
         offset_map = {
             0x01: 0x288,
@@ -736,6 +745,35 @@ achievement(
     )
 )
 
+achievement(
+    title = "Boost Start",
+    points = 1,
+    description = "Perform a Boost Start",
+    trigger = 
+    (
+        (
+            player_1_obj.is_human_player() &&
+            player_1_obj.zero_to_full_speed()
+        )
+        ||
+        (
+            player_2_obj.is_human_player() &&
+            player_2_obj.zero_to_full_speed()
+        )
+        ||
+        (
+            player_3_obj.is_human_player() &&
+            player_3_obj.zero_to_full_speed()
+        )
+        ||
+        (
+            player_4_obj.is_human_player() &&
+            player_4_obj.zero_to_full_speed()
+        )
+    )
+)
+
+
 chal_names = ["Chal P1", "Chal P2", "Chal P3", "Chal All"]
 
 for element in range(0, 3, 1) {
@@ -791,6 +829,12 @@ for difficulty in difficulty_map {
         )
     }
 }
+
+
+// Salty Sea x bananas with buddy
+// Dynamite Run x bananas with buddy
+// Parched Palace get golden banana
+// Shortcut barrel in Mt Dynamite
 
 
 
