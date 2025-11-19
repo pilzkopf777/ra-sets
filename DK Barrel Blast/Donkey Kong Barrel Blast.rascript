@@ -143,7 +143,7 @@ function demo_playing() {
     // cond_demo_time = demo_ends_in < 3000.0 && demo_ends_in >= 0.0 && demo_ends_in != 0.0
     // cond_race_state = in_a_race_state()
     // cond_ptr_valid = dword_be(0x00535790) != 0x00
-    return dword_be(0x0048c10c) != 0xffffffff && dword_be(0x0048c10c) != 0x00 && demo_ends_in != 0.0
+    return demo_ends_in > 0.0
 }
 
 mode_map = {
