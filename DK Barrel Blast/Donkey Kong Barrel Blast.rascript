@@ -139,12 +139,22 @@ function get_mode() {
 
 // TODO: test this
 function demo_playing() {
-    demo_ends_in = ptr(dword_be(0x0048c10c), [0x78], float_be)
-    // cond_demo_time = demo_ends_in < 3000.0 && demo_ends_in >= 0.0 && demo_ends_in != 0.0
-    // cond_race_state = in_a_race_state()
-    // cond_ptr_valid = dword_be(0x00535790) != 0x00
-    return demo_ends_in > 0.0
+    // demo_ends_in = ptr(dword_be(0x0048c10c), [0x78], float_be)
+    // demo_starts_in = ptr(dword_be(0x0048c10c), [0x94], float_be)
+
+    // demo_alt = ptr(dword_be(0x0048c10c), [0x78], dword_be)
+
+    // Shift down by 23 bits - this should return only the exponent bits of the float0x0053560c
+    // exp = demo_alt / 0x800000
+
+    // The demo is a float if valid, which means it lasts from 0x44e10000 to 0x00
+
+    cup_prog = ptr(dword_be(0x0048318c), [0x3c], dword_be)
+
+    // cup prog is normally 0x00, demo if a pointer
+    return cup_prog > 0x80000000
 }
+
 
 mode_map = {
     0x00: "Jungle Grand Prix",
@@ -184,7 +194,7 @@ difficulty_map = {
 }
 
 function get_track() {
-    return ptr(dword_be(0x53560c), [0x30], dword_be)
+    return ptr(dword_be(0x0048318c), [0x30], dword_be)
 }
 
 function get_gp() {
@@ -434,6 +444,8 @@ challenge_data_true_id_map = {
     0x1f: "03"
 }
 
+// Practice map has dozens of variants, which all carry different IDs. They are never referenced anywhere in the code or RP so I did not list them.
+// Unless I ever feel so bored that I want to label the amount of barrels in an oval.
 track_map = {
     0x00: "DK Jungle",
     0x01: "DK Jungle Falls",
@@ -451,7 +463,6 @@ track_map = {
     0x0d: "Parched Palace",
     0x0e: "Mammoth Glacier",
     0x0f: "Alpine Peak",
-    0xfe: "Practice Course" // not a regular track, should never show up here..; value for this is made up
 }
 
 time_trial_data = [
@@ -894,7 +905,7 @@ function human_player_is_1st_in_gp(character_id) {
 
 function trophy_revealed() {
     trophy_state = ptr(dword_be(0x0048319c), [0x01], byte)
-    cup_prog = ptr(dword_be(0x53560c), [0x3c], dword_be)
+    cup_prog = ptr(dword_be(0x0048318c), [0x3c], dword_be)
     // trophy revealed and players was on final race of cup, timecode done
     return trophy_state == 0x05 && prev(trophy_state < 0x05) && cup_prog == dword_be(0x35204c) && float_be(0x0053f368) > 1200.0
 }
@@ -1121,4 +1132,6 @@ rich_presence_conditional_display(!!demo_playing() && get_mode() == 0x00 && in_v
 )
 */
 
-rich_presence_display("In the Main Menu")
+rich_presence_display("In the Main Menu • {0} / 32 Challenges Cleared",
+    rich_presence_value("Challenge Clear Count", count_cleared_challenges(), "VALUE")
+)
