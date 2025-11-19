@@ -723,6 +723,7 @@ achievement(
     points = 3,
     description = format("Earn {0} bananas using the Banana Fairy before it runs out", target_fairy),
     trigger = 
+    !demo_playing() &&
     (
         (
             player_1_obj.is_human_player() &&
@@ -775,6 +776,7 @@ achievement(
     points = 1,
     description = "Perform a Boost Start",
     trigger = 
+    !demo_playing() &&
     (
         (
             player_1_obj.is_human_player() &&
@@ -825,6 +827,7 @@ for element in buddy_data {
         points = 3,
         description = format("While riding {0} on {1}, collect {2} bananas", buddy_data[element]["bud_name"], track_map[buddy_data[element]["map"]], buddy_data[element]["target"]),
         trigger = 
+        !demo_playing() &&
         get_track() == buddy_data[element]["map"] &&
         (
             (
@@ -919,7 +922,7 @@ for difficulty in difficulty_map {
             points = score,
             type = check_if_cup_is_victory_cond(cup, difficulty),
             description = format("Reach first place in the {0} Jungle Grand Prix on {1} difficulty", gp_map[cup], difficulty_map[difficulty]),
-            trigger = 
+            trigger =
             get_mode() == 0 &&
             get_gp() == cup && get_difficulty() == difficulty &&
             (
@@ -995,13 +998,6 @@ achievement(
         )
     )
 )
-
-
-// Parched Palace get golden banana
-// Shortcut barrel in Mt Dynamite
-
-
-
 
 // In Challenge mode
 rich_presence_conditional_display(!demo_playing() && get_mode() == 0x04 && in_a_race_state(), "Donkey Kong is tackling Candy's Challenge No. {1} • {2} / 32 Challenges Cleared",
