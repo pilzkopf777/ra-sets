@@ -718,9 +718,21 @@ function banana_combo_went_up_by_x(player_id, amount) {
 
 function banana_fairy_logic_for_player(player_id) {
     cond = []
+    player_obj = PlayerData(player_id)
 
     for count in range(1, 100, 1) {
-        array_push(cond, banana_combo_went_up_by_x(player_id, count))
+        array_push(cond, banana_combo_went_up_by_x(player_id, count) && never(!player_obj.using_banana_fairy()))
+    }
+
+    return cond
+}
+
+function buddy_logic_for_player(player_id) {
+    cond = []
+    player_obj = PlayerData(player_id)
+
+    for count in range(1, 100, 1) {
+        array_push(cond, banana_combo_went_up_by_x(player_id, count) && never(!player_obj.is_riding_buddy()))
     }
 
     return cond
@@ -740,7 +752,7 @@ achievement(
             player_1_obj.is_human_player() &&
             // reset hits if player has no banana fairy
             (
-                never(!player_1_obj.using_banana_fairy()) &&
+                // never(!player_1_obj.using_banana_fairy()) &&
                 tally(
                    target_fairy, banana_fairy_logic_for_player(1)
                 )
@@ -751,7 +763,7 @@ achievement(
             player_2_obj.is_human_player() &&
             // reset hits if player has no banana fairy
             (
-                never(!player_2_obj.using_banana_fairy()) &&
+                //never(!player_2_obj.using_banana_fairy()) &&
                 tally(
                     target_fairy, banana_fairy_logic_for_player(2)
                 )
@@ -762,7 +774,7 @@ achievement(
             player_3_obj.is_human_player() &&
             // reset hits if player has no banana fairy
             (
-                never(!player_3_obj.using_banana_fairy()) &&
+                //never(!player_3_obj.using_banana_fairy()) &&
                 tally(
                     target_fairy, banana_fairy_logic_for_player(3)
                 )
@@ -773,7 +785,7 @@ achievement(
             player_4_obj.is_human_player() &&
             // reset hits if player has no banana fairy
             (
-                never(!player_4_obj.using_banana_fairy()) &&
+                //never(!player_4_obj.using_banana_fairy()) &&
                 tally(
                     target_fairy, banana_fairy_logic_for_player(4)
                 )
@@ -843,7 +855,7 @@ for element in buddy_data {
         (
             (
                 player_1_obj.is_human_player() &&
-                never(!player_1_obj.is_riding_buddy()) &&
+                // never(!player_1_obj.is_riding_buddy()) &&
                 tally(
                    buddy_data[element]["target"], banana_fairy_logic_for_player(1)
                 )
@@ -851,7 +863,7 @@ for element in buddy_data {
             ||
             (
                 player_2_obj.is_human_player() &&
-                never(!player_2_obj.is_riding_buddy()) &&
+                // never(!player_2_obj.is_riding_buddy()) &&
                 tally(
                    buddy_data[element]["target"], banana_fairy_logic_for_player(2)
                 )
@@ -859,7 +871,7 @@ for element in buddy_data {
             ||
             (
                 player_3_obj.is_human_player() &&
-                never(!player_3_obj.is_riding_buddy()) &&
+                // never(!player_3_obj.is_riding_buddy()) &&
                 tally(
                    buddy_data[element]["target"], banana_fairy_logic_for_player(3)
                 )
@@ -867,7 +879,7 @@ for element in buddy_data {
             ||
             (
                 player_4_obj.is_human_player() &&
-                never(!player_4_obj.is_riding_buddy()) &&
+                // never(!player_4_obj.is_riding_buddy()) &&
                 tally(
                    buddy_data[element]["target"], banana_fairy_logic_for_player(4)
                 )
