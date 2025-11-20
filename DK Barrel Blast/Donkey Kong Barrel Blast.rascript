@@ -599,7 +599,7 @@ for element in time_trial_data {
     achievement(
     title = format("Going Ape in {0}", track_map[element["track_id"]]),
     points = 25,
-    description = format("As either {0} or {1}, reach the goal in {2} on {3} in a Time Trial on Expert difficulty",
+    description = format("Complete {3} in a Time Trial on Expert in under {2} as {0} or {1}",
         character_map[element["valid_characters"][0]], // char 1
         character_map[element["valid_characters"][1]], // char 2
         frame_time_to_readable_string(element["target_time"]), // time
@@ -618,7 +618,7 @@ for element in time_trial_data {
 
     leaderboard(
         title = format("Time Trial: {0} (Expert)", track_map[element["track_id"]]),
-        description = format("Reach the goal as quickly as possible on {0} in a Time Trial on Expert difficulty as any character except Ultra Barrel DK!",
+        description = format("Complete {0} in a Time Trial on Expert as any character except Ultra Barrel DK as quickly as possible!",
         track_map[element["track_id"]] // track
     ),
         start = 
@@ -745,7 +745,7 @@ target_fairy = 150
 achievement(
     title = "Blessed with Potassium",
     points = 3,
-    description = format("Earn {0} bananas using the Banana Fairy before it runs out", target_fairy),
+    description = format("Collect {0} bananas using the Banana Fairy before it expires", target_fairy),
     trigger = 
     !demo_playing() &&
     (
@@ -849,7 +849,7 @@ for element in buddy_data {
     achievement(
         title = buddy_data[element]["title"],
         points = 3,
-        description = format("While riding {0} on {1}, collect {2} bananas", buddy_data[element]["bud_name"], track_map[buddy_data[element]["map"]], buddy_data[element]["target"]),
+        description = format("Collect {2} bananas while riding {0} on {1}", buddy_data[element]["bud_name"], track_map[buddy_data[element]["map"]], buddy_data[element]["target"]),
         trigger = 
         !demo_playing() &&
         get_track() == buddy_data[element]["map"] &&
@@ -945,7 +945,7 @@ for difficulty in difficulty_map {
             title = format("{0} {1}", gp_map[cup], dif_text),
             points = score,
             type = check_if_cup_is_victory_cond(cup, difficulty),
-            description = format("Reach first place in the {0} Jungle Grand Prix on {1} difficulty", gp_map[cup], difficulty_map[difficulty]),
+            description = format("Win the {0} Jungle Grand Prix on {1} difficulty", gp_map[cup], difficulty_map[difficulty]),
             trigger =
             get_mode() == 0 &&
             get_gp() == cup && get_difficulty() == difficulty &&
@@ -972,9 +972,9 @@ for difficulty in difficulty_map {
 
 
 achievement(
-    title = "The Choice is Yours",
+    title = "The Choice Is Yours",
     points = 3,
-    description = "Reach first place in the Choice Cup in Jungle Grand Prix on any difficulty",
+    description = "Win the Choice Cup in Jungle Grand Prix on any difficulty",
     trigger = 
     get_mode() == 0 &&
     get_gp() == 0x04 &&
@@ -1000,7 +1000,7 @@ achievement(
 achievement(
     title = "You Have No Choice",
     points = 3,
-    description = "Reach first place in the Random Cup in Jungle Grand Prix on any difficulty",
+    description = "Win the Random Cup in Jungle Grand Prix on any difficulty",
     trigger = 
     get_mode() == 0 &&
     get_gp() == 0x05 &&
