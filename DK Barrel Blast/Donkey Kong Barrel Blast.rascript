@@ -87,10 +87,11 @@ class PlayerData
             0x04: 0xA8C
         }
 
-        return ptr(dword_be(0x488eb8), [0x358, 0x24C, 0x298, offset_map[this.player_id]], dword_be)  
+        return ptr(dword_be(0x004831ec), [0x52c, 0x58c, offset_map[this.player_id]], dword_be)  
     }
 
     function get_wild_move_combo() {
+        // Watch it! Different offsets!
         offset_map = {
             0x01: 0x288,
             0x02: 0x520,
@@ -98,7 +99,7 @@ class PlayerData
             0x04: 0xA50
         }
 
-        return ptr(dword_be(0x488eb8), [0x358, 0x24C, 0x2A8, offset_map[this.player_id]], dword_be)  
+        return ptr(dword_be(0x0048922c), [0x52c, offset_map[this.player_id]], dword_be)  
     }
 
     function get_style_barrel_progress() {
@@ -659,7 +660,7 @@ function count_cleared_challenges_per_level(level) {
 }
 
 achievement(
-    title = "Tricked out",
+    title = "Tricked Out",
     points = 1,
     description = "Land all four tricks in a Style Barrel",
     trigger = 
@@ -685,7 +686,7 @@ achievement(
 
 target_wild = 15
 achievement(
-    title = "Finally, a racing game with a Wild Move meter!",
+    title = "Finally, a Racing Game with a Wild Move Meter!",
     points = 5,
     description = format("Reach a Wild Move combo of {0}", target_wild),
     trigger = 
@@ -857,7 +858,7 @@ for element in buddy_data {
                 player_1_obj.is_human_player() &&
                 // never(!player_1_obj.is_riding_buddy()) &&
                 tally(
-                   buddy_data[element]["target"], banana_fairy_logic_for_player(1)
+                   buddy_data[element]["target"], buddy_logic_for_player(1)
                 )
             )
             ||
@@ -865,7 +866,7 @@ for element in buddy_data {
                 player_2_obj.is_human_player() &&
                 // never(!player_2_obj.is_riding_buddy()) &&
                 tally(
-                   buddy_data[element]["target"], banana_fairy_logic_for_player(2)
+                   buddy_data[element]["target"], buddy_logic_for_player(2)
                 )
             )
             ||
@@ -873,7 +874,7 @@ for element in buddy_data {
                 player_3_obj.is_human_player() &&
                 // never(!player_3_obj.is_riding_buddy()) &&
                 tally(
-                   buddy_data[element]["target"], banana_fairy_logic_for_player(3)
+                   buddy_data[element]["target"], buddy_logic_for_player(3)
                 )
             )
             ||
@@ -881,7 +882,7 @@ for element in buddy_data {
                 player_4_obj.is_human_player() &&
                 // never(!player_4_obj.is_riding_buddy()) &&
                 tally(
-                   buddy_data[element]["target"], banana_fairy_logic_for_player(4)
+                   buddy_data[element]["target"], buddy_logic_for_player(4)
                 )
             )
         )
