@@ -660,7 +660,7 @@ function count_cleared_challenges_per_level(level) {
 }
 
 achievement(
-    title = "Tricked Out",
+    title = "The Trick Is to Tilt It",
     points = 1,
     description = "Land all four tricks in a Style Barrel",
     trigger = 
