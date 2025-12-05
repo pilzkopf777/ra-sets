@@ -28,6 +28,66 @@ function ptr(base, offsets, accessor=dword_be)
     return val
 }
 
+// "Global" stuff
+class GlobalData
+{
+    dlc = true
+    dlc_ptr = 0x16318bc
+    no_dlc_ptr = 0x16466cc
+
+    function get_development_city_state() {
+        if (this.dlc) {
+            data = ptr(dword_be(this.dlc_ptr), [0x10c], dword_be)
+        } else {
+            data = ptr(dword_be(this.no_dlc_ptr), [0x10c], dword_be)
+        }
+        return data
+    }
+
+    function get_day() {
+        if (this.dlc) {
+            data = ptr(dword_be(this.dlc_ptr), [0x13c], dword_be)
+        } else {
+            data = ptr(dword_be(this.no_dlc_ptr), [0x13c], dword_be)
+        }
+        return data
+    }
+
+    function get_difficulty() {
+        if (this.dlc) {
+            data = ptr(dword_be(this.dlc_ptr), [0x3c], dword_be)
+        } else {
+            data = ptr(dword_be(this.no_dlc_ptr), [0x3c], dword_be)
+        }
+        return data
+    }
+
+    function get_pay_rank() {
+        if (this.dlc) {
+            data = ptr(dword_be(this.dlc_ptr), [0x64], dword_be)
+        } else {
+            data = ptr(dword_be(this.no_dlc_ptr), [0x64], dword_be)
+        }
+        return data
+    }
+
+    function get_max_adv_count() {
+        if (this.dlc) {
+            data = ptr(dword_be(this.dlc_ptr), [0x5c], dword_be)
+        } else {
+            data = ptr(dword_be(this.no_dlc_ptr), [0x5c], dword_be)
+        }
+        return data
+    }
+}
+
+function dlc_installed() {
+    return dword_be(0x000030f0) > 0x80000000 && dword_be(0x000030f0) < 0x90000000
+}
+
+global_data_dlc = GlobalData(dlc=true)
+global_data_no_dlc = GlobalData(dlc=false)
+
 function no_save_loaded() {
     return dword_be(0x2b2ad4) != 0xffffffff
 }
@@ -40,39 +100,11 @@ function in_city() {
     return dword_be(0x101b20f4) == 0x9c
 }
 
-function get_development_city_state() {
-    return ptr(dword_be(0x16318bc), [0x10c], dword_be)
-}
-
-function get_day() {
-    return ptr(dword_be(0x16318bc), [0x13c], dword_be) 
-}
-
-function get_difficulty() {
-    return ptr(dword_be(0x16318bc), [0x3c], dword_be) 
-}
-
-function get_pay_rank() {
-    return ptr(dword_be(0x16318bc), [0x64], dword_be) 
-}
-
-function get_max_adv_count() {
-    return ptr(dword_be(0x16318bc), [0x5c], dword_be) 
-}
-
 function has_long_day() {
     return ptr(dword_be(0x15de7c0), [0x64], dword_be) == 0x4ec
 }
 
-/*
-    +0x228: [32-bit BE pointer]
-    ++0x20: [32-bit BE pointer]
-    +++0x04: [32-bit BE pointer] Castle
-    +++0x18: [32-bit BE pointer] ???
-    +++0x2C: [32-bit BE pointer] ???
-    (...)
-*/
-
+// Dungeon stuff
 class Dungeon
 {
     base_adr = 0x00
@@ -220,17 +252,27 @@ city_dev_map = {
     0x05: "Promised Land"
 }
 
-
+// RP for DLC installed
 rich_presence_conditional_display(no_save_loaded(), "On the Title Screen")
 
-rich_presence_conditional_display(in_report(), "Reviewing the morning reports of the {0} • Day {1}",
-    rich_presence_lookup("Development State", get_development_city_state(), city_dev_map, fallback="?"),
-    rich_presence_value("Day", get_day(), "VALUE")
+rich_presence_conditional_display(dlc_installed() && in_report(), "Reviewing the morning reports of the {0} • Day {1}",
+    rich_presence_lookup("Development State", global_data_dlc.get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", global_data_dlc.get_day(), "VALUE")
 )
 
-rich_presence_conditional_display(in_city(), "Traveling the streets of the {0} • Day {1}",
-    rich_presence_lookup("Development State", get_development_city_state(), city_dev_map, fallback="?"),
-    rich_presence_value("Day", get_day(), "VALUE")
+rich_presence_conditional_display(dlc_installed() && in_city(), "Traveling the streets of the {0} • Day {1}",
+    rich_presence_lookup("Development State", global_data_dlc.get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", global_data_dlc.get_day(), "VALUE")
+)
+
+rich_presence_conditional_display(!dlc_installed() && in_report(), "Reviewing the morning reports of the {0} • Day {1}",
+    rich_presence_lookup("Development State", global_data_no_dlc.get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", global_data_no_dlc.get_day(), "VALUE")
+)
+
+rich_presence_conditional_display(!dlc_installed() && in_city(), "Traveling the streets of the {0} • Day {1}",
+    rich_presence_lookup("Development State", global_data_no_dlc.get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", global_data_no_dlc.get_day(), "VALUE")
 )
 
 rich_presence_display("Playing Final Fantasy Crystal Chronicles: My Life as a King")
