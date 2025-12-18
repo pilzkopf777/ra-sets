@@ -22,6 +22,10 @@ function ptr(base, offsets, accessor=dword)
     return val
 }
 
+function get_post_race_menu_status() {
+    return dword(0x37a71c)
+}
+
 class PlayerData {
     player = 0
 
@@ -42,11 +46,11 @@ class PlayerData {
     }
 
     function get_total_time() {
-        return ptr(dword(0x003d03d8), [0x20], word)
+        return ptr(dword(0x003d03d8), [0x20], word) + ptr(dword(0x003d03d8), [0x28], word) + ptr(dword(0x003d03d8), [0x30], word)
     }
 
     function just_finished_race() {
-        return this.get_lap() == 3 && prev(this.get_lap() == 2)
+        return ptr(dword(0x003d03d8), [0x34], word) == 1 && prev(ptr(dword(0x003d03d8), [0x34], word) == 0)
     }
 
     function get_x_coord() {
@@ -128,16 +132,16 @@ shortcut_data = {
     0x37:
     // Castle
     [
-        CheckpointGate(x_1=0.0, x_2=0.0, z_1=0.0, z_2=0.0),
-        CheckpointGate(x_1=0.0, x_2=0.0, z_1=0.0, z_2=0.0),
-        CheckpointGate(x_1=0.0, x_2=0.0, z_1=0.0, z_2=0.0)
+        CheckpointGate(x_1=149.0, x_2=155.0, z_1=203.0, z_2=204.0),
+        CheckpointGate(x_1=135.0, x_2=151.0, z_1=239.0, z_2=240.0),
+        CheckpointGate(x_1=135.0, x_2=149.0, z_1=253.0, z_2=262.0)
     ],
     0x38:
     // Swamp
     [
-        CheckpointGate(x_1=0.0, x_2=0.0, z_1=0.0, z_2=0.0),
-        CheckpointGate(x_1=0.0, x_2=0.0, z_1=0.0, z_2=0.0),
-        CheckpointGate(x_1=0.0, x_2=0.0, z_1=0.0, z_2=0.0)
+        CheckpointGate(x_1=-236.0, x_2=-232.0, z_1=173.0, z_2=201.0), // hill before ramp
+        CheckpointGate(x_1=-200.0, x_2=-196.0, z_1=194.0, z_2=211.0), // in castle
+        CheckpointGate(x_1=-139.0, x_2=-134.0, z_1=207.0, z_2=190.0) // after jump
     ]
 }
 
@@ -169,10 +173,6 @@ function get_power_class() {
 
 function in_a_race() {
     return player_1_data.get_pos() > 0
-}
-
-function get_post_race_menu_status() {
-    return dword(0x37a71c)
 }
 
 racetrack_map = {
@@ -235,8 +235,8 @@ for track in plain_racetrack_map {
     )
 
     leaderboard(
-        title = format("{0} (150 cc) Time Attack", plain_racetrack_map[track]),
-        description = format("Complete a Time Trial {0} on 150 cc as quickly as possible!", racetrack_map[track]),
+        title = format("{0} 150cc Time Attack", plain_racetrack_map[track]),
+        description = format("Complete a Time Trial {0} on 150cc as quickly as possible!", racetrack_map[track]),
         start = 
         (
             in_a_race() &&
@@ -245,15 +245,13 @@ for track in plain_racetrack_map {
             get_mode() == 0x00 &&
             player_1_data.just_finished_race()
         ),
-        cancel = (
-            always_false()
-        ),
+        cancel = always_false(),
         submit = always_true(),
         value =
-            measured(
-                player_1_data.get_total_time()
+        measured(
+            player_1_data.get_total_time() / 10
         ),
-        format = "FRAMES", lower_is_better = true
+        format = "MILLISECS", lower_is_better = true
     )
 
     // TODO: time trials
