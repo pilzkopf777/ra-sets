@@ -126,8 +126,13 @@ shortcut_data = {
 }
 
 function get_map() {
-    part1 = dword(0x0030f010)
-    part2 = dword(0x0030f014)
+    // map this digit to a race track:
+    // 0x31 = 1
+    // 0x32 = 2
+    // (...) 
+    // 0x38 = 8
+    music_track_digit = byte(0x0030f016)
+    return music_track_digit
 }
 
 function get_mode() {
@@ -138,15 +143,19 @@ function get_power_class() {
     return dword(0x379f6c)
 }
 
+function in_a_race() {
+    return player_1_data.get_pos() > 0
+}
+
 racetrack_map = {
-    0x11: "on Moorhuhn X",
-    0x0e: "in Winter",
-    0x12: "on the Island",
-    0x0b: "in Egypt",
-    0x15: "in the Factory",
-    0x0d: "in the Mine",
-    0x0c: "in the Castle",
-    0x0d: "in the Swamp"
+    0x31: "on Moorhuhn X",
+    0x32: "in Winter",
+    0x33: "on the Island",
+    0x34: "in Egypt",
+    0x35: "in the Factory",
+    0x36: "in the Mine",
+    0x37: "in the Castle",
+    0x38: "in the Swamp"
 }
 
 mode_map = {
@@ -170,14 +179,20 @@ function on_title_screen() {
     return dword(0x0037b37c) == 0x00
 }
 
-rich_presence_conditional_display(on_title_screen(), "In the Main Menu"
+rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
+
+rich_presence_conditional_display(in_a_race(), "{1} is in a {0} ({2} cc) {3}",
+    rich_presence_lookup("Mode", get_mode(), mode_map, fallback="n unknown mode"),
+    rich_presence_lookup("Character", player_1_data.get_char(), char_map, fallback="A unknown character"),
+    rich_presence_value("Power Class", get_power_class(), "VALUE"),
+    rich_presence_lookup("Track", get_map(), racetrack_map, fallback="on an unknown racetrack")
 )
 
-rich_presence_conditional_display(!on_title_screen(), "{1} is in a {0} ({2} cc) {3}",
-    rich_presence_lookup("Mode", get_mode(), mode_map, fallback="an unknown mode"),
-    rich_presence_lookup("Character", player_1_data.get_char(), char_map, fallback="a unknown character"),
-    rich_presence_value("Power Class", get_power_class(), "VALUE"),
-    rich_presence_lookup("Track", get_map(), racetrack_map, fallback="an unknown racetrack")
+// During loading between GP races
+rich_presence_conditional_display(!in_a_race() && !on_title_screen(), "{1} is getting ready for a {0} ({2} cc)",
+    rich_presence_lookup("Mode", get_mode(), mode_map, fallback="n unknown mode"),
+    rich_presence_lookup("Character", player_1_data.get_char(), char_map, fallback="A unknown character"),
+    rich_presence_value("Power Class", get_power_class(), "VALUE")
 )
 
 rich_presence_display("Getting ready to race...")
