@@ -82,44 +82,55 @@ class CheckpointGate {
 
 shortcut_data = {
     0x11:
+    // Moorhuhn X
     [
         CheckpointGate(x_1=-251.0, x_2=-245.0, z_1=-43.0, z_2=-31.0), // inside barn
         CheckpointGate(x_1=-109.0, x_2=-95.0, z_1=-40.0, z_2=-25.0), // road
         CheckpointGate(x_1=-4.0, x_2=3.0, z_1=-41.0, z_2=-23.0) // exit
     ],
     0x0e:
+    // Winter
     [
         CheckpointGate(x_1=-76.0, x_2=-61.0, z_1=109.0, z_2=130.0), // entrance cave before log
         CheckpointGate(x_1=-99.0, x_2=-80.0, z_1=90.0, z_2=100.0),
         CheckpointGate(x_1=-107.0, x_2=-97.0, z_1=72.0, z_2=76.0) // exit
     ],
     0x12:
+    // Island
     [
         CheckpointGate(x_1=253.0, x_2=258.0, z_1=-82.0, z_2=-98.0), // entrance
         CheckpointGate(x_1=287.0, x_2=288.0, z_1=-96.0, z_2=-85.0),
         CheckpointGate(x_1=319.0, x_2=324.0, z_1=-95.0, z_2=-82.0) // exit
     ],
     0x0b:
+
+    // Egypt
     [
         CheckpointGate(x_1=-171.0, x_2=-167.0, z_1=-163.0, z_2=-150.0), // entrance
         CheckpointGate(x_1=-254.0, x_2=-247.0, z_1=-164.0, z_2=-158.0),
         CheckpointGate(x_1=-256.0, x_2=-242.0, z_1=-109.0, z_2=-101.0) // exit
     ],
     0x15:
+    // Factory
     [
         CheckpointGate(x_1=-146.0, x_2=-140.0, z_1=26.0, z_2=37.0),
         CheckpointGate(x_1=-154.0, x_2=-143.0, z_1=18.0, z_2=19.0),
         CheckpointGate(x_1=-165.0, x_2=-151.0, z_1=-9.0, z_2=-5.0)
     ],
     0x0d:
+    // Mine
     [
-
+        CheckpointGate(x_1=-222.0, x_2=-216.0, z_1=-125.0, z_2=-110.0), // entrance
+        CheckpointGate(x_1=-103.0, x_2=-96.0, z_1=-194.0, z_2=-171.0), // wavy part
+        CheckpointGate(x_1=39.0, x_2=45.0, z_1=-184.0, z_2=-177.0), // start of bridge
     ],
     0x0c:
+    // Castle
     [
 
     ],
     0xff:
+    // Swamp
     [
 
     ]
