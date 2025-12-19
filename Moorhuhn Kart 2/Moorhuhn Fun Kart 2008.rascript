@@ -29,22 +29,25 @@ function get_post_race_menu_status() {
 class PlayerData {
     player = 0
 
+    base_adr = 0x003d03d8
+    base_adr_coord = 0x003cf730
+
     // todo: check correct memory adr for p2 stuff
 
     function get_item() {
-        return ptr(dword(0x003d03d8), [0x18], dword)
+        return ptr(dword(this.base_adr + 0x04 * this.player - 0x04), [0x18], dword)
     }
 
     function get_pos() {
-        return ptr(dword(0x003d03d8), [0x40], dword)
+        return ptr(dword(this.base_adr + 0x04 * this.player - 0x04), [0x40], dword)
     }
 
     function get_lap() {
-        return ptr(dword(0x003d03d8), [0x38], dword)
+        return ptr(dword(this.base_adr + 0x04 * this.player - 0x04), [0x38], dword)
     }
 
     function get_char() {
-        return ptr(dword(0x003d03d8), [0x10], dword)
+        return ptr(dword(this.base_adr + 0x04 * this.player - 0x04), [0x10], dword)
     }
 
     function player_has_highest_gp_score() {
@@ -110,23 +113,23 @@ class PlayerData {
     }
 
     function get_total_time() {
-        return ptr(dword(0x003d03d8), [0x20], dword) + ptr(dword(0x003d03d8), [0x28], dword) + ptr(dword(0x003d03d8), [0x30], dword)
+        return ptr(dword(this.base_adr + 0x04 * this.player - 0x04), [0x20], dword) + ptr(dword(this.base_adr + 0x04 * this.player - 0x04), [0x28], dword) + ptr(dword(this.base_adr + 0x04 * this.player - 0x04), [0x30], dword)
     }
 
     function just_finished_race() {
-        return ptr(dword(0x003d03d8), [0x34], dword) == 1 && prev(ptr(dword(0x003d03d8), [0x34], dword) == 0)
+        return ptr(dword(this.base_adr + 0x04 * this.player - 0x04), [0x34], dword) == 1 && prev(ptr(dword(this.base_adr + 0x04 * this.player - 0x04), [0x34], dword) == 0)
     }
 
     function get_x_coord() {
-        return ptr(dword(0x003cf730), [0xe0, 0x1b8, 0x9c], float)
+        return ptr(dword(this.base_adr_coord + 0x04 * this.player - 0x04), [0xe0, 0x1b8, 0x9c], float)
     }
 
     function get_y_coord() {
-        return ptr(dword(0x003cf730), [0xe0, 0x1b8, 0xa0], float)
+        return ptr(dword(this.base_adr_coord + 0x04 * this.player - 0x04), [0xe0, 0x1b8, 0xa0], float)
     }
 
     function get_z_coord() {
-        return ptr(dword(0x003cf730), [0xe0, 0x1b8, 0xa4], float)
+        return ptr(dword(this.base_adr_coord + 0x04 * this.player - 0x04), [0xe0, 0x1b8, 0xa4], float)
     }
 }
 
@@ -139,9 +142,11 @@ class CheckpointGate {
     z_1 = 0.0 // smaller than z2
     z_2 = 0.0 // larger than z1
 
-    function passed_through_checkpoint() {
-        return player_1_data.get_x_coord() > this.x_1 && player_1_data.get_z_coord() > this.z_1 && 
-               player_1_data.get_x_coord() < this.x_2 && player_1_data.get_z_coord() < this.z_2
+    function passed_through_checkpoint(player_id) {
+        obj = PlayerData(player=player_id)
+
+        return obj.get_x_coord() > this.x_1 && obj.get_z_coord() > this.z_1 && 
+               obj.get_x_coord() < this.x_2 && obj.get_z_coord() < this.z_2
     }
 }
 
@@ -290,8 +295,23 @@ function on_title_screen() {
     return dword(0x0037b37c) == 0x00
 }
 
+function pad_to_twos(input) {
+    input = "" + input
+    if (length(input) == 1) {
+        res = "0" + input
+    } else {
+        res = input
+    }
+    
+    return res
+}
+
 function format_time(time) {
-    return format("")
+    min = time / 6000
+    centiseconds_left = time % 6000
+    sec = centiseconds_left / 100
+    milli = centiseconds_left % 100
+    return format("{0}:{1}:{2}", pad_to_twos(min), pad_to_twos(sec), pad_to_twos(milli))
 }
 
 shortcut_names = ["Barnstorming", "Slipping and Sliding", "Palmtree Panic", "Touring Inshalalala", "Push and Pull", "All Mine", "King of the Castle", "This Is Supposed to Be Scotland?"]
@@ -302,12 +322,27 @@ for track in plain_racetrack_map {
         points = 3,
         description = format("Find and take the shortcut {0}", racetrack_map[track]),
         trigger = 
+        (
+            // Solo
+            get_mode() <= 1 &&
             in_a_race() && get_map() == track &&
-            // Must pass through all checkpoints
-            once(shortcut_data[track][0].passed_through_checkpoint()) && once(shortcut_data[track][1].passed_through_checkpoint()) && once(shortcut_data[track][2].passed_through_checkpoint()) &&
-            // todo: add check for wrong direction?
-            // Reset on lap, just in case
-            never(prev(player_1_data.get_lap()) != player_1_data.get_lap())
+            // Must pass through all checkpoints, reset on new lap just in case
+            once(shortcut_data[track][0].passed_through_checkpoint(1) && never(prev(player_1_data.get_lap()) != player_1_data.get_lap())) && once(shortcut_data[track][1].passed_through_checkpoint(1) && never(prev(player_1_data.get_lap()) != player_1_data.get_lap())) && once(shortcut_data[track][2].passed_through_checkpoint(1) && never(prev(player_1_data.get_lap()) != player_1_data.get_lap()))
+        ) ||
+        (
+            // Multiplayer, P1
+            get_mode() >= 2 &&
+            in_a_race() && get_map() == track &&
+            // Must pass through all checkpoints, reset on new lap just in case
+            once(shortcut_data[track][0].passed_through_checkpoint(1) && never(prev(player_1_data.get_lap()) != player_1_data.get_lap())) && once(shortcut_data[track][1].passed_through_checkpoint(1) && never(prev(player_1_data.get_lap()) != player_1_data.get_lap())) && once(shortcut_data[track][2].passed_through_checkpoint(1) && never(prev(player_1_data.get_lap()) != player_1_data.get_lap()))
+        ) ||
+        (
+            // Multiplayer, P2
+            get_mode() >= 2 &&
+            in_a_race() && get_map() == track &&
+            // Must pass through all checkpoints, reset on new lap just in case
+            once(shortcut_data[track][0].passed_through_checkpoint(2) && never(prev(player_1_data.get_lap()) != player_1_data.get_lap())) && once(shortcut_data[track][1].passed_through_checkpoint(2) && never(prev(player_1_data.get_lap()) != player_1_data.get_lap())) && once(shortcut_data[track][2].passed_through_checkpoint(2) && never(prev(player_1_data.get_lap()) != player_1_data.get_lap()))
+        )
     )
 
     leaderboard(
