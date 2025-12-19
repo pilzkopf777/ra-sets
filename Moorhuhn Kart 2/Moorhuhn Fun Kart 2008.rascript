@@ -29,28 +29,92 @@ function get_post_race_menu_status() {
 class PlayerData {
     player = 0
 
+    // todo: check correct memory adr for p2 stuff
+
     function get_item() {
-        return ptr(dword(0x003d03d8), [0x18], word)
+        return ptr(dword(0x003d03d8), [0x18], dword)
     }
 
     function get_pos() {
-        return ptr(dword(0x003d03d8), [0x40], word)
+        return ptr(dword(0x003d03d8), [0x40], dword)
     }
 
     function get_lap() {
-        return ptr(dword(0x003d03d8), [0x38], word)
+        return ptr(dword(0x003d03d8), [0x38], dword)
     }
 
     function get_char() {
-        return ptr(dword(0x003d03d8), [0x10], word)
+        return ptr(dword(0x003d03d8), [0x10], dword)
+    }
+
+    function player_has_highest_gp_score() {
+        cond = (
+            this.get_char() == 0x00 &&                 // player char
+            dword(0x0037a964) >= dword(0x0037a968) &&  // player is better than rival no 1...
+            dword(0x0037a964) >= dword(0x0037a96c) &&
+            dword(0x0037a964) >= dword(0x0037a970) &&
+            dword(0x0037a964) >= dword(0x0037a974) &&
+            dword(0x0037a964) >= dword(0x0037a978) &&
+            dword(0x0037a964) >= dword(0x0037a97c)   
+        ) || (
+            this.get_char() == 0x01 &&                  
+            dword(0x0037a968) >= dword(0x0037a964) &&
+            dword(0x0037a968) >= dword(0x0037a96c) &&
+            dword(0x0037a968) >= dword(0x0037a970) &&
+            dword(0x0037a968) >= dword(0x0037a974) &&
+            dword(0x0037a968) >= dword(0x0037a978) &&
+            dword(0x0037a968) >= dword(0x0037a97c)      
+        ) || (
+            this.get_char() == 0x02 &&                  
+            dword(0x0037a96c) >= dword(0x0037a964) &&
+            dword(0x0037a96c) >= dword(0x0037a968) &&
+            dword(0x0037a96c) >= dword(0x0037a970) &&
+            dword(0x0037a96c) >= dword(0x0037a974) &&
+            dword(0x0037a96c) >= dword(0x0037a978) &&
+            dword(0x0037a96c) >= dword(0x0037a97c)      
+        ) || (
+            this.get_char() == 0x03 &&                  
+            dword(0x0037a970) >= dword(0x0037a964) &&
+            dword(0x0037a970) >= dword(0x0037a968) &&
+            dword(0x0037a970) >= dword(0x0037a96c) &&
+            dword(0x0037a970) >= dword(0x0037a974) &&
+            dword(0x0037a970) >= dword(0x0037a978) &&
+            dword(0x0037a970) >= dword(0x0037a97c)      
+        ) || (
+            this.get_char() == 0x04 &&                  
+            dword(0x0037a974) >= dword(0x0037a964) &&
+            dword(0x0037a974) >= dword(0x0037a968) &&
+            dword(0x0037a974) >= dword(0x0037a96c) &&
+            dword(0x0037a974) >= dword(0x0037a970) &&
+            dword(0x0037a974) >= dword(0x0037a978) &&
+            dword(0x0037a974) >= dword(0x0037a97c)      
+        ) || (
+            this.get_char() == 0x05 &&                  
+            dword(0x0037a978) >= dword(0x0037a964) &&
+            dword(0x0037a978) >= dword(0x0037a968) &&
+            dword(0x0037a978) >= dword(0x0037a96c) &&
+            dword(0x0037a978) >= dword(0x0037a970) &&
+            dword(0x0037a978) >= dword(0x0037a974) &&
+            dword(0x0037a978) >= dword(0x0037a97c)      
+        ) || (
+            this.get_char() == 0x06 &&                  
+            dword(0x0037a97c) >= dword(0x0037a964) &&
+            dword(0x0037a97c) >= dword(0x0037a968) &&
+            dword(0x0037a97c) >= dword(0x0037a96c) &&
+            dword(0x0037a97c) >= dword(0x0037a970) &&
+            dword(0x0037a97c) >= dword(0x0037a974) &&
+            dword(0x0037a97c) >= dword(0x0037a978)      
+        )
+
+        return cond
     }
 
     function get_total_time() {
-        return ptr(dword(0x003d03d8), [0x20], word) + ptr(dword(0x003d03d8), [0x28], word) + ptr(dword(0x003d03d8), [0x30], word)
+        return ptr(dword(0x003d03d8), [0x20], dword) + ptr(dword(0x003d03d8), [0x28], dword) + ptr(dword(0x003d03d8), [0x30], dword)
     }
 
     function just_finished_race() {
-        return ptr(dword(0x003d03d8), [0x34], word) == 1 && prev(ptr(dword(0x003d03d8), [0x34], word) == 0)
+        return ptr(dword(0x003d03d8), [0x34], dword) == 1 && prev(ptr(dword(0x003d03d8), [0x34], dword) == 0)
     }
 
     function get_x_coord() {
@@ -67,6 +131,7 @@ class PlayerData {
 }
 
 player_1_data = PlayerData(player=1)
+player_2_data = PlayerData(player=2)
 
 class CheckpointGate {
     x_1 = 0.0 // smaller than x2
@@ -77,12 +142,6 @@ class CheckpointGate {
     function passed_through_checkpoint() {
         return player_1_data.get_x_coord() > this.x_1 && player_1_data.get_z_coord() > this.z_1 && 
                player_1_data.get_x_coord() < this.x_2 && player_1_data.get_z_coord() < this.z_2
-               /*
-               (
-                    prev(player_1_data.get_x_coord() <= this.x_1 && player_1_data.get_z_coord() <= this.z_1) ||
-                    prev(player_1_data.get_x_coord() >= this.x_2 && player_1_data.get_z_coord() >= this.z_2)
-               )
-               */
     }
 }
 
@@ -141,7 +200,7 @@ shortcut_data = {
     [
         CheckpointGate(x_1=-236.0, x_2=-232.0, z_1=173.0, z_2=201.0), // hill before ramp
         CheckpointGate(x_1=-200.0, x_2=-196.0, z_1=194.0, z_2=211.0), // in castle
-        CheckpointGate(x_1=-139.0, x_2=-134.0, z_1=207.0, z_2=190.0) // after jump
+        CheckpointGate(x_1=-139.0, x_2=-134.0, z_1=190.0, z_2=207.0) // after jump
     ]
 }
 
@@ -197,6 +256,19 @@ plain_racetrack_map = {
     0x38: "Swamp"
 }
 
+// divide the value in here by 10 to get the actual time
+// for the achievement logic: add laps 1, 2 and 3 together, divide by 10, check if greater/not than this
+time_trial_target = {
+    0x31: 20058,
+    0x32: 19374,
+    0x33: 26332,
+    0x34: 33300,
+    0x35: 13397,
+    0x36: 24957,
+    0x37: 27280,
+    0x38: 22406
+}
+
 mode_map = {
     0x00: "Time Trial",
     0x01: "Championship",
@@ -218,11 +290,15 @@ function on_title_screen() {
     return dword(0x0037b37c) == 0x00
 }
 
+function format_time(time) {
+    return format("")
+}
 
+shortcut_names = ["Barnstorming", "Slipping and Sliding", "Palmtree Panic", "Touring Inshalalala", "Push and Pull", "All Mine", "King of the Castle", "This Is Supposed to Be Scotland?"]
 
 for track in plain_racetrack_map {
     achievement(
-        title = format("Shortcut {0}", plain_racetrack_map[track]),
+        title = format("{0}", shortcut_names[track - 0x31]),
         points = 3,
         description = format("Find and take the shortcut {0}", racetrack_map[track]),
         trigger = 
@@ -254,24 +330,56 @@ for track in plain_racetrack_map {
         format = "MILLISECS", lower_is_better = true
     )
 
-    // TODO: time trials
+    achievement(
+        title = format("The Fastest Chicken {0}", racetrack_map[track]),
+        points = 10,
+        description = format("Complete a Time Trial {0} on 150cc in {1} or less", racetrack_map[track], format_time(time_trial_target[track])),
+        trigger = 
+            in_a_race() &&
+            get_map() == track &&
+            get_power_class() == 150 &&
+            get_mode() == 0x00 &&
+            player_1_data.just_finished_race() &&
+            player_1_data.get_total_time() <= time_trial_target[track]
+    )
 }
 
 cc_list = [50, 100, 150]
+pts = [3, 5, 10]
+gp_loc_titles = ["Local", "Extracurricular"]
+gp_diff_titles = ["Rookie", "Pro", "Master"]
 
 for cc in cc_list {
     for gp in range(1, 2, 1) {
         achievement(
-        title = format("GP #{0} {1} cc", gp, cc),
-        points = 3,
-        description = format("Win the GP #{0} {1} cc", gp, cc),
+        title = format("{0} {1}", gp_loc_titles[gp - 1], gp_diff_titles[(cc / 50) - 1]),
+        points = pts[(cc / 50) - 1],
+        description = format("Win Championship {0} on {1}cc", gp, cc),
         trigger = 
-            get_mode() == 1 || get_mode() == 3 &&
-            get_gp() == gp &&
-            get_power_class() == cc &&
-            get_gp_race() == 3 &&
-            get_post_race_menu_status() == 0x03 && prev(get_post_race_menu_status() == 0x02)
-            // todo: some sorta logic for calculating the winner
+            (
+                get_mode() == 1 &&
+                get_gp() == gp - 1 &&
+                get_power_class() == cc &&
+                get_gp_race() == 4 &&
+                get_post_race_menu_status() == 0x03 && prev(get_post_race_menu_status() == 0x02) &&
+                player_1_data.player_has_highest_gp_score()
+            ) ||
+            (
+                get_mode() == 3 &&
+                get_gp() == gp - 1 &&
+                get_power_class() == cc &&
+                get_gp_race() == 4 &&
+                get_post_race_menu_status() == 0x03 && prev(get_post_race_menu_status() == 0x02) &&
+                player_1_data.player_has_highest_gp_score()
+            ) ||
+            (
+                get_mode() == 3 &&
+                get_gp() == gp - 1 &&
+                get_power_class() == cc &&
+                get_gp_race() == 4 &&
+                get_post_race_menu_status() == 0x03 && prev(get_post_race_menu_status() == 0x02) &&
+                player_2_data.player_has_highest_gp_score()
+            )
         )
     }
 }
