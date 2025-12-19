@@ -264,14 +264,14 @@ plain_racetrack_map = {
 // divide the value in here by 10 to get the actual time
 // for the achievement logic: add laps 1, 2 and 3 together, divide by 10, check if greater/not than this
 time_trial_target = {
-    0x31: 20000, // 20058
-    0x32: 19300, // 19374
-    0x33: 26300, // 26332
-    0x34: 33300, // 33300
-    0x35: 13300, // 13397
-    0x36: 24900, // 24957
-    0x37: 27200, // 27280
-    0x38: 22400  // 22406
+    0x31: 200000, // 20058
+    0x32: 193000, // 19374
+    0x33: 263000, // 26332
+    0x34: 333000, // 33300
+    0x35: 133000, // 13397
+    0x36: 249000, // 24957
+    0x37: 272000, // 27280
+    0x38: 224000  // 22406
 }
 
 mode_map = {
@@ -307,6 +307,7 @@ function pad_to_twos(input) {
 }
 
 function format_time(time) {
+    time = time / 10
     min = time / 6000
     centiseconds_left = time % 6000
     sec = centiseconds_left / 100
