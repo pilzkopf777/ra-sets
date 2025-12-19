@@ -264,14 +264,14 @@ plain_racetrack_map = {
 // divide the value in here by 10 to get the actual time
 // for the achievement logic: add laps 1, 2 and 3 together, divide by 10, check if greater/not than this
 time_trial_target = {
-    0x31: 20058,
-    0x32: 19374,
-    0x33: 26332,
-    0x34: 33300,
-    0x35: 13397,
-    0x36: 24957,
-    0x37: 27280,
-    0x38: 22406
+    0x31: 20000, // 20058
+    0x32: 19300, // 19374
+    0x33: 26300, // 26332
+    0x34: 33300, // 33300
+    0x35: 13300, // 13397
+    0x36: 24900, // 24957
+    0x37: 27200, // 27280
+    0x38: 22400  // 22406
 }
 
 mode_map = {
@@ -314,13 +314,13 @@ function format_time(time) {
     return format("{0}:{1}:{2}", pad_to_twos(min), pad_to_twos(sec), pad_to_twos(milli))
 }
 
-shortcut_names = ["Barnstorming", "Slipping and Sliding", "Palmtree Panic", "Touring Inshalalala", "Push and Pull", "All Mine", "King of the Castle", "This Is Supposed to Be Scotland?"]
+shortcut_names = ["Barnstorming", "Slipping and Sliding", "Palmtree Panic", "Getting Claustrophobic", "Push and Pull", "All Mine", "King of the Castle", "This Is Supposed to Be Scotland?"]
 
 for track in plain_racetrack_map {
     achievement(
         title = format("{0}", shortcut_names[track - 0x31]),
         points = 3,
-        description = format("Find and take the shortcut {0}", racetrack_map[track]),
+        description = format("Find and take the longest shortcut {0}", racetrack_map[track]),
         trigger = 
         (
             // Solo
@@ -379,6 +379,14 @@ for track in plain_racetrack_map {
     )
 }
 
+function get_gp_achievement_type(gp_val) {
+    if (gp_val == 5) {
+        return "win_condition"
+    } else {
+        return "progression"
+    }
+}
+
 cc_list = [50, 100, 150]
 pts = [3, 5, 10]
 gp_loc_titles = ["Local", "Extracurricular"]
@@ -388,6 +396,7 @@ for cc in cc_list {
     for gp in range(1, 2, 1) {
         achievement(
         title = format("{0} {1}", gp_loc_titles[gp - 1], gp_diff_titles[(cc / 50) - 1]),
+        type = get_gp_achievement_type(gp + (cc / 50)),
         points = pts[(cc / 50) - 1],
         description = format("Win Championship {0} on {1}cc", gp, cc),
         trigger = 
