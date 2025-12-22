@@ -717,7 +717,7 @@ achievement(
 )
 
 achievement(
-    title = "Is That a Skull?",
+    title = "That's Pinball!",
     points = 5,
     type = "progression",
     description = format("In Original Mode on {0}, defeat the being in space and unlock the next table", "Evolution A"),
