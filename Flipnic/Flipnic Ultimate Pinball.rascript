@@ -965,7 +965,7 @@ leaderboard(
 
 rich_presence_conditional_display(watching_tutorial(), "Learning how to enjoy Flipnic")
 
-rich_presence_conditional_display(in_original_mode() && !in_main_menu(), "In Original Mode • {0} • Balls: {3}",
+rich_presence_conditional_display(in_original_mode() && !in_main_menu(), "In Original Mode • {0} • Score: {2} • Balls: {3}",
     rich_presence_lookup("Table OG", get_original_mode_table(), table_map_og, fallback="Unknown table"),
     rich_presence_lookup("Difficulty", get_difficulty(), difficulty_map, fallback="Unknown difficulty"),
     rich_presence_value("Score", get_score(), "POINTS"),
