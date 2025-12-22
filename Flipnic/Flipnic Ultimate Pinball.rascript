@@ -114,14 +114,14 @@ table_map = {
 
 rich_presence_conditional_display(watching_tutorial(), "Learning how to enjoy Flipnic")
 
-rich_presence_conditional_display(in_original_mode() && !in_main_menu(), "In Original Mode • {0} • Score: {2} • {3} Balls",
+rich_presence_conditional_display(in_original_mode() && !in_main_menu(), "In Original Mode • {0} • Score: {2} • Balls: {3}",
     rich_presence_lookup("Table", get_original_mode_table(), table_map, fallback="Unknown table"),
     rich_presence_lookup("Difficulty", get_difficulty(), difficulty_map, fallback="Unknown difficulty"),
     rich_presence_value("Score", get_score(), "POINTS"),
     rich_presence_value("Balls", get_balls(), "VALUE")
 )
 
-rich_presence_conditional_display(in_free_play_mode() && !in_main_menu(), "In Free Play • {0} • Score: {2} • {3} Balls",
+rich_presence_conditional_display(in_free_play_mode() && !in_main_menu(), "In Free Play • {0} • Score: {2} • Balls: {3}",
     rich_presence_lookup("Table", get_free_play_table(), table_map, fallback="Unknown table"),
     rich_presence_lookup("Difficulty", get_difficulty(), difficulty_map, fallback="Unknown difficulty"),
     rich_presence_value("Score", get_score(), "POINTS"),
