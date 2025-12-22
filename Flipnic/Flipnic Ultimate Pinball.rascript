@@ -47,7 +47,7 @@ function check_if_matching_cutscene_is_playing(cutscene_ident) {
 cutscene_map = {
     "TUTORIAL": [0x50414843],
     "NEXT_STAGE": [0x5458454e],
-    "CREDITS": [0x00] // todo
+    "CREDITS": [0x46415453, 0x4f525f46]
 }
 
 function watching_tutorial() {
@@ -123,7 +123,17 @@ table_map_og = {
 }
 
 table_map_free = {
-    00: "test"
+    00: "Biology A",
+    01: "Biology B",
+    02: "Biology 2P",
+    10: "Metallurgy A",
+    11: "Metallurgy B",
+    12: "Metallurgy 2P",
+    20: "Optics A",
+    21: "Optics B",
+    22: "Optics 2P",
+    30: "Geometry A",
+    32: "Geometry 2P"
 }
 
 obj_data = {
@@ -271,31 +281,336 @@ obj_data = {
             }
         ],
         "total": 20,
-        "table_ids": [00, 02],
+        "table_ids_og": [00, 02],
+        "table_ids_fp": [00, 01],
         "start_1": 0x448f9c,
         "start_2": 0x44905c
     },
-   // "Metallurgy": {
-   //     "red": 6,
-   //     "yellow": 11,
-   //     "start_1": 0x448fdc,
-   //     "start_2": 0x44907c
-   // },
-   // "Optics": {
-   //     "red": 7,
-   //     "yellow": 9,
-   //     "start_1": 0x44901c,
-   //     "start_2": 0x44909c
-   // }
+    "Metallurgy": {
+        "objectives": [
+            {
+                "type": "progression",
+                "ident": "Move On 1",
+                "title": "On The Run",
+                "desc_post": "hitting the first blocked door multiple times in the UFO area",
+                "score": 3,
+            },
+            {
+                "type": "progression",
+                "ident": "Move On 2",
+                "title": "On The Run Again",
+                "desc_post": "hitting the second blocked door multiple times in the UFO area",
+                "score": 3,
+            },
+            {
+                "type": "progression",
+                "ident": "Spider Crab Shoot-Down",
+                "title": "Tank Stance",
+                "desc_post": "destroying the giant Spider Crab",
+                "score": 5,
+            },
+            {
+                "type": "progression",
+                "ident": "Stop the Four Shafts 1",
+                "title": "Power Drain",
+                "desc_post": "deactivating the first set of shafts in the space area",
+                "score": 5,
+            },
+            {
+                "type": "progression",
+                "ident": "Stop the Four Shafts 2",
+                "title": "Batteries Empty",
+                "desc_post": "deactivating the second set of shafts in the space area",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Zero Gravity",
+                "title": "Have We Met Before?",
+                "desc_post": "knocking over the figure in space",
+                "score": 3,
+            },
+            {
+                "type": "",
+                "ident": "UFO Shoot-Down",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Crab Baby Shoot-Down",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Multiball 1",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Multiball 2",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Multiball 3",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Lane Count Mission 1",
+                "title": "You can count on me!",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Lane Count Mission 2",
+                "title": "Actually, I lost count",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Total Lane Counts",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Total Bumper Counts",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Extra Ball",
+                "title": "Protection Barrier",
+                "desc_post": "hitting the blue UFO",
+                "score": 3,
+            },
+            {
+                "type": "",
+                "ident": "Extra Credit",
+                "title": "Insurance",
+                "desc_post": "hitting the golden UFO",
+                "score": 3,
+            }
+        ],
+        "total": 17,
+        "table_ids_og": [10, 12],
+        "table_ids_fp": [10, 11],
+        "start_1": 0x448fdc,
+        "start_2": 0x44907c
+    },
+    "Optics": {
+        "objectives": [
+            {
+                "type": "progression",
+                "ident": "Point of No Return 1",
+                "title": "Color Groups",
+                "desc_post": "passing through the colored rings to collect the five colors",
+                "score": 5,
+            },
+            {
+                "type": "progression",
+                "ident": "Point of No Return 2",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 5,
+            },
+            {
+                "type": "progression",
+                "ident": "Point of No Return 3",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 5,
+            },
+            {
+                "type": "progression",
+                "ident": "Multiball 1",
+                "title": "xxx",
+                "desc_post": "hitting the bumper in the upper area",
+                "score": 5,
+            },
+            {
+                "type": "progression",
+                "ident": "Multiball 2",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 5,
+            },
+            {
+                "type": "progression",
+                "ident": "Multiball 3",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Zero Gravity",
+                "title": "Okay, I'm Pretty Sure I Know You",
+                "desc_post": "knocking over the figure in space",
+                "score": 3,
+            },
+            {
+                "type": "",
+                "ident": "Loop The Loop 1",
+                "title": "A Neverending Back And Fourth",
+                "desc_post": "hitting the bumper at the end of the loop",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Loop The Loop 2",
+                "title": "A Return To Form",
+                "desc_post": "hitting the bumper at the end of the loop again",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Loop The Loop 3",
+                "title": "It's Not Actually Endless, Is It?",
+                "desc_post": "hitting the bumper at the end of the loop yet again",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Bumper Village",
+                "title": "Could Call it a Civilisation",
+                "desc_post": "hitting all bumpers with arrows in the bumper area",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Perfect Bumper Village",
+                "title": "Explored it All",
+                "desc_post": "hitting all bumpers with yellow arrow plates in the river area",
+                "score": 10,
+            },
+            {
+                "type": "",
+                "ident": "Total Lane Counts",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Total Bumper Counts",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 0,
+            },
+            {
+                "type": "",
+                "ident": "Extra Ball",
+                "title": "Iron Shield",
+                "desc_post": "hitting the blue UFO",
+                "score": 3,
+            },
+            {
+                "type": "",
+                "ident": "Extra Credit",
+                "title": "Warranty Provided",
+                "desc_post": "hitting the golden UFO",
+                "score": 3,
+            }
+        ],
+        "total": 16,
+        "table_ids_og": [20, 22],
+        "table_ids_fp": [20, 21],
+        "start_1": 0x44901c,
+        "start_2": 0x44909c
+    }
 }
 
-// obj_solo_data = {
-//     "Geometry": {
-//         "red": 4,
-//         "yellow": 5,
-//         "start": 0x4490bc // no second version exists
-//     }
-// }
+obj_solo_data = {
+    "Geometry": {
+        "objectives": [
+            {
+                "type": "progression",
+                "ident": "Space Warp",
+                "title": "Tunnel Vision",
+                "desc_post": "xxx",
+                "score": 5,
+            },
+            {
+                "type": "progression",
+                "ident": "Alien Hill",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 5,
+            },
+            {
+                "type": "progression",
+                "ident": "Area 74",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Galaxy Tennis",
+                "title": "In Space no one can hear you play Pong",
+                "desc_post": "winning at Space Tennis",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Chu Chu Multiball",
+                "title": "Mouse Mania",
+                "desc_post": "xxx",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "100 Blocks",
+                "title": "Blocklist",
+                "desc_post": "clearing all 100 blocks",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Warm-colored Blocks",
+                "title": "xxx",
+                "desc_post": "xxx",
+                "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Extra Ball",
+                "title": "Heart Container",
+                "desc_post": "hitting the blue UFO",
+                "score": 3,
+            },
+            {
+                "type": "",
+                "ident": "Extra Credit",
+                "title": "Collateral Collection",
+                "desc_post": "hitting the golden UFO",
+                "score": 3,
+            }
+        ],
+        "total": 9,
+        "table_ids_og": [30],
+        "table_ids_fp": [30],
+        "start_1": 0x4490bc,
+        "start_2": 0x00 // todo
+    }
+}
 
 // Objective achievements
 for table in obj_data {
@@ -314,22 +629,61 @@ for table in obj_data {
                 // original mode
                 (
                     in_original_mode() &&
-                    get_original_mode_table() == obj_data[table]["table_ids"][0] &&
                     (
-                        bit1(target_adr_1) == 1 && prev(bit1(target_adr_1) == 0) || bit1(target_adr_2) == 1 && prev(bit1(target_adr_2) == 0)
+                        get_original_mode_table() == obj_data[table]["table_ids_og"][0] &&
+                        bit1(target_adr_1) == 1 && prev(bit1(target_adr_1) == 0)
+                        ||
+                        get_original_mode_table() == obj_data[table]["table_ids_og"][1] &&
+                        bit1(target_adr_2) == 1 && prev(bit1(target_adr_2) == 0)
                     )
                 ) ||
                 // free play
                 (
                     in_free_play_mode() &&
-                    get_free_play_table() == obj_data[table]["table_ids"][1] &&
                     (
-                        bit1(target_adr_1) == 1 && prev(bit1(target_adr_1) == 0) || bit1(target_adr_2) == 1 && prev(bit1(target_adr_2) == 0)
+                        get_free_play_table() == obj_data[table]["table_ids_fp"][0] &&
+                        bit1(target_adr_1) == 1 && prev(bit1(target_adr_1) == 0)
+                        ||
+                        get_free_play_table() == obj_data[table]["table_ids_fp"][1] &&
+                        bit1(target_adr_2) == 1 && prev(bit1(target_adr_2) == 0)
                     )
                 )
                 
         )
     }
+}
+
+// Geometry has its own object:
+for objective_count in range(0, obj_solo_data["Geometry"]["total"] - 1, 1) {
+    objective = obj_solo_data["Geometry"]["objectives"][objective_count]
+
+    target_adr_1 = obj_solo_data["Geometry"]["start_1"] + objective_count
+    target_adr_2 = obj_solo_data["Geometry"]["start_2"] + objective_count
+
+    achievement(
+        title = objective["title"],
+        points = objective["score"],
+        type = objective["type"],
+        description = format("On {0}, complete \"{1}\" by {2}", "Geometry", objective["ident"], objective["desc_post"]),
+        trigger = 
+            // original mode
+            (
+                in_original_mode() &&
+                (
+                    get_original_mode_table() == obj_solo_data["Geometry"]["table_ids_og"][0] &&
+                    bit1(target_adr_1) == 1 && prev(bit1(target_adr_1) == 0)
+                )
+            ) ||
+            // free play
+            (
+                in_free_play_mode() &&
+                (
+                    get_free_play_table() == obj_solo_data["Geometry"]["table_ids_fp"][0] &&
+                    bit1(target_adr_1) == 1 && prev(bit1(target_adr_1) == 0)
+                )
+            )
+            
+    )
 }
 
 achievement(
@@ -341,7 +695,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 00 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 achievement(
@@ -353,7 +707,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 01 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 achievement(
@@ -365,7 +719,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 10 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 achievement(
@@ -377,7 +731,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 11 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 achievement(
@@ -389,7 +743,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 20 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 achievement(
@@ -401,7 +755,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 21 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 // stage reruns
@@ -414,7 +768,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 02 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 achievement(
@@ -426,7 +780,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 12 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 achievement(
@@ -438,7 +792,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 22 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 achievement(
@@ -450,7 +804,7 @@ achievement(
         in_original_mode() &&
         get_original_mode_table() == 30 &&
         // trigger as cutscene ends
-        check_if_matching_cutscene_is_playing("NEXT_STAGE") && prev(check_if_no_cutscene_playing())
+        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
 )
 
 // Table clear final boss (on credits)
@@ -460,9 +814,9 @@ achievement(
     type = "win_condition",
     description = format("In Original Mode on {0}, defeat the final boss", "Evolution D"),
     trigger = 
-        in_original_mode() &&
+        in_main_menu() &&
         get_original_mode_table() == 31 &&
-        // trigger as cutscene ends
+        // trigger as cutscene BEGINS
         check_if_matching_cutscene_is_playing("CREDITS") && prev(check_if_no_cutscene_playing())
 )
 
@@ -479,29 +833,29 @@ achievement(
         get_exp() == 1000 && prev(get_exp() < 1000)
 )
 
-achievement(
-    title = "Bump and Grind",
-    points = 10,
-    type = "",
-    description = "In Original Mode or Free Play, hit bumpers 100 times to earn a score bonus",
-    trigger = 
-        (
-            in_original_mode() || in_free_play_mode()
-        ) &&
-        get_total_bumpers() == 100 && prev(get_total_bumpers() < 100)
-)
-
-achievement(
-    title = "The Long Road",
-    points = 10,
-    type = "",
-    description = "In Original Mode or Free Play, travel through area lanes 25 times to earn a score bonus",
-    trigger = 
-        (
-            in_original_mode() || in_free_play_mode()
-        ) &&
-        get_total_lanes() == 25 && prev(get_total_lanes() < 25)
-)
+// achievement(
+//     title = "Bump and Grind",
+//     points = 10,
+//     type = "",
+//     description = "In Original Mode or Free Play, hit bumpers 100 times to earn a score bonus",
+//     trigger = 
+//         (
+//             in_original_mode() || in_free_play_mode()
+//         ) &&
+//         get_total_bumpers() == 100 && prev(get_total_bumpers() < 100)
+// )
+// 
+// achievement(
+//     title = "The Long Road",
+//     points = 10,
+//     type = "",
+//     description = "In Original Mode or Free Play, travel through area lanes 25 times to earn a score bonus",
+//     trigger = 
+//         (
+//             in_original_mode() || in_free_play_mode()
+//         ) &&
+//         get_total_lanes() == 25 && prev(get_total_lanes() < 25)
+// )
 
 
 // optics multiball has no super jackpot
