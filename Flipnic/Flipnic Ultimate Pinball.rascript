@@ -162,7 +162,7 @@ obj_data = {
                 "ident": "Freeze Over",
                 "title": "Butterfly Effect",
                 "desc_post": "hitting all bumpers in the butterfly area",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "progression",
@@ -218,7 +218,7 @@ obj_data = {
                 "ident": "Color Puzzle",
                 "title": "Bingo!",
                 "desc_post": "matching the slots and scoring Bingos during the Color Puzzle minigame",
-                "score": 0,
+                "score": 10,
             },
             {
                 "type": "",
@@ -232,7 +232,7 @@ obj_data = {
                 "ident": "UFO Quiz Show",
                 "title": "Trivia from Outher Space",
                 "desc_post": "matching the slots and correctly counting the amount of UFOs thrice during the Quiz Show minigame",
-                "score": 5,
+                "score": 10
             },
             {
                 "type": "",
@@ -325,7 +325,7 @@ obj_data = {
                 "ident": "Spider Crab Shoot-Down",
                 "title": "Tank Stance",
                 "desc_post": "destroying the giant Spider Crab",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "progression",
@@ -353,14 +353,14 @@ obj_data = {
                 "ident": "UFO Shoot-Down",
                 "title": "A Moment of Revenge",
                 "desc_post": "shooting down 10 UFOs in the UFO area",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "",
                 "ident": "Crab Baby Shoot-Down",
                 "title": "Crab and Go",
                 "desc_post": "shooting down 10 Crab Baby formations in the Spider Crab area",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "",
@@ -563,28 +563,28 @@ obj_solo_data = {
                 "ident": "Space Warp",
                 "title": "Tunnel Vision",
                 "desc_post": "collecting all red keys",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "progression",
                 "ident": "Alien Hill",
                 "title": "A Steady Ascent",
                 "desc_post": "collecting the blue flag, then reaching the top of the area",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "progression",
                 "ident": "Area 74",
                 "title": "Unidentified Flying Obliteration",
                 "desc_post": "destroying all UFOs",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "",
                 "ident": "Galaxy Tennis",
                 "title": "In Space No One Can Hear You Play Tennis",
-                "desc_post": "winning at Space Tennis",
-                "score": 5,
+                "desc_post": "winning a round of intergalactic Pong",
+                "score": 10,
             },
             {
                 "type": "",
@@ -598,7 +598,7 @@ obj_solo_data = {
                 "ident": "100 Blocks",
                 "title": "Blocklist",
                 "desc_post": "clearing all 100 blocks",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "",
@@ -865,7 +865,7 @@ leeway_in_frames = 500
 for table in table_names {
     leaderboard(
         title = format("{0} Score Attack", table),
-        description = format("Score as many points as possible on {0} A or B on Normal difficulty or higher!", table),
+        description = format("In Free Play, score as many points as possible on {0} A or B on Normal difficulty or higher!", table),
         start = 
         (
             (
@@ -889,7 +889,7 @@ for table in table_names {
 
     leaderboard(
         title = format("{0} Time Attack", table),
-        description = format("Score as many points as possible on {0} A or B on Normal difficulty or higher before time runs out!", table),
+        description = format("In Free Play, score as many points as possible on {0} A or B on Normal difficulty or higher before time runs out!", table),
         start = 
         (
             (
@@ -915,7 +915,7 @@ for table in table_names {
 // Geometry
 leaderboard(
     title = format("{0} Score Attack", "Geometry"),
-    description = format("Score as many points as possible on {0} A on Normal difficulty or higher!", "Geometry"),
+    description = format("In Free Play, score as many points as possible on {0} A on Normal difficulty or higher!", "Geometry"),
     start = 
     (
         (
@@ -939,7 +939,7 @@ leaderboard(
 
 leaderboard(
         title = format("{0} Time Attack", "Geometry"),
-        description = format("Score as many points as possible on {0} A or B on Normal difficulty or higher before time runs out!", "Geometry"),
+        description = format("In Free Play, score as many points as possible on {0} A or B on Normal difficulty or higher before time runs out!", "Geometry"),
         start = 
         (
             (
