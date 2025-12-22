@@ -47,11 +47,16 @@ function check_if_matching_cutscene_is_playing(cutscene_ident) {
 cutscene_map = {
     "TUTORIAL": [0x50414843],
     "NEXT_STAGE": [0x5458454e],
-    "CREDITS": [0x46415453, 0x4f525f46]
+    "CREDITS": [0x46415453, 0x4f525f46],
+    "GAME_OVER": [0x454d4147]
 }
 
 function watching_tutorial() {
     return check_if_matching_cutscene_is_playing("TUTORIAL")
+}
+
+function game_is_now_over() {
+    return check_if_matching_cutscene_is_playing("GAME_OVER") && prev(check_if_no_cutscene_playing())
 }
 
 function stage_unlock_cutscene_done() {
@@ -151,20 +156,20 @@ obj_data = {
                 "ident": "Hidden Path Discovery",
                 "title": "Quite the Breakthrough",
                 "desc_post": "smashing into the frozen waterfall",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Zero Gravity",
                 "title": "Knockout!",
                 "desc_post": "knocking over the figure in space",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Circle of Life",
                 "title": "It Gets Around",
-                "desc_post": "hitting the XXXX in the Multiball area",
+                "desc_post": "hitting the tower bumpers in the Multiball area",
                 "score": 5,
             },
             {
@@ -198,8 +203,8 @@ obj_data = {
             {
                 "type": "",
                 "ident": "Color Puzzle",
-                "title": "???",
-                "desc_post": "???",
+                "title": "Bingo!",
+                "desc_post": "matching the slots and scoring Bingos during the Color Puzzle minigame",
                 "score": 0,
             },
             {
@@ -207,14 +212,14 @@ obj_data = {
                 "ident": "Money Money Money",
                 "title": "Payday",
                 "desc_post": "matching the slots to summon coins",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "UFO Quiz Show",
                 "title": "Trivia from Outher Space",
-                "desc_post": "matching the slots and correctly counting the amount of UFOs during the quiz show minigame",
-                "score": 3,
+                "desc_post": "matching the slots and correctly counting the amount of UFOs thrice during the quiz show minigame",
+                "score": 5,
             },
             {
                 "type": "",
@@ -233,51 +238,51 @@ obj_data = {
             {
                 "type": "",
                 "ident": "Lane Count Mission 1",
-                "title": "???",
-                "desc_post": "???",
-                "score": 0,
+                "title": "Waterfall Showcase",
+                "desc_post": "landing the ball multiple times in the secret lane in the waterfall area",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Lane Count Mission 2",
-                "title": "???",
-                "desc_post": "???",
-                "score": 0,
+                "title": "To Better Places",
+                "desc_post": "landing the ball multiple times on the silver ramp lane in the Multiball area",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Lane Count Mission 3",
-                "title": "???",
-                "desc_post": "???",
-                "score": 0,
+                "title": "To Other, Equally Good Places",
+                "desc_post": "landing the ball multiple times on the golden ramp lane in the Multiball area",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Total Lane Counts",
-                "title": "???",
-                "desc_post": "???",
-                "score": 0,
+                "title": "Jungle Lane Champion",
+                "desc_post": "traveling through lanes multiple times",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Total Bumper Counts",
-                "title": "???",
-                "desc_post": "???",
-                "score": 0,
+                "title": "Jungle Bumper Champion",
+                "desc_post": "hitting bumpers multiple times",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Extra Ball",
                 "title": "Safeguarding",
                 "desc_post": "hitting the blue UFO",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Extra Credit",
                 "title": "Security Deposit",
                 "desc_post": "hitting the golden UFO",
-                "score": 3,
+                "score": 5,
             }
         ],
         "total": 20,
@@ -293,14 +298,14 @@ obj_data = {
                 "ident": "Move On 1",
                 "title": "On The Run",
                 "desc_post": "hitting the first blocked door multiple times in the UFO area",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "progression",
                 "ident": "Move On 2",
                 "title": "On The Run Again",
                 "desc_post": "hitting the second blocked door multiple times in the UFO area",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "progression",
@@ -328,84 +333,84 @@ obj_data = {
                 "ident": "Zero Gravity",
                 "title": "Have We Met Before?",
                 "desc_post": "knocking over the figure in space",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "UFO Shoot-Down",
-                "title": "xxx",
-                "desc_post": "xxx",
-                "score": 0,
+                "title": "A Moment of Revenge",
+                "desc_post": "shooting down 10 UFOs in the UFO area",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Crab Baby Shoot-Down",
-                "title": "xxx",
-                "desc_post": "xxx",
-                "score": 0,
+                "title": "Crab And Go",
+                "desc_post": "shooting down 10 Crab Baby formations in the Spider Crab area",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Multiball 1",
-                "title": "xxx",
-                "desc_post": "xxx",
-                "score": 0,
+                "title": "Big Money",
+                "desc_post": "scoring a Super Jackpot during the Multiball event in the first UFO area",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Multiball 2",
-                "title": "xxx",
-                "desc_post": "xxx",
-                "score": 0,
+                "title": "Bigger Money",
+                "desc_post": "scoring a Super Jackpot during the Multiball event in the second UFO area",
+                "score": 5,
             },
             {
                 "type": "",
-                "ident": "Multiball 3",
-                "title": "xxx",
-                "desc_post": "xxx",
-                "score": 0,
+                "ident": "Multiball 2",
+                "title": "Too Rich To Fail",
+                "desc_post": "engaging in the Multiball event in the Spider Crab area",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Lane Count Mission 1",
                 "title": "You can count on me!",
-                "desc_post": "xxx",
-                "score": 0,
+                "desc_post": "landing the ball multiple times on the silver ramp lane in the first UFO area",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Lane Count Mission 2",
-                "title": "Actually, I lost count",
-                "desc_post": "xxx",
-                "score": 0,
+                "title": "Actually, I have lost Count",
+                "desc_post": "landing the ball multiple times in the lane between the bumpers in the second UFO area",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Total Lane Counts",
-                "title": "xxx",
-                "desc_post": "xxx",
-                "score": 0,
+                "title": "Construction Lane Champion",
+                "desc_post": "traveling through lanes multiple times",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Total Bumper Counts",
-                "title": "xxx",
-                "desc_post": "xxx",
-                "score": 0,
+                "title": "Construction Bumper Champion",
+                "desc_post": "hitting bumpers multiple times",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Extra Ball",
                 "title": "Protection Barrier",
                 "desc_post": "hitting the blue UFO",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Extra Credit",
                 "title": "Insurance",
                 "desc_post": "hitting the golden UFO",
-                "score": 3,
+                "score": 5,
             }
         ],
         "total": 17,
@@ -419,43 +424,43 @@ obj_data = {
             {
                 "type": "progression",
                 "ident": "Point of No Return 1",
-                "title": "Color Groups",
+                "title": "Quite the Switchup",
                 "desc_post": "passing through the colored rings to collect the five colors",
                 "score": 5,
             },
             {
                 "type": "progression",
                 "ident": "Point of No Return 2",
-                "title": "xxx",
-                "desc_post": "xxx",
+                "title": "The Matching Game",
+                "desc_post": "passing through the colored rings to collect the five colors",
                 "score": 5,
             },
             {
                 "type": "progression",
                 "ident": "Point of No Return 3",
-                "title": "xxx",
-                "desc_post": "xxx",
+                "title": "Same Ain't Lame",
+                "desc_post": "passing through red rings multiple times",
                 "score": 5,
             },
             {
                 "type": "progression",
                 "ident": "Multiball 1",
-                "title": "xxx",
-                "desc_post": "hitting the bumper in the upper area",
+                "title": "Bumpin'",
+                "desc_post": "hitting the bumpers in the upper area",
                 "score": 5,
             },
             {
                 "type": "progression",
                 "ident": "Multiball 2",
-                "title": "xxx",
-                "desc_post": "xxx",
+                "title": "A Perfect Match",
+                "desc_post": "matching the colors of the the bumpers in the upper area",
                 "score": 5,
             },
             {
                 "type": "progression",
                 "ident": "Multiball 3",
-                "title": "xxx",
-                "desc_post": "xxx",
+                "title": "Seeing Red",
+                "desc_post": "hitting the red bumpers in the upper area",
                 "score": 5,
             },
             {
@@ -463,7 +468,7 @@ obj_data = {
                 "ident": "Zero Gravity",
                 "title": "Okay, I'm Pretty Sure I Know You",
                 "desc_post": "knocking over the figure in space",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "",
@@ -503,30 +508,30 @@ obj_data = {
             {
                 "type": "",
                 "ident": "Total Lane Counts",
-                "title": "xxx",
-                "desc_post": "xxx",
-                "score": 0,
+                "title": "Hue Lane Champion",
+                "desc_post": "traveling through lanes multiple times",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Total Bumper Counts",
-                "title": "xxx",
-                "desc_post": "xxx",
-                "score": 0,
+                "title": "Hue Bumper Champion",
+                "desc_post": "hitting bumpers multiple times",
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Extra Ball",
                 "title": "Iron Shield",
                 "desc_post": "hitting the blue UFO",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Extra Credit",
                 "title": "Warranty Provided",
                 "desc_post": "hitting the golden UFO",
-                "score": 3,
+                "score": 5,
             }
         ],
         "total": 16,
@@ -544,21 +549,21 @@ obj_solo_data = {
                 "type": "progression",
                 "ident": "Space Warp",
                 "title": "Tunnel Vision",
-                "desc_post": "xxx",
+                "desc_post": "collecting all red keys",
                 "score": 5,
             },
             {
                 "type": "progression",
                 "ident": "Alien Hill",
-                "title": "xxx",
-                "desc_post": "xxx",
+                "title": "A Steady Ascent",
+                "desc_post": "collecting the blue flag, then reaching the top of the area",
                 "score": 5,
             },
             {
                 "type": "progression",
                 "ident": "Area 74",
-                "title": "xxx",
-                "desc_post": "xxx",
+                "title": "Unidentified Flying Obliteration",
+                "desc_post": "destroying all UFOs",
                 "score": 5,
             },
             {
@@ -572,7 +577,7 @@ obj_solo_data = {
                 "type": "",
                 "ident": "Chu Chu Multiball",
                 "title": "Mouse Mania",
-                "desc_post": "xxx",
+                "desc_post": "earning a Super Jackpot during the Multiball event",
                 "score": 5,
             },
             {
@@ -585,8 +590,8 @@ obj_solo_data = {
             {
                 "type": "",
                 "ident": "Warm-colored Blocks",
-                "title": "xxx",
-                "desc_post": "xxx",
+                "title": "Now in Color!",
+                "desc_post": "clearing all warm-colored blocks",
                 "score": 5,
             },
             {
@@ -594,14 +599,14 @@ obj_solo_data = {
                 "ident": "Extra Ball",
                 "title": "Heart Container",
                 "desc_post": "hitting the blue UFO",
-                "score": 3,
+                "score": 5,
             },
             {
                 "type": "",
                 "ident": "Extra Credit",
                 "title": "Collateral Collection",
                 "desc_post": "hitting the golden UFO",
-                "score": 3,
+                "score": 5,
             }
         ],
         "total": 9,
@@ -833,34 +838,66 @@ achievement(
         get_exp() == 1000 && prev(get_exp() < 1000)
 )
 
-// achievement(
-//     title = "Bump and Grind",
-//     points = 10,
-//     type = "",
-//     description = "In Original Mode or Free Play, hit bumpers 100 times to earn a score bonus",
-//     trigger = 
-//         (
-//             in_original_mode() || in_free_play_mode()
-//         ) &&
-//         get_total_bumpers() == 100 && prev(get_total_bumpers() < 100)
-// )
-// 
-// achievement(
-//     title = "The Long Road",
-//     points = 10,
-//     type = "",
-//     description = "In Original Mode or Free Play, travel through area lanes 25 times to earn a score bonus",
-//     trigger = 
-//         (
-//             in_original_mode() || in_free_play_mode()
-//         ) &&
-//         get_total_lanes() == 25 && prev(get_total_lanes() < 25)
-// )
+// Leaderboards
 
+// Base tables
+table_names = ["Biology", "Metallurgy", "Optics"]
+table_ids = {
+    "Biology": [00, 01],
+    "Metallurgy": [10, 11],
+    "Optics": [20, 21]
+}
 
-// optics multiball has no super jackpot
-// optics multiball with match three colors always wins after time
+for table in table_names {
+    leaderboard(
+        title = format("{0} Score Attack", table),
+        description = format("Score as many points as possible on {0} A or B on Normal difficulty or higher!", table),
+        start = 
+        (
+            (
+                get_free_play_table() == table_ids[table][0] || get_free_play_table() == table_ids[table][1]
+            ) &&
+            in_free_play_mode() &&
+            game_is_now_over() &&
+            // normal or hard
+            get_difficulty() > 0
+            // todo: mode check score
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            get_score()
+        ),
+        format = "SCORE", lower_is_better = false
+    )
+}
 
+// Geometry
+leaderboard(
+    title = format("{0} Score Attack", "Geometry"),
+    description = format("Score as many points as possible on {0} A on Normal difficulty or higher!", "Geometry"),
+    start = 
+    (
+        (
+            get_free_play_table() == 30
+        ) &&
+        in_free_play_mode() &&
+        game_is_now_over() &&
+        // normal or hard
+        get_difficulty() > 0
+        // todo: mode check score
+    ),
+    cancel = always_false(),
+    submit = always_true(),
+    value =
+    measured(
+        get_score()
+    ),
+    format = "SCORE", lower_is_better = false
+)
+
+// RP
 
 rich_presence_conditional_display(watching_tutorial(), "Learning how to enjoy Flipnic")
 
