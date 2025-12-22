@@ -378,7 +378,7 @@ obj_data = {
             },
             {
                 "type": "",
-                "ident": "Multiball 2",
+                "ident": "Multiball 3",
                 "title": "Too Rich to Fail",
                 "desc_post": "engaging in the Multiball event in the Spider Crab area",
                 "score": 5,
