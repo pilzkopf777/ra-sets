@@ -332,14 +332,14 @@ obj_data = {
                 "ident": "Stop the Four Shafts 1",
                 "title": "Power Drain",
                 "desc_post": "deactivating the first set of shafts in the space area",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "progression",
                 "ident": "Stop the Four Shafts 2",
                 "title": "Batteries Empty",
                 "desc_post": "deactivating the second set of shafts in the space area",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "",
@@ -439,21 +439,21 @@ obj_data = {
                 "ident": "Point of No Return 1",
                 "title": "Quite the Switchup",
                 "desc_post": "passing through the colored rings to collect the five colors",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "progression",
                 "ident": "Point of No Return 2",
                 "title": "The Matching Game",
                 "desc_post": "passing through the colored rings to collect the five colors",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "progression",
                 "ident": "Point of No Return 3",
                 "title": "Same Ain't Lame",
                 "desc_post": "passing through red rings multiple times",
-                "score": 5,
+                "score": 10,
             },
             {
                 "type": "progression",
@@ -815,7 +815,7 @@ achievement(
 
 achievement(
     title = "The Ultimate Game",
-    points = 10,
+    points = 25,
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Geometry A"),
     trigger = 
