@@ -613,6 +613,13 @@ obj_solo_data = {
                 "title": "Heart Container",
                 "desc_post": "hitting the blue UFO",
                 "score": 5,
+            },
+            {
+                "type": "",
+                "ident": "Extra Credit",
+                "title": "Collateral Collection",
+                "desc_post": "hitting the golden UFO",
+                "score": 5,
             }
         ],
         "total": 9,
@@ -821,7 +828,7 @@ achievement(
 // Table clear final boss (on credits)
 achievement(
     title = "An Enjoyable Simple-Action Amazing Boss Fight for You",
-    points = 25,
+    points = 50,
     type = "win_condition",
     description = format("In Original Mode on {0}, defeat the final boss", "Evolution D"),
     trigger = 
