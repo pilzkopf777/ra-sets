@@ -48,7 +48,8 @@ cutscene_map = {
     "TUTORIAL": [0x50414843],
     "NEXT_STAGE": [0x5458454e],
     "CREDITS": [0x46415453, 0x4f525f46],
-    "GAME_OVER": [0x454d4147]
+    "GAME_OVER": [0x454d4147],
+    "BIOLOGY_OPENING": [0x564c4953]
 }
 
 function watching_tutorial() {
@@ -106,6 +107,18 @@ function get_total_lanes() {
 function get_total_bumpers() {
     return dword(0x44928c)
 }
+
+function get_time_remaining_time_attack() {
+    return ptr(dword(0x0022cb58), [0x69c], dword)
+}
+
+function check_if_time_set_time_attack() {
+    return ptr(dword(0x0022cb58), [0x69c], dword) != 0x00
+}
+
+// function in_time_attack() {
+//     return dword(0x0040775c) == 0x01
+// }
 
 difficulty_map = {
     0x00: "Easy",
@@ -190,14 +203,14 @@ obj_data = {
                 "type": "",
                 "ident": "Lucky Flamingos",
                 "title": "It's Called a Flamboyance",
-                "desc_post": "matching the slots and collecting all stars during the flamingo minigame",
+                "desc_post": "matching the slots and collecting all stars during the Flamingo minigame",
                 "score": 10,
             },
             {
                 "type": "",
                 "ident": "Hungry Monkey",
                 "title": "Dinner Is Served",
-                "desc_post": "matching the slots and collecting bananas using the monkey during the monkey minigame",
+                "desc_post": "matching the slots and collecting bananas using the monkey during the Monkey minigame",
                 "score": 10,
             },
             {
@@ -218,7 +231,7 @@ obj_data = {
                 "type": "",
                 "ident": "UFO Quiz Show",
                 "title": "Trivia from Outher Space",
-                "desc_post": "matching the slots and correctly counting the amount of UFOs thrice during the quiz show minigame",
+                "desc_post": "matching the slots and correctly counting the amount of UFOs thrice during the Quiz Show minigame",
                 "score": 5,
             },
             {
@@ -826,17 +839,17 @@ achievement(
 )
 
 // Standalone achievements
-achievement(
-    title = "Multiplication Station",
-    points = 10,
-    type = "",
-    description = "In Original Mode or Free Play, collect 1000 EXP to increase the base point multiplier",
-    trigger = 
-        (
-            in_original_mode() || in_free_play_mode()
-        ) &&
-        get_exp() == 1000 && prev(get_exp() < 1000)
-)
+//achievement(
+//    title = "Multiplication Station",
+//    points = 10,
+//    type = "",
+//    description = "In Original Mode or Free Play, collect 1000 EXP to increase the base point multiplier",
+//    trigger = 
+//        (
+//            in_original_mode() || in_free_play_mode()
+//        ) &&
+//        get_exp() == 1000 && prev(get_exp() < 1000)
+//)
 
 // Leaderboards
 
@@ -847,6 +860,7 @@ table_ids = {
     "Metallurgy": [10, 11],
     "Optics": [20, 21]
 }
+leeway_in_frames = 500
 
 for table in table_names {
     leaderboard(
@@ -860,14 +874,39 @@ for table in table_names {
             in_free_play_mode() &&
             game_is_now_over() &&
             // normal or hard
-            get_difficulty() > 0
-            // todo: mode check score
+            get_difficulty() > 0 &&
+            // Score Attack - so the timer may never go above 0
+            disable_when(repeated(leeway_in_frames, check_if_time_set_time_attack()), until=in_main_menu())
         ),
         cancel = always_false(),
         submit = always_true(),
         value =
         measured(
             get_score()
+        ),
+        format = "SCORE", lower_is_better = false
+    )
+
+    leaderboard(
+        title = format("{0} Time Attack", table),
+        description = format("Score as many points as possible on {0} A or B on Normal difficulty or higher before time runs out!", table),
+        start = 
+        (
+            (
+                get_free_play_table() == table_ids[table][0] || get_free_play_table() == table_ids[table][1]
+            ) &&
+            in_free_play_mode() &&
+            game_is_now_over() &&
+            // normal or hard
+            get_difficulty() > 0 &&
+            // Time attack - cheeky solution: If there has been a time limit it must be a Time Attack - so collect a hit until a reset
+            disable_when(repeated(leeway_in_frames, !check_if_time_set_time_attack()), until=in_main_menu())
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            get_time_remaining_time_attack()
         ),
         format = "SCORE", lower_is_better = false
     )
@@ -885,8 +924,9 @@ leaderboard(
         in_free_play_mode() &&
         game_is_now_over() &&
         // normal or hard
-        get_difficulty() > 0
-        // todo: mode check score
+        get_difficulty() > 0 &&
+        // Score Attack - so the timer may never go above 0
+        disable_when(repeated(leeway_in_frames, check_if_time_set_time_attack()), until=in_main_menu())
     ),
     cancel = always_false(),
     submit = always_true(),
@@ -896,6 +936,30 @@ leaderboard(
     ),
     format = "SCORE", lower_is_better = false
 )
+
+leaderboard(
+        title = format("{0} Time Attack", "Geometry"),
+        description = format("Score as many points as possible on {0} A or B on Normal difficulty or higher before time runs out!", "Geometry"),
+        start = 
+        (
+            (
+                get_free_play_table() == 30
+            ) &&
+            in_free_play_mode() &&
+            game_is_now_over() &&
+            // normal or hard
+            get_difficulty() > 0 &&
+            // Time attack - cheeky solution: If there has been a time limit it must be a Time Attack - so collect a hit until a reset
+            disable_when(repeated(leeway_in_frames, !check_if_time_set_time_attack()), until=in_main_menu())
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            get_time_remaining_time_attack()
+        ),
+        format = "SCORE", lower_is_better = false
+    )
 
 // RP
 
