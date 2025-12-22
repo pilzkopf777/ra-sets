@@ -182,21 +182,21 @@ obj_data = {
             {
                 "type": "",
                 "ident": "Perfect Bumper Village",
-                "title": "Actually, Mostly just Downs",
+                "title": "Actually, Mostly Just Downs",
                 "desc_post": "hitting all bumpers with yellow arrow plates in the river area",
                 "score": 10,
             },
             {
                 "type": "",
                 "ident": "Lucky Flamingos",
-                "title": "It's called a Flamboyance",
+                "title": "It's Called a Flamboyance",
                 "desc_post": "matching the slots and collecting all stars during the flamingo minigame",
                 "score": 10,
             },
             {
                 "type": "",
                 "ident": "Hungry Monkey",
-                "title": "Dinner is Served",
+                "title": "Dinner Is Served",
                 "desc_post": "matching the slots and collecting bananas using the monkey during the monkey minigame",
                 "score": 10,
             },
@@ -296,14 +296,14 @@ obj_data = {
             {
                 "type": "progression",
                 "ident": "Move On 1",
-                "title": "On The Run",
+                "title": "On the Run",
                 "desc_post": "hitting the first blocked door multiple times in the UFO area",
                 "score": 5,
             },
             {
                 "type": "progression",
                 "ident": "Move On 2",
-                "title": "On The Run Again",
+                "title": "On the Run Again",
                 "desc_post": "hitting the second blocked door multiple times in the UFO area",
                 "score": 5,
             },
@@ -345,7 +345,7 @@ obj_data = {
             {
                 "type": "",
                 "ident": "Crab Baby Shoot-Down",
-                "title": "Crab And Go",
+                "title": "Crab and Go",
                 "desc_post": "shooting down 10 Crab Baby formations in the Spider Crab area",
                 "score": 5,
             },
@@ -366,21 +366,21 @@ obj_data = {
             {
                 "type": "",
                 "ident": "Multiball 2",
-                "title": "Too Rich To Fail",
+                "title": "Too Rich to Fail",
                 "desc_post": "engaging in the Multiball event in the Spider Crab area",
                 "score": 5,
             },
             {
                 "type": "",
                 "ident": "Lane Count Mission 1",
-                "title": "You can count on me!",
+                "title": "You Can Count on Me!",
                 "desc_post": "landing the ball multiple times on the silver ramp lane in the first UFO area",
                 "score": 5,
             },
             {
                 "type": "",
                 "ident": "Lane Count Mission 2",
-                "title": "Actually, I have lost Count",
+                "title": "Actually, I Lost Count",
                 "desc_post": "landing the ball multiple times in the lane between the bumpers in the second UFO area",
                 "score": 5,
             },
@@ -473,14 +473,14 @@ obj_data = {
             {
                 "type": "",
                 "ident": "Loop The Loop 1",
-                "title": "A Neverending Back And Fourth",
+                "title": "A Neverending Back and Fourth",
                 "desc_post": "hitting the bumper at the end of the loop",
                 "score": 5,
             },
             {
                 "type": "",
                 "ident": "Loop The Loop 2",
-                "title": "A Return To Form",
+                "title": "A Return to Form",
                 "desc_post": "hitting the bumper at the end of the loop again",
                 "score": 5,
             },
@@ -494,14 +494,14 @@ obj_data = {
             {
                 "type": "",
                 "ident": "Bumper Village",
-                "title": "Could Call it a Civilisation",
+                "title": "Could Call It a Civilisation",
                 "desc_post": "hitting all bumpers with arrows in the bumper area",
                 "score": 5,
             },
             {
                 "type": "",
                 "ident": "Perfect Bumper Village",
-                "title": "Explored it All",
+                "title": "Explored It All",
                 "desc_post": "hitting all bumpers with yellow arrow plates in the river area",
                 "score": 10,
             },
@@ -569,7 +569,7 @@ obj_solo_data = {
             {
                 "type": "",
                 "ident": "Galaxy Tennis",
-                "title": "In Space no one can hear you play Pong",
+                "title": "In Space No One Can Hear You Play Tennis",
                 "desc_post": "winning at Space Tennis",
                 "score": 5,
             },
@@ -704,7 +704,7 @@ achievement(
 )
 
 achievement(
-    title = "Is that a Skull?",
+    title = "Is That a Skull?",
     points = 5,
     type = "progression",
     description = format("In Original Mode on {0}, defeat the being in space and unlock the next table", "Evolution A"),
@@ -728,7 +728,7 @@ achievement(
 )
 
 achievement(
-    title = "I think I've been here before",
+    title = "I Think I've Been Here Before",
     points = 5,
     type = "progression",
     description = format("In Original Mode on {0}, defeat the being in space and unlock the next table", "Evolution B"),
