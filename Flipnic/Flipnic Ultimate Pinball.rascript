@@ -75,6 +75,14 @@ function get_difficulty() {
     return dword(0x00449280)
 }
 
+function get_score() {
+    return dword(0x00449268)
+}
+
+function get_balls() {
+    return dword(0x00449334)
+}
+
 difficulty_map = {
     0x00: "Easy",
     0x01: "Normal",
@@ -96,16 +104,28 @@ table_map = {
 }
 
 
+// Trigger rules:
+// For the Zero Gravity goal, trigger on unlock cutscene (since its the last one)
+// Also have achievement for defeating boss (tie to the mission flag)
+
+// Bonus for hitting 100 bumpers in a life
+// 25 lane counts
+
+
 rich_presence_conditional_display(watching_tutorial(), "Learning how to enjoy Flipnic")
 
-rich_presence_conditional_display(in_original_mode() && !in_main_menu(), "In the Original Mode • {0} • {1}",
+rich_presence_conditional_display(in_original_mode() && !in_main_menu(), "In Original Mode • {0} • Score: {2} • {3} Balls",
     rich_presence_lookup("Table", get_original_mode_table(), table_map, fallback="Unknown table"),
-    rich_presence_lookup("Difficulty", get_difficulty(), difficulty_map, fallback="Unknown difficulty")
+    rich_presence_lookup("Difficulty", get_difficulty(), difficulty_map, fallback="Unknown difficulty"),
+    rich_presence_value("Score", get_score(), "POINTS"),
+    rich_presence_value("Balls", get_balls(), "VALUE")
 )
 
-rich_presence_conditional_display(in_free_play_mode() && !in_main_menu(), "In Free Play • {0} • {1}",
+rich_presence_conditional_display(in_free_play_mode() && !in_main_menu(), "In Free Play • {0} • Score: {2} • {3} Balls",
     rich_presence_lookup("Table", get_free_play_table(), table_map, fallback="Unknown table"),
-    rich_presence_lookup("Difficulty", get_difficulty(), difficulty_map, fallback="Unknown difficulty")
+    rich_presence_lookup("Difficulty", get_difficulty(), difficulty_map, fallback="Unknown difficulty"),
+    rich_presence_value("Score", get_score(), "POINTS"),
+    rich_presence_value("Balls", get_balls(), "VALUE")
 )
 
 rich_presence_conditional_display(in_main_menu(), "In the Main Menu")
