@@ -103,6 +103,73 @@ table_map = {
     31: "Evolution D"
 }
 
+obj_data = {
+    "Biology": {
+        "objectives": [
+            {
+                "type": "red",
+                "ident": "Freeze Over",
+                "title": "Butterfly Effect",
+                "desc_post": "hitting all bumpers in the butterfly area thrice",
+                "score": 0,
+            }
+        ],
+        "total": 1, // 20
+        // "red": 3,
+        // "yellow": 17,
+        "start_1": 0x448f9c,
+        "start_2": 0x44905c
+    },
+   // "Metallurgy": {
+   //     "red": 6,
+   //     "yellow": 11,
+   //     "start_1": 0x448fdc,
+   //     "start_2": 0x44907c
+   // },
+   // "Optics": {
+   //     "red": 7,
+   //     "yellow": 9,
+   //     "start_1": 0x44901c,
+   //     "start_2": 0x44909c
+   // }
+}
+
+// obj_solo_data = {
+//     "Geometry": {
+//         "red": 4,
+//         "yellow": 5,
+//         "start": 0x4490bc // no second version exists
+//     }
+// }
+
+function obj_type_to_ach_type(obj_type) {
+    if (obj_type == "red") {
+        return "progression"
+    } else {
+        return ""
+    }
+}
+
+for table in obj_data {
+    for objective_count in range(0, obj_data[table]["total"] - 1, 1) {
+        objective = obj_data[table]["objectives"][0]
+
+        target_adr_1 = obj_data[table]["start_1"] + objective_count
+        target_adr_2 = obj_data[table]["start_2"] + objective_count
+
+
+
+        achievement(
+            title = objective["title"],
+            points = objective["score"],
+            type = obj_type_to_ach_type(objective["type"]),
+            description = format("On {0}, complete \"{1}\" by {2}", table, objective["ident"], objective["desc_post"]),
+            trigger = 
+                bit0(target_adr_1) == 1 && prev(bit0(target_adr_1) == 0) || bit0(target_adr_2) == 1 && prev(bit0(target_adr_2) == 0)
+        )
+    }
+}
+
 
 // Trigger rules:
 // For the Zero Gravity goal, trigger on unlock cutscene (since its the last one)
@@ -110,6 +177,9 @@ table_map = {
 
 // Bonus for hitting 100 bumpers in a life
 // 25 lane counts
+
+// optics multiball has no super jackpot
+// optics multiball with match three colors always wins after time
 
 
 rich_presence_conditional_display(watching_tutorial(), "Learning how to enjoy Flipnic")
