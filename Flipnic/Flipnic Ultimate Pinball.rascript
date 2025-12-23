@@ -646,6 +646,7 @@ for table in obj_data {
             trigger = 
                 // original mode
                 (
+                    !in_main_menu() &&
                     in_original_mode() &&
                     (
                         get_original_mode_table() == obj_data[table]["table_ids_og"][0] &&
@@ -657,6 +658,7 @@ for table in obj_data {
                 ) ||
                 // free play
                 (
+                    !in_main_menu() &&
                     in_free_play_mode() &&
                     (
                         get_free_play_table() == obj_data[table]["table_ids_fp"][0] &&
@@ -686,6 +688,7 @@ for objective_count in range(0, obj_solo_data["Geometry"]["total"] - 1, 1) {
         trigger = 
             // original mode
             (
+                !in_main_menu() &&
                 in_original_mode() &&
                 (
                     get_original_mode_table() == obj_solo_data["Geometry"]["table_ids_og"][0] &&
@@ -694,6 +697,7 @@ for objective_count in range(0, obj_solo_data["Geometry"]["total"] - 1, 1) {
             ) ||
             // free play
             (
+                !in_main_menu() &&
                 in_free_play_mode() &&
                 (
                     get_free_play_table() == obj_solo_data["Geometry"]["table_ids_fp"][0] &&
@@ -710,6 +714,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Biology A"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 00 &&
         // trigger as cutscene ends
@@ -722,6 +727,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, defeat the being in space and unlock the next table", "Evolution A"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 01 &&
         // trigger as cutscene ends
@@ -734,6 +740,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Metallurgy A"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 10 &&
         // trigger as cutscene ends
@@ -746,6 +753,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, defeat the being in space and unlock the next table", "Evolution B"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 11 &&
         // trigger as cutscene ends
@@ -758,6 +766,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Optics A"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 20 &&
         // trigger as cutscene ends
@@ -770,6 +779,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, defeat the being in space and unlock the next table", "Evolution C"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 21 &&
         // trigger as cutscene ends
@@ -783,6 +793,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Biology B"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 02 &&
         // trigger as cutscene ends
@@ -795,6 +806,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Metallurgy B"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 12 &&
         // trigger as cutscene ends
@@ -807,6 +819,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Optics B"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 22 &&
         // trigger as cutscene ends
@@ -819,6 +832,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Geometry A"),
     trigger = 
+        !in_main_menu() &&
         in_original_mode() &&
         get_original_mode_table() == 30 &&
         // trigger as cutscene ends
@@ -871,6 +885,7 @@ for table in table_names {
             (
                 get_free_play_table() == table_ids[table][0] || get_free_play_table() == table_ids[table][1]
             ) &&
+            !in_main_menu() &&
             in_free_play_mode() &&
             game_is_now_over() &&
             // normal or hard
@@ -895,6 +910,7 @@ for table in table_names {
             (
                 get_free_play_table() == table_ids[table][0] || get_free_play_table() == table_ids[table][1]
             ) &&
+            !in_main_menu() &&
             in_free_play_mode() &&
             game_is_now_over() &&
             // normal or hard
@@ -921,6 +937,7 @@ leaderboard(
         (
             get_free_play_table() == 30
         ) &&
+        !in_main_menu() &&
         in_free_play_mode() &&
         game_is_now_over() &&
         // normal or hard
@@ -945,6 +962,7 @@ leaderboard(
             (
                 get_free_play_table() == 30
             ) &&
+            !in_main_menu() &&
             in_free_play_mode() &&
             game_is_now_over() &&
             // normal or hard
