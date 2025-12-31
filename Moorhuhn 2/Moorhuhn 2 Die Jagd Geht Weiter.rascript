@@ -199,7 +199,7 @@ target = 700
 mode = 0
 achievement(
     title = "A Good Shot",
-    points = 5,
+    points = 10,
     type = "progression",
     description = format("Score {2} or more points in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target),
     trigger = 
@@ -209,11 +209,11 @@ achievement(
         get_score() >= target && prev(get_score()) < target
 )
 
-target = 1200
+target = 1300
 mode = 0
 achievement(
     title = "A Great Shot",
-    points = 10,
+    points = 25,
     description = format("Score {2} or more points in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target),
     trigger = 
         get_mode() == mode &&
