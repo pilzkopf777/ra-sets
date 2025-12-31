@@ -53,7 +53,7 @@ function high_perch_broken_broken() {
 
 function shot_memmenshuhn() {
     final_cond = word(0x0EB70C) == 0x06 && prev(word(0x0EB70C) != 0x06)
-    spider_check = word(0x0EBC1C) > 4
+    spider_check = word(0x0ebc4c) > 4
     grass_check = word(0x0EC150) == 0x04
 
     return final_cond && spider_check && grass_check
@@ -68,7 +68,7 @@ function left_house_combo_bonus() => word(0x0EC0EC)
 function scarecrow_correctly_shot() {
     scarecrow_data = dword(0x10F9F4)
 
-    return scarecrow_data == 0x123456 && prev(scarecrow_data != 0x123456)
+    return scarecrow_data == 0x1234567 && prev(scarecrow_data != 0x1234567)
 }
 
 // $10FA08: [32-bit] Scarecrow minigame: Parts remaining
@@ -108,6 +108,16 @@ mode_map_english = {
     0x0f: "Credits"
 }
 
+mode_map_blunt = {
+    0x00: "Classic",
+    0x01: "Spider",
+    0x02: "Scarecrow",
+    0x03: "Chicken Bop",
+    0x04: "Balloon",
+    0x05: "Memory",
+    0x07: "Endurance Hunt"
+}
+
 // $1107E8: [16-bit] Spiders minigame: Lives remaining
 //          0x00 = Game over
 function spiders_minigame_lives_remaining() => word(0x1107E8)
@@ -135,8 +145,8 @@ function entered_score_screen() {
 // main mode puzzle achievements
 achievement(
     title = "Coward of the County",
-    points = 5,
-    description = format("Shoot the Memmenhuhn in \"{0}\" (\"{1}\")", mode_map_german[0], mode_map_english[0]),
+    points = 10,
+    description = format("Shoot the Memmenhuhn in the \"{0}\" mode", mode_map_blunt[0]),
     trigger = 
         get_mode() == 0 &&
         !in_main_menu() && !on_title_screen() && !in_demo() &&
@@ -146,7 +156,7 @@ achievement(
 achievement(
     title = "All's in Order",
     points = 3,
-    description = format("Shoot the scarecrow in the correct order in \"{0}\" (\"{1}\")", mode_map_german[0], mode_map_english[0]),
+    description = format("Shoot the scarecrow in the correct order in the \"{0}\" mode", mode_map_blunt[0]),
     trigger = 
         get_mode() == 0 &&
         !in_main_menu() && !on_title_screen() && !in_demo() &&
@@ -156,7 +166,7 @@ achievement(
 achievement(
     title = "Irony",
     points = 2,
-    description = format("Destroy the perch in \"{0}\" (\"{1}\")", mode_map_german[0], mode_map_english[0]),
+    description = format("Destroy the perch in the \"{0}\" mode", mode_map_blunt[0]),
     trigger = 
         get_mode() == 0 &&
         !in_main_menu() && !on_title_screen() && !in_demo() &&
@@ -166,7 +176,7 @@ achievement(
 achievement(
     title = "Capsizing",
     points = 2,
-    description = format("Destroy the boat in \"{0}\" (\"{1}\")", mode_map_german[0], mode_map_english[0]),
+    description = format("Destroy the boat in the \"{0}\" mode", mode_map_blunt[0]),
     trigger = 
         get_mode() == 0 &&
         !in_main_menu() && !on_title_screen() && !in_demo() &&
@@ -176,7 +186,7 @@ achievement(
 achievement(
     title = "Getting an Upgrade",
     points = 3,
-    description = format("Earn the special ammunition in \"{0}\" (\"{1}\")", mode_map_german[0], mode_map_english[0]),
+    description = format("Earn the special ammunition in the \"{0}\" mode", mode_map_blunt[0]),
     trigger = 
         get_mode() == 0 &&
         !in_main_menu() && !on_title_screen() && !in_demo() &&
@@ -186,7 +196,7 @@ achievement(
 achievement(
     title = "More Huhn",
     points = 3,
-    description = format("Earn additional ammunition in \"{0}\" (\"{1}\")", mode_map_german[0], mode_map_english[0]),
+    description = format("Earn additional ammunition in the \"{0}\" mode", mode_map_blunt[0]),
     trigger = 
         get_mode() == 0 &&
         !in_main_menu() && !on_title_screen() && !in_demo() &&
@@ -201,7 +211,7 @@ achievement(
     title = "A Good Shot",
     points = 10,
     type = "progression",
-    description = format("Score {2} or more points in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target),
+    description = format("Score {1} or more points in the \"{0}\" mode as a single player", mode_map_blunt[mode], target),
     trigger = 
         get_mode() == mode &&
         get_player_count() == 1 &&
@@ -213,8 +223,8 @@ target = 1300
 mode = 0
 achievement(
     title = "A Great Shot",
-    points = 25,
-    description = format("Score {2} or more points in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target),
+    points = 10,
+    description = format("Score {1} or more points in the \"{0}\" mode as a single player", mode_map_blunt[mode], target),
     trigger = 
         get_mode() == mode &&
         get_player_count() == 1 &&
@@ -229,7 +239,7 @@ achievement(
     title = "Hanging onto a Thread",
     points = 5,
     type = "progression",
-    description = format("Clear round {2} in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target),
+    description = format("Clear round {1} in the \"{0}\" mode as a single player", mode_map_blunt[mode], target),
     trigger = 
         get_mode() == mode &&
         get_player_count() == 1 &&
@@ -238,13 +248,13 @@ achievement(
 )
 
 // scarecrow
-target = 1500
+target = 1750
 mode = 2
 achievement(
     title = "Not Scared Anymore",
     points = 5,
     type = "progression",
-    description = format("Score {2} or more points in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target),
+    description = format("Score {1} or more points in the \"{0}\" mode as a single player", mode_map_blunt[mode], target),
     trigger = 
         get_mode() == mode &&
         get_player_count() == 1 &&
@@ -259,7 +269,7 @@ achievement(
     title = "Smack at First Sight",
     points = 5,
     type = "progression",
-    description = format("Score {2} or more points in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target),
+    description = format("Score {1} or more points in the \"{0}\" mode as a single player", mode_map_blunt[mode], target),
     trigger = 
         get_mode() == mode &&
         get_player_count() == 1 &&
@@ -274,7 +284,7 @@ achievement(
     title = "Long-lasting Effort",
     points = 5,
     type = "progression",
-    description = format("Survive for {2} or more minutes in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target / 50 / 60),
+    description = format("Survive for {1} or more minutes in the \"{0}\" mode as a single player", mode_map_blunt[mode], target / 50 / 60),
     trigger = 
         get_mode() == mode &&
         get_player_count() == 1 &&
@@ -289,7 +299,7 @@ achievement(
     title = "Memory Mastermind",
     points = 5,
     type = "progression",
-    description = format("Score {2} or more points in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target),
+    description = format("Score {1} or more points in the \"{0}\" mode as a single player", mode_map_blunt[mode], target),
     trigger = 
         get_mode() == mode &&
         get_player_count() == 1 &&
@@ -304,7 +314,7 @@ achievement(
     title = "A Sight for Sore Eyes",
     points = 5,
     type = "progression",
-    description = format("Score {2} or more points in \"{0}\" (\"{1}\") in Single Player mode", mode_map_german[mode], mode_map_english[mode], target),
+    description = format("Score {1} or more points in the \"{0}\" mode as a single player", mode_map_blunt[mode], target),
     trigger = 
         get_mode() == mode &&
         get_player_count() == 1 &&
@@ -325,8 +335,8 @@ achievement(
 
 for mode_count in range(0, 5, 1) {
     leaderboard(
-        title = format("\"{0}\" Score Attack", mode_map_german[mode_count]),
-        description = format("Score as many points as possible in \"{0}\" (\"{1}\") in Single Player mode!", mode_map_german[mode_count], mode_map_english[mode_count]),
+        title = format("\"{0}\" Score Attack", mode_map_english[mode_count]),
+        description = format("Score as many points as possible in the \"{0}\" mode as a single player!", mode_map_blunt[mode_count]),
         start = 
         (
             get_mode() == mode_count &&
@@ -347,8 +357,8 @@ for mode_count in range(0, 5, 1) {
 
 // no mode for 6 so here's a seperate entry..
 leaderboard(
-    title = format("\"{0}\" Score Attack", mode_map_german[7]),
-    description = format("Score as many points as possible in \"{0}\" (\"{1}\") in Single Player mode!", mode_map_german[7], mode_map_english[7]),
+    title = format("\"{0}\" Score Attack", mode_map_english[7]),
+    description = format("Score as many points as possible in the \"{0}\" mode as a single player!", mode_map_blunt[7]),
     start = 
     (
         get_mode() == 7 &&
@@ -372,19 +382,19 @@ rich_presence_conditional_display(on_title_screen(), "On the Title Screen")
 
 rich_presence_conditional_display(in_main_menu(), "In the Main Menu")
 
-// Modes with no rounds
-rich_presence_conditional_display(!in_main_menu() && !on_title_screen() && !in_demo(), "Playing {0} ({1}) • Score {2}",
-    rich_presence_lookup("Mode DE", get_mode(), mode_map_german, fallback="an unknown mode"),
-    rich_presence_lookup("Mode EN", get_mode(), mode_map_english, fallback="an unknown mode"),
-    rich_presence_value("Points", get_score(), "VALUE")
-)
-
 // Spider game
-rich_presence_conditional_display(!in_main_menu() && !on_title_screen() && !in_demo() && get_mode() == 0x01, "Playing {0} ({1}) • Score {2} • Round {3}",
-    rich_presence_lookup("Mode DE", get_mode(), mode_map_german, fallback="an unknown mode"),
+rich_presence_conditional_display(!in_main_menu() && !on_title_screen() && !in_demo() && get_mode() == 0x01, "Playing \"{0}\" mode • Score {2} • Round {3}",
+    rich_presence_lookup("Mode BLUNT", get_mode(), mode_map_blunt, fallback="an unknown mode"),
     rich_presence_lookup("Mode EN", get_mode(), mode_map_english, fallback="an unknown mode"),
     rich_presence_value("Points", get_score(), "VALUE"),
     rich_presence_value("Round", get_spider_round(), "VALUE")
+)
+
+// Modes with no rounds
+rich_presence_conditional_display(!in_main_menu() && !on_title_screen() && !in_demo(), "Playing \"{0}\" mode • Score {2}",
+    rich_presence_lookup("Mode BLUNT", get_mode(), mode_map_blunt, fallback="an unknown mode"),
+    rich_presence_lookup("Mode EN", get_mode(), mode_map_english, fallback="an unknown mode"),
+    rich_presence_value("Points", get_score(), "VALUE")
 )
 
 rich_presence_display("Getting ready to hunt Moorhuhn...")
