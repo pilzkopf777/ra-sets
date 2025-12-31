@@ -8,8 +8,10 @@ function better_ammo_unlocked() {
     rock_4 = word(0x0EC434) == 4
     rock_5 = word(0x0EC4C8) == 4
     rock_6 = word(0x0EC55C) == 4
+    rock_7 = word(0x0ec5f0) == 4
+    rock_8 = word(0x0ec30c) == 4
 
-    rock_cond = rock_1 && rock_2 && rock_3 && rock_4 && rock_5 && rock_6
+    rock_cond = rock_1 && rock_2 && rock_3 && rock_4 && rock_5 && rock_6 && rock_7 && rock_8
 
     return rock_cond && prev(!rock_cond)
 }
