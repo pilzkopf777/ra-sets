@@ -1,0 +1,86 @@
+// FAST: Racing League
+// #ID = 35968
+
+// Helper function taken from Souzooka - thanks!
+WII_GAME_MASK = 0x1fffffff
+
+function ptr(base, offsets, accessor=dword_be)
+{
+    val = base
+    // Cool masking action in a seperate line
+    val = val & WII_GAME_MASK
+    
+    for i in range(0, length(offsets) - 1)
+    {
+        addr = val + offsets[i]
+        if (i == length(offsets) - 1)
+        {
+            val = accessor(addr)
+        }
+        else
+        {
+            val = dword_be(addr)
+            // Result also needs to 
+            val = val & WII_GAME_MASK
+        }
+    }
+    
+    return val
+}
+
+class RacerData {
+    id = 0
+
+    league_score_start_adr = 0x10648b28
+
+    function is_in_1st() {
+        return dword_be(0x10648a38) == this.id
+    }
+
+    function get_league_score() {
+        return dword_be(league_score_start_adr + 0x04 * this.id)
+    }
+}
+
+function get_total_race_time_in_frames() {
+    return float_be(0x1064904c)
+}
+
+function get_league_id() {
+    return dword_be(0x106490f8)
+}
+
+function get_track_id() {
+    return dword_be(0x106490fc)
+}
+
+function get_formatted_track() {
+    return get_league_id() * 0x10 + get_track_id()
+}
+
+// for use with get_formatted_track()
+formatted_track_map = {
+    0x00: "Cove Harbour",
+    0x01: "Flood Area",
+    0x02: "Turbine Canyon",
+    0x03: "The Rig",
+    0x10: "Rookie Beach",
+    0x11: "Breeze City",
+    0x12: "Scorpio Circuit",
+    0x13: "Ice Park",
+    0x20: "Dry Hill",
+    0x21: "The Chillout",
+    0x22: "Pyramid Valley",
+    0x23: "Storm Creek"
+}
+
+function get_challenge_a_clear_count() {
+    challenge_a_missions = []
+    challenge_a_mission_start_adr = 0x106494a8
+
+    for mission_id in range(0, 7, 1) {
+        array_push(challenge_a_missions, dword_be(challenge_a_mission_start_adr + 0x04 * mission_id))
+    }
+
+    return sum_of(challenge_a_missions, key => key <= 0x01)
+}
