@@ -90,10 +90,6 @@ function get_challenge() {
     return dword_be(0x10642860) + 1
 }
 
-function get_sp_mode() {
-    return dword_be(0x004f3714)
-}
-
 class_map = {
     0x00: "Neutron",
     0x01: "Proton",
@@ -137,26 +133,54 @@ function get_total_challenge_clear_count() {
 }
 
 function in_a_race() {
-    return always_true() // todo
+    return dword_be(0x002801cc) == 0x01
 }
 
 function on_title_screen() {
-    return always_false() // todo
+    return dword_be(0x002801cc) == 0x00
 }
 
+function game_paused() {
+    return dword_be(0x00530e40)
+}
+
+function text_just_displayed() {
+    return dword_be(0x002802cc) == 0x01 && prev(dword_be(0x002802cc) == 0x00)
+}
+
+function get_class() {
+    // 0, 1, 2
+    return bit0(0x10648d3b) + bit1(0x10648d3b)
+}
+
+function get_qualifiaction_round() {
+    return dword_be(0x10642844)
+}
+
+function get_qualification_step() {
+    return ptr(dword_be(0x003ad7f0), [0x0c], dword_be)
+}
 
 rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
+// Qualifiers
+rich_presence_conditional_display(in_a_race() && get_qualifiaction_round() >= 0x01, "Qualifiying for the FAST - Racing League • {0} / 21 Challenges cleared",
+    rich_presence_value("Challenges Cleared", get_total_challenge_clear_count())
+)
+
 // League race
-rich_presence_conditional_display(in_a_race() && get_sp_mode() == 0x00, "Competing in the {0} League in {2} Class on {1} • {3} / 21 Challenges cleared",
+rich_presence_conditional_display(in_a_race() && !in_challenge(), "Competing on {1} ({2} Class) • {3} / 21 Challenges cleared",
     rich_presence_lookup("League", get_league(), league_map, fallback="unknown"),
     rich_presence_lookup("Track", get_formatted_track(), formatted_track_map, fallback="an unknown track"),
     rich_presence_lookup("Class", get_class(), class_map, fallback="an unknown"),
     rich_presence_value("Challenges Cleared", get_total_challenge_clear_count())
 )
 
+// Single Race / FAST Records
+// todo
+
 // Challenge race
-rich_presence_conditional_display(in_a_race() && in_challenge() && get_sp_mode() == 0x02, "Tackling Challenge {0} • {1} / 21 Challenges cleared",
+rich_presence_conditional_display(in_a_race() && in_challenge(), "Tackling Challenge #{0} • {1} / 21 Challenges cleared",
     rich_presence_value("Challenge", get_challenge()),
     rich_presence_value("Challenges Cleared", get_total_challenge_clear_count())
 )
