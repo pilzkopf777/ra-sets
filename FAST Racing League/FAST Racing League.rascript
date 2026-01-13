@@ -46,14 +46,6 @@ function get_total_race_time_in_frames() {
     return float_be(0x1064904c)
 }
 
-function get_league_id() {
-    return dword_be(0x106490f8)
-}
-
-function get_class() {
-    return 0 // todo
-}
-
 function get_track_id() {
     return dword_be(0x106490fc)
 }
@@ -184,6 +176,5 @@ rich_presence_conditional_display(in_a_race() && in_challenge(), "Tackling Chall
     rich_presence_value("Challenge", get_challenge()),
     rich_presence_value("Challenges Cleared", get_total_challenge_clear_count())
 )
-
 
 rich_presence_display("Getting ready to race...")
