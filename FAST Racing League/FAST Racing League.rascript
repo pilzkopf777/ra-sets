@@ -120,8 +120,16 @@ challenge_mission_a_start_adr = 0x106494a8
 challenge_mission_b_start_adr = 0x106494c4
 challenge_mission_c_start_adr = 0x106494e0
 
+cleared_a_missions = get_challenge_clear_count(false, challenge_mission_a_start_adr)
+cleared_b_missions = get_challenge_clear_count(false, challenge_mission_b_start_adr)
+cleared_c_missions = get_challenge_clear_count(false, challenge_mission_c_start_adr)
+
+star_cleared_a_missions = get_challenge_clear_count(true, challenge_mission_a_start_adr)
+star_cleared_b_missions = get_challenge_clear_count(true, challenge_mission_b_start_adr)
+star_cleared_c_missions = get_challenge_clear_count(true, challenge_mission_c_start_adr)
+
 function get_total_challenge_clear_count() {
-    return get_challenge_clear_count(false, challenge_mission_a_start_adr) + get_challenge_clear_count(false, challenge_mission_b_start_adr) + get_challenge_clear_count(false, challenge_mission_c_start_adr)
+    return cleared_a_missions + cleared_b_missions + cleared_c_missions
 }
 
 function in_a_race() {
@@ -152,6 +160,98 @@ function get_qualifiaction_round() {
 function get_qualification_step() {
     return ptr(dword_be(0x003ad7f0), [0x0c], dword_be)
 }
+
+// Achievements
+
+// Clear Cup
+for current_class in range(0, 2, 1) {
+    current_class_name = class_map[current_class]
+
+    for current_league in range(0, 2, 1) {
+        current_league_name = league_map[current_league]
+
+        achievement(
+            title = format("CUP CLEAR {0} {1}", current_class_name, current_league_name),
+            points = 0,
+            description = format("CUP CLEAR {0} {1}", current_class_name, current_league_name),
+            trigger = 
+                in_a_race() &&
+                get_class() == current_class &&
+                get_league() == current_league &&
+                get_track_id() == 0x04 &&
+                text_just_displayed() &&
+                // better than player 2, 3, ..., 8
+                dword_be(0x10648b28) >= dword_be(0x10648b2c) &&
+                dword_be(0x10648b28) >= dword_be(0x10648b30) &&
+                dword_be(0x10648b28) >= dword_be(0x10648b34) &&
+                dword_be(0x10648b28) >= dword_be(0x10648b38) &&
+                dword_be(0x10648b28) >= dword_be(0x10648b3c) &&
+                dword_be(0x10648b28) >= dword_be(0x10648b40) &&
+                dword_be(0x10648b28) >= dword_be(0x10648b44)
+        )
+    }
+}
+
+// Clear Missions
+achievement(
+    title = format("MISSION CLEAR A"),
+    points = 0,
+    description = format("MISSION CLEAR A"),
+    trigger = 
+        in_challenge() &&
+        measured(cleared_a_missions) == 7 && prev(cleared_a_missions == 6)
+)
+
+achievement(
+    title = format("MISSION CLEAR B"),
+    points = 0,
+    description = format("MISSION CLEAR B"),
+    trigger = 
+        in_challenge() &&
+        measured(cleared_b_missions == 7) && prev(cleared_b_missions == 6)
+)
+
+achievement(
+    title = format("MISSION CLEAR C"),
+    points = 0,
+    description = format("MISSION CLEAR C"),
+    trigger = 
+        in_challenge() &&
+        measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
+)
+
+// Star Clear
+achievement(
+    title = format(" MISSION CLEAR STAR A"),
+    points = 0,
+    description = format("MISSION CLEAR STAR A"),
+    trigger = 
+        in_challenge() &&
+        measured(cleared_a_missions == 7) && prev(cleared_a_missions == 6)
+)
+
+achievement(
+    title = format("MISSION CLEAR STAR B"),
+    points = 0,
+    description = format("MISSION CLEAR STAR B"),
+    trigger = 
+        in_challenge() &&
+        measured(cleared_b_missions == 7) && prev(cleared_b_missions == 6)
+)
+
+achievement(
+    title = format("MISSION CLEAR STAR C"),
+    points = 0,
+    description = format("MISSION CLEAR STAR C"),
+    trigger = 
+        in_challenge() &&
+        measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
+)
+
+
+
+
+
 
 rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
