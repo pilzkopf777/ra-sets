@@ -179,6 +179,10 @@ function is_boosting() {
     return ptr(dword_be(0x003ab39c), [0x0c], dword_be) == 0x01
 }
 
+function get_laps_completed() {
+    return ptr(dword_be(0x00531954), [0x20, 0x6c, 0x124], dword_be)
+}
+
 // Achievements
 
 // Keep Boosting
@@ -289,7 +293,34 @@ achievement(
         measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
 )
 
+// Leaderboards
+for element in formatted_track_map {
+    track_name = formatted_track_map[element]
+    track_id = element
 
+    leaderboard(
+        title = format("{0} TIME ATTACK", track_name),
+        description = format("{0} TIME ATTACK", track_name),
+        start = 
+        (
+            in_a_race() &&
+            get_formatted_track() == element &&
+            get_class() == 2 &&
+            // todo get mode must be time trial
+            get_laps_completed() == 3 && prev(get_laps_completed()) == 2
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            get_total_race_time_in_frames()
+        ),
+        format = "FRAMES", lower_is_better = true
+    )
+
+
+
+}
 
 
 
