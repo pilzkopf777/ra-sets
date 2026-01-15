@@ -50,8 +50,12 @@ function get_track_id() {
     return dword_be(0x106490fc)
 }
 
+function get_league() {
+    return dword_be(0x106490f8)
+}
+
 function get_formatted_track() {
-    return get_league_id() * 0x10 + get_track_id()
+    return get_league() * 0x10 + get_track_id()
 }
 
 // for use with get_formatted_track()
@@ -70,16 +74,22 @@ formatted_track_map = {
     0x23: "Storm Creek"
 }
 
-function get_league() {
-    return dword_be(0x106490f8)
-}
+
 
 function in_challenge() {
     return dword_be(0x10642868) == 0x01
 }
 
+function in_multiplayer() {
+    return dword_be(0x10648b0c) == 0x01
+}
+
 function get_challenge() {
     return dword_be(0x10642860) + 1
+}
+
+function flyover_started() {
+    return dword_be(0x10648b00) == 0x01 && prev(dword_be(0x10648b00)) == 0x00
 }
 
 class_map = {
@@ -141,11 +151,15 @@ function on_title_screen() {
 }
 
 function game_paused() {
-    return dword_be(0x00530e40)
+    return dword_be(0x00530e40) == 0x01
 }
 
-function text_just_displayed() {
+function league_text_just_displayed() {
     return dword_be(0x002802cc) == 0x01 && prev(dword_be(0x002802cc) == 0x00)
+}
+
+function challenge_or_qualification_text_just_displayed() {
+    return dword_be(0x10642880) == 0x01 && prev(dword_be(0x10642880) == 0x00)
 }
 
 function get_class() {
@@ -161,7 +175,34 @@ function get_qualification_step() {
     return ptr(dword_be(0x003ad7f0), [0x0c], dword_be)
 }
 
+function is_boosting() {
+    return ptr(dword_be(0x003ab39c), [0x0c], dword_be) == 0x01
+}
+
 // Achievements
+
+// Keep Boosting
+achievement(
+    title = format("LONG BOOST"),
+    points = 0,
+    description = format("LONG BOOST"),
+    trigger = 
+        in_a_race() &&
+        never(!is_boosting()) &&
+        repeated(200, is_boosting() && !game_paused())
+)
+
+// Qualification
+achievement(
+    title = format("QUALIFY"),
+    points = 0,
+    description = format("QUALIFY"),
+    trigger = 
+        in_a_race() &&
+        get_qualifiaction_round() == 4 &&
+        get_qualification_step() == 4 &&
+        challenge_or_qualification_text_just_displayed()
+)
 
 // Clear Cup
 for current_class in range(0, 2, 1) {
@@ -179,7 +220,7 @@ for current_class in range(0, 2, 1) {
                 get_class() == current_class &&
                 get_league() == current_league &&
                 get_track_id() == 0x04 &&
-                text_just_displayed() &&
+                league_text_just_displayed() &&
                 // better than player 2, 3, ..., 8
                 dword_be(0x10648b28) >= dword_be(0x10648b2c) &&
                 dword_be(0x10648b28) >= dword_be(0x10648b30) &&
@@ -199,7 +240,7 @@ achievement(
     description = format("MISSION CLEAR A"),
     trigger = 
         in_challenge() &&
-        measured(cleared_a_missions) == 7 && prev(cleared_a_missions == 6)
+        measured(cleared_a_missions == 7) && prev(cleared_a_missions == 6)
 )
 
 achievement(
