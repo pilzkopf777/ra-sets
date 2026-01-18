@@ -28,19 +28,10 @@ function ptr(base, offsets, accessor=dword_be)
     return val
 }
 
-class RacerData {
-    id = 0
-
-    league_score_start_adr = 0x10648b28
-
-    function is_in_1st() {
-        return dword_be(0x10648a38) == this.id
-    }
-
-    function get_league_score() {
-        return dword_be(league_score_start_adr + 0x04 * this.id)
-    }
+function player_1_shifted() {
+    return ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be) != prev(ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be))
 }
+
 
 function get_total_race_time_in_frames() {
     return float_be(0x1064904c)
@@ -196,6 +187,19 @@ achievement(
         repeated(200, is_boosting() && !game_paused())
 )
 
+// No shift
+achievement(
+    title = format("WIN NO SHIFT"),
+    points = 0,
+    description = format("WIN NO SHIFT"),
+    trigger = 
+        in_a_race() &&
+        disable_when(player_1_shifted(), until=flyover_started()) &&
+        trigger_when(
+            get_laps_completed() == 3 && prev(get_laps_completed()) == 2
+        )
+)
+
 // Qualification
 achievement(
     title = format("QUALIFY"),
@@ -317,12 +321,7 @@ for element in formatted_track_map {
         ),
         format = "FRAMES", lower_is_better = true
     )
-
-
-
 }
-
-
 
 
 rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
