@@ -138,6 +138,10 @@ function get_mode() {
     return byte(0x351FA1)
 }
 
+function get_players_registered() {
+    return byte(0x00351fa3)
+}
+
 // TODO: test this
 function demo_playing() {
     // demo_ends_in = ptr(dword_be(0x0048c10c), [0x78], float_be)
@@ -667,19 +671,19 @@ achievement(
     !demo_playing() &&
     (
         (
-            player_1_obj.is_human_player() && player_1_obj.player_got_50_in_style_barrel()
+            player_1_obj.is_human_player() && player_1_obj.player_got_50_in_style_barrel() && get_players_registered() == 1
         )
         ||
         (
-            player_2_obj.is_human_player() && player_2_obj.player_got_50_in_style_barrel()
+            player_2_obj.is_human_player() && player_2_obj.player_got_50_in_style_barrel() && get_players_registered() == 2
         )
         ||
         (
-            player_3_obj.is_human_player() && player_3_obj.player_got_50_in_style_barrel()
+            player_3_obj.is_human_player() && player_3_obj.player_got_50_in_style_barrel() && get_players_registered() == 3
         )
         ||
         (
-            player_4_obj.is_human_player() && player_4_obj.player_got_50_in_style_barrel()
+            player_4_obj.is_human_player() && player_4_obj.player_got_50_in_style_barrel() && get_players_registered() == 4
         )
     )
 )
@@ -693,19 +697,19 @@ achievement(
     !demo_playing() &&
     (
         (
-            player_1_obj.is_human_player() && player_1_obj.get_wild_move_combo() == target_wild && prev(player_1_obj.get_wild_move_combo() == target_wild - 1)
+            player_1_obj.is_human_player() && player_1_obj.get_wild_move_combo() == target_wild && prev(player_1_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() == 1
         )
         ||
         (
-            player_2_obj.is_human_player() && player_2_obj.get_wild_move_combo() == target_wild && prev(player_2_obj.get_wild_move_combo() == target_wild - 1)
+            player_2_obj.is_human_player() && player_2_obj.get_wild_move_combo() == target_wild && prev(player_2_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() == 2
         )
         ||
         (
-            player_3_obj.is_human_player() && player_3_obj.get_wild_move_combo() == target_wild && prev(player_3_obj.get_wild_move_combo() == target_wild - 1)
+            player_3_obj.is_human_player() && player_3_obj.get_wild_move_combo() == target_wild && prev(player_3_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() == 3
         )
         ||
         (
-            player_4_obj.is_human_player() && player_4_obj.get_wild_move_combo() == target_wild && prev(player_4_obj.get_wild_move_combo() == target_wild - 1)
+            player_4_obj.is_human_player() && player_4_obj.get_wild_move_combo() == target_wild && prev(player_4_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() == 4
         )
     )
 )
@@ -751,6 +755,7 @@ achievement(
     (
         (
             player_1_obj.is_human_player() &&
+            get_players_registered() == 1 &&
             // reset hits if player has no banana fairy
             (
                 // never(!player_1_obj.using_banana_fairy()) &&
@@ -762,6 +767,7 @@ achievement(
         ||
         (
             player_2_obj.is_human_player() &&
+            get_players_registered() == 2 &&
             // reset hits if player has no banana fairy
             (
                 //never(!player_2_obj.using_banana_fairy()) &&
@@ -773,6 +779,7 @@ achievement(
         ||
         (
             player_3_obj.is_human_player() &&
+            get_players_registered() == 3 &&
             // reset hits if player has no banana fairy
             (
                 //never(!player_3_obj.using_banana_fairy()) &&
@@ -784,6 +791,7 @@ achievement(
         ||
         (
             player_4_obj.is_human_player() &&
+            get_players_registered() == 4 &&
             // reset hits if player has no banana fairy
             (
                 //never(!player_4_obj.using_banana_fairy()) &&
@@ -951,19 +959,19 @@ for difficulty in difficulty_map {
             get_gp() == cup && get_difficulty() == difficulty &&
             (
                 (
-                    player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character()) && trophy_revealed()
+                    player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character()) && trophy_revealed() && get_players_registered() == 1
                 )
                 ||
                 (
-                    player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character()) && trophy_revealed()
+                    player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character()) && trophy_revealed() && get_players_registered() == 2
                 )
                 ||
                 (
-                    player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character()) && trophy_revealed()
+                    player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character()) && trophy_revealed() && get_players_registered() == 3
                 )
                 ||
                 (
-                    player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character()) && trophy_revealed()
+                    player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character()) && trophy_revealed() && get_players_registered() == 4
                 )
             )
         )
@@ -980,19 +988,19 @@ achievement(
     get_gp() == 0x04 &&
     (
         (
-            player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character()) && trophy_revealed()
+            player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character()) && trophy_revealed() && get_players_registered() == 1
         )
         ||
         (
-            player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character()) && trophy_revealed()
+            player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character()) && trophy_revealed() && get_players_registered() == 2
         )
         ||
         (
-            player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character()) && trophy_revealed()
+            player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character()) && trophy_revealed() && get_players_registered() == 3
         )
         ||
         (
-            player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character()) && trophy_revealed()
+            player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character()) && trophy_revealed() && get_players_registered() == 4
         )
     )
 )
@@ -1006,19 +1014,19 @@ achievement(
     get_gp() == 0x05 &&
     (
         (
-            player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character()) && trophy_revealed()
+            player_1_obj.is_human_player() && human_player_is_1st_in_gp(player_1_obj.get_character()) && trophy_revealed() && get_players_registered() == 1
         )
         ||
         (
-            player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character()) && trophy_revealed()
+            player_2_obj.is_human_player() && human_player_is_1st_in_gp(player_2_obj.get_character()) && trophy_revealed() && get_players_registered() == 2
         )
         ||
         (
-            player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character()) && trophy_revealed()
+            player_3_obj.is_human_player() && human_player_is_1st_in_gp(player_3_obj.get_character()) && trophy_revealed() && get_players_registered() == 3
         )
         ||
         (
-            player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character()) && trophy_revealed()
+            player_4_obj.is_human_player() && human_player_is_1st_in_gp(player_4_obj.get_character()) && trophy_revealed() && get_players_registered() == 4
         )
     )
 )
