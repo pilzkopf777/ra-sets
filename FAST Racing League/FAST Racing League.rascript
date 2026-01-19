@@ -83,6 +83,10 @@ function flyover_started() {
     return dword_be(0x10648b00) == 0x01 && prev(dword_be(0x10648b00)) == 0x00
 }
 
+function in_flyover() {
+    return dword_be(0x10648b00) == 0x00
+}
+
 class_map = {
     0x00: "Neutron",
     0x01: "Proton",
@@ -158,7 +162,7 @@ function get_class() {
     return bit0(0x10648d3b) + bit1(0x10648d3b)
 }
 
-function get_qualifiaction_round() {
+function get_qualification_round() {
     return dword_be(0x10642844)
 }
 
@@ -194,7 +198,7 @@ achievement(
     description = format("WIN NO SHIFT"),
     trigger = 
         in_a_race() &&
-        disable_when(player_1_shifted(), until=flyover_started()) &&
+        disable_when(player_1_shifted(), until=in_flyover()) &&
         trigger_when(
             get_laps_completed() == 3 && prev(get_laps_completed()) == 2
         )
@@ -207,7 +211,7 @@ achievement(
     description = format("QUALIFY"),
     trigger = 
         in_a_race() &&
-        get_qualifiaction_round() == 4 &&
+        get_qualification_round() == 4 &&
         get_qualification_step() == 4 &&
         challenge_or_qualification_text_just_displayed()
 )
@@ -271,7 +275,7 @@ achievement(
 
 // Star Clear
 achievement(
-    title = format(" MISSION CLEAR STAR A"),
+    title = format("MISSION CLEAR STAR A"),
     points = 0,
     description = format("MISSION CLEAR STAR A"),
     trigger = 
@@ -303,14 +307,16 @@ for element in formatted_track_map {
     track_id = element
 
     leaderboard(
-        title = format("{0} TIME ATTACK", track_name),
-        description = format("{0} TIME ATTACK", track_name),
+        title = format("{0} TIME ATTACK ION CLASS", track_name),
+        description = format("{0} TIME ATTACK ION CLASS", track_name),
         start = 
         (
             in_a_race() &&
             get_formatted_track() == element &&
             get_class() == 2 &&
-            // todo get mode must be time trial
+            // todo get mode must be time trial or gp -> anything that is not challenge or qualification
+            get_qualification_round() == 0x00 &&
+            !in_challenge() &&
             get_laps_completed() == 3 && prev(get_laps_completed()) == 2
         ),
         cancel = always_false(),
@@ -327,7 +333,7 @@ for element in formatted_track_map {
 rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
 
 // Qualifiers
-rich_presence_conditional_display(in_a_race() && get_qualifiaction_round() >= 0x01, "Qualifiying for the FAST - Racing League • {0} / 21 Challenges cleared",
+rich_presence_conditional_display(in_a_race() && get_qualification_round() >= 0x01, "Qualifiying for the FAST - Racing League • {0} / 21 Challenges cleared",
     rich_presence_value("Challenges Cleared", get_total_challenge_clear_count())
 )
 
