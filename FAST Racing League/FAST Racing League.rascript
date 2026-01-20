@@ -65,6 +65,21 @@ formatted_track_map = {
     0x23: "Storm Creek"
 }
 
+// frames % 60 == 0 -> millis are 0
+time_trial_targets = {
+    0x00: 5100, //01'24"08
+    0x01: 7800, //02'09"30
+    0x02: 6300, //01'44"60
+    0x03: 4800,
+    0x10: 0,
+    0x11: 0,
+    0x12: 0,
+    0x13: 0,
+    0x20: 0,
+    0x21: 0,
+    0x22: 0,
+    0x23: 0,
+}
 
 
 function in_challenge() {
@@ -176,6 +191,45 @@ function is_boosting() {
 
 function get_laps_completed() {
     return ptr(dword_be(0x00531954), [0x20, 0x6c, 0x124], dword_be)
+}
+
+function pad_to_twos(input) {
+    input = "" + input
+    if (length(input) == 1) {
+        res = "0" + input
+    } else {
+        res = input
+    }
+    
+    return res
+}
+
+function frame_time_to_next_second(frames) {
+    fps = 60
+
+    // truncate any fractional frames
+    frames = frames - (frames % 1)
+
+    leftover = frames % fps
+    if (leftover == 0) {
+        return frames
+    }
+    return frames + (fps - leftover)
+}
+
+function frame_time_to_readable_string(frames) {
+    fps = 60
+
+    // frames = frame_time_to_next_second(frames)
+
+    total_seconds = frames / fps
+    minutes = total_seconds / 60
+    seconds = total_seconds % 60
+
+    leftover_frames = frames % fps
+    millis = (leftover_frames * 100) / fps
+
+    return format("{0}:{1}:{2}", pad_to_twos(minutes), pad_to_twos(seconds), pad_to_twos(millis))
 }
 
 // Achievements
@@ -301,7 +355,7 @@ achievement(
         measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
 )
 
-// Leaderboards
+// Leaderboards, Target Times
 for element in formatted_track_map {
     track_name = formatted_track_map[element]
     track_id = element
@@ -314,7 +368,7 @@ for element in formatted_track_map {
             in_a_race() && !in_multiplayer() &&
             get_formatted_track() == element &&
             get_class() == 2 &&
-            // todo get mode must be time trial or gp -> anything that is not challenge or qualification
+            // must be time trial or gp -> anything that is not challenge or qualification
             get_qualification_round() == 0x00 &&
             !in_challenge() &&
             get_laps_completed() == 3 && prev(get_laps_completed()) == 2
@@ -327,6 +381,21 @@ for element in formatted_track_map {
         ),
         format = "FRAMES", lower_is_better = true
     )
+
+    achievement(
+        title = format("BEAT FASTEST TIME OF {0} IN {1}", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
+        points = 0,
+        description = format("BEAT FASTEST TIME OF {0} IN {1}", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
+        trigger = 
+            in_a_race() && !in_multiplayer() &&
+            get_formatted_track() == element &&
+            get_class() == 2 &&
+            get_qualification_round() == 0x00 &&
+            !in_challenge() &&
+            get_laps_completed() == 3 && prev(get_laps_completed()) == 2 &&
+            get_total_race_time_in_frames() > time_trial_targets[track_id]
+    )
+
 }
 
 
