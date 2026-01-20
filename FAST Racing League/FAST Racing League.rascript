@@ -186,7 +186,7 @@ achievement(
     points = 0,
     description = format("LONG BOOST"),
     trigger = 
-        in_a_race() &&
+        in_a_race() && !in_multiplayer() &&
         never(!is_boosting()) &&
         repeated(200, is_boosting() && !game_paused())
 )
@@ -197,7 +197,7 @@ achievement(
     points = 0,
     description = format("WIN NO SHIFT"),
     trigger = 
-        in_a_race() &&
+        in_a_race() && !in_multiplayer() &&
         disable_when(player_1_shifted(), until=in_flyover()) &&
         trigger_when(
             get_laps_completed() == 3 && prev(get_laps_completed()) == 2
@@ -210,7 +210,7 @@ achievement(
     points = 0,
     description = format("QUALIFY"),
     trigger = 
-        in_a_race() &&
+        in_a_race() && !in_multiplayer() &&
         get_qualification_round() == 4 &&
         get_qualification_step() == 4 &&
         challenge_or_qualification_text_just_displayed()
@@ -228,7 +228,7 @@ for current_class in range(0, 2, 1) {
             points = 0,
             description = format("CUP CLEAR {0} {1}", current_class_name, current_league_name),
             trigger = 
-                in_a_race() &&
+                in_a_race() && !in_multiplayer() &&
                 get_class() == current_class &&
                 get_league() == current_league &&
                 get_track_id() == 0x04 &&
@@ -311,7 +311,7 @@ for element in formatted_track_map {
         description = format("{0} TIME ATTACK ION CLASS", track_name),
         start = 
         (
-            in_a_race() &&
+            in_a_race() && !in_multiplayer() &&
             get_formatted_track() == element &&
             get_class() == 2 &&
             // todo get mode must be time trial or gp -> anything that is not challenge or qualification
