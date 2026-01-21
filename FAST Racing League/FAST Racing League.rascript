@@ -32,6 +32,9 @@ function player_1_shifted() {
     return ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be) != prev(ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be))
 }
 
+function player_1_in_1st() {
+    return dword_be(0x10648a38) == 0x00
+}
 
 function get_total_race_time_in_frames() {
     return float_be(0x1064904c)
@@ -71,9 +74,9 @@ time_trial_targets = {
     0x01: 7800, //02'09"30
     0x02: 6300, //01'44"60
     0x03: 4800,
-    0x10: 0,
-    0x11: 0,
-    0x12: 0,
+    0x10: 5820,
+    0x11: 6720,
+    0x12: 7380,
     0x13: 0,
     0x20: 0,
     0x21: 0,
@@ -156,8 +159,8 @@ function in_a_race() {
     return dword_be(0x002801cc) == 0x01
 }
 
-function on_title_screen() {
-    return dword_be(0x002801cc) == 0x00
+function in_main_menu() {
+    return dword_be(0x1067bba8) == 0x01 || dword_be(0x002801cc) == 0x00
 }
 
 function game_paused() {
@@ -240,7 +243,7 @@ achievement(
     points = 0,
     description = format("LONG BOOST"),
     trigger = 
-        in_a_race() && !in_multiplayer() &&
+        in_a_race() && !in_multiplayer() && !in_challenge() &&
         never(!is_boosting()) &&
         repeated(200, is_boosting() && !game_paused())
 )
@@ -251,10 +254,10 @@ achievement(
     points = 0,
     description = format("WIN NO SHIFT"),
     trigger = 
-        in_a_race() && !in_multiplayer() &&
+        in_a_race() && !in_multiplayer() && !in_challenge() &&
         disable_when(player_1_shifted(), until=in_flyover()) &&
         trigger_when(
-            get_laps_completed() == 3 && prev(get_laps_completed()) == 2
+            get_laps_completed() == 3 && prev(get_laps_completed()) == 2 && player_1_in_1st()
         )
 )
 
@@ -264,7 +267,7 @@ achievement(
     points = 0,
     description = format("QUALIFY"),
     trigger = 
-        in_a_race() && !in_multiplayer() &&
+        in_a_race() && !in_multiplayer() && !in_challenge() &&
         get_qualification_round() == 4 &&
         get_qualification_step() == 4 &&
         challenge_or_qualification_text_just_displayed()
@@ -399,10 +402,18 @@ for element in formatted_track_map {
 }
 
 
-rich_presence_conditional_display(on_title_screen(), "In the Main Menu")
+rich_presence_conditional_display(in_main_menu(), "In the Main Menu")
 
 // Qualifiers
 rich_presence_conditional_display(in_a_race() && get_qualification_round() >= 0x01, "Qualifiying for the FAST - Racing League • {0} / 21 Challenges cleared",
+    rich_presence_value("Challenges Cleared", get_total_challenge_clear_count())
+)
+
+// Ceremony
+rich_presence_conditional_display(in_a_race() && !in_challenge() && get_track_id() == 0x04, "In the Victory Ceremony ({2} Class) • {3} / 21 Challenges cleared",
+    rich_presence_lookup("League", get_league(), league_map, fallback="unknown"),
+    rich_presence_lookup("Track", get_formatted_track(), formatted_track_map, fallback="an unknown track"),
+    rich_presence_lookup("Class", get_class(), class_map, fallback="an unknown"),
     rich_presence_value("Challenges Cleared", get_total_challenge_clear_count())
 )
 
