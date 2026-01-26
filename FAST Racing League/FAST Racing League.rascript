@@ -269,17 +269,34 @@ achievement(
 )
 
 // No Crash
+// achievement(
+//     title = format("Insurance"),
+//     points = 0,
+//     description = format("Win a race in League or FAST Records mode without crashing"),
+//     trigger = 
+//         in_a_race() && !in_multiplayer() && !in_challenge() &&
+//         disable_when(player_1_crashed(), until=in_flyover()) &&
+//         trigger_when(
+//             get_laps_completed() == 3 && prev(get_laps_completed()) == 2 && player_1_in_1st()
+//         )
+// )
 achievement(
     title = format("Insurance"),
     points = 0,
     description = format("Win a race in League or FAST Records mode without crashing"),
     trigger = 
         in_a_race() && !in_multiplayer() && !in_challenge() &&
-        disable_when(player_1_crashed(), until=in_flyover()) &&
+        disable_when(ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be) < 0x02 && // Value jumped too high: OOB
+                prev(ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be)) >= 0x02,
+            until=in_flyover()) &&
+        disable_when(ptr(dword_be(0x531954), [0x20, 0x6c, 0x49C], float_be) == 1.0 && // Value moves from ~0.9 to 1.0: Explosion or Water
+                prev(ptr(dword_be(0x531954), [0x20, 0x6c, 0x49C], float_be) < 1.0),
+            until=in_flyover()) &&
         trigger_when(
             get_laps_completed() == 3 && prev(get_laps_completed()) == 2 && player_1_in_1st()
         )
 )
+
 
 // Qualification
 achievement(
