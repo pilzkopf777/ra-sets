@@ -127,7 +127,7 @@ league_map = {
 function get_challenge_clear_count(star_only, start_adr) {
     challenge_missions = []
 
-    for mission_id in range(0, 7, 1) {
+    for mission_id in range(0, 6, 1) {
         // Add the 0th and 1st bit to the array.
         // If a mission was cleared the 0th bit will be 1, if star-cleared the 1st bit will be 1.
         // Both cannot be 1 at the same time.
@@ -258,7 +258,7 @@ achievement(
 // No shift
 achievement(
     title = format("Shift Happens"),
-    points = 0,
+    points = 2,
     description = format("Win a race in League or FAST Records mode without shifting"),
     trigger = 
         in_a_race() && !in_multiplayer() && !in_challenge() &&
@@ -282,7 +282,7 @@ achievement(
 // )
 achievement(
     title = format("Insurance"),
-    points = 0,
+    points = 2,
     description = format("Win a race in League or FAST Records mode without crashing"),
     trigger = 
         in_a_race() && !in_multiplayer() && !in_challenge() &&
@@ -301,7 +301,7 @@ achievement(
 // Qualification
 achievement(
     title = format("Cleared for Takeoff"),
-    points = 0,
+    points = 1,
     description = format("Qualify for the FAST Racing League"),
     trigger = 
         in_a_race() && !in_multiplayer() && !in_challenge() &&
@@ -311,6 +311,8 @@ achievement(
 )
 
 // Clear Cup
+class_qips = ["Pulsar", "Magnetar", "Quasar"]
+class_pts = [5, 10, 25]
 for current_class in range(0, 2, 1) {
     current_class_name = class_map[current_class]
 
@@ -318,9 +320,9 @@ for current_class in range(0, 2, 1) {
         current_league_name = league_map[current_league]
 
         achievement(
-            title = format("CUP CLEAR {0} {1}", current_class_name, current_league_name),
-            points = 0,
-            description = format("CUP CLEAR {0} {1}", current_class_name, current_league_name),
+            title = format("The {0} Champion in {1}", class_qips[current_class], current_league_name),
+            points = class_pts[current_class],
+            description = format("Win in the {1} League in the {0} Class", current_class_name, current_league_name),
             trigger = 
                 in_a_race() && !in_multiplayer() &&
                 get_class() == current_class &&
@@ -342,8 +344,8 @@ for current_class in range(0, 2, 1) {
 // Clear Missions
 achievement(
     title = format("Holding the Line"),
-    points = 0,
-    description = format("Beat all Level A missions"),
+    points = 5,
+    description = format("Complete all Level A missions"),
     trigger = 
         in_challenge() &&
         measured(cleared_a_missions == 7) && prev(cleared_a_missions == 6)
@@ -351,8 +353,8 @@ achievement(
 
 achievement(
     title = format("Edge of Control"),
-    points = 0,
-    description = format("Beat all Level B missions"),
+    points = 5,
+    description = format("Complete all Level B missions"),
     trigger = 
         in_challenge() &&
         measured(cleared_b_missions == 7) && prev(cleared_b_missions == 6)
@@ -360,8 +362,8 @@ achievement(
 
 achievement(
     title = format("Limit Break"),
-    points = 0,
-    description = format("Beat all Level C missions"),
+    points = 10,
+    description = format("Complete all Level C missions"),
     trigger = 
         in_challenge() &&
         measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
@@ -370,7 +372,7 @@ achievement(
 // Star Clear
 achievement(
     title = format("Protostar"),
-    points = 0,
+    points = 10,
     description = format("Earn a star rating in all level A missions"),
     trigger = 
         in_challenge() &&
@@ -379,7 +381,7 @@ achievement(
 
 achievement(
     title = format("Main Sequence"),
-    points = 0,
+    points = 10,
     description = format("Earn a star rating in all level B missions"),
     trigger = 
         in_challenge() &&
@@ -388,7 +390,7 @@ achievement(
 
 achievement(
     title = format("Supernova"),
-    points = 0,
+    points = 25,
     description = format("Earn a star rating in all level C missions"),
     trigger = 
         in_challenge() &&
@@ -424,7 +426,7 @@ for element in formatted_track_map {
 
     achievement(
         title = format("Full Throttle: {1}", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
-        points = 0,
+        points = 10,
         description = format("Reach the goal in {0} or less on {1} in Ion Class in either a League or FAST Record race", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
         trigger = 
             in_a_race() && !in_multiplayer() &&
