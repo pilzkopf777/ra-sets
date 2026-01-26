@@ -32,6 +32,13 @@ function player_1_shifted() {
     return ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be) != prev(ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be))
 }
 
+function player_1_crashed() {
+    return ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be) < 0x02 && // Value jumped too high: OOB
+      prev(ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be)) >= 0x02 ||
+           ptr(dword_be(0x531954), [0x20, 0x6c, 0x49C], float_be) == 1.0 && // Value moves from ~0.9 to 1.0: Explosion or Water
+      prev(ptr(dword_be(0x531954), [0x20, 0x6c, 0x49C], float_be) < 1.0)
+}
+
 function player_1_in_1st() {
     return dword_be(0x10648a38) == 0x00
 }
@@ -250,9 +257,9 @@ achievement(
 
 // No shift
 achievement(
-    title = format("WIN NO SHIFT"),
+    title = format("Shift Happens"),
     points = 0,
-    description = format("WIN NO SHIFT"),
+    description = format("Win a race in League or FAST Records mode without shifting"),
     trigger = 
         in_a_race() && !in_multiplayer() && !in_challenge() &&
         disable_when(player_1_shifted(), until=in_flyover()) &&
@@ -261,11 +268,24 @@ achievement(
         )
 )
 
+// No Crash
+achievement(
+    title = format("Insurance"),
+    points = 0,
+    description = format("Win a race in League or FAST Records mode without crashing"),
+    trigger = 
+        in_a_race() && !in_multiplayer() && !in_challenge() &&
+        disable_when(player_1_crashed(), until=in_flyover()) &&
+        trigger_when(
+            get_laps_completed() == 3 && prev(get_laps_completed()) == 2 && player_1_in_1st()
+        )
+)
+
 // Qualification
 achievement(
-    title = format("QUALIFY"),
+    title = format("Cleared for Takeoff"),
     points = 0,
-    description = format("QUALIFY"),
+    description = format("Qualify for the FAST Racing League"),
     trigger = 
         in_a_race() && !in_multiplayer() && !in_challenge() &&
         get_qualification_round() == 4 &&
@@ -304,27 +324,27 @@ for current_class in range(0, 2, 1) {
 
 // Clear Missions
 achievement(
-    title = format("MISSION CLEAR A"),
+    title = format("Holding the Line"),
     points = 0,
-    description = format("MISSION CLEAR A"),
+    description = format("Beat all Level A missions"),
     trigger = 
         in_challenge() &&
         measured(cleared_a_missions == 7) && prev(cleared_a_missions == 6)
 )
 
 achievement(
-    title = format("MISSION CLEAR B"),
+    title = format("Edge of Control"),
     points = 0,
-    description = format("MISSION CLEAR B"),
+    description = format("Beat all Level B missions"),
     trigger = 
         in_challenge() &&
         measured(cleared_b_missions == 7) && prev(cleared_b_missions == 6)
 )
 
 achievement(
-    title = format("MISSION CLEAR C"),
+    title = format("Limit Break"),
     points = 0,
-    description = format("MISSION CLEAR C"),
+    description = format("Beat all Level C missions"),
     trigger = 
         in_challenge() &&
         measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
@@ -332,27 +352,27 @@ achievement(
 
 // Star Clear
 achievement(
-    title = format("MISSION CLEAR STAR A"),
+    title = format("Protostar"),
     points = 0,
-    description = format("MISSION CLEAR STAR A"),
+    description = format("Earn a star rating in all level A missions"),
     trigger = 
         in_challenge() &&
         measured(cleared_a_missions == 7) && prev(cleared_a_missions == 6)
 )
 
 achievement(
-    title = format("MISSION CLEAR STAR B"),
+    title = format("Main Sequence"),
     points = 0,
-    description = format("MISSION CLEAR STAR B"),
+    description = format("Earn a star rating in all level B missions"),
     trigger = 
         in_challenge() &&
         measured(cleared_b_missions == 7) && prev(cleared_b_missions == 6)
 )
 
 achievement(
-    title = format("MISSION CLEAR STAR C"),
+    title = format("Supernova"),
     points = 0,
-    description = format("MISSION CLEAR STAR C"),
+    description = format("Earn a star rating in all level C missions"),
     trigger = 
         in_challenge() &&
         measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
@@ -364,8 +384,8 @@ for element in formatted_track_map {
     track_id = element
 
     leaderboard(
-        title = format("{0} TIME ATTACK ION CLASS", track_name),
-        description = format("{0} TIME ATTACK ION CLASS", track_name),
+        title = format("Time Attack: {0} (Ion Class)", track_name),
+        description = format("Reach the goal as quickly as possible on {0} in Ion Class in either a League or FAST Record race", track_name),
         start = 
         (
             in_a_race() && !in_multiplayer() &&
@@ -386,9 +406,9 @@ for element in formatted_track_map {
     )
 
     achievement(
-        title = format("BEAT FASTEST TIME OF {0} IN {1}", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
+        title = format("Full Throttle: {1}", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
         points = 0,
-        description = format("BEAT FASTEST TIME OF {0} IN {1}", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
+        description = format("Reach the goal in {0} or less on {1} in Ion Class in either a League or FAST Record race", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
         trigger = 
             in_a_race() && !in_multiplayer() &&
             get_formatted_track() == element &&
