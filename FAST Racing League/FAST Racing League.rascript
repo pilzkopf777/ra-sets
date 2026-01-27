@@ -302,6 +302,7 @@ achievement(
 achievement(
     title = format("Cleared for Takeoff"),
     points = 1,
+    type = "progression",
     description = format("Qualify for the FAST Racing League"),
     trigger = 
         in_a_race() && !in_multiplayer() && !in_challenge() &&
@@ -322,6 +323,7 @@ for current_class in range(0, 2, 1) {
         achievement(
             title = format("The {0} Champion in {1}", class_qips[current_class], current_league_name),
             points = class_pts[current_class],
+            type = "progression",
             description = format("Win in the {1} League in the {0} Class", current_class_name, current_league_name),
             trigger = 
                 in_a_race() && !in_multiplayer() &&
