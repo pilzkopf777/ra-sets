@@ -346,7 +346,7 @@ for current_class in range(0, 2, 1) {
 // Clear Missions
 achievement(
     title = format("Holding the Line"),
-    points = 5,
+    points = 3,
     description = format("Complete all Level A missions"),
     trigger = 
         in_challenge() &&
@@ -392,7 +392,7 @@ achievement(
 
 achievement(
     title = format("Supernova"),
-    points = 25,
+    points = 10,
     description = format("Earn a star rating in all level C missions"),
     trigger = 
         in_challenge() &&
