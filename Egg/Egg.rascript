@@ -11,6 +11,13 @@ class PlayerObj {
     // Land %: +0x1C
     // Ability Energy: +0x1E
 
+    function get_color() {
+        start = 0x157dc4
+        used_id = this.player_id - 1
+        target_adr = (0x02 * used_id) + start
+        return word(target_adr)
+    }
+
     function get_hp() {
         used_id = this.player_id - 1
         target_adr = 0x157dcc + (used_id * 0x68) + 0x14
@@ -49,9 +56,42 @@ function get_turn() {
     return word(0x157dbe)
 }
 
-function get_player_count() {
-    return word(0x157dba)
+/*
+2 Players:
+0x00 = 1, COM
+0x10 = 1, 2
+0x20 = COM, COM
+3 Players:
+0x30 = 1, COM, COM
+0x40 = 1, 2, COM
+0x50 = 1, 2, 3
+0x60 = COM, COM, COM
+4 Players:
+0x70 = 1, COM, COM, COM
+0x80 = 1, 2, COM, COM
+0x90 = 1, 2, 3, COM
+0xa0 = 1, 2, 3, 4
+0xb0 = COM, COM, COM, COM
+*/
+player_count_map = {
+    0x00: "2",
+    0x10: "2",
+    0x20: "2",
+    0x30: "3",
+    0x40: "3",
+    0x50: "3",
+    0x60: "3",
+    0x70: "4",
+    0x80: "4",
+    0x90: "4",
+    0xa0: "4",
+    0xb0: "4"
 }
+
+function get_vs_player_combo() {
+    return byte(0x157db9)
+}
+
 
 function player_won_stage_pop_moment() {
     return word(0x157da8) == 0x00 && word(0x13fbf6) == 0x01 && prev(word(0x13fbf6) == 0x00)
@@ -59,10 +99,6 @@ function player_won_stage_pop_moment() {
 
 function get_mode() {
     return word(0xbbf64)
-}
-
-function in_main_menu() {
-    return word(0x0bbf5c) == 0x01
 }
 
 // If this is true / value is above 1, the title screen was reached.
@@ -75,12 +111,48 @@ mode_map = {
     0x01: "VS"
 }
 
-function get_mission() {
-    return word(0x157dc6)
+/*
+    Normally I would solve this like this but runtime logic won't do...
+
+    if (player_2_obj.get_color() < player_1_obj.get_color()) {
+        stage = player_2_obj.get_color() + 1
+    } else {
+        stage = player_2_obj.get_color()
+    }
+
+    Instead use a 2d matrix of sorts:
+*/
+
+// Keys 0-3 are the only PLAYABLE colors
+mission_data = {
+    0: [1, 2, 3, 4, 5, 6, 7], // Red:    B, Y, G, P
+    1: [0, 2, 3, 4, 5, 6, 7], // Blue:   R, Y, G, P
+    2: [0, 1, 3, 4, 5, 6, 7], // Yellow: R, B, G, P
+    3: [0, 1, 2, 4, 5, 6, 7]  // Green:  R, B, Y, P
+}
+
+function is_on_mission(id) {
+    conditions = []
+    idx = id - 1
+    
+    for player_val in mission_data {
+        opponent_val = mission_data[player_val][idx]
+        array_push(conditions, player_1_obj.get_color() == player_val && player_2_obj.get_color() == opponent_val)
+    }
+    
+    return any_of(conditions, c => c)
 }
 
 function get_mission_addendum() {
     return word(0x157dc0)
+}
+
+function is_secret_stage() {
+    return word(0x157dc0) == 0x01
+}
+
+function is_b_stage() {
+    return word(0x157dc0) == 0x02
 }
 
 function dev_logo_was_shown() {
@@ -88,6 +160,7 @@ function dev_logo_was_shown() {
 }
 
 mission_addendum_map = {
+    0x00: "",
     0x01: "Secret ",
     0x02: "-B"
 }
@@ -142,7 +215,7 @@ for current_mission in range(1, 7, 1) {
         description = format("Clear Mission {0} {1}", current_mission, goal_desc[current_mission]),
         trigger = 
             get_mode() == 0x00 && get_mission_addendum() == 0x00 &&
-            get_mission() == current_mission &&
+            is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
     )
 
@@ -152,7 +225,7 @@ for current_mission in range(1, 7, 1) {
         start = 
         (
             get_mode() == 0x00 && get_mission_addendum() == 0x00 &&
-            get_mission() == current_mission &&
+            is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
         ),
         cancel = always_false(),
@@ -172,7 +245,7 @@ for current_mission in range(1, 7, 1) {
         description = format("Clear the Secret Mission {0} {1}", current_mission, goal_desc[current_mission]),
         trigger = 
             get_mode() == 0x00 && get_mission_addendum() == 0x01 &&
-            get_mission() == current_mission &&
+            is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
     )
 
@@ -182,7 +255,7 @@ for current_mission in range(1, 7, 1) {
         start = 
         (
             get_mode() == 0x00 && get_mission_addendum() == 0x01 &&
-            get_mission() == current_mission &&
+            is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
         ),
         cancel = always_false(),
@@ -202,7 +275,7 @@ for current_mission in range(1, 7, 1) {
         description = format("Clear Mission {0}-B {1}", current_mission, goal_desc[current_mission]),
         trigger = 
             get_mode() == 0x00 && get_mission_addendum() == 0x02 &&
-            get_mission() == current_mission &&
+            is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
     )
 
@@ -212,7 +285,7 @@ for current_mission in range(1, 7, 1) {
         start = 
         (
             get_mode() == 0x00 && get_mission_addendum() == 0x02 &&
-            get_mission() == current_mission &&
+            is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
         ),
         cancel = always_false(),
@@ -225,6 +298,10 @@ for current_mission in range(1, 7, 1) {
     )
 }
 
+// Claim 10% of land in one roll
+// Fill up energy
+
+
 
 achievement(
     title = format("DEBUG"),
@@ -235,32 +312,38 @@ achievement(
         player_1_obj.get_hp() == 1 && player_2_obj.get_hp() == 1 && player_3_obj.get_hp() == 1 && player_4_obj.get_hp() == 1
 )
 
+
+// I hate this so much but what will you do in a world without dynamic lookups?
+lookup_mission_stage = {
+    1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", // Red
+    10: "1", 12: "2", 13: "3", 14: "4", 15: "5", 16: "6", 17: "7", // Blue
+    20: "1", 21: "2", 23: "3", 24: "4", 25: "5", 26: "6", 27: "7", // Yellow
+    30: "1", 31: "2", 32: "3", 34: "4", 35: "5", 36: "6", 37: "7"  // Green
+}
+
 // RP
 rich_presence_conditional_display(!screen_progression_started(), "Preparing to build a civilisation...")
 
-rich_presence_conditional_display(in_main_menu(), "In the Main Menu")
+rich_presence_conditional_display(get_turn() == 0x00, "In the Main Menu")
 
-// Mission Mode - hidden turn count before actual match begins
-rich_presence_conditional_display(get_mode() == 0x00 && !in_main_menu() && get_turn() == 0, "Mission Mode • Stage {1}{0}{1}",
-    rich_presence_value("Mission", get_mission()),
-    rich_presence_lookup("Mission Addendum", get_mission_addendum(), mission_addendum_map, fallback="")
-)
-
-// Mission Mode
-rich_presence_conditional_display(get_mode() == 0x00 && !in_main_menu(), "Mission Mode • Stage {1}{0}{1} • Turn {2}",
-    rich_presence_value("Mission", get_mission()),
+// Mission Mode Secret
+rich_presence_conditional_display(get_mode() == 0x00 && get_turn() != 0x00 && is_secret_stage(), "Mission Mode • {1}Stage {0}{1} • Turn {2}",
+    // Multiply by 10 (decimal) to get individual matches in the lookup table
+    rich_presence_lookup("Mission", (player_1_obj.get_color() * 10) + player_2_obj.get_color(), lookup_mission_stage),
     rich_presence_lookup("Mission Addendum", get_mission_addendum(), mission_addendum_map, fallback=""),
     rich_presence_value("Turn", get_turn())
 )
 
-// VS Mode - hidden turn count before actual match begins
-rich_presence_conditional_display(get_mode() == 0x01 && !in_main_menu() && get_turn() == 0, "VS Mode • {0} Players",
-    rich_presence_value("Player Count", get_player_count())
+// Mission Mode Normal
+rich_presence_conditional_display(get_mode() == 0x00 && get_turn() != 0x00, "Mission Mode • Stage {0} • Turn {1}",
+    // Multiply by 10 (decimal) to get individual matches in the lookup table
+    rich_presence_lookup("Mission", (player_1_obj.get_color() * 10) + player_2_obj.get_color(), lookup_mission_stage),
+    rich_presence_value("Turn", get_turn())
 )
 
 // VS Mode
-rich_presence_conditional_display(get_mode() == 0x01 && !in_main_menu(), "VS Mode • {0} Players • Turn {1}",
-    rich_presence_value("Player Count", get_player_count()),
+rich_presence_conditional_display(get_mode() == 0x01 && get_turn() != 0x00, "VS Mode • {0} Players • Turn {1}",
+    rich_presence_lookup("Player Count", get_vs_player_combo(), player_count_map, fallback="?"),
     rich_presence_value("Turn", get_turn())
 )
 
