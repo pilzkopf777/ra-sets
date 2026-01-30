@@ -7,7 +7,9 @@ class PlayerObj {
 
     // Player Object size: 0x68
     // Status: +0x00 -> 0x14 for bit4 or 0x44 for bit6
+    // Motion: +0x08
     // HP: +0x14
+    // Tower: +0x16
     // Land %: +0x1C
     // Ability Energy: +0x1E
 
@@ -24,13 +26,32 @@ class PlayerObj {
         return word(target_adr)
     }
 
+    function get_tower_level() {
+        used_id = this.player_id - 1
+        target_adr = 0x157dcc + (used_id * 0x68) + 0x16
+        return (word(target_adr) + 1) / 2
+    }
+
+    function is_moving() {
+        used_id = this.player_id - 1
+        target_adr = 0x157dcc + (used_id * 0x68) + 0x08
+        return word(target_adr) == 0x01
+    }
+
     function player_died() {
-        return this.get_hp() < 1000 && prev(this.get_hp() >= 1000)
+        // value rolls over on death
+        return this.get_hp() > 5000 && prev(this.get_hp() < 1000) || this.get_hp() == 0 && prev(this.get_hp() < 1000) 
     }
 
     function get_claimed_land() {
         used_id = this.player_id - 1
         target_adr = 0x157dcc + (used_id * 0x68) + 0x1C
+        return word(target_adr)
+    }
+
+    function get_energy() {
+        used_id = this.player_id - 1
+        target_adr = 0x157dcc + (used_id * 0x68) + 0x1E
         return word(target_adr)
     }
 
@@ -92,23 +113,21 @@ function get_vs_player_combo() {
     return byte(0x157db9)
 }
 
+function get_player_count() {
+    return player_count_map[get_vs_player_combo()]
+}
 
 function player_won_stage_pop_moment() {
     return word(0x157da8) == 0x00 && word(0x13fbf6) == 0x01 && prev(word(0x13fbf6) == 0x00)
 }
 
-function get_mode() {
-    return word(0xbbf64)
+function in_mission_mode() {
+    return word(0x1cccf8) == 0x0100 && byte(0x157db9) == 0x00
 }
 
 // If this is true / value is above 1, the title screen was reached.
 function screen_progression_started() {
     return word(0x0bbf62) > 0x00
-}
-
-mode_map = {
-    0x00: "Mission",
-    0x01: "VS"
 }
 
 /*
@@ -157,6 +176,10 @@ function is_b_stage() {
 
 function dev_logo_was_shown() {
     return word(0x0bbf58) > 0
+}
+
+function get_current_player_acting() {
+    return word(0xc0684)
 }
 
 mission_addendum_map = {
@@ -214,7 +237,7 @@ for current_mission in range(1, 7, 1) {
         type = "progression",
         description = format("Clear Mission {0} {1}", current_mission, goal_desc[current_mission]),
         trigger = 
-            get_mode() == 0x00 && get_mission_addendum() == 0x00 &&
+            in_mission_mode() && get_mission_addendum() == 0x00 &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
     )
@@ -224,7 +247,7 @@ for current_mission in range(1, 7, 1) {
         description = format("MISSION {0} TURNS", current_mission),
         start = 
         (
-            get_mode() == 0x00 && get_mission_addendum() == 0x00 &&
+            in_mission_mode() && get_mission_addendum() == 0x00 &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
         ),
@@ -244,7 +267,7 @@ for current_mission in range(1, 7, 1) {
         type = "",
         description = format("Clear the Secret Mission {0} {1}", current_mission, goal_desc[current_mission]),
         trigger = 
-            get_mode() == 0x00 && get_mission_addendum() == 0x01 &&
+            in_mission_mode() && get_mission_addendum() == 0x01 &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
     )
@@ -254,7 +277,7 @@ for current_mission in range(1, 7, 1) {
         description = format("MISSION SECRET {0} TURNS", current_mission),
         start = 
         (
-            get_mode() == 0x00 && get_mission_addendum() == 0x01 &&
+            in_mission_mode() && get_mission_addendum() == 0x01 &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
         ),
@@ -274,7 +297,7 @@ for current_mission in range(1, 7, 1) {
         type = "",
         description = format("Clear Mission {0}-B {1}", current_mission, goal_desc[current_mission]),
         trigger = 
-            get_mode() == 0x00 && get_mission_addendum() == 0x02 &&
+            in_mission_mode() && get_mission_addendum() == 0x02 &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
     )
@@ -284,7 +307,7 @@ for current_mission in range(1, 7, 1) {
         description = format("MISSION {0}-B TURNS", current_mission),
         start = 
         (
-            get_mode() == 0x00 && get_mission_addendum() == 0x02 &&
+            in_mission_mode() && get_mission_addendum() == 0x02 &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
         ),
@@ -298,20 +321,196 @@ for current_mission in range(1, 7, 1) {
     )
 }
 
-// Claim 10% of land in one roll
-// Fill up energy
+function ach_logic_player_against_all_cpu() {
+    return (
+                // 2 Total Players, Mission Mode:
+                in_mission_mode()
+            ) ||
+            (
+                // 2 Total Players, VS mode: Combo is 0x00
+                !in_mission_mode() && get_vs_player_combo() == 0x00
+            ) ||
+            (
+                // 3 Total Players, VS mode: Combo is 0x30
+                !in_mission_mode() && get_vs_player_combo() == 0x30
+            ) ||
+            (
+                // 4 Total Players, VS mode: Combo is 0x70
+                !in_mission_mode() && get_vs_player_combo() == 0x70
+            )
+}
 
-
-
+// Variety achievements
 achievement(
-    title = format("DEBUG"),
+    title = format("CLAIM 15%"),
     points = 0,
     type = "",
-    description = format("DEBUG"),
+    description = format("CLAIM 15% IN MATCH VS ALL CPU"),
     trigger = 
-        player_1_obj.get_hp() == 1 && player_2_obj.get_hp() == 1 && player_3_obj.get_hp() == 1 && player_4_obj.get_hp() == 1
+        (
+            get_turn() > 0x01 &&
+            player_1_obj.get_claimed_land() >= prev(player_1_obj.get_claimed_land()) + 15 &&
+            get_current_player_acting() == 0x00
+        ) && (
+            ach_logic_player_against_all_cpu()
+        )  
 )
 
+achievement(
+    title = format("KILL AN EGG IN 15 TURNS"),
+    points = 0,
+    type = "",
+    description = format("KILL AN EGG IN 15 TURNS"),
+    trigger = 
+        (
+            // 2 Total Players, Mission Mode:
+            in_mission_mode() &&
+            get_turn() <= 15 && get_turn() > 0x01 &&
+            player_2_obj.player_died()
+        ) ||
+        (
+            // 2 Total Players, VS mode: Combo is 0x00
+            !in_mission_mode() && get_vs_player_combo() == 0x00 &&
+            get_turn() <= 15 && get_turn() > 0x01 &&
+            player_2_obj.player_died()
+        ) ||
+        (
+            // 3 Total Players, VS mode: Combo is 0x30
+            !in_mission_mode() && get_vs_player_combo() == 0x30 &&
+            get_turn() <= 15 && get_turn() > 0x01 &&
+            player_2_obj.player_died()
+        ) ||
+        (
+            !in_mission_mode() && get_vs_player_combo() == 0x30 &&
+            get_turn() <= 15 && get_turn() > 0x01 &&
+            player_3_obj.player_died()
+        ) ||
+        (
+            // 4 Total Players, VS mode: Combo is 0x70
+            !in_mission_mode() && get_vs_player_combo() == 0x70 &&
+            get_turn() <= 15 && get_turn() > 0x01 &&
+            player_2_obj.player_died()
+        ) ||
+        (
+            !in_mission_mode() && get_vs_player_combo() == 0x70 &&
+            get_turn() <= 15 && get_turn() > 0x01 &&
+            player_3_obj.player_died()
+        ) ||
+        (
+            !in_mission_mode() && get_vs_player_combo() == 0x70 &&
+            get_turn() <= 15 && get_turn() > 0x01 &&
+            player_4_obj.player_died()
+        )
+)
+
+achievement(
+    title = format("OVERTAKE OPPONENT TOWER LEVEL SPEED"),
+    points = 0,
+    type = "",
+    description = format("OVERTAKE OPPONENT TOWER LEVEL 3 SPEED IN MATCH VS ALL CPU"),
+    trigger = 
+        (
+            // 2 Total Players, Mission Mode:
+            in_mission_mode() && get_turn() > 0x01 && 
+            player_1_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3
+        ) ||
+        (
+            // 2 Total Players, VS mode: Combo is 0x00
+            !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x00 &&
+            player_1_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3
+        ) ||
+        (
+            // 3 Total Players, VS mode: Combo is 0x30
+            !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x30 &&
+            player_1_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3
+        ) ||
+        (
+            !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x30 &&
+            player_3_obj.get_tower_level() >= player_3_obj.get_tower_level() + 3
+        ) ||
+        (
+            // 4 Total Players, VS mode: Combo is 0x70
+            !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x70 &&
+            player_2_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3
+        ) ||
+        (
+            !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x70 &&
+            player_3_obj.get_tower_level() >= player_3_obj.get_tower_level() + 3
+        ) ||
+        (
+            !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x70 &&
+            player_4_obj.get_tower_level() >= player_4_obj.get_tower_level() + 3
+        )
+)
+
+achievement(
+    title = format("DESTROY 5% OF OPPONENT WITH ABILITY"),
+    points = 0,
+    type = "",
+    description = format("DESTROY 5% OF OPPONENT WITH ABILITY IN MATCH VS ALL CPU"),
+    trigger = 
+        (
+            get_turn() > 0x01 &&
+            get_current_player_acting() == 0x00
+        ) && (
+            (
+                // 2 Total Players, Mission Mode:
+                (   
+                    in_mission_mode() &&
+                    prev(player_2_obj.get_claimed_land()) >= 5 &&
+                    // example: p2 now has 10, prev had 18 -> pop
+                    // == 10                           == 18
+                    player_2_obj.get_claimed_land() + 5 <= prev(player_2_obj.get_claimed_land())
+                    
+                )
+            ) ||
+            (
+                // 2 Total Players, VS mode: Combo is 0x00
+                (
+                    !in_mission_mode() && 
+                    prev(player_2_obj.get_claimed_land()) >= 5 &&
+                    get_vs_player_combo() == 0x00 &&
+                    player_2_obj.get_claimed_land() + 5 <= prev(player_2_obj.get_claimed_land())
+                )
+            ) ||
+            (
+                // 3 Total Players, VS mode: Combo is 0x30
+                (
+                    !in_mission_mode() && 
+                    prev(player_2_obj.get_claimed_land()) >= 5 &&
+                    get_vs_player_combo() == 0x30 &&
+                    player_2_obj.get_claimed_land() + 5 <= prev(player_2_obj.get_claimed_land())
+                ) ||
+                (
+                    !in_mission_mode() && 
+                    prev(player_3_obj.get_claimed_land()) >= 5 &&
+                    get_vs_player_combo() == 0x30 &&
+                    player_3_obj.get_claimed_land() + 5 <= prev(player_3_obj.get_claimed_land())
+                )
+            ) ||
+            (
+                // 4 Total Players, VS mode: Combo is 0x70
+                (
+                    !in_mission_mode() && 
+                    prev(player_2_obj.get_claimed_land()) >= 5 &&
+                    get_vs_player_combo() == 0x70 &&
+                    player_2_obj.get_claimed_land() + 5 <= prev(player_2_obj.get_claimed_land())
+                ) ||
+                (
+                    !in_mission_mode() && 
+                    prev(player_3_obj.get_claimed_land()) >= 5 &&
+                    get_vs_player_combo() == 0x70 &&
+                    player_3_obj.get_claimed_land() + 5 <= prev(player_3_obj.get_claimed_land())
+                ) ||
+                (
+                    !in_mission_mode() && 
+                    prev(player_4_obj.get_claimed_land()) >= 5 &&
+                    get_vs_player_combo() == 0x70 &&
+                    player_4_obj.get_claimed_land() + 5 <= prev(player_4_obj.get_claimed_land())
+                )
+            )
+        )  
+)
 
 // I hate this so much but what will you do in a world without dynamic lookups?
 lookup_mission_stage = {
@@ -327,7 +526,7 @@ rich_presence_conditional_display(!screen_progression_started(), "Preparing to b
 rich_presence_conditional_display(get_turn() == 0x00, "In the Main Menu")
 
 // Mission Mode Secret
-rich_presence_conditional_display(get_mode() == 0x00 && get_turn() != 0x00 && is_secret_stage(), "Mission Mode • {1}Stage {0}{1} • Turn {2}",
+rich_presence_conditional_display(in_mission_mode() && get_turn() != 0x00 && is_secret_stage(), "Mission Mode • {1}Stage {0}{1} • Turn {2}",
     // Multiply by 10 (decimal) to get individual matches in the lookup table
     rich_presence_lookup("Mission", (player_1_obj.get_color() * 10) + player_2_obj.get_color(), lookup_mission_stage),
     rich_presence_lookup("Mission Addendum", get_mission_addendum(), mission_addendum_map, fallback=""),
@@ -335,14 +534,14 @@ rich_presence_conditional_display(get_mode() == 0x00 && get_turn() != 0x00 && is
 )
 
 // Mission Mode Normal
-rich_presence_conditional_display(get_mode() == 0x00 && get_turn() != 0x00, "Mission Mode • Stage {0} • Turn {1}",
+rich_presence_conditional_display(in_mission_mode() && get_turn() != 0x00, "Mission Mode • Stage {0} • Turn {1}",
     // Multiply by 10 (decimal) to get individual matches in the lookup table
     rich_presence_lookup("Mission", (player_1_obj.get_color() * 10) + player_2_obj.get_color(), lookup_mission_stage),
     rich_presence_value("Turn", get_turn())
 )
 
 // VS Mode
-rich_presence_conditional_display(get_mode() == 0x01 && get_turn() != 0x00, "VS Mode • {0} Players • Turn {1}",
+rich_presence_conditional_display(!in_mission_mode() && get_turn() != 0x00, "VS Mode • {0} Players • Turn {1}",
     rich_presence_lookup("Player Count", get_vs_player_combo(), player_count_map, fallback="?"),
     rich_presence_value("Turn", get_turn())
 )
