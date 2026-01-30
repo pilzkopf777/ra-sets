@@ -204,8 +204,8 @@ normal_goal_titles = {
     0x03: "",
     0x04: "",
     0x05: "",
-    0x06: "",
-    0x07: ""
+    0x06: "The Blackened Shell",
+    0x07: "The Final Hatch"
 }
 
 secret_goal_titles = {
@@ -214,8 +214,8 @@ secret_goal_titles = {
     0x03: "",
     0x04: "",
     0x05: "",
-    0x06: "",
-    0x07: ""
+    0x06: "Rotten to the Yolk",
+    0x07: "Egg Ascendant"
 }
 
 b_goal_titles = {
@@ -224,15 +224,15 @@ b_goal_titles = {
     0x03: "",
     0x04: "",
     0x05: "",
-    0x06: "",
-    0x07: ""
+    0x06: "Deviled Egg",
+    0x07: "Shell of a God"
 }
 
 // Achievements
 for current_mission in range(1, 7, 1) {
     // Missions
     achievement(
-        title = format("MISSION {0} CLEAR", current_mission),
+        title = normal_goal_titles[current_mission]
         points = 0,
         type = "progression",
         description = format("Clear Mission {0} {1}", current_mission, goal_desc[current_mission]),
@@ -262,7 +262,7 @@ for current_mission in range(1, 7, 1) {
 
     // Secret Missions
     achievement(
-        title = format("MISSION SECRET {0} CLEAR", current_mission),
+        title = secret_goal_titles[current_mission]
         points = 0,
         type = "",
         description = format("Clear the Secret Mission {0} {1}", current_mission, goal_desc[current_mission]),
@@ -292,7 +292,7 @@ for current_mission in range(1, 7, 1) {
 
     // Missions X-B
     achievement(
-        title = format("MISSION {0}-B CLEAR", current_mission),
+        title = b_goal_titles[current_mission]
         points = 0,
         type = "",
         description = format("Clear Mission {0}-B {1}", current_mission, goal_desc[current_mission]),
@@ -342,7 +342,7 @@ function ach_logic_player_against_all_cpu() {
 
 // Variety achievements
 achievement(
-    title = format("CLAIM 15%"),
+    title = format("Eggspansion Pack"),
     points = 0,
     type = "",
     description = format("CLAIM 15% IN MATCH VS ALL CPU"),
@@ -357,7 +357,7 @@ achievement(
 )
 
 achievement(
-    title = format("KILL AN EGG IN 15 TURNS"),
+    title = format("Cracked Before Breakfast"),
     points = 0,
     type = "",
     description = format("KILL AN EGG IN 15 TURNS"),
@@ -404,7 +404,7 @@ achievement(
 )
 
 achievement(
-    title = format("OVERTAKE OPPONENT TOWER LEVEL SPEED"),
+    title = format("Eggsponential Growth"),
     points = 0,
     type = "",
     description = format("OVERTAKE OPPONENT TOWER LEVEL 3 SPEED IN MATCH VS ALL CPU"),
@@ -444,7 +444,7 @@ achievement(
 )
 
 achievement(
-    title = format("DESTROY 5% OF OPPONENT WITH ABILITY"),
+    title = format("Shellscorched Earth"),
     points = 0,
     type = "",
     description = format("DESTROY 5% OF OPPONENT WITH ABILITY IN MATCH VS ALL CPU"),
@@ -458,10 +458,7 @@ achievement(
                 (   
                     in_mission_mode() &&
                     prev(player_2_obj.get_claimed_land()) >= 5 &&
-                    // example: p2 now has 10, prev had 18 -> pop
-                    // == 10                           == 18
                     player_2_obj.get_claimed_land() + 5 <= prev(player_2_obj.get_claimed_land())
-                    
                 )
             ) ||
             (
