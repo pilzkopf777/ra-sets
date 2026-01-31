@@ -228,11 +228,13 @@ b_goal_titles = {
     0x07: "Shell of a God"
 }
 
+vs_only_cpu_string = "in a match against only CPU-controlle opponents"
+
 // Achievements
 for current_mission in range(1, 7, 1) {
     // Missions
     achievement(
-        title = normal_goal_titles[current_mission]
+        title = normal_goal_titles[current_mission],
         points = 0,
         type = "progression",
         description = format("Clear Mission {0} {1}", current_mission, goal_desc[current_mission]),
@@ -243,8 +245,8 @@ for current_mission in range(1, 7, 1) {
     )
 
     leaderboard(
-        title = format("MISSION {0} TURNS", current_mission),
-        description = format("MISSION {0} TURNS", current_mission),
+        title = format("Lowest Turns - Mission {0}", current_mission),
+        description = format("Clear Mission {0} in as few turns as possible", current_mission),
         start = 
         (
             in_mission_mode() && get_mission_addendum() == 0x00 &&
@@ -262,7 +264,7 @@ for current_mission in range(1, 7, 1) {
 
     // Secret Missions
     achievement(
-        title = secret_goal_titles[current_mission]
+        title = secret_goal_titles[current_mission],
         points = 0,
         type = "",
         description = format("Clear the Secret Mission {0} {1}", current_mission, goal_desc[current_mission]),
@@ -273,8 +275,8 @@ for current_mission in range(1, 7, 1) {
     )
 
     leaderboard(
-        title = format("MISSION SECRET {0} TURNS", current_mission),
-        description = format("MISSION SECRET {0} TURNS", current_mission),
+        title = format("Lowest Turns - Secret Mission {0}", current_mission),
+        description = format("Clear Secret Mission {0} in as few turns as possible", current_mission),
         start = 
         (
             in_mission_mode() && get_mission_addendum() == 0x01 &&
@@ -292,7 +294,7 @@ for current_mission in range(1, 7, 1) {
 
     // Missions X-B
     achievement(
-        title = b_goal_titles[current_mission]
+        title = b_goal_titles[current_mission],
         points = 0,
         type = "",
         description = format("Clear Mission {0}-B {1}", current_mission, goal_desc[current_mission]),
@@ -303,8 +305,8 @@ for current_mission in range(1, 7, 1) {
     )
 
     leaderboard(
-        title = format("MISSION {0}-B TURNS", current_mission),
-        description = format("MISSION {0}-B TURNS", current_mission),
+        title = format("Lowest Turns - Secret Mission {0}-B", current_mission),
+        description = format("Clear Secret Mission {0}-B in as few turns as possible", current_mission),
         start = 
         (
             in_mission_mode() && get_mission_addendum() == 0x02 &&
@@ -345,7 +347,7 @@ achievement(
     title = format("Eggspansion Pack"),
     points = 0,
     type = "",
-    description = format("CLAIM 15% IN MATCH VS ALL CPU"),
+    description = format("Claim an area of 15% or more in a single roll {0}", vs_only_cpu_string),
     trigger = 
         (
             get_turn() > 0x01 &&
@@ -360,7 +362,7 @@ achievement(
     title = format("Cracked Before Breakfast"),
     points = 0,
     type = "",
-    description = format("KILL AN EGG IN 15 TURNS"),
+    description = format("Destroy an opposing egg by dealing enough damage to it in 15 turns or less {0}", vs_only_cpu_string),
     trigger = 
         (
             // 2 Total Players, Mission Mode:
@@ -407,7 +409,7 @@ achievement(
     title = format("Eggsponential Growth"),
     points = 0,
     type = "",
-    description = format("OVERTAKE OPPONENT TOWER LEVEL 3 SPEED IN MATCH VS ALL CPU"),
+    description = format("Have your tower be three levels taller than an opponent {0}", vs_only_cpu_string),
     trigger = 
         (
             // 2 Total Players, Mission Mode:
@@ -447,7 +449,7 @@ achievement(
     title = format("Shellscorched Earth"),
     points = 0,
     type = "",
-    description = format("DESTROY 5% OF OPPONENT WITH ABILITY IN MATCH VS ALL CPU"),
+    description = format("Destroy 5% or more of an opponents lands using an ability {0}", vs_only_cpu_string),
     trigger = 
         (
             get_turn() > 0x01 &&
@@ -518,7 +520,7 @@ lookup_mission_stage = {
 }
 
 // RP
-rich_presence_conditional_display(!screen_progression_started(), "Preparing to build a civilisation...")
+rich_presence_conditional_display(!screen_progression_started(), "Preparing to build a civilization...")
 
 rich_presence_conditional_display(get_turn() == 0x00, "In the Main Menu")
 
@@ -543,4 +545,4 @@ rich_presence_conditional_display(!in_mission_mode() && get_turn() != 0x00, "VS 
     rich_presence_value("Turn", get_turn())
 )
 
-rich_presence_display("Preparing to build a civilisation...")
+rich_presence_display("Preparing to build a civilization...")
