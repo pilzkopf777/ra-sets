@@ -198,34 +198,71 @@ goal_desc = {
     0x07: "by defeating the opponent by any means",
 }
 
-normal_goal_titles = {
-    0x01: "",
-    0x02: "",
-    0x03: "",
-    0x04: "",
-    0x05: "",
-    0x06: "The Blackened Shell",
-    0x07: "The Final Hatch"
+title_pts_mission_data = {
+    0x01: {
+        "normal_title": "Land of the Laid",
+        "normal_pts": 1,
+        "secret_title": "Nesting Grounds",
+        "secret_pts": 2,
+        "b_secret_title": "Yolk Radius",
+        "b_secret_pts": 3
+    },
+    0x02: {
+        "normal_title": "Crack Your Rival",
+        "normal_pts": 2,
+        "secret_title": "Eggstreme Measures",
+        "secret_pts": 3,
+        "b_secret_title": "Fatal Fracture",
+        "b_secret_pts": 4
+    },
+    0x03: {
+        "normal_title": "Hard Boiled",
+        "normal_pts": 3,
+        "secret_title": "Coop Collapse",
+        "secret_pts": 4,
+        "b_secret_title": "Scrambled Architecture",
+        "b_secret_pts": 5
+    },
+    0x04: {
+        "normal_title": "Building a Shellscraper",
+        "normal_pts": 5,
+        "secret_title": "Incubation Station",
+        "secret_pts": 5,
+        "b_secret_title": "Nine Layers Deep",
+        "b_secret_pts": 10
+    },
+    0x05: {
+        "normal_title": "Etch-a-Shell",
+        "normal_pts": 10,
+        "secret_title": "Click-Clack Carton",
+        "secret_pts": 10,
+        "b_secret_title": "Egg-in-the-Box",
+        "b_secret_pts": 10
+    },
+    0x06: {
+        "normal_title": "Rotten to the Yolk",
+        "normal_pts": 10,
+        "secret_title": "The Blackened Shell",
+        "secret_pts": 10,
+        "b_secret_title": "Deviled Egg",
+        "b_secret_pts": 10
+    },
+    0x07: {
+        "normal_title": "The Final Hatch",
+        "normal_pts": 25,
+        "secret_title": "Shell of a God",
+        "secret_pts": 25,
+        "b_secret_title": "I'm out of Egg Puns",
+        "b_secret_pts": 50
+    }
 }
 
-secret_goal_titles = {
-    0x01: "",
-    0x02: "",
-    0x03: "",
-    0x04: "",
-    0x05: "",
-    0x06: "Rotten to the Yolk",
-    0x07: "Egg Ascendant"
-}
-
-b_goal_titles = {
-    0x01: "",
-    0x02: "",
-    0x03: "",
-    0x04: "",
-    0x05: "",
-    0x06: "Deviled Egg",
-    0x07: "Shell of a God"
+function get_prog_or_win(id) {
+    if (id == 7) {
+        return "win_condition"
+    } else {
+        return "progression"
+    }
 }
 
 vs_only_cpu_string = "in a match against only CPU-controlle opponents"
@@ -234,9 +271,9 @@ vs_only_cpu_string = "in a match against only CPU-controlle opponents"
 for current_mission in range(1, 7, 1) {
     // Missions
     achievement(
-        title = normal_goal_titles[current_mission],
-        points = 0,
-        type = "progression",
+        title = title_pts_mission_data[current_mission]["normal_title"],
+        points = title_pts_mission_data[current_mission]["normal_pts"],
+        type = get_prog_or_win(current_mission),
         description = format("Clear Mission {0} {1}", current_mission, goal_desc[current_mission]),
         trigger = 
             in_mission_mode() && get_mission_addendum() == 0x00 &&
@@ -264,8 +301,8 @@ for current_mission in range(1, 7, 1) {
 
     // Secret Missions
     achievement(
-        title = secret_goal_titles[current_mission],
-        points = 0,
+        title = title_pts_mission_data[current_mission]["secret_title"],
+        points = title_pts_mission_data[current_mission]["secret_pts"],
         type = "",
         description = format("Clear the Secret Mission {0} {1}", current_mission, goal_desc[current_mission]),
         trigger = 
@@ -294,8 +331,8 @@ for current_mission in range(1, 7, 1) {
 
     // Missions X-B
     achievement(
-        title = b_goal_titles[current_mission],
-        points = 0,
+        title = title_pts_mission_data[current_mission]["b_secret_title"],
+        points = title_pts_mission_data[current_mission]["b_secret_pts"],
         type = "",
         description = format("Clear Mission {0}-B {1}", current_mission, goal_desc[current_mission]),
         trigger = 
@@ -345,7 +382,7 @@ function ach_logic_player_against_all_cpu() {
 // Variety achievements
 achievement(
     title = format("Eggspansion Pack"),
-    points = 0,
+    points = 3,
     type = "",
     description = format("Claim an area of 15% or more in a single roll {0}", vs_only_cpu_string),
     trigger = 
@@ -360,7 +397,7 @@ achievement(
 
 achievement(
     title = format("Cracked Before Breakfast"),
-    points = 0,
+    points = 5,
     type = "",
     description = format("Destroy an opposing egg by dealing enough damage to it in 15 turns or less {0}", vs_only_cpu_string),
     trigger = 
@@ -407,47 +444,54 @@ achievement(
 
 achievement(
     title = format("Eggsponential Growth"),
-    points = 0,
+    points = 5,
     type = "",
     description = format("Have your tower be three levels taller than an opponent {0}", vs_only_cpu_string),
     trigger = 
         (
             // 2 Total Players, Mission Mode:
             in_mission_mode() && get_turn() > 0x01 && 
-            player_1_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3
+            player_1_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3 &&
+            prev(player_1_obj.get_tower_level() < player_2_obj.get_tower_level() + 3)
         ) ||
         (
             // 2 Total Players, VS mode: Combo is 0x00
             !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x00 &&
-            player_1_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3
+            player_1_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3 &&
+            prev(player_1_obj.get_tower_level() < player_2_obj.get_tower_level() + 3)
         ) ||
         (
             // 3 Total Players, VS mode: Combo is 0x30
             !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x30 &&
-            player_1_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3
+            player_1_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3 &&
+            prev(player_1_obj.get_tower_level() < player_2_obj.get_tower_level() + 3)
         ) ||
         (
             !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x30 &&
-            player_3_obj.get_tower_level() >= player_3_obj.get_tower_level() + 3
+            player_3_obj.get_tower_level() >= player_3_obj.get_tower_level() + 3 &&
+            prev(player_3_obj.get_tower_level() < player_3_obj.get_tower_level() + 3)
         ) ||
         (
             // 4 Total Players, VS mode: Combo is 0x70
             !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x70 &&
-            player_2_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3
+            player_2_obj.get_tower_level() >= player_2_obj.get_tower_level() + 3 &&
+            prev(player_2_obj.get_tower_level() < player_2_obj.get_tower_level() + 3)
         ) ||
         (
             !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x70 &&
-            player_3_obj.get_tower_level() >= player_3_obj.get_tower_level() + 3
+            player_3_obj.get_tower_level() >= player_3_obj.get_tower_level() + 3 &&
+            prev(player_3_obj.get_tower_level() < player_3_obj.get_tower_level() + 3)
         ) ||
         (
             !in_mission_mode() && get_turn() > 0x01 && get_vs_player_combo() == 0x70 &&
-            player_4_obj.get_tower_level() >= player_4_obj.get_tower_level() + 3
+            player_4_obj.get_tower_level() >= player_4_obj.get_tower_level() + 3 &&
+            prev(player_4_obj.get_tower_level() < player_4_obj.get_tower_level() + 3)
         )
 )
 
 achievement(
     title = format("Shellscorched Earth"),
-    points = 0,
+    points = 3,
     type = "",
     description = format("Destroy 5% or more of an opponents lands using an ability {0}", vs_only_cpu_string),
     trigger = 
