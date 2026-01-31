@@ -118,7 +118,8 @@ function get_player_count() {
 }
 
 function player_won_stage_pop_moment() {
-    return word(0x157da8) == 0x00 && prev(word(0x157da8)) == 0xffff
+    return repeated(5, word(0x157da8) == 0x00) &&
+           never(word(0x157da8) == 0xffff)
 }
 
 function in_mission_mode() {
@@ -571,12 +572,20 @@ rich_presence_conditional_display(!screen_progression_started(), "Preparing to b
 rich_presence_conditional_display(get_turn() == 0x00, "In the Main Menu")
 
 // Mission Mode Secret
-rich_presence_conditional_display(in_mission_mode() && get_turn() != 0x00 && is_secret_stage(), "Mission Mode • {1}Stage {0}{1} • Turn {2}",
+rich_presence_conditional_display(in_mission_mode() && get_turn() != 0x00 && is_secret_stage(), "Mission Mode • {1}Stage {0} • Turn {2}",
     // Multiply by 10 (decimal) to get individual matches in the lookup table
     rich_presence_lookup("Mission", (player_1_obj.get_color() * 10) + player_2_obj.get_color(), lookup_mission_stage),
     rich_presence_lookup("Mission Addendum", get_mission_addendum(), mission_addendum_map, fallback=""),
     rich_presence_value("Turn", get_turn())
 )
+
+rich_presence_conditional_display(in_mission_mode() && get_turn() != 0x00 && is_b_stage(), "Mission Mode • Stage {0}{1} • Turn {2}",
+    // Multiply by 10 (decimal) to get individual matches in the lookup table
+    rich_presence_lookup("Mission", (player_1_obj.get_color() * 10) + player_2_obj.get_color(), lookup_mission_stage),
+    rich_presence_lookup("Mission Addendum", get_mission_addendum(), mission_addendum_map, fallback=""),
+    rich_presence_value("Turn", get_turn())
+)
+
 
 // Mission Mode Normal
 rich_presence_conditional_display(in_mission_mode() && get_turn() != 0x00, "Mission Mode • Stage {0} • Turn {1}",
