@@ -118,7 +118,7 @@ function get_player_count() {
 }
 
 function player_won_stage_pop_moment() {
-    return word(0x157da8) == 0x00 && word(0x13fbf6) == 0x01 && prev(word(0x13fbf6) == 0x00)
+    return word(0x157da8) == 0x00 && prev(word(0x157da8)) == 0xffff
 }
 
 function in_mission_mode() {
@@ -442,6 +442,7 @@ achievement(
         )
 )
 
+/*
 achievement(
     title = format("Eggsponential Growth"),
     points = 5,
@@ -488,6 +489,7 @@ achievement(
             prev(player_4_obj.get_tower_level() < player_4_obj.get_tower_level() + 3)
         )
 )
+*/
 
 achievement(
     title = format("Shellscorched Earth"),
