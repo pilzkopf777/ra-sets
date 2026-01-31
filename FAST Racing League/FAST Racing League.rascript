@@ -324,7 +324,7 @@ for current_class in range(0, 2, 1) {
             title = format("The {0} Champion in {1}", class_qips[current_class], current_league_name),
             points = class_pts[current_class],
             type = "progression",
-            description = format("Win in the {1} League in the {0} Class", current_class_name, current_league_name),
+            description = format("Finish the {1} League in 1st place in the {0} Class", current_class_name, current_league_name),
             trigger = 
                 in_a_race() && !in_multiplayer() &&
                 get_class() == current_class &&
@@ -347,7 +347,7 @@ for current_class in range(0, 2, 1) {
 achievement(
     title = format("Holding the Line"),
     points = 3,
-    description = format("Complete all Level A missions"),
+    description = format("Complete every Level A challenge"),
     trigger = 
         in_challenge() &&
         measured(cleared_a_missions == 7) && prev(cleared_a_missions == 6)
@@ -356,7 +356,7 @@ achievement(
 achievement(
     title = format("Edge of Control"),
     points = 5,
-    description = format("Complete all Level B missions"),
+    description = format("Complete every Level B challenge"),
     trigger = 
         in_challenge() &&
         measured(cleared_b_missions == 7) && prev(cleared_b_missions == 6)
@@ -365,7 +365,7 @@ achievement(
 achievement(
     title = format("Limit Break"),
     points = 10,
-    description = format("Complete all Level C missions"),
+    description = format("Complete every Level C challenge"),
     trigger = 
         in_challenge() &&
         measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
@@ -375,7 +375,7 @@ achievement(
 achievement(
     title = format("Protostar"),
     points = 10,
-    description = format("Earn a star rating in all level A missions"),
+    description = format("Earn a star rating in every level A challenge"),
     trigger = 
         in_challenge() &&
         measured(cleared_a_missions == 7) && prev(cleared_a_missions == 6)
@@ -384,7 +384,7 @@ achievement(
 achievement(
     title = format("Main Sequence"),
     points = 10,
-    description = format("Earn a star rating in all level B missions"),
+    description = format("Earn a star rating in every level B challenge"),
     trigger = 
         in_challenge() &&
         measured(cleared_b_missions == 7) && prev(cleared_b_missions == 6)
@@ -393,7 +393,7 @@ achievement(
 achievement(
     title = format("Supernova"),
     points = 10,
-    description = format("Earn a star rating in all level C missions"),
+    description = format("Earn a star rating in every level C challenge"),
     trigger = 
         in_challenge() &&
         measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
