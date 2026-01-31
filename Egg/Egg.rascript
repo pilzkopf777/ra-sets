@@ -265,7 +265,7 @@ function get_prog_or_win(id) {
     }
 }
 
-vs_only_cpu_string = "in a match against only CPU-controlle opponents"
+vs_only_cpu_string = "in a match against only CPU-controlled opponents"
 
 // Achievements
 for current_mission in range(1, 7, 1) {
