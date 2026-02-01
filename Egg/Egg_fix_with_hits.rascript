@@ -118,10 +118,7 @@ function get_player_count() {
 }
 
 function player_won_stage_pop_moment() {
-    // return repeated(5, word(0x157da8) == 0x00) &&
-    //        never(word(0x157da8) == 0xffff || get_turn() == 0 || !in_mission_mode())
     return word(0x0bbfc4) == 0x3d && prev(word(0x0bbfc4) < 0x3d) && word(0x157da8) == 0x00
-    // return word(0x157da8) == 0x00 && prev(word(0x157da8)) == 0xffff
 }
 
 function in_mission_mode() {
@@ -183,6 +180,10 @@ function dev_logo_was_shown() {
 
 function get_current_player_acting() {
     return word(0xc0684)
+}
+
+function loading_completed_checkpoint_hit() {
+    return once(word(0x0bbfba) == 0x04 && prev(word(0x0bbfba)) == 0x03)
 }
 
 mission_addendum_map = {
@@ -280,6 +281,7 @@ for current_mission in range(1, 7, 1) {
         description = format("Clear Mission {0} {1}", current_mission, goal_desc[current_mission]),
         trigger = 
             in_mission_mode() && get_mission_addendum() == 0x00 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
     )
@@ -290,6 +292,7 @@ for current_mission in range(1, 7, 1) {
         start = 
         (
             in_mission_mode() && get_mission_addendum() == 0x00 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
         ),
@@ -310,6 +313,7 @@ for current_mission in range(1, 7, 1) {
         description = format("Clear the Secret Mission {0} {1}", current_mission, goal_desc[current_mission]),
         trigger = 
             in_mission_mode() && get_mission_addendum() == 0x01 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
     )
@@ -320,6 +324,7 @@ for current_mission in range(1, 7, 1) {
         start = 
         (
             in_mission_mode() && get_mission_addendum() == 0x01 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
         ),
@@ -340,6 +345,7 @@ for current_mission in range(1, 7, 1) {
         description = format("Clear Mission {0}-B {1}", current_mission, goal_desc[current_mission]),
         trigger = 
             in_mission_mode() && get_mission_addendum() == 0x02 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
     )
@@ -350,6 +356,7 @@ for current_mission in range(1, 7, 1) {
         start = 
         (
             in_mission_mode() && get_mission_addendum() == 0x02 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             is_on_mission(current_mission) &&
             player_won_stage_pop_moment()
         ),
@@ -391,6 +398,7 @@ achievement(
     trigger = 
         (
             get_turn() > 0x01 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             player_1_obj.get_claimed_land() >= prev(player_1_obj.get_claimed_land()) + 15 &&
             get_current_player_acting() == 0x00
         ) && (
@@ -407,39 +415,46 @@ achievement(
         (
             // 2 Total Players, Mission Mode:
             in_mission_mode() &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             get_turn() <= 15 && get_turn() > 0x01 &&
             player_2_obj.player_died()
         ) ||
         (
             // 2 Total Players, VS mode: Combo is 0x00
             !in_mission_mode() && get_vs_player_combo() == 0x00 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             get_turn() <= 15 && get_turn() > 0x01 &&
             player_2_obj.player_died()
         ) ||
         (
             // 3 Total Players, VS mode: Combo is 0x30
             !in_mission_mode() && get_vs_player_combo() == 0x30 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             get_turn() <= 15 && get_turn() > 0x01 &&
             player_2_obj.player_died()
         ) ||
         (
             !in_mission_mode() && get_vs_player_combo() == 0x30 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             get_turn() <= 15 && get_turn() > 0x01 &&
             player_3_obj.player_died()
         ) ||
         (
             // 4 Total Players, VS mode: Combo is 0x70
             !in_mission_mode() && get_vs_player_combo() == 0x70 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             get_turn() <= 15 && get_turn() > 0x01 &&
             player_2_obj.player_died()
         ) ||
         (
             !in_mission_mode() && get_vs_player_combo() == 0x70 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             get_turn() <= 15 && get_turn() > 0x01 &&
             player_3_obj.player_died()
         ) ||
         (
             !in_mission_mode() && get_vs_player_combo() == 0x70 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             get_turn() <= 15 && get_turn() > 0x01 &&
             player_4_obj.player_died()
         )
@@ -502,6 +517,7 @@ achievement(
     trigger = 
         (
             get_turn() > 0x01 &&
+            loading_completed_checkpoint_hit() && never(get_turn() == 0x00 && prev(get_turn()) != 0x00) &&
             get_current_player_acting() == 0x00
         ) && (
             (
@@ -569,7 +585,7 @@ lookup_mission_stage = {
 }
 
 // RP
-rich_presence_conditional_display(!screen_progression_started(), "Preparing to build a civilization...")
+rich_presence_conditional_display(!screen_progression_started(), "In the Main Menu")
 
 rich_presence_conditional_display(get_turn() == 0x00, "In the Main Menu")
 
