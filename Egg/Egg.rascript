@@ -118,8 +118,10 @@ function get_player_count() {
 }
 
 function player_won_stage_pop_moment() {
-    return repeated(5, word(0x157da8) == 0x00) &&
-           never(word(0x157da8) == 0xffff)
+    // return repeated(5, word(0x157da8) == 0x00) &&
+    //        never(word(0x157da8) == 0xffff || get_turn() == 0 || !in_mission_mode())
+    return word(0x0bbfc4) == 0x3d && prev(word(0x0bbfc4) < 0x3d) && word(0x157da8) == 0x00
+    // return word(0x157da8) == 0x00 && prev(word(0x157da8)) == 0xffff
 }
 
 function in_mission_mode() {
