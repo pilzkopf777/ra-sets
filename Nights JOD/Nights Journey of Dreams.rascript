@@ -40,6 +40,8 @@ class WorldData {
     }
 }
 
+dream_gate_obj = WorldData(order=1)
+
 pure_valley_obj = WorldData(order=2)
 pure_valley_boss_obj = WorldData(order=3)
 lost_park_obj = WorldData(order=4)
@@ -58,6 +60,18 @@ bellbridge_obj = WorldData(order=14)
 bellbridge_boss_obj = WorldData(order=15)
 
 mydream_obj = WorldData(order=28)
+
+function is_not_in_any_level() {
+    return !dream_gate_obj.is_in_level() &&
+    !pure_valley_obj.is_in_level() && !pure_valley_boss_obj.is_in_level() &&
+    !lost_park_obj.is_in_level() && !lost_park_boss_obj.is_in_level() &&
+    !delight_city_obj.is_in_level() && !delight_city_boss_obj.is_in_level() &&
+    !aqua_garden_obj.is_in_level() && !aqua_garden_boss_obj.is_in_level() &&
+    !crystal_castle_obj.is_in_level() && !crystal_castle_boss_obj.is_in_level() &&
+    !memory_forest_obj.is_in_level() && !memory_forest_boss_obj.is_in_level() &&
+    !bellbridge_obj.is_in_level() && !bellbridge_boss_obj.is_in_level() &&
+    !mydream_obj.is_in_level()
+}
 
 world_data_map = {
     "Pure Valley": 
@@ -200,27 +214,12 @@ function is_in_world(world_name) {
     return ascii_string_equals(world_adr, world_id)
 }
 
-function in_my_dream() {
-    return ascii_string_equals(0x11b68131, "MyDream")
-}
-
 function on_title() {
     return ascii_string_equals(0x11b68131, "Title")
-}
-
-
-
-hub_map = {
-    "Title": "Title Screen",
-    "MyDream": "My Dream",
+    // return byte(0x104496e0) == 0x01 // TODO: needs better address
 }
 
 // RP
-
-// On Title Screen
-rich_presence_conditional_display(on_title(), "In the Main Menu • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
-)
 
 // In hub
 // rich_presence_conditional_display(in_hub(), "In the Dream Gate • {2} / 60 Dreamdrops",
@@ -311,4 +310,15 @@ rich_presence_conditional_display(!on_title() && is_in_world("My Dream") && mydr
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
-rich_presence_display("Playing NiGHTS")
+// In Dream Gate
+rich_presence_conditional_display(dream_gate_obj.is_in_level(), "In Dream Gate • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+)
+
+// On Title Screen
+rich_presence_display("In the Main Menu • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+)
+
+
+// rich_presence_display("Playing Nights: Journey of Dreams")
