@@ -55,6 +55,7 @@ memory_forest_obj = WorldData(order=12)
 memory_forest_boss_obj = WorldData(order=13)
 
 bellbridge_obj = WorldData(order=14)
+bellbridge_boss_obj = WorldData(order=15)
 
 mydream_obj = WorldData(order=28)
 
@@ -179,6 +180,14 @@ world_data_map = {
         },
         "id": "3000",
     },
+    "Bellbridge Boss":
+    {
+        "levels":
+        {
+            0x00: "vs. Wizeman"
+        },
+        "id": "3010",
+    },
     "My Dream": {
         "id": "am" // Cut off from MyDream
     }
@@ -244,7 +253,7 @@ rich_presence_conditional_display(!on_title() && is_in_world("Lost Park Boss") &
 
 // In Delight City
 rich_presence_conditional_display(!on_title() && is_in_world("Delight City") && delight_city_obj.is_in_level(), "In Delight City • {0} • {1} / 60 Dreamdrops",
-    rich_presence_lookup("Level: Delight City", lost_park_obj.get_level(), world_data_map["Delight City"]["levels"], fallback="Unknown Level"),
+    rich_presence_lookup("Level: Delight City", delight_city_obj.get_level(), world_data_map["Delight City"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
@@ -255,7 +264,7 @@ rich_presence_conditional_display(!on_title() && is_in_world("Delight City Boss"
 
 // In Aqua Garden
 rich_presence_conditional_display(!on_title() && is_in_world("Aqua Garden") && aqua_garden_obj.is_in_level(), "In Aqua Garden • {0} • {1} / 60 Dreamdrops",
-    rich_presence_lookup("Level: Aqua Garden", lost_park_obj.get_level(), world_data_map["Aqua Garden"]["levels"], fallback="Unknown Level"),
+    rich_presence_lookup("Level: Aqua Garden", aqua_garden_obj.get_level(), world_data_map["Aqua Garden"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
@@ -266,7 +275,7 @@ rich_presence_conditional_display(!on_title() && is_in_world("Aqua Garden Boss")
 
 // In Crystal Castle
 rich_presence_conditional_display(!on_title() && is_in_world("Crystal Castle") && crystal_castle_obj.is_in_level(), "In Crystal Castle • {0} • {1} / 60 Dreamdrops",
-    rich_presence_lookup("Level: Crystal Castle", lost_park_obj.get_level(), world_data_map["Crystal Castle"]["levels"], fallback="Unknown Level"),
+    rich_presence_lookup("Level: Crystal Castle", crystal_castle_obj.get_level(), world_data_map["Crystal Castle"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
@@ -277,7 +286,7 @@ rich_presence_conditional_display(!on_title() && is_in_world("Crystal Castle Bos
 
 // In Memory Forest
 rich_presence_conditional_display(!on_title() && is_in_world("Memory Forest") && memory_forest_obj.is_in_level(), "In Memory Forest • {0} • {1} / 60 Dreamdrops",
-    rich_presence_lookup("Level: Memory Forest", lost_park_obj.get_level(), world_data_map["Memory Forest"]["levels"], fallback="Unknown Level"),
+    rich_presence_lookup("Level: Memory Forest", memory_forest_obj.get_level(), world_data_map["Memory Forest"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
@@ -288,7 +297,12 @@ rich_presence_conditional_display(!on_title() && is_in_world("Memory Forest Boss
 
 // In Bellbridge
 rich_presence_conditional_display(!on_title() && is_in_world("Bellbridge") && bellbridge_obj.is_in_level(), "In Bellbridge • {0} • {1} / 60 Dreamdrops",
-    rich_presence_lookup("Level: Bellbridge", lost_park_obj.get_level(), world_data_map["Bellbridge"]["levels"], fallback="Unknown Level"),
+    rich_presence_lookup("Level: Bellbridge", bellbridge_obj.get_level(), world_data_map["Bellbridge"]["levels"], fallback="Unknown Level"),
+    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+)
+
+// In Bellbridge Boss
+rich_presence_conditional_display(!on_title() && is_in_world("Bellbridge Boss") && bellbridge_boss_obj.is_in_level(), "In Bellbridge • vs. Wizeman • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
