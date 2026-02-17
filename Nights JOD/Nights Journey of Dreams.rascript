@@ -220,8 +220,8 @@ function is_in_world(world_name) {
 }
 
 function on_title() {
-    return ascii_string_equals(0x11b68131, "Title")
-    // return byte(0x104496e0) == 0x01 // TODO: needs better address
+    // return ascii_string_equals(0x11b68131, "Title")
+    return dword_be(0x11b6861c) == 0x01
 }
 
 // RP
@@ -320,11 +320,15 @@ rich_presence_conditional_display(!on_title() && is_in_world("My Dream") && mydr
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
-// On Title Screen TODO:
-// Needs a better check; fallback should probably be dream gate instead
-rich_presence_display("In the Main Menu • {0} / 60 Dreamdrops",
+// Title Screen
+rich_presence_conditional_display(on_title(), "In the Main Menu • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
+// FALLBACK
+// In Dream Gate
+rich_presence_display("In Dream Gate • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+)
 
 // rich_presence_display("Playing Nights: Journey of Dreams")
