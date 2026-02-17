@@ -253,6 +253,62 @@ function on_initial_boot_no_string() {
     return dword_be(0x11b68131) == 0x00
 }
 
+event_flags = {
+    "unlocked_1st_door": byte(0x1044866b)
+}
+
+high_score_data = {
+    "Pure Valley": {
+        0x00: {
+            "score": dword_be(0x10445fec),
+            "rank": dword_be(0x10445ff0)
+        },
+        0x01: {
+            "score": dword_be(0x104460a4),
+            "rank": dword_be(0x104460a8)
+        }
+    }
+}
+
+function get_a_ranks_in_world(world_name) {
+    world_data = high_score_data[world_name]
+
+    return tally_of(world_data, 2, input => high_score_data[world_name][input]["rank"] == 0x00 && high_score_data[world_name][input]["score"] > 0)
+}
+
+// Achievements
+achievement(
+    title = "TestFlightCheevo",
+    points = 1,
+    type = "progression",
+    description = format("Dualize with NiGHTS and complete your first test flight"),
+    trigger = 
+        // TODO: Tested with Will, what about Helen?
+        !in_multiplayer_mode() && dream_gate_obj.dream_gate_only_in_level() && event_flags["unlocked_1st_door"] == 0x01 && prev(event_flags["unlocked_1st_door"] == 0x00)
+)
+
+achievement(
+    title = "PureValleyMission1",
+    points = 1,
+    type = "progression",
+    description = format("Rescue NiGHTS from the NiGHTS Capture in Pure Valley"),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level() &&
+        pure_valley_obj.just_won_level()
+)
+
+achievement(
+    title = "PureValleyMissionAllARank",
+    points = 10,
+    type = "",
+    description = format("Earn an A Rank in every mission in Pure Valley"),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level() &&
+        pure_valley_obj.just_won_level() &&
+        measured(get_a_ranks_in_world("Pure Valley"))
+)
+
+
 // RP
 
 // Title Screen
