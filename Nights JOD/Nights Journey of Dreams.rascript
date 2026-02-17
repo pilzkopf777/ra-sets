@@ -249,9 +249,16 @@ function in_multiplayer_mode() {
     return in_vs_battle_mode() || in_vs_battle_mode()
 }
 
+function on_initial_boot_no_string() {
+    return dword_be(0x11b68131) == 0x00
+}
+
 // RP
 
-// In a level
+// Title Screen
+rich_presence_conditional_display(on_title() || on_initial_boot_no_string(), "In the Main Menu • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+)
 
 // In Dream Gate
 rich_presence_conditional_display(!in_multiplayer_mode() && dream_gate_obj.dream_gate_only_in_level(), "{1} is in Dream Gate • {0} / 60 Dreamdrops",
@@ -363,12 +370,6 @@ rich_presence_conditional_display(!on_title() && in_vs_race_mode(), "In a VS Rac
 
 // In VS Battle
 rich_presence_conditional_display(!on_title() && in_vs_battle_mode(), "In a VS Battle • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
-)
-
-
-// Title Screen
-rich_presence_conditional_display(on_title(), "In the Main Menu • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
