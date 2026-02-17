@@ -21,7 +21,7 @@ class WorldData {
 
     function is_in_level() {
         target_adr = this.start_adr + 0x04 + this.offset * this.order
-        return dword_be(target_adr) == 0x00
+        return dword_be(target_adr) <= 0x03
     }
 
     function just_won_level() {
@@ -38,9 +38,14 @@ class WorldData {
         target_adr = this.start_adr + 0x04 + this.offset * this.order
         return dword_be(target_adr) == 0x04 && prev(this.is_in_level())
     }
+
+    function dream_gate_only_in_level() {
+        target_adr = this.start_adr + 0x04 + this.offset * this.order
+        return dword_be(target_adr) == 0x00
+    }
 }
 
-dream_gate_obj = WorldData(order=1)
+dream_gate_obj = WorldData(order=0)
 
 pure_valley_obj = WorldData(order=2)
 pure_valley_boss_obj = WorldData(order=3)
@@ -228,6 +233,11 @@ function on_title() {
 
 // In a level
 
+// In Dream Gate
+rich_presence_conditional_display(dream_gate_obj.dream_gate_only_in_level(), "In Dream Gate • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+)
+
 // In Pure Valley
 rich_presence_conditional_display(!on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level(), "In Pure Valley • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Pure Valley", pure_valley_obj.get_level(), world_data_map["Pure Valley"]["levels"], fallback="Unknown Level"),
@@ -310,12 +320,8 @@ rich_presence_conditional_display(!on_title() && is_in_world("My Dream") && mydr
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
-// In Dream Gate
-rich_presence_conditional_display(dream_gate_obj.is_in_level(), "In Dream Gate • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
-)
-
-// On Title Screen
+// On Title Screen TODO:
+// Needs a better check; fallback should probably be dream gate instead
 rich_presence_display("In the Main Menu • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
