@@ -224,111 +224,164 @@ function on_title() {
     return dword_be(0x11b6861c) == 0x01
 }
 
-// RP
+function on_staff_roll() {
+    return ascii_string_equals(0x11b68131, "StaffRoll") 
+}
 
-// In hub
-// rich_presence_conditional_display(in_hub(), "In the Dream Gate • {2} / 60 Dreamdrops",
-//     rich_presence_value("Dreamdrops", dword_be(0x10448448))
-// )
+function get_current_character() {
+    return bit0(0x005bce4b)
+}
+
+char_map = {
+    0x00: "Will",
+    0x01: "Helen"
+}
+
+function in_vs_race_mode() {
+    return dword_be(0x005bdba4) != 0x00 || dword_be(0x005bdd54) != 0x00 || dword_be(0x005be414) != 0x00
+}
+
+function in_vs_battle_mode() {
+    return dword_be(0x005bdf04) != 0x00 || dword_be(0x005be0b4) != 0x00 || dword_be(0x005be264) != 0x00
+}
+
+function in_multiplayer_mode() {
+    return in_vs_battle_mode() || in_vs_battle_mode()
+}
+
+// RP
 
 // In a level
 
 // In Dream Gate
-rich_presence_conditional_display(dream_gate_obj.dream_gate_only_in_level(), "In Dream Gate • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+rich_presence_conditional_display(!in_multiplayer_mode() && dream_gate_obj.dream_gate_only_in_level(), "{1} is in Dream Gate • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Pure Valley
-rich_presence_conditional_display(!on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level(), "In Pure Valley • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level(), "{2} is in Pure Valley • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Pure Valley", pure_valley_obj.get_level(), world_data_map["Pure Valley"]["levels"], fallback="Unknown Level"),
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Pure Valley Boss
-rich_presence_conditional_display(!on_title() && is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level(), "In Pure Valley • vs. Donbalon • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level(), "{1} is in Pure Valley • vs. Donbalon • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Lost Park
-rich_presence_conditional_display(!on_title() && is_in_world("Lost Park") && lost_park_obj.is_in_level(), "In Lost Park • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Lost Park") && lost_park_obj.is_in_level(), "{2} is in Lost Park • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Lost Park", lost_park_obj.get_level(), world_data_map["Lost Park"]["levels"], fallback="Unknown Level"),
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Lost Park Boss
-rich_presence_conditional_display(!on_title() && is_in_world("Lost Park Boss") && lost_park_boss_obj.is_in_level(), "In Lost Park • vs. Chamelan • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Lost Park Boss") && lost_park_boss_obj.is_in_level(), "{1} is in Lost Park • vs. Chamelan • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Delight City
-rich_presence_conditional_display(!on_title() && is_in_world("Delight City") && delight_city_obj.is_in_level(), "In Delight City • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Delight City") && delight_city_obj.is_in_level(), "{2} is in Delight City • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Delight City", delight_city_obj.get_level(), world_data_map["Delight City"]["levels"], fallback="Unknown Level"),
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Delight City Boss
-rich_presence_conditional_display(!on_title() && is_in_world("Delight City Boss") && delight_city_boss_obj.is_in_level(), "In Delight City • vs. Cerberus • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Delight City Boss") && delight_city_boss_obj.is_in_level(), "{1} is in Delight City • vs. Cerberus • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Aqua Garden
-rich_presence_conditional_display(!on_title() && is_in_world("Aqua Garden") && aqua_garden_obj.is_in_level(), "In Aqua Garden • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Aqua Garden") && aqua_garden_obj.is_in_level(), "{2} is in Aqua Garden • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Aqua Garden", aqua_garden_obj.get_level(), world_data_map["Aqua Garden"]["levels"], fallback="Unknown Level"),
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Aqua Garden Boss
-rich_presence_conditional_display(!on_title() && is_in_world("Aqua Garden Boss") && aqua_garden_boss_obj.is_in_level(), "In Aqua Garden • vs. Girania • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Aqua Garden Boss") && aqua_garden_boss_obj.is_in_level(), "{1} is in Aqua Garden • vs. Girania • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Crystal Castle
-rich_presence_conditional_display(!on_title() && is_in_world("Crystal Castle") && crystal_castle_obj.is_in_level(), "In Crystal Castle • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Crystal Castle") && crystal_castle_obj.is_in_level(), "{2} is in Crystal Castle • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Crystal Castle", crystal_castle_obj.get_level(), world_data_map["Crystal Castle"]["levels"], fallback="Unknown Level"),
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Crystal Castle Boss
-rich_presence_conditional_display(!on_title() && is_in_world("Crystal Castle Boss") && crystal_castle_boss_obj.is_in_level(), "In Crystal Castle • vs. Bomamba • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Crystal Castle Boss") && crystal_castle_boss_obj.is_in_level(), "{1} is in Crystal Castle • vs. Bomamba • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Memory Forest
-rich_presence_conditional_display(!on_title() && is_in_world("Memory Forest") && memory_forest_obj.is_in_level(), "In Memory Forest • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Memory Forest") && memory_forest_obj.is_in_level(), "{2} is in Memory Forest • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Memory Forest", memory_forest_obj.get_level(), world_data_map["Memory Forest"]["levels"], fallback="Unknown Level"),
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Memory Forest Boss
-rich_presence_conditional_display(!on_title() && is_in_world("Memory Forest Boss") && memory_forest_boss_obj.is_in_level(), "In Memory Forest • vs. Queen Bella • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Memory Forest Boss") && memory_forest_boss_obj.is_in_level(), "{1} is in Memory Forest • vs. Queen Bella • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Bellbridge
-rich_presence_conditional_display(!on_title() && is_in_world("Bellbridge") && bellbridge_obj.is_in_level(), "In Bellbridge • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Bellbridge") && bellbridge_obj.is_in_level(), "{2} is in Bellbridge • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Bellbridge", bellbridge_obj.get_level(), world_data_map["Bellbridge"]["levels"], fallback="Unknown Level"),
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Bellbridge Boss
-rich_presence_conditional_display(!on_title() && is_in_world("Bellbridge Boss") && bellbridge_boss_obj.is_in_level(), "In Bellbridge • vs. Wizeman • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Bellbridge Boss") && bellbridge_boss_obj.is_in_level(), "{1} is in Bellbridge • vs. Wizeman • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In My Dream
-rich_presence_conditional_display(!on_title() && is_in_world("My Dream") && mydream_obj.is_in_level(), "In My Dream • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("My Dream") && mydream_obj.is_in_level(), "{1} is in My Dream • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
+)
+
+// In VS Race
+rich_presence_conditional_display(!on_title() && in_vs_race_mode(), "In a VS Race • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
+
+// In VS Battle
+rich_presence_conditional_display(!on_title() && in_vs_battle_mode(), "In a VS Battle • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+)
+
 
 // Title Screen
 rich_presence_conditional_display(on_title(), "In the Main Menu • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
+// Credits
+rich_presence_conditional_display(on_staff_roll(), "In the Credits • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+)
+
 // FALLBACK
 // In Dream Gate
-rich_presence_display("In Dream Gate • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
+rich_presence_display("{1} is in Dream Gate • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // rich_presence_display("Playing Nights: Journey of Dreams")
