@@ -266,6 +266,14 @@ function on_initial_boot_no_string() {
     return dword_be(0x11b68131) == 0x00
 }
 
+function chase_final_score_is_set() {
+    return dword_be(0x12d6d6a8) > 0
+}
+
+function new_record_txt_appeared() {
+    return byte(0x104496f5) == 0x01 && prev(byte(0x104496f5) == 0x00)
+}
+
 event_flags = {
     "Will": {
         "unlocked_1st_door": byte(0x1044866b)
@@ -308,21 +316,24 @@ high_score_data = {
 }
 
 // Achievements
-// TODO: needs location check, pops upon loading in..
 achievement(
     title = "TestFlightCheevo",
     points = 1,
     type = "progression",
     description = format("Dualize with NiGHTS and complete your first test flight"),
     trigger = 
-        !in_multiplayer_mode() && dream_gate_obj.dream_gate_only_in_level() &&
+        !in_multiplayer_mode() &&
+        never(!dream_gate_obj.dream_gate_only_in_level()) &&
+        // Player must have been in the level for a bit, prevent false trigger via loading state
+        repeated(500, dream_gate_obj.dream_gate_only_in_level()) &&
         (
-            is_will() &&
-            event_flags["Will"]["unlocked_1st_door"] == 0x01 && prev(event_flags["Will"]["unlocked_1st_door"] == 0x00)
-        ) ||
-        (
-            is_helen() &&
-            event_flags["Helen"]["unlocked_1st_door"] == 0x01 && prev(event_flags["Helen"]["unlocked_1st_door"] == 0x00)
+            (
+                is_will() &&
+                event_flags["Will"]["unlocked_1st_door"] == 0x01 && prev(event_flags["Will"]["unlocked_1st_door"] == 0x00)
+            ) || (
+                is_helen() &&
+                event_flags["Helen"]["unlocked_1st_door"] == 0x01 && prev(event_flags["Helen"]["unlocked_1st_door"] == 0x00)
+            )
         )
         
 )
@@ -333,7 +344,10 @@ achievement(
     type = "progression",
     description = format("Complete the Chase Mission in Pure Valley"),
     trigger = 
-        !in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level() &&
+        // This pops when the boss dies and the score updates
+        !in_multiplayer_mode() && !on_title() &&
+        is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level() && pure_valley_boss_obj.get_level() == 0x00 &&
+        chase_final_score_is_set() &&
         pure_valley_obj.just_won_level()
 )
 
@@ -343,7 +357,16 @@ achievement(
     type = "",
     description = format("Earn an A Rank in every mission in Pure Valley"),
     trigger = 
-        !in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level() &&
+        // This pops when the boss dies and the score updates
+        (
+            (
+                is_in_world("Pure Valley") && pure_valley_obj.is_in_level()
+            ) ||
+            (
+                is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level()   
+            )            
+        ) &&
+        !in_multiplayer_mode() && !on_title() && 
         pure_valley_obj.just_won_level() &&
         never(on_title()) &&
         measured(tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0)))
