@@ -24,6 +24,11 @@ class WorldData {
         return dword_be(target_adr) <= 0x03
     }
 
+    function in_victory_animation() {
+        target_adr = this.start_adr + 0x04 + this.offset * this.order
+        return dword_be(target_adr) == 0x02
+    }
+
     function just_won_level() {
         target_adr = this.start_adr + 0x04 + this.offset * this.order
         return dword_be(target_adr) == 0x02 && prev(this.is_in_level())
@@ -232,6 +237,14 @@ function get_current_character() {
     return bit0(0x005bce4b)
 }
 
+function is_will() {
+    return get_current_character() == 0x00
+}
+
+function is_helen() {
+    return get_current_character() == 0x01
+}
+
 char_map = {
     0x00: "Will",
     0x01: "Helen"
@@ -254,44 +267,71 @@ function on_initial_boot_no_string() {
 }
 
 event_flags = {
-    "unlocked_1st_door": byte(0x1044866b)
+    "Will": {
+        "unlocked_1st_door": byte(0x1044866b)
+    },
+    "Helen": {
+        "unlocked_1st_door": byte(0x10448616)
+    }
 }
 
 high_score_data = {
     "Pure Valley": {
+        // Regular Missions
         0x00: {
             "score": dword_be(0x10445fec),
-            "rank": dword_be(0x10445ff0)
+            "rank": dword_be(0x10445ff0),
+            "is_a": dword_be(0x10445ff0) == 0x00,
         },
         0x01: {
             "score": dword_be(0x104460a4),
-            "rank": dword_be(0x104460a8)
+            "rank": dword_be(0x104460a8),
+            "is_a": dword_be(0x104460a8) == 0x00,
+        },
+        0x02: {
+            "score": dword_be(0x1044615c),
+            "rank": dword_be(0x10446160),
+            "is_a": dword_be(0x10446160) == 0x00,
+        },
+        0x03: {
+            "score": dword_be(0x10446214),
+            "rank": dword_be(0x10446218),
+            "is_a": dword_be(0x10446218) == 0x00,
+        },
+        // Boss
+        0x10: {
+            "score": dword_be(0x104462cc),
+            "rank": dword_be(0x104462d0),
+            "is_a": dword_be(0x104462d0) == 0x00,
         }
     }
 }
 
-function get_a_ranks_in_world(world_name) {
-    world_data = high_score_data[world_name]
-
-    return tally_of(world_data, 2, input => high_score_data[world_name][input]["rank"] == 0x00 && high_score_data[world_name][input]["score"] > 0)
-}
-
 // Achievements
+// TODO: needs location check, pops upon loading in..
 achievement(
     title = "TestFlightCheevo",
     points = 1,
     type = "progression",
     description = format("Dualize with NiGHTS and complete your first test flight"),
     trigger = 
-        // TODO: Tested with Will, what about Helen?
-        !in_multiplayer_mode() && dream_gate_obj.dream_gate_only_in_level() && event_flags["unlocked_1st_door"] == 0x01 && prev(event_flags["unlocked_1st_door"] == 0x00)
+        !in_multiplayer_mode() && dream_gate_obj.dream_gate_only_in_level() &&
+        (
+            is_will() &&
+            event_flags["Will"]["unlocked_1st_door"] == 0x01 && prev(event_flags["Will"]["unlocked_1st_door"] == 0x00)
+        ) ||
+        (
+            is_helen() &&
+            event_flags["Helen"]["unlocked_1st_door"] == 0x01 && prev(event_flags["Helen"]["unlocked_1st_door"] == 0x00)
+        )
+        
 )
 
 achievement(
     title = "PureValleyMission1",
     points = 1,
     type = "progression",
-    description = format("Rescue NiGHTS from the NiGHTS Capture in Pure Valley"),
+    description = format("Complete the Chase Mission in Pure Valley"),
     trigger = 
         !in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level() &&
         pure_valley_obj.just_won_level()
@@ -305,19 +345,21 @@ achievement(
     trigger = 
         !in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level() &&
         pure_valley_obj.just_won_level() &&
-        measured(get_a_ranks_in_world("Pure Valley"))
+        never(on_title()) &&
+        measured(tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0)))
+        // tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0))
+        
+        // measured(get_a_ranks_in_world("Pure Valley") == 0x05) && prev(get_a_ranks_in_world("Pure Valley") < 0x05)
 )
 
 
 // RP
 
 // Title Screen
-rich_presence_conditional_display(on_title() || on_initial_boot_no_string(), "In the Main Menu • {0} / 60 Dreamdrops",
-    rich_presence_value("Dreamdrops", dword_be(0x10448448))
-)
+rich_presence_conditional_display(on_title() || on_initial_boot_no_string(), "In the Main Menu")
 
 // In Dream Gate
-rich_presence_conditional_display(!in_multiplayer_mode() && dream_gate_obj.dream_gate_only_in_level(), "{1} is in Dream Gate • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && dream_gate_obj.dream_gate_only_in_level(), "{1} is in the Dream Gate • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
@@ -436,7 +478,7 @@ rich_presence_conditional_display(on_staff_roll(), "In the Credits • {0} / 60 
 
 // FALLBACK
 // In Dream Gate
-rich_presence_display("{1} is in Dream Gate • {0} / 60 Dreamdrops",
+rich_presence_display("{1} is in the Dream Gate • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
