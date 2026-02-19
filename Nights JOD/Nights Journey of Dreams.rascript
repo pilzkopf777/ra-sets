@@ -335,12 +335,37 @@ achievement(
                 event_flags["Helen"]["unlocked_1st_door"] == 0x01 && prev(event_flags["Helen"]["unlocked_1st_door"] == 0x00)
             )
         )
-        
 )
+
+/*
+achievement(
+    title = "PureVallyeySingleLapChase",
+    points = 10,
+    type = "",
+    description = format("Get key in first round every time"),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() &&
+        is_in_world("Pure Valley") && pure_valley_obj.is_in_level() && pure_valley_obj.get_level() == 0x00 &&
+
+)
+*/
+
+chain_target = 300
+
+achievement(
+    title = "HighLink",
+    points = 5,
+    type = "",
+    description = format("Reach a Link chain of {0}", chain_target),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() &&
+        dword_be(0x10448330) >= chain_target && prev(dword_be(0x10448330)) < chain_target
+)
+
 
 achievement(
     title = "PureValleyMission1",
-    points = 1,
+    points = 3,
     type = "progression",
     description = format("Complete the Chase Mission in Pure Valley"),
     trigger = 
@@ -348,7 +373,53 @@ achievement(
         !in_multiplayer_mode() && !on_title() &&
         is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level() && pure_valley_boss_obj.get_level() == 0x00 &&
         chase_final_score_is_set() &&
+        // pure_valley_boss_obj or pure_valley_obj ?
+        pure_valley_boss_obj.just_won_level()
+)
+
+achievement(
+    title = "PureValleyMission2",
+    points = 3,
+    type = "progression",
+    description = format("Complete the Link Mission in Pure Valley"),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() &&
+        is_in_world("Pure Valley") && pure_valley_obj.is_in_level() && pure_valley_obj.get_level() == 0x01 &&
         pure_valley_obj.just_won_level()
+)
+
+achievement(
+    title = "PureValleyMission3",
+    points = 3,
+    type = "progression",
+    description = format("Complete Fluffy Catch in Pure Valley"),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() &&
+        is_in_world("Pure Valley") && pure_valley_obj.is_in_level() && pure_valley_obj.get_level() == 0x02 &&
+        pure_valley_obj.just_won_level()
+)
+
+achievement(
+    title = "PureValleyMission4",
+    points = 3,
+    type = "progression",
+    description = format("Complete River Rescue in Pure Valley"),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() &&
+        is_in_world("Pure Valley") && pure_valley_obj.is_in_level() && pure_valley_obj.get_level() == 0x03 &&
+        pure_valley_obj.just_won_level()
+)
+
+achievement(
+    title = "PureValleyMissionBoss",
+    points = 5,
+    type = "progression",
+    description = format("Defeat Donbalon once and for all in Pure Valley"),
+    trigger = 
+        // This pops when the boss dies and the score updates
+        !in_multiplayer_mode() && !on_title() &&
+        is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level() && pure_valley_boss_obj.get_level() == 0x01 &&
+        pure_valley_boss_obj.just_won_level()
 )
 
 achievement(
