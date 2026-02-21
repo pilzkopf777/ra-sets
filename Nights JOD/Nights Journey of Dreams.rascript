@@ -270,6 +270,18 @@ function chase_final_score_is_set() {
     return dword_be(0x12d6d6a8) > 0
 }
 
+function chase_get_final_score() {
+    return dword_be(0x12d6d6a8)
+}
+
+function alt_get_final_score() {
+    return dword_be(0x10448334)
+}
+
+function get_time_limit() {
+    return float_be(0x10448390)
+}
+
 function new_record_txt_appeared() {
     return byte(0x104496f5) == 0x01 && prev(byte(0x104496f5) == 0x00)
 }
@@ -337,19 +349,6 @@ achievement(
         )
 )
 
-/*
-achievement(
-    title = "PureVallyeySingleLapChase",
-    points = 10,
-    type = "",
-    description = format("Get key in first round every time"),
-    trigger = 
-        !in_multiplayer_mode() && !on_title() &&
-        is_in_world("Pure Valley") && pure_valley_obj.is_in_level() && pure_valley_obj.get_level() == 0x00 &&
-
-)
-*/
-
 chain_target = 300
 
 achievement(
@@ -362,65 +361,130 @@ achievement(
         dword_be(0x10448330) >= chain_target && prev(dword_be(0x10448330)) < chain_target
 )
 
+function chase_level_clear_generator(world, mission, world_is_in_world_string, target_obj, level_id) {
+    achievement(
+        title = format("{0} - {1} - Clear", world, mission),
+        points = 3,
+        type = "progression",
+        description = format("Complete {0} in {1}", mission, world),
+        trigger = 
+            // This pops when the boss dies and the score updates
+            !in_multiplayer_mode() && !on_title() &&
+            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            chase_final_score_is_set() &&
+            target_obj.just_won_level()
+    )
 
-achievement(
-    title = "PureValleyMission1",
-    points = 3,
-    type = "progression",
-    description = format("Complete the Chase Mission in Pure Valley"),
-    trigger = 
-        // This pops when the boss dies and the score updates
-        !in_multiplayer_mode() && !on_title() &&
-        is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level() && pure_valley_boss_obj.get_level() == 0x00 &&
-        chase_final_score_is_set() &&
-        // pure_valley_boss_obj or pure_valley_obj ?
-        pure_valley_boss_obj.just_won_level()
-)
+    leaderboard(
+        title = format("{0} - {1} - Clear", world, mission),
+        description = format("Complete {0} in {1}", mission, world),
+        start = 
+        (
+            // This pops when the boss dies and the score updates
+            !in_multiplayer_mode() && !on_title() &&
+            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            chase_final_score_is_set() &&
+            target_obj.just_won_level()
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            chase_get_final_score()
+        ),
+        format = "VALUE", lower_is_better = false
+    )
+}
 
-achievement(
-    title = "PureValleyMission2",
-    points = 3,
-    type = "progression",
-    description = format("Complete the Link Mission in Pure Valley"),
-    trigger = 
-        !in_multiplayer_mode() && !on_title() &&
-        is_in_world("Pure Valley") && pure_valley_obj.is_in_level() && pure_valley_obj.get_level() == 0x01 &&
-        pure_valley_obj.just_won_level()
-)
+function alt_level_clear_generator(world, mission, world_is_in_world_string, target_obj, level_id) {
+    achievement(
+        title = format("{0} - {1} - Clear", world, mission),
+        points = 3,
+        type = "progression",
+        description = format("Complete {0} in {1}", mission, world),
+        trigger = 
+            // This pops when the boss dies and the score updates
+            !in_multiplayer_mode() && !on_title() &&
+            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            target_obj.just_won_level()
+    )
 
-achievement(
-    title = "PureValleyMission3",
-    points = 3,
-    type = "progression",
-    description = format("Complete Fluffy Catch in Pure Valley"),
-    trigger = 
-        !in_multiplayer_mode() && !on_title() &&
-        is_in_world("Pure Valley") && pure_valley_obj.is_in_level() && pure_valley_obj.get_level() == 0x02 &&
-        pure_valley_obj.just_won_level()
-)
+    leaderboard(
+        title = format("{0} - {1} - Clear", world, mission),
+        description = format("Complete {0} in {1}", mission, world),
+        start = 
+        (
+            // This pops when the boss dies and the score updates
+            !in_multiplayer_mode() && !on_title() &&
+            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            target_obj.just_won_level()
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            alt_get_final_score()
+        ),
+        format = "VALUE", lower_is_better = false
+    )
+}
 
-achievement(
-    title = "PureValleyMission4",
-    points = 3,
-    type = "progression",
-    description = format("Complete River Rescue in Pure Valley"),
-    trigger = 
-        !in_multiplayer_mode() && !on_title() &&
-        is_in_world("Pure Valley") && pure_valley_obj.is_in_level() && pure_valley_obj.get_level() == 0x03 &&
-        pure_valley_obj.just_won_level()
-)
+function link_alt_level_clear_generator(world, mission, world_is_in_world_string, target_obj, level_id) {
+    achievement(
+        title = format("{0} - {1} - Clear", world, mission),
+        points = 3,
+        type = "progression",
+        description = format("Complete {0} in {1}", mission, world),
+        trigger = 
+            // This pops when the boss dies and the score updates
+            !in_multiplayer_mode() && !on_title() &&
+            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            target_obj.just_won_level()
+    )
+    
+    // In a horrible, cruel twist RATools is NOT able to generate the logic for this LB correctly. Oh well.    
+}
 
-achievement(
-    title = "PureValleyMissionBoss",
-    points = 5,
-    type = "progression",
-    description = format("Defeat Donbalon once and for all in Pure Valley"),
-    trigger = 
-        // This pops when the boss dies and the score updates
-        !in_multiplayer_mode() && !on_title() &&
-        is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level() && pure_valley_boss_obj.get_level() == 0x01 &&
-        pure_valley_boss_obj.just_won_level()
-)
+
+function boss_level_clear_generator(world, boss_name, world_is_in_world_string, target_obj, level_id) {
+    achievement(
+        title = format("{0} - {1} - Clear", world, boss_name),
+        points = 3,
+        type = "progression",
+        description = format("Defeat {0} once and for all in {1}", boss_name, world),
+        trigger = 
+            // This pops when the boss dies and the score updates
+            !in_multiplayer_mode() && !on_title() &&
+            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            target_obj.just_won_level()
+    )
+
+    leaderboard(
+        title = format("{0} - {1} - Clear", world, boss_name),
+        description = format("Defeat {0} once and for all in {1}", boss_name, world),
+        start = 
+        (
+            // This pops when the boss dies and the score updates
+            !in_multiplayer_mode() && !on_title() &&
+            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            target_obj.just_won_level()
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            get_time_limit()
+        ),
+        format = "VALUE", lower_is_better = false
+    )
+}
+
+chase_level_clear_generator("Pure Valley", "the Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
+link_alt_level_clear_generator("Pure Valley", "the Link Challenge", "Pure Valley", pure_valley_obj, 0x01)
+alt_level_clear_generator("Pure Valley", "Fluffy Catch", "Pure Valley", pure_valley_obj, 0x02)
+alt_level_clear_generator("Pure Valley", "River Rescue", "Pure Valley", pure_valley_obj, 0x03)
+boss_level_clear_generator("Pure Valley", "Donbalon", "Pure Valley Boss", pure_valley_boss_obj, 0x01)
+
 
 achievement(
     title = "PureValleyMissionAllARank",
