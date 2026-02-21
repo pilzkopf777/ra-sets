@@ -479,11 +479,53 @@ function boss_level_clear_generator(world, boss_name, world_is_in_world_string, 
     )
 }
 
-chase_level_clear_generator("Pure Valley", "the Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
-link_alt_level_clear_generator("Pure Valley", "the Link Challenge", "Pure Valley", pure_valley_obj, 0x01)
-alt_level_clear_generator("Pure Valley", "Fluffy Catch", "Pure Valley", pure_valley_obj, 0x02)
-alt_level_clear_generator("Pure Valley", "River Rescue", "Pure Valley", pure_valley_obj, 0x03)
-boss_level_clear_generator("Pure Valley", "Donbalon", "Pure Valley Boss", pure_valley_boss_obj, 0x01)
+world = "Pure Valley"
+
+chase_level_clear_generator(world, "the Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
+link_alt_level_clear_generator(world, "the Link Challenge", world, pure_valley_obj, 0x01)
+alt_level_clear_generator(world, "Fluffy Catch", world, pure_valley_obj, 0x02)
+alt_level_clear_generator(world, "River Rescue", world, pure_valley_obj, 0x03)
+boss_level_clear_generator(world, "Donbalon", "Pure Valley Boss", pure_valley_boss_obj, 0x01)
+
+world = "Lost Park"
+
+chase_level_clear_generator(world, "the Chase Mission", "Lost Park Boss", lost_park_boss_obj, 0x00)
+alt_level_clear_generator(world, "Bomb Panic", world, lost_park_obj, 0x01)
+link_alt_level_clear_generator(world, "the Link Challenge", world, lost_park_obj, 0x02)
+alt_level_clear_generator(world, "Coaster Rescue", world, lost_park_obj, 0x03)
+boss_level_clear_generator(world, "Chamelan", "Lost Park Boss", lost_park_boss_obj, 0x01)
+
+world = "Delight City"
+
+chase_level_clear_generator(world, "the Chase Mission", "Delight City Boss", delight_city_boss_obj, 0x00)
+alt_level_clear_generator(world, "Neon City Battle", world, delight_city_obj, 0x01)
+link_alt_level_clear_generator(world, "the Link Challenge", world, delight_city_obj, 0x02)
+alt_level_clear_generator(world, "Broadway Guide", world, delight_city_obj, 0x03)
+boss_level_clear_generator(world, "Cerberus", "Delight City Boss", delight_city_boss_obj, 0x01)
+
+world = "Aqua Garden"
+
+chase_level_clear_generator(world, "the Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
+alt_level_clear_generator(world, "Aqua Challenge", world, aqua_garden_obj, 0x01)
+link_alt_level_clear_generator(world, "the Link Challenge", world, aqua_garden_obj, 0x02)
+alt_level_clear_generator(world, "Marine Escape", world, aqua_garden_obj, 0x03)
+boss_level_clear_generator(world, "Girania", "Aqua Garden Boss", aqua_garden_boss_obj, 0x01)
+
+world = "Crystal Castle"
+
+chase_level_clear_generator(world, "the Chase Mission", "Crystal Castle Boss", crystal_castle_boss_obj, 0x00)
+link_alt_level_clear_generator(world, "the Link Challenge", world, crystal_castle_obj, 0x01)
+alt_level_clear_generator(world, "Labyrinth Guide", world, crystal_castle_obj, 0x02)
+alt_level_clear_generator(world, "Jewel Fever", world, crystal_castle_obj, 0x03)
+boss_level_clear_generator(world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
+
+world = "Memory Forest"
+
+chase_level_clear_generator(world, "the Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
+alt_level_clear_generator(world, "Forest Adventure", world, memory_forest_obj, 0x01)
+link_alt_level_clear_generator(world, "the Link Challenge", world, memory_forest_obj, 0x02)
+alt_level_clear_generator(world, "Sky Concert", world, memory_forest_obj, 0x03)
+boss_level_clear_generator(world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
 
 
 achievement(
