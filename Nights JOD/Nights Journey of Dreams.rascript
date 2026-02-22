@@ -21,6 +21,11 @@ class WorldData {
 
     function is_in_level() {
         target_adr = this.start_adr + 0x04 + this.offset * this.order
+        return dword_be(target_adr) == 0x00
+    }
+
+    function is_playing_level() {
+        target_adr = this.start_adr + 0x04 + this.offset * this.order
         return dword_be(target_adr) <= 0x03
     }
 
@@ -274,8 +279,18 @@ function chase_get_final_score() {
     return dword_be(0x12d6d6a8)
 }
 
+function get_mission_target_value() {
+    return dword_be(0x1044b370)
+}
+
 function alt_get_final_score() {
-    return dword_be(0x10448334)
+    time = get_time_limit() // need to round down..
+    target = get_mission_target_value()
+    bonus_prev = (time + target) * 100
+    bonus = bonus_prev - (bonus_prev % 100)
+    result = bonus + dword_be(0x10448334)
+    
+    return result
 }
 
 function get_time_limit() {
@@ -479,7 +494,8 @@ achievement(
     type = "progression",
     description = format("Dualize with NiGHTS and complete your first test flight"),
     trigger = 
-        !in_multiplayer_mode() && !on_title() &&
+        !in_multiplayer_mode() &&
+        never(on_title()) &&
         never(!dream_gate_obj.dream_gate_only_in_level()) &&
         // Player must have been in the level for a bit, prevent false trigger via loading state
         repeated(500, dream_gate_obj.dream_gate_only_in_level()) &&
@@ -515,7 +531,12 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
         trigger = 
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
-            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            // Must be playing the level (in-game) for at least a frame
+            once(target_obj.is_playing_level()) &&
+            // Reset that CP when not in correct world or level
+            never(!is_in_world(world_is_in_world_string)) &&
+            never(target_obj.get_level() != level_id) &&
+            // Unlock when
             chase_final_score_is_set() &&
             target_obj.just_won_level()
     )
@@ -527,7 +548,12 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
         (
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
-            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            // Must be playing the level (in-game) for at least a frame
+            once(target_obj.is_playing_level()) &&
+            // Reset that CP when not in correct world or level
+            never(!is_in_world(world_is_in_world_string)) &&
+            never(target_obj.get_level() != level_id) &&
+            // Unlock when
             chase_final_score_is_set() &&
             target_obj.just_won_level()
         ),
@@ -550,7 +576,12 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
         trigger = 
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
-            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            // Must be playing the level (in-game) for at least a frame
+            once(target_obj.is_playing_level()) &&
+            // Reset that CP when not in correct world or level
+            never(!is_in_world(world_is_in_world_string)) &&
+            never(target_obj.get_level() != level_id) &&
+            // Unlock when
             target_obj.just_won_level()
     )
 
@@ -561,7 +592,12 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
         (
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
-            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            // Must be playing the level (in-game) for at least a frame
+            once(target_obj.is_playing_level()) &&
+            // Reset that CP when not in correct world or level
+            never(!is_in_world(world_is_in_world_string)) &&
+            never(target_obj.get_level() != level_id) &&
+            // Unlock when
             target_obj.just_won_level()
         ),
         cancel = always_false(),
@@ -583,7 +619,12 @@ function link_alt_level_clear_generator(cheevo_title, world, mission, world_is_i
         trigger = 
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
-            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            // Must be playing the level (in-game) for at least a frame
+            once(target_obj.is_playing_level()) &&
+            // Reset that CP when not in correct world or level
+            never(!is_in_world(world_is_in_world_string)) &&
+            never(target_obj.get_level() != level_id) &&
+            // Unlock when
             target_obj.just_won_level()
     )
     
@@ -600,7 +641,12 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
         trigger = 
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
-            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            // Must be playing the level (in-game) for at least a frame
+            once(target_obj.is_playing_level()) &&
+            // Reset that CP when not in correct world or level
+            never(!is_in_world(world_is_in_world_string)) &&
+            never(target_obj.get_level() != level_id) &&
+            // Unlock when
             target_obj.just_won_level()
     )
 
@@ -611,7 +657,12 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
         (
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
-            is_in_world(world_is_in_world_string) && target_obj.is_in_level() && target_obj.get_level() == level_id &&
+            // Must be playing the level (in-game) for at least a frame
+            once(target_obj.is_playing_level()) &&
+            // Reset that CP when not in correct world or level
+            never(!is_in_world(world_is_in_world_string)) &&
+            never(target_obj.get_level() != level_id) &&
+            // Unlock when
             target_obj.just_won_level()
         ),
         cancel = always_false(),
