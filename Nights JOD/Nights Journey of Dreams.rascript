@@ -324,6 +324,151 @@ high_score_data = {
             "rank": dword_be(0x104462d0),
             "is_a": dword_be(0x104462d0) == 0x00,
         }
+    },
+    "Lost Park": {
+        // Regular Missions
+        0x00: {
+            "score": dword_be(0x10446414),
+            "rank": dword_be(0x10446418),
+            "is_a": dword_be(0x10446418) == 0x00,
+        },
+        0x01: {
+            "score": dword_be(0x104464cc),
+            "rank": dword_be(0x104464d0),
+            "is_a": dword_be(0x104464d0) == 0x00,
+        },
+        0x02: {
+            "score": dword_be(0x10446584),
+            "rank": dword_be(0x10446588),
+            "is_a": dword_be(0x10446588) == 0x00,
+        },
+        0x03: {
+            "score": dword_be(0x1044663c),
+            "rank": dword_be(0x10446640),
+            "is_a": dword_be(0x10446640) == 0x00,
+        },
+        // Boss
+        0x10: {
+            "score": dword_be(0x104466f4),
+            "rank": dword_be(0x104466f8),
+            "is_a": dword_be(0x104466f8) == 0x00,
+        }
+    },
+    "Delight City": {
+        // Regular Missions
+        0x00: {
+            "score": dword_be(0x1044683c),
+            "rank": dword_be(0x10446840),
+            "is_a": dword_be(0x10446840) == 0x00,
+        },
+        0x01: {
+            "score": dword_be(0x104468f4),
+            "rank": dword_be(0x104468f8),
+            "is_a": dword_be(0x104468f8) == 0x00,
+        },
+        0x02: {
+            "score": dword_be(0x104469ac),
+            "rank": dword_be(0x104469b0),
+            "is_a": dword_be(0x104469b0) == 0x00,
+        },
+        0x03: {
+            "score": dword_be(0x10446a64),
+            "rank": dword_be(0x10446a68),
+            "is_a": dword_be(0x10446a68) == 0x00,
+        },
+        // Boss
+        0x10: {
+            "score": dword_be(0x10446b1c),
+            "rank": dword_be(0x10446b20),
+            "is_a": dword_be(0x10446b20) == 0x00,
+        }
+    },
+    "Aqua Garden": {
+        // Regular Missions
+        0x00: {
+            "score": dword_be(0x10446c64),
+            "rank": dword_be(0x10446c68),
+            "is_a": dword_be(0x10446c68) == 0x00,
+        },
+        0x01: {
+            "score": dword_be(0x10446d1c),
+            "rank": dword_be(0x10446d20),
+            "is_a": dword_be(0x10446d20) == 0x00,
+        },
+        0x02: {
+            "score": dword_be(0x10446dd4),
+            "rank": dword_be(0x10446dd8),
+            "is_a": dword_be(0x10446dd8) == 0x00,
+        },
+        0x03: {
+            "score": dword_be(0x10446e8c),
+            "rank": dword_be(0x10446e90),
+            "is_a": dword_be(0x10446e90) == 0x00,
+        },
+        // Boss
+        0x10: {
+            "score": dword_be(0x10446f44),
+            "rank": dword_be(0x10446f48),
+            "is_a": dword_be(0x10446f48) == 0x00,
+        }
+    },
+    "Crystal Castle": {
+        // Regular Missions
+        0x00: {
+            "score": dword_be(0x1044708c),
+            "rank": dword_be(0x10447090),
+            "is_a": dword_be(0x10447090) == 0x00,
+        },
+        0x01: {
+            "score": dword_be(0x10447144),
+            "rank": dword_be(0x10447148),
+            "is_a": dword_be(0x10447148) == 0x00,
+        },
+        0x02: {
+            "score": dword_be(0x104471fc),
+            "rank": dword_be(0x10447200),
+            "is_a": dword_be(0x10447200) == 0x00,
+        },
+        0x03: {
+            "score": dword_be(0x104472b4),
+            "rank": dword_be(0x104472b8),
+            "is_a": dword_be(0x104472b8) == 0x00,
+        },
+        // Boss
+        0x10: {
+            "score": dword_be(0x1044736c),
+            "rank": dword_be(0x10447370),
+            "is_a": dword_be(0x10447370) == 0x00,
+        }
+    },
+    "Memory Forest": {
+        // Regular Missions
+        0x00: {
+            "score": dword_be(0x104474b4),
+            "rank": dword_be(0x104474b8),
+            "is_a": dword_be(0x104474b8) == 0x00,
+        },
+        0x01: {
+            "score": dword_be(0x1044756c),
+            "rank": dword_be(0x10447570),
+            "is_a": dword_be(0x10447570) == 0x00,
+        },
+        0x02: {
+            "score": dword_be(0x10447624),
+            "rank": dword_be(0x10447628),
+            "is_a": dword_be(0x10447628) == 0x00,
+        },
+        0x03: {
+            "score": dword_be(0x104476dc),
+            "rank": dword_be(0x104476e0),
+            "is_a": dword_be(0x104476e0) == 0x00,
+        },
+        // Boss
+        0x10: {
+            "score": dword_be(0x10447794),
+            "rank": dword_be(0x10447798),
+            "is_a": dword_be(0x10447798) == 0x00,
+        }
     }
 }
 
@@ -334,7 +479,7 @@ achievement(
     type = "progression",
     description = format("Dualize with NiGHTS and complete your first test flight"),
     trigger = 
-        !in_multiplayer_mode() &&
+        !in_multiplayer_mode() && !on_title() &&
         never(!dream_gate_obj.dream_gate_only_in_level()) &&
         // Player must have been in the level for a bit, prevent false trigger via loading state
         repeated(500, dream_gate_obj.dream_gate_only_in_level()) &&
@@ -361,9 +506,9 @@ achievement(
         dword_be(0x10448330) >= chain_target && prev(dword_be(0x10448330)) < chain_target
 )
 
-function chase_level_clear_generator(world, mission, world_is_in_world_string, target_obj, level_id) {
+function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id) {
     achievement(
-        title = format("{0} - {1} - Clear", world, mission),
+        title = cheevo_title,
         points = 3,
         type = "progression",
         description = format("Complete {0} in {1}", mission, world),
@@ -396,9 +541,9 @@ function chase_level_clear_generator(world, mission, world_is_in_world_string, t
     )
 }
 
-function alt_level_clear_generator(world, mission, world_is_in_world_string, target_obj, level_id) {
+function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id) {
     achievement(
-        title = format("{0} - {1} - Clear", world, mission),
+        title = cheevo_title,
         points = 3,
         type = "progression",
         description = format("Complete {0} in {1}", mission, world),
@@ -429,9 +574,9 @@ function alt_level_clear_generator(world, mission, world_is_in_world_string, tar
     )
 }
 
-function link_alt_level_clear_generator(world, mission, world_is_in_world_string, target_obj, level_id) {
+function link_alt_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id) {
     achievement(
-        title = format("{0} - {1} - Clear", world, mission),
+        title = cheevo_title,
         points = 3,
         type = "progression",
         description = format("Complete {0} in {1}", mission, world),
@@ -446,9 +591,9 @@ function link_alt_level_clear_generator(world, mission, world_is_in_world_string
 }
 
 
-function boss_level_clear_generator(world, boss_name, world_is_in_world_string, target_obj, level_id) {
+function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_world_string, target_obj, level_id) {
     achievement(
-        title = format("{0} - {1} - Clear", world, boss_name),
+        title = cheevo_title,
         points = 3,
         type = "progression",
         description = format("Defeat {0} once and for all in {1}", boss_name, world),
@@ -481,76 +626,120 @@ function boss_level_clear_generator(world, boss_name, world_is_in_world_string, 
 
 world = "Pure Valley"
 
-chase_level_clear_generator(world, "the Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
-link_alt_level_clear_generator(world, "the Link Challenge", world, pure_valley_obj, 0x01)
-alt_level_clear_generator(world, "Fluffy Catch", world, pure_valley_obj, 0x02)
-alt_level_clear_generator(world, "River Rescue", world, pure_valley_obj, 0x03)
-boss_level_clear_generator(world, "Donbalon", "Pure Valley Boss", pure_valley_boss_obj, 0x01)
+chase_level_clear_generator("PV1", world, "the Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
+link_alt_level_clear_generator("PV2", world, "the Link Challenge", world, pure_valley_obj, 0x01)
+alt_level_clear_generator("PV3", world, "Fluffy Catch", world, pure_valley_obj, 0x02)
+alt_level_clear_generator("PV4", world, "River Rescue", world, pure_valley_obj, 0x03)
+boss_level_clear_generator("PV5", world, "Donbalon", "Pure Valley Boss", pure_valley_boss_obj, 0x01)
 
 world = "Lost Park"
 
-chase_level_clear_generator(world, "the Chase Mission", "Lost Park Boss", lost_park_boss_obj, 0x00)
-alt_level_clear_generator(world, "Bomb Panic", world, lost_park_obj, 0x01)
-link_alt_level_clear_generator(world, "the Link Challenge", world, lost_park_obj, 0x02)
-alt_level_clear_generator(world, "Coaster Rescue", world, lost_park_obj, 0x03)
-boss_level_clear_generator(world, "Chamelan", "Lost Park Boss", lost_park_boss_obj, 0x01)
+chase_level_clear_generator("LP1", world, "the Chase Mission", "Lost Park Boss", lost_park_boss_obj, 0x00)
+alt_level_clear_generator("LP2", world, "Bomb Panic", world, lost_park_obj, 0x01)
+link_alt_level_clear_generator("LP3", world, "the Link Challenge", world, lost_park_obj, 0x02)
+alt_level_clear_generator("LP4", world, "Coaster Rescue", world, lost_park_obj, 0x03)
+boss_level_clear_generator("LP5", world, "Chamelan", "Lost Park Boss", lost_park_boss_obj, 0x01)
 
 world = "Delight City"
 
-chase_level_clear_generator(world, "the Chase Mission", "Delight City Boss", delight_city_boss_obj, 0x00)
-alt_level_clear_generator(world, "Neon City Battle", world, delight_city_obj, 0x01)
-link_alt_level_clear_generator(world, "the Link Challenge", world, delight_city_obj, 0x02)
-alt_level_clear_generator(world, "Broadway Guide", world, delight_city_obj, 0x03)
-boss_level_clear_generator(world, "Cerberus", "Delight City Boss", delight_city_boss_obj, 0x01)
+chase_level_clear_generator("DC1", world, "the Chase Mission", "Delight City Boss", delight_city_boss_obj, 0x00)
+alt_level_clear_generator("DC2" ,world, "Neon City Battle", world, delight_city_obj, 0x01)
+link_alt_level_clear_generator("DC3" ,world, "the Link Challenge", world, delight_city_obj, 0x02)
+alt_level_clear_generator("DC4", world, "Broadway Guide", world, delight_city_obj, 0x03)
+boss_level_clear_generator("DC5", world, "Cerberus", "Delight City Boss", delight_city_boss_obj, 0x01)
 
 world = "Aqua Garden"
 
-chase_level_clear_generator(world, "the Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
-alt_level_clear_generator(world, "Aqua Challenge", world, aqua_garden_obj, 0x01)
-link_alt_level_clear_generator(world, "the Link Challenge", world, aqua_garden_obj, 0x02)
-alt_level_clear_generator(world, "Marine Escape", world, aqua_garden_obj, 0x03)
-boss_level_clear_generator(world, "Girania", "Aqua Garden Boss", aqua_garden_boss_obj, 0x01)
+chase_level_clear_generator("AQ1", world, "the Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
+alt_level_clear_generator("AQ2", world, "Aqua Challenge", world, aqua_garden_obj, 0x01)
+link_alt_level_clear_generator("AQ3", world, "the Link Challenge", world, aqua_garden_obj, 0x02)
+alt_level_clear_generator("AQ4", world, "Marine Escape", world, aqua_garden_obj, 0x03)
+boss_level_clear_generator("AQ5", world, "Girania", "Aqua Garden Boss", aqua_garden_boss_obj, 0x01)
 
 world = "Crystal Castle"
 
-chase_level_clear_generator(world, "the Chase Mission", "Crystal Castle Boss", crystal_castle_boss_obj, 0x00)
-link_alt_level_clear_generator(world, "the Link Challenge", world, crystal_castle_obj, 0x01)
-alt_level_clear_generator(world, "Labyrinth Guide", world, crystal_castle_obj, 0x02)
-alt_level_clear_generator(world, "Jewel Fever", world, crystal_castle_obj, 0x03)
-boss_level_clear_generator(world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
+chase_level_clear_generator("CC1", world, "the Chase Mission", "Crystal Castle Boss", crystal_castle_boss_obj, 0x00)
+link_alt_level_clear_generator("CC2", world, "the Link Challenge", world, crystal_castle_obj, 0x01)
+alt_level_clear_generator("CC3", world, "Labyrinth Guide", world, crystal_castle_obj, 0x02)
+alt_level_clear_generator("CC4", world, "Jewel Fever", world, crystal_castle_obj, 0x03)
+boss_level_clear_generator("CC5", world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
 
 world = "Memory Forest"
 
-chase_level_clear_generator(world, "the Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
-alt_level_clear_generator(world, "Forest Adventure", world, memory_forest_obj, 0x01)
-link_alt_level_clear_generator(world, "the Link Challenge", world, memory_forest_obj, 0x02)
-alt_level_clear_generator(world, "Sky Concert", world, memory_forest_obj, 0x03)
-boss_level_clear_generator(world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
+chase_level_clear_generator("MF1", world, "the Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
+alt_level_clear_generator("MF2", world, "Forest Adventure", world, memory_forest_obj, 0x01)
+link_alt_level_clear_generator("MF3", world, "the Link Challenge", world, memory_forest_obj, 0x02)
+alt_level_clear_generator("MF4", world, "Sky Concert", world, memory_forest_obj, 0x03)
+boss_level_clear_generator("MF5", world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
 
+list_data = {
+    0x00: {
+        "obj": pure_valley_obj,
+        "boss_obj": pure_valley_boss_obj,
+        "names": "Pure Valley",
+        "boss_names": "Pure Valley Boss"
+    },
+    0x01: {
+        "obj": lost_park_obj,
+        "boss_obj": lost_park_boss_obj,
+        "names": "Lost Park",
+        "boss_names": "Lost Park Boss"
+    },
+    0x02: {
+        "obj": delight_city_obj,
+        "boss_obj": delight_city_boss_obj,
+        "names": "Delight City",
+        "boss_names": "Delight City Boss"
+    },
+    0x03: {
+        "obj": aqua_garden_obj,
+        "boss_obj": aqua_garden_boss_obj,
+        "names": "Aqua Garden",
+        "boss_names": "Aqua Garden Boss"
+    },
+    0x04: {
+        "obj": crystal_castle_obj,
+        "boss_obj": crystal_castle_boss_obj,
+        "names": "Crystal Castle",
+        "boss_names": "Crystal Castle Boss"
+    },
+    0x05: {
+        "obj": memory_forest_obj,
+        "boss_obj": memory_forest_boss_obj,
+        "names": "Memory Forest",
+        "boss_names": "Memory Forest Boss"
+    }
+}
 
-achievement(
-    title = "PureValleyMissionAllARank",
-    points = 10,
-    type = "",
-    description = format("Earn an A Rank in every mission in Pure Valley"),
-    trigger = 
-        // This pops when the boss dies and the score updates
-        (
+// A Rank Regular worlds
+for element in list_data {
+    item_obj = list_data[element]
+
+    achievement(
+        title = item_obj["names"],
+        points = 10,
+        type = "",
+        description = format("Earn an A Rank in every mission in {0}", item_obj["names"]),
+        trigger = 
+            // This pops when the boss dies and the score updates
             (
-                is_in_world("Pure Valley") && pure_valley_obj.is_in_level()
-            ) ||
-            (
-                is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level()   
-            )            
-        ) &&
-        !in_multiplayer_mode() && !on_title() && 
-        pure_valley_obj.just_won_level() &&
-        never(on_title()) &&
-        measured(tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0)))
-        // tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0))
-        
-        // measured(get_a_ranks_in_world("Pure Valley") == 0x05) && prev(get_a_ranks_in_world("Pure Valley") < 0x05)
-)
+                (
+                    is_in_world(item_obj["names"]) && pure_valley_obj.is_in_level()
+                ) ||
+                (
+                    is_in_world(item_obj["boss_names"]) && pure_valley_boss_obj.is_in_level()   
+                )
+            ) &&
+            !in_multiplayer_mode() && !on_title() && 
+            item_obj["obj"].just_won_level() &&
+            never(on_title()) &&
+            measured(tally_of(high_score_data[item_obj["names"]], 5, input => once(high_score_data[item_obj["names"]][input]["rank"] == 0x00 && high_score_data[item_obj["names"]][input]["score"] > 0)))
+            // tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0))
+            // measured(get_a_ranks_in_world("Pure Valley") == 0x05) && prev(get_a_ranks_in_world("Pure Valley") < 0x05)
+    )
+}
+// A Rank Bellbridge both versions
+
 
 
 // RP
