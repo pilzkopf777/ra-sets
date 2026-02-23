@@ -283,13 +283,44 @@ function get_mission_target_value() {
     return dword_be(0x1044b370)
 }
 
-function alt_get_final_score() {
+/*
+function alt_get_final_score_1000_no_target(target) {
     time = get_time_limit() // need to round down..
-    target = get_mission_target_value()
     bonus_prev = (time + target) * 100
     bonus = bonus_prev - (bonus_prev % 100)
     result = bonus + dword_be(0x10448334)
     
+    return result
+}
+*/
+
+function alt_get_final_score_1000_no_target() {
+    time = get_time_limit()
+    bonus_prev = (time) * 1000
+
+    bonus = bonus_prev - (bonus_prev % 1000)
+    result = bonus + dword_be(0x10448334)
+    
+    return result
+}
+
+function alt_get_final_score_100_target() {
+    time = get_time_limit()
+    target = dword_be(0x1044b370)
+    bonus_prev = (time + target) * 100
+
+    bonus = bonus_prev - (bonus_prev % 100)
+    result = bonus + dword_be(0x10448334)
+
+    return result
+}
+
+function alt_lives_penalty_final_score() {
+    penalty = dword_be(0x1044b370)
+    bonus = (5 - penalty) * 500
+
+    result = bonus + dword_be(0x10448334)
+
     return result
 }
 
@@ -522,6 +553,11 @@ achievement(
         dword_be(0x10448330) >= chain_target && prev(dword_be(0x10448330)) < chain_target
 )
 
+function final_result_just_shown(target_obj) {
+    // To be used in multi-stage result screens (Chase Boss)
+    return target_obj.in_victory_animation() && byte(0x104496f7) == 0x00 && prev(byte(0x104496f7) == 0x01)
+}
+
 function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id) {
     achievement(
         title = cheevo_title,
@@ -537,13 +573,14 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
             never(!is_in_world(world_is_in_world_string)) &&
             never(target_obj.get_level() != level_id) &&
             // Unlock when
-            chase_final_score_is_set() &&
-            target_obj.just_won_level()
+            final_result_just_shown(target_obj) && chase_final_score_is_set()
+            // chase_final_score_is_set() && prev(!chase_final_score_is_set()) && target_obj.in_victory_animation()
+            //target_obj.just_won_level()
     )
 
     leaderboard(
         title = format("{0} - {1} - Clear", world, mission),
-        description = format("Complete {0} in {1}", mission, world),
+        description = format("Complete the {0} in {1}", mission, world),
         start = 
         (
             // This pops when the boss dies and the score updates
@@ -554,8 +591,9 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
             never(!is_in_world(world_is_in_world_string)) &&
             never(target_obj.get_level() != level_id) &&
             // Unlock when
-            chase_final_score_is_set() &&
-            target_obj.just_won_level()
+            final_result_just_shown(target_obj) && chase_final_score_is_set()
+            // chase_final_score_is_set() && prev(!chase_final_score_is_set()) && target_obj.in_victory_animation()
+            //target_obj.just_won_level()
         ),
         cancel = always_false(),
         submit = always_true(),
@@ -567,7 +605,7 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
     )
 }
 
-function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id) {
+function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id, lb_value_data) {
     achievement(
         title = cheevo_title,
         points = 3,
@@ -583,6 +621,7 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
             never(target_obj.get_level() != level_id) &&
             // Unlock when
             target_obj.just_won_level()
+            //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
     )
 
     leaderboard(
@@ -599,12 +638,15 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
             never(target_obj.get_level() != level_id) &&
             // Unlock when
             target_obj.just_won_level()
+            //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
         ),
         cancel = always_false(),
         submit = always_true(),
         value =
         measured(
-            alt_get_final_score()
+            // lb_value_data
+            // alt_get_final_score(get_mission_target_value())
+            lb_value_data
         ),
         format = "VALUE", lower_is_better = false
     )
@@ -615,7 +657,7 @@ function link_alt_level_clear_generator(cheevo_title, world, mission, world_is_i
         title = cheevo_title,
         points = 3,
         type = "progression",
-        description = format("Complete {0} in {1}", mission, world),
+        description = format("Complete the {0} in {1}", mission, world),
         trigger = 
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
@@ -626,6 +668,7 @@ function link_alt_level_clear_generator(cheevo_title, world, mission, world_is_i
             never(target_obj.get_level() != level_id) &&
             // Unlock when
             target_obj.just_won_level()
+            ///final_result_just_shown(target_obj) && target_obj.in_victory_animation()
     )
     
     // In a horrible, cruel twist RATools is NOT able to generate the logic for this LB correctly. Oh well.    
@@ -648,6 +691,7 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
             never(target_obj.get_level() != level_id) &&
             // Unlock when
             target_obj.just_won_level()
+            //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
     )
 
     leaderboard(
@@ -664,6 +708,7 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
             never(target_obj.get_level() != level_id) &&
             // Unlock when
             target_obj.just_won_level()
+            //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
         ),
         cancel = always_false(),
         submit = always_true(),
@@ -677,50 +722,67 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
 
 world = "Pure Valley"
 
-chase_level_clear_generator("PV1", world, "the Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
-link_alt_level_clear_generator("PV2", world, "the Link Challenge", world, pure_valley_obj, 0x01)
-alt_level_clear_generator("PV3", world, "Fluffy Catch", world, pure_valley_obj, 0x02)
-alt_level_clear_generator("PV4", world, "River Rescue", world, pure_valley_obj, 0x03)
+chase_level_clear_generator("PV1", world, "Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
+link_alt_level_clear_generator("PV2", world, "Link Challenge", world, pure_valley_obj, 0x01)
+alt_level_clear_generator("PV3", world, "Fluffy Catch", world, pure_valley_obj, 0x02, alt_lives_penalty_final_score())
+alt_level_clear_generator("PV4", world, "River Rescue", world, pure_valley_obj, 0x03, alt_get_final_score_100_target())
 boss_level_clear_generator("PV5", world, "Donbalon", "Pure Valley Boss", pure_valley_boss_obj, 0x01)
 
 world = "Lost Park"
 
-chase_level_clear_generator("LP1", world, "the Chase Mission", "Lost Park Boss", lost_park_boss_obj, 0x00)
-alt_level_clear_generator("LP2", world, "Bomb Panic", world, lost_park_obj, 0x01)
-link_alt_level_clear_generator("LP3", world, "the Link Challenge", world, lost_park_obj, 0x02)
-alt_level_clear_generator("LP4", world, "Coaster Rescue", world, lost_park_obj, 0x03)
+chase_level_clear_generator("LP1", world, "Chase Mission", "Lost Park Boss", lost_park_boss_obj, 0x00)
+alt_level_clear_generator("LP2", world, "Bomb Panic", world, lost_park_obj, 0x01, alt_get_final_score_1000_no_target())
+link_alt_level_clear_generator("LP3", world, "Link Challenge", world, lost_park_obj, 0x02)
+alt_level_clear_generator("LP4", world, "Coaster Rescue", world, lost_park_obj, 0x03, alt_get_final_score_1000_no_target())
 boss_level_clear_generator("LP5", world, "Chamelan", "Lost Park Boss", lost_park_boss_obj, 0x01)
 
 world = "Delight City"
 
-chase_level_clear_generator("DC1", world, "the Chase Mission", "Delight City Boss", delight_city_boss_obj, 0x00)
-alt_level_clear_generator("DC2" ,world, "Neon City Battle", world, delight_city_obj, 0x01)
-link_alt_level_clear_generator("DC3" ,world, "the Link Challenge", world, delight_city_obj, 0x02)
-alt_level_clear_generator("DC4", world, "Broadway Guide", world, delight_city_obj, 0x03)
+achievement(
+    title = "vs Reala",
+    points = 3,
+    type = "progression",
+    description = format("Defeat Reala in {0}", world),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() &&
+        // Must be playing the level (in-game) for at least a frame
+        once(delight_city_obj.is_playing_level()) &&
+        // Reset that CP when not in correct world or level
+        never(!is_in_world(world)) &&
+        never(delight_city_obj.get_level() != 0x00) &&
+        // Unlock when
+        delight_city_obj.just_won_level()
+        //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
+)
+
+chase_level_clear_generator("DC1", world, "Chase Mission", "Delight City Boss", delight_city_boss_obj, 0x00)
+alt_level_clear_generator("DC2" ,world, "Neon City Battle", world, delight_city_obj, 0x01, alt_get_final_score_1000_no_target())
+link_alt_level_clear_generator("DC3" ,world, "Link Challenge", world, delight_city_obj, 0x02)
+alt_level_clear_generator("DC4", world, "Broadway Guide", world, delight_city_obj, 0x03, 0) // todo
 boss_level_clear_generator("DC5", world, "Cerberus", "Delight City Boss", delight_city_boss_obj, 0x01)
 
 world = "Aqua Garden"
 
-chase_level_clear_generator("AQ1", world, "the Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
-alt_level_clear_generator("AQ2", world, "Aqua Challenge", world, aqua_garden_obj, 0x01)
-link_alt_level_clear_generator("AQ3", world, "the Link Challenge", world, aqua_garden_obj, 0x02)
-alt_level_clear_generator("AQ4", world, "Marine Escape", world, aqua_garden_obj, 0x03)
+chase_level_clear_generator("AQ1", world, "Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
+alt_level_clear_generator("AQ2", world, "Aqua Challenge", world, aqua_garden_obj, 0x01, 0) // todo
+link_alt_level_clear_generator("AQ3", world, "Link Challenge", world, aqua_garden_obj, 0x02)
+alt_level_clear_generator("AQ4", world, "Marine Escape", world, aqua_garden_obj, 0x03, 0) // todo
 boss_level_clear_generator("AQ5", world, "Girania", "Aqua Garden Boss", aqua_garden_boss_obj, 0x01)
 
 world = "Crystal Castle"
 
-chase_level_clear_generator("CC1", world, "the Chase Mission", "Crystal Castle Boss", crystal_castle_boss_obj, 0x00)
-link_alt_level_clear_generator("CC2", world, "the Link Challenge", world, crystal_castle_obj, 0x01)
-alt_level_clear_generator("CC3", world, "Labyrinth Guide", world, crystal_castle_obj, 0x02)
-alt_level_clear_generator("CC4", world, "Jewel Fever", world, crystal_castle_obj, 0x03)
+chase_level_clear_generator("CC1", world, "Chase Mission", "Crystal Castle Boss", crystal_castle_boss_obj, 0x00)
+link_alt_level_clear_generator("CC2", world, "Link Challenge", world, crystal_castle_obj, 0x01)
+alt_level_clear_generator("CC3", world, "Labyrinth Guide", world, crystal_castle_obj, 0x02, 0) // todo
+alt_level_clear_generator("CC4", world, "Jewel Fever", world, crystal_castle_obj, 0x03, 0) // todo
 boss_level_clear_generator("CC5", world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
 
 world = "Memory Forest"
 
-chase_level_clear_generator("MF1", world, "the Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
-alt_level_clear_generator("MF2", world, "Forest Adventure", world, memory_forest_obj, 0x01)
-link_alt_level_clear_generator("MF3", world, "the Link Challenge", world, memory_forest_obj, 0x02)
-alt_level_clear_generator("MF4", world, "Sky Concert", world, memory_forest_obj, 0x03)
+chase_level_clear_generator("MF1", world, "Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
+alt_level_clear_generator("MF2", world, "Forest Adventure", world, memory_forest_obj, 0x01, 0) // todo
+link_alt_level_clear_generator("MF3", world, "Link Challenge", world, memory_forest_obj, 0x02)
+alt_level_clear_generator("MF4", world, "Sky Concert", world, memory_forest_obj, 0x03, 0) // todo
 boss_level_clear_generator("MF5", world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
 
 list_data = {
