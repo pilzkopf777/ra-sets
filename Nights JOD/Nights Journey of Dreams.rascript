@@ -14,6 +14,11 @@ class WorldData {
     order = 0
     start_adr = 0x005bce48
 
+    function get_time_spent() {
+        target_adr = (this.start_adr + this.offset * this.order) - 0x88
+        return float_be(target_adr)
+    }
+
     function get_level() {
         target_adr = this.start_adr + this.offset * this.order
         return dword_be(target_adr)
@@ -161,7 +166,7 @@ world_data_map = {
         {
             0x01: "vs. Girania"
         },
-        "id": "2012",
+        "id": "2010",
     },
     "Crystal Castle": 
     {
@@ -321,6 +326,19 @@ function alt_lives_penalty_final_score() {
 
     result = bonus + dword_be(0x10448334)
 
+    return result
+}
+
+function get_escort_final_score(base_bonus, obj) {
+    time_spent = obj.get_time_spent()
+    penalty_prev = (time_spent) * 50
+
+    penalty = penalty_prev - (penalty_prev % 50)
+
+    bonus = base_bonus - penalty
+
+    result = bonus + dword_be(0x10448334)
+  
     return result
 }
 
@@ -758,7 +776,11 @@ achievement(
 chase_level_clear_generator("DC1", world, "Chase Mission", "Delight City Boss", delight_city_boss_obj, 0x00)
 alt_level_clear_generator("DC2" ,world, "Neon City Battle", world, delight_city_obj, 0x01, alt_get_final_score_1000_no_target())
 link_alt_level_clear_generator("DC3" ,world, "Link Challenge", world, delight_city_obj, 0x02)
-alt_level_clear_generator("DC4", world, "Broadway Guide", world, delight_city_obj, 0x03, 0) // todo
+alt_level_clear_generator("DC4", world, "Broadway Guide", world, delight_city_obj, 0x03, get_escort_final_score(30000, delight_city_obj))
+// Start of 30000, losing 50 pts per sec
+// Took 5:26 -> 326sec, got 13700 bonus pts
+// Took 5:45 -> 345sec, got 12750 bonus pts
+// Took 5:56 -> 356sec, got 12200 bonus pts
 boss_level_clear_generator("DC5", world, "Cerberus", "Delight City Boss", delight_city_boss_obj, 0x01)
 
 world = "Aqua Garden"
