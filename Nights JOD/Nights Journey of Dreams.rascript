@@ -820,7 +820,7 @@ boss_level_clear_generator("CC5", world, "Bomamba", "Crystal Castle Boss", cryst
 world = "Memory Forest"
 
 chase_level_clear_generator("MF1", world, "Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
-alt_level_clear_generator("MF2", world, "Forest Adventure", world, memory_forest_obj, 0x01, 0) // todo
+alt_level_clear_generator("MF2", world, "Forest Adventure", world, memory_forest_obj, 0x01, get_escort_final_score(30000, memory_forest_obj))
 link_alt_level_clear_generator("MF3", world, "Link Challenge", world, memory_forest_obj, 0x02)
 alt_level_clear_generator("MF4", world, "Sky Concert", world, memory_forest_obj, 0x03, 0) // todo
 boss_level_clear_generator("MF5", world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
@@ -831,6 +831,36 @@ boss_level_clear_generator("MF5", world, "Queen Bella", "Memory Forest Boss", me
 // Pure Valley: Fluffy Catch catch x at same time
 // Lost Park
 // Delight City: Complete Escort without collecting clock?
+achievement(
+    title = "Delight City Special",
+    points = 0,
+    type = "",
+    description = format("Do a thing in Aqua Garden Chase Mission"),
+    trigger = 
+    (
+        // This pops when the boss dies and the score updates
+        !in_multiplayer_mode() && !on_title() &&
+
+        // Additional sanity check
+        prev(is_in_world("Delight City")) &&
+        !dream_gate_obj.dream_gate_only_in_level() &&
+        is_in_world("Delight City") && delight_city_obj.is_playing_level() &&
+        delight_city_obj.get_time_spent() >= 0.1 &&
+        // byte(0x104496ee) goes from 1 to 0 on new lap; there may never be a switch
+        disable_when(
+            // earned too much time: more than 11sec
+            get_time_limit() >= prev(get_time_limit() + 11.0),
+        until=
+            delight_city_obj.get_time_spent() < 0.2 && prev(delight_city_obj.get_time_spent() <= 0.2)
+        ) &&
+        // Unlock when stage done
+        trigger_when(
+            delight_city_obj.just_won_level()
+        )
+    )
+)
+
+
 // Aqua Garden: No multilaps
 achievement(
     title = "Aqua Garden Special",
