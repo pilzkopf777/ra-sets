@@ -822,7 +822,7 @@ world = "Memory Forest"
 chase_level_clear_generator("MF1", world, "Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
 alt_level_clear_generator("MF2", world, "Forest Adventure", world, memory_forest_obj, 0x01, get_escort_final_score(30000, memory_forest_obj))
 link_alt_level_clear_generator("MF3", world, "Link Challenge", world, memory_forest_obj, 0x02)
-alt_level_clear_generator("MF4", world, "Sky Concert", world, memory_forest_obj, 0x03, 0) // todo
+alt_level_clear_generator("MF4", world, "Sky Concert", world, memory_forest_obj, 0x03, alt_lives_penalty_final_score())
 boss_level_clear_generator("MF5", world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
 
 // Special Challenges
