@@ -590,6 +590,9 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
             // Reset that CP when not in correct world or level
             never(!is_in_world(world_is_in_world_string)) &&
             never(target_obj.get_level() != level_id) &&
+            // Additional sanity check
+            prev(is_in_world(world_is_in_world_string)) &&
+            !dream_gate_obj.dream_gate_only_in_level() &&
             // Unlock when
             final_result_just_shown(target_obj) && chase_final_score_is_set()
             // chase_final_score_is_set() && prev(!chase_final_score_is_set()) && target_obj.in_victory_animation()
@@ -597,7 +600,7 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
     )
 
     leaderboard(
-        title = format("{0} - {1} - Clear", world, mission),
+        title = format("{0} - {1}", world, mission),
         description = format("Complete the {0} in {1}", mission, world),
         start = 
         (
@@ -608,6 +611,9 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
             // Reset that CP when not in correct world or level
             never(!is_in_world(world_is_in_world_string)) &&
             never(target_obj.get_level() != level_id) &&
+            // Additional sanity check
+            prev(is_in_world(world_is_in_world_string)) &&
+            !dream_gate_obj.dream_gate_only_in_level() &&
             // Unlock when
             final_result_just_shown(target_obj) && chase_final_score_is_set()
             // chase_final_score_is_set() && prev(!chase_final_score_is_set()) && target_obj.in_victory_animation()
@@ -637,13 +643,16 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
             // Reset that CP when not in correct world or level
             never(!is_in_world(world_is_in_world_string)) &&
             never(target_obj.get_level() != level_id) &&
+            // Additional sanity check
+            prev(is_in_world(world_is_in_world_string)) &&
+            !dream_gate_obj.dream_gate_only_in_level() &&
             // Unlock when
             target_obj.just_won_level()
             //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
     )
 
     leaderboard(
-        title = format("{0} - {1} - Clear", world, mission),
+        title = format("{0} - {1}", world, mission),
         description = format("Complete {0} in {1}", mission, world),
         start = 
         (
@@ -654,6 +663,9 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
             // Reset that CP when not in correct world or level
             never(!is_in_world(world_is_in_world_string)) &&
             never(target_obj.get_level() != level_id) &&
+            // Additional sanity check
+            prev(is_in_world(world_is_in_world_string)) &&
+            !dream_gate_obj.dream_gate_only_in_level() &&
             // Unlock when
             target_obj.just_won_level()
             //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
@@ -684,6 +696,9 @@ function link_alt_level_clear_generator(cheevo_title, world, mission, world_is_i
             // Reset that CP when not in correct world or level
             never(!is_in_world(world_is_in_world_string)) &&
             never(target_obj.get_level() != level_id) &&
+            // Additional sanity check
+            prev(is_in_world(world_is_in_world_string)) &&
+            !dream_gate_obj.dream_gate_only_in_level() &&
             // Unlock when
             target_obj.just_won_level()
             ///final_result_just_shown(target_obj) && target_obj.in_victory_animation()
@@ -707,13 +722,16 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
             // Reset that CP when not in correct world or level
             never(!is_in_world(world_is_in_world_string)) &&
             never(target_obj.get_level() != level_id) &&
+            // Additional sanity check
+            prev(is_in_world(world_is_in_world_string)) &&
+            !dream_gate_obj.dream_gate_only_in_level() &&
             // Unlock when
             target_obj.just_won_level()
             //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
     )
 
     leaderboard(
-        title = format("{0} - {1} - Clear", world, boss_name),
+        title = format("{0} - {1}", world, boss_name),
         description = format("Defeat {0} once and for all in {1}", boss_name, world),
         start = 
         (
@@ -724,6 +742,9 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
             // Reset that CP when not in correct world or level
             never(!is_in_world(world_is_in_world_string)) &&
             never(target_obj.get_level() != level_id) &&
+            // Additional sanity check
+            prev(is_in_world(world_is_in_world_string)) &&
+            !dream_gate_obj.dream_gate_only_in_level() &&
             // Unlock when
             target_obj.just_won_level()
             //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
@@ -777,26 +798,23 @@ chase_level_clear_generator("DC1", world, "Chase Mission", "Delight City Boss", 
 alt_level_clear_generator("DC2" ,world, "Neon City Battle", world, delight_city_obj, 0x01, alt_get_final_score_1000_no_target())
 link_alt_level_clear_generator("DC3" ,world, "Link Challenge", world, delight_city_obj, 0x02)
 alt_level_clear_generator("DC4", world, "Broadway Guide", world, delight_city_obj, 0x03, get_escort_final_score(30000, delight_city_obj))
-// Start of 30000, losing 50 pts per sec
-// Took 5:26 -> 326sec, got 13700 bonus pts
-// Took 5:45 -> 345sec, got 12750 bonus pts
-// Took 5:56 -> 356sec, got 12200 bonus pts
+// Start at 30000, losing 50 pts per sec
 boss_level_clear_generator("DC5", world, "Cerberus", "Delight City Boss", delight_city_boss_obj, 0x01)
 
 world = "Aqua Garden"
 
 chase_level_clear_generator("AQ1", world, "Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
-alt_level_clear_generator("AQ2", world, "Aqua Challenge", world, aqua_garden_obj, 0x01, 0) // todo
+alt_level_clear_generator("AQ2", world, "Aqua Challenge", world, aqua_garden_obj, 0x01, alt_get_final_score_100_target())
 link_alt_level_clear_generator("AQ3", world, "Link Challenge", world, aqua_garden_obj, 0x02)
-alt_level_clear_generator("AQ4", world, "Marine Escape", world, aqua_garden_obj, 0x03, 0) // todo
+alt_level_clear_generator("AQ4", world, "Marine Escape", world, aqua_garden_obj, 0x03, get_escort_final_score(30000, aqua_garden_obj))
 boss_level_clear_generator("AQ5", world, "Girania", "Aqua Garden Boss", aqua_garden_boss_obj, 0x01)
 
 world = "Crystal Castle"
 
 chase_level_clear_generator("CC1", world, "Chase Mission", "Crystal Castle Boss", crystal_castle_boss_obj, 0x00)
 link_alt_level_clear_generator("CC2", world, "Link Challenge", world, crystal_castle_obj, 0x01)
-alt_level_clear_generator("CC3", world, "Labyrinth Guide", world, crystal_castle_obj, 0x02, 0) // todo
-alt_level_clear_generator("CC4", world, "Jewel Fever", world, crystal_castle_obj, 0x03, 0) // todo
+alt_level_clear_generator("CC3", world, "Labyrinth Guide", world, crystal_castle_obj, 0x02, get_escort_final_score(30000, crystal_castle_obj))
+alt_level_clear_generator("CC4", world, "Jewel Fever", world, crystal_castle_obj, 0x03, alt_get_final_score_100_target())
 boss_level_clear_generator("CC5", world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
 
 world = "Memory Forest"
@@ -806,6 +824,55 @@ alt_level_clear_generator("MF2", world, "Forest Adventure", world, memory_forest
 link_alt_level_clear_generator("MF3", world, "Link Challenge", world, memory_forest_obj, 0x02)
 alt_level_clear_generator("MF4", world, "Sky Concert", world, memory_forest_obj, 0x03, 0) // todo
 boss_level_clear_generator("MF5", world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
+
+// Special Challenges
+
+// possibly one per world?
+// Pure Valley: Fluffy Catch catch x at same time
+// Lost Park
+// Delight City: Complete Escort without collecting clock?
+// Aqua Garden: No multilaps
+achievement(
+    title = "Aqua Garden Special",
+    points = 0,
+    type = "",
+    description = format("Do a thing in Aqua Garden Chase Mission"),
+    trigger = 
+    (
+        // This pops when the boss dies and the score updates
+        !in_multiplayer_mode() && !on_title() &&
+
+        // Additional sanity check
+        prev(is_in_world("Aqua Garden")) &&
+        !dream_gate_obj.dream_gate_only_in_level() &&
+        is_in_world("Aqua Garden") && aqua_garden_obj.is_playing_level() &&
+        aqua_garden_obj.get_time_spent() >= 0.1 &&
+        once(byte(0x104496e6) == 0x00) &&
+        // byte(0x104496ee) goes from 1 to 0 on new lap; there may never be a switch
+        disable_when(
+            // Lap completed
+            once(byte(0x104496ee) == 0x00 && prev(byte(0x104496ee) == 0x01)) && 
+            // Mare did not update for x frames -> the player did not advance the mare...
+            (
+                repeated(5, dword_be(0x10448324) == prev(dword_be(0x10448324))) &&
+                // Reset above counter is Mare completed
+                never(dword_be(0x10448324) > prev(dword_be(0x10448324)))
+            )
+        ) &&
+        // Unlock when Mare 3 completed
+        trigger_when(
+            dword_be(0x10448324) == 0x03 && prev(dword_be(0x10448324) == 0x02)
+        ) &&
+        // I hate this but it seems to be a good solution since I have a reset inside the PauseIf: Reset the achievement if the player restarts the stage
+        (
+            always_false() || never(aqua_garden_obj.get_time_spent() < 0.2 && prev(aqua_garden_obj.get_time_spent() <= 0.2))
+        )
+    )
+)
+
+
+// Crystal Castle
+// Memory Forest
 
 list_data = {
     0x00: {
