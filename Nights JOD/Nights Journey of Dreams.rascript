@@ -210,7 +210,8 @@ world_data_map = {
     {
         "levels":
         {
-            0x00: "Chase Mission"
+            0x00: "Chase Mission (Will)",
+            0x01: "Chase Mission (Helen)"
         },
         "id": "3000",
     },
@@ -348,6 +349,10 @@ function get_time_limit() {
 
 function new_record_txt_appeared() {
     return byte(0x104496f5) == 0x01 && prev(byte(0x104496f5) == 0x00)
+}
+
+function true_ending_access_unlocked() {
+    return byte(0x1044813f) == 0x01
 }
 
 event_flags = {
@@ -533,6 +538,20 @@ high_score_data = {
             "rank": dword_be(0x10447798),
             "is_a": dword_be(0x10447798) == 0x00,
         }
+    },
+    "Bellbridge": {
+        // Will
+        0x00: {
+            "score": dword_be(0x104478dc),
+            "rank": dword_be(0x104478e0),
+            "is_a": dword_be(0x104478e0) == 0x00,
+        },
+        // Helen
+        0x01: {
+            "score": dword_be(0x10447994),
+            "rank": dword_be(0x10447998),
+            "is_a": dword_be(0x10447998) == 0x00,
+        }
     }
 }
 
@@ -601,7 +620,7 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
 
     leaderboard(
         title = format("{0} - {1}", world, mission),
-        description = format("Complete the {0} in {1}", mission, world),
+        description = format("Score as high as possible in {0} in {1}", mission, world),
         start = 
         (
             // This pops when the boss dies and the score updates
@@ -653,7 +672,7 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
 
     leaderboard(
         title = format("{0} - {1}", world, mission),
-        description = format("Complete {0} in {1}", mission, world),
+        description = format("Score as high as possible in {0} in {1}", mission, world),
         start = 
         (
             // This pops when the boss dies and the score updates
@@ -713,7 +732,7 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
         title = cheevo_title,
         points = 3,
         type = "progression",
-        description = format("Defeat {0} once and for all in {1}", boss_name, world),
+        description = format("Defeat {0} in a rematch in {1}", boss_name, world),
         trigger = 
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
@@ -732,7 +751,7 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
 
     leaderboard(
         title = format("{0} - {1}", world, boss_name),
-        description = format("Defeat {0} once and for all in {1}", boss_name, world),
+        description = format("Defeat {0} in a rematch in {1} as quickly as possible", boss_name, world),
         start = 
         (
             // This pops when the boss dies and the score updates
@@ -825,6 +844,55 @@ link_alt_level_clear_generator("MF3", world, "Link Challenge", world, memory_for
 alt_level_clear_generator("MF4", world, "Sky Concert", world, memory_forest_obj, 0x03, alt_lives_penalty_final_score())
 boss_level_clear_generator("MF5", world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
 
+world = "Bellbridge"
+
+achievement(
+    title = "END TITLE",
+    points = 3,
+    type = "progression",
+    description = format("Defeat Wizeman in Bellbridge"),
+    trigger = 
+        // This pops when the boss dies and the score updates
+        !in_multiplayer_mode() && !on_title() &&
+        // Must be playing the level (in-game) for at least a frame
+        once(bellbridge_boss_obj.is_playing_level()) &&
+        // Reset that CP when not in correct world or level
+        never(!is_in_world("Bellbridge Boss")) &&
+        !true_ending_access_unlocked() &&
+        // Additional sanity check
+        prev(is_in_world("Bellbridge Boss")) &&
+        !dream_gate_obj.dream_gate_only_in_level() &&
+        // Unlock when
+        final_result_just_shown(bellbridge_boss_obj) && chase_final_score_is_set()
+)
+
+leaderboard(
+    title = format("{0}", world),
+    description = format("Score as high as possible in {0}", world),
+    start = 
+    (
+        // This pops when the boss dies and the score updates
+        !in_multiplayer_mode() && !on_title() &&
+        // Must be playing the level (in-game) for at least a frame
+        once(bellbridge_boss_obj.is_playing_level()) &&
+        // Reset that CP when not in correct world or level
+        never(!is_in_world("Bellbridge Boss")) &&
+        // never(bellbridge_boss_obj.get_level() != level_id) &&
+        // Additional sanity check
+        prev(is_in_world("Bellbridge Boss")) &&
+        !dream_gate_obj.dream_gate_only_in_level() &&
+        // Unlock when
+        final_result_just_shown(bellbridge_boss_obj) && chase_final_score_is_set()
+    ),
+    cancel = always_false(),
+    submit = always_true(),
+    value =
+    measured(
+        chase_get_final_score()
+    ),
+    format = "VALUE", lower_is_better = false
+)
+
 // Special Challenges
 
 // possibly one per world?
@@ -835,7 +903,7 @@ achievement(
     title = "Delight City Special",
     points = 0,
     type = "",
-    description = format("Do a thing in Aqua Garden Chase Mission"),
+    description = format("Complete Delight City - Broadway Guide without picking up any Time Chips."),
     trigger = 
     (
         // This pops when the boss dies and the score updates
@@ -866,7 +934,7 @@ achievement(
     title = "Aqua Garden Special",
     points = 0,
     type = "",
-    description = format("Do a thing in Aqua Garden Chase Mission"),
+    description = format("Complete the first three Mares in Aqua Garden - Chase Mission without ever taking a second lap"),
     trigger = 
     (
         // This pops when the boss dies and the score updates
@@ -954,24 +1022,42 @@ for element in list_data {
         description = format("Earn an A Rank in every mission in {0}", item_obj["names"]),
         trigger = 
             // This pops when the boss dies and the score updates
+            // TODO: dynamic ref obj
             (
                 (
-                    is_in_world(item_obj["names"]) && pure_valley_obj.is_in_level()
+                    is_in_world(item_obj["names"]) && item_obj["obj"].in_victory_animation()
                 ) ||
                 (
-                    is_in_world(item_obj["boss_names"]) && pure_valley_boss_obj.is_in_level()   
+                    is_in_world(item_obj["boss_names"]) && item_obj["boss_obj"].in_victory_animation()   
                 )
             ) &&
             !in_multiplayer_mode() && !on_title() && 
-            item_obj["obj"].just_won_level() &&
             never(on_title()) &&
-            measured(tally_of(high_score_data[item_obj["names"]], 5, input => once(high_score_data[item_obj["names"]][input]["rank"] == 0x00 && high_score_data[item_obj["names"]][input]["score"] > 0)))
+            measured(tally_of(high_score_data[item_obj["names"]], 5, input => once(high_score_data[item_obj["names"]][input]["rank"] == 0x00 && high_score_data[item_obj["names"]][input]["score"] > 0))) &&
+            tally_of(high_score_data[item_obj["names"]], 4, input => once(prev(high_score_data[item_obj["names"]][input]["rank"] == 0x00 && high_score_data[item_obj["names"]][input]["score"] > 0)))
             // tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0))
             // measured(get_a_ranks_in_world("Pure Valley") == 0x05) && prev(get_a_ranks_in_world("Pure Valley") < 0x05)
     )
 }
 // A Rank Bellbridge both versions
 
+// TODO: this uses high_score_data to ref the target (two total to pop); does this work properly?
+
+achievement(
+    title = "Bellbridge",
+    points = 10,
+    type = "",
+    description = format("Earn an A Rank in both versions of {0}", "Bellbridge"),
+    trigger = 
+        // This pops when the boss dies and the score updates
+        is_in_world("Bellbridge Boss") && bellbridge_boss_obj.is_in_level() &&
+        !in_multiplayer_mode() && !on_title() && 
+        bellbridge_obj.just_won_level() &&
+        never(on_title()) &&
+        measured(tally_of(high_score_data["Bellbridge"], 2, input => once(high_score_data["Bellbridge"][input]["rank"] == 0x00 && high_score_data["Bellbridge"][input]["score"] > 0)))
+        // tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0))
+        // measured(get_a_ranks_in_world("Pure Valley") == 0x05) && prev(get_a_ranks_in_world("Pure Valley") < 0x05)
+)
 
 
 // RP
@@ -1064,7 +1150,7 @@ rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in
 )
 
 // In Bellbridge
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Bellbridge") && bellbridge_obj.is_in_level(), "{2} is in Bellbridge • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Bellbridge") && bellbridge_obj.is_in_level(), "{2} is in Bellbridge • Chase Mission • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Bellbridge", bellbridge_obj.get_level(), world_data_map["Bellbridge"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
@@ -1093,7 +1179,7 @@ rich_presence_conditional_display(!on_title() && in_vs_battle_mode(), "In a VS B
 )
 
 // Credits
-rich_presence_conditional_display(on_staff_roll(), "In the Credits • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(on_staff_roll(), "Watching the Credits • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448))
 )
 
