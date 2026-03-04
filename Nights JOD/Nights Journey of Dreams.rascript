@@ -557,7 +557,7 @@ high_score_data = {
 
 // Achievements
 achievement(
-    title = "TestFlightCheevo",
+    title = "Soaring Start",
     points = 1,
     type = "progression",
     description = format("Dualize with NiGHTS and complete your first test flight"),
@@ -581,7 +581,7 @@ achievement(
 chain_target = 300
 
 achievement(
-    title = "HighLink",
+    title = "An Unbroken Chain",
     points = 5,
     type = "",
     description = format("Reach a Link chain of {0}", chain_target),
@@ -600,7 +600,7 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
         title = cheevo_title,
         points = 3,
         type = "progression",
-        description = format("Complete {0} in {1}", mission, world),
+        description = format("Complete {0} - {1}", world, mission),
         trigger = 
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
@@ -620,7 +620,7 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
 
     leaderboard(
         title = format("{0} - {1}", world, mission),
-        description = format("Score as high as possible in {0} in {1}", mission, world),
+        description = format("Score as high as possible in {0} - {1}", world, mission),
         start = 
         (
             // This pops when the boss dies and the score updates
@@ -651,9 +651,9 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
 function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id, lb_value_data) {
     achievement(
         title = cheevo_title,
-        points = 3,
+        points = 2,
         type = "progression",
-        description = format("Complete {0} in {1}", mission, world),
+        description = format("Complete {0} - {1}", world, mission),
         trigger = 
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
@@ -672,7 +672,7 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
 
     leaderboard(
         title = format("{0} - {1}", world, mission),
-        description = format("Score as high as possible in {0} in {1}", mission, world),
+        description = format("Score as high as possible in {0} - {1}", world, mission),
         start = 
         (
             // This pops when the boss dies and the score updates
@@ -701,12 +701,14 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
     )
 }
 
+
+
 function link_alt_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id) {
     achievement(
         title = cheevo_title,
-        points = 3,
+        points = 2,
         type = "progression",
-        description = format("Complete the {0} in {1}", mission, world),
+        description = format("Complete {0} - {1}", world, mission),
         trigger = 
             // This pops when the boss dies and the score updates
             !in_multiplayer_mode() && !on_title() &&
@@ -723,14 +725,44 @@ function link_alt_level_clear_generator(cheevo_title, world, mission, world_is_i
             ///final_result_just_shown(target_obj) && target_obj.in_victory_animation()
     )
     
-    // In a horrible, cruel twist RATools is NOT able to generate the logic for this LB correctly. Oh well.    
+    // In a horrible, cruel twist RATools is NOT able to generate the logic for this LB correctly. Oh well.
+
+    leaderboard(
+        title = format("{0} - {1}", world, mission),
+        description = format("Score as high as possible in {0} - {1}", world, mission),
+        start = 
+        (
+            // This pops when the boss dies and the score updates
+            !in_multiplayer_mode() && !on_title() &&
+            // Must be playing the level (in-game) for at least a frame
+            once(target_obj.is_playing_level()) &&
+            // Reset that CP when not in correct world or level
+            never(!is_in_world(world_is_in_world_string)) &&
+            never(target_obj.get_level() != level_id) &&
+            // Additional sanity check
+            prev(is_in_world(world_is_in_world_string)) &&
+            !dream_gate_obj.dream_gate_only_in_level() &&
+            // Unlock when
+            target_obj.just_won_level()
+            //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            0
+        ),
+        format = "VALUE", lower_is_better = false
+    )
+
+
 }
 
 
 function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_world_string, target_obj, level_id) {
     achievement(
         title = cheevo_title,
-        points = 3,
+        points = 5,
         type = "progression",
         description = format("Defeat {0} in a rematch in {1}", boss_name, world),
         trigger = 
@@ -780,29 +812,31 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
 
 world = "Pure Valley"
 
-chase_level_clear_generator("PV1", world, "Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
-link_alt_level_clear_generator("PV2", world, "Link Challenge", world, pure_valley_obj, 0x01)
-alt_level_clear_generator("PV3", world, "Fluffy Catch", world, pure_valley_obj, 0x02, alt_lives_penalty_final_score())
-alt_level_clear_generator("PV4", world, "River Rescue", world, pure_valley_obj, 0x03, alt_get_final_score_100_target())
-boss_level_clear_generator("PV5", world, "Donbalon", "Pure Valley Boss", pure_valley_boss_obj, 0x01)
+chase_level_clear_generator("A Breath of Fresh Air", world, "Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
+link_alt_level_clear_generator("Linking in the Valley", world, "Link Challenge", world, pure_valley_obj, 0x01)
+alt_level_clear_generator("What Goes Up...", world, "Fluffy Catch", world, pure_valley_obj, 0x02, alt_lives_penalty_final_score())
+alt_level_clear_generator("Go with the Flow", world, "River Rescue", world, pure_valley_obj, 0x03, alt_get_final_score_100_target())
+boss_level_clear_generator("Bouncy House", world, "Donbalon", "Pure Valley Boss", pure_valley_boss_obj, 0x01)
 
 world = "Lost Park"
 
-chase_level_clear_generator("LP1", world, "Chase Mission", "Lost Park Boss", lost_park_boss_obj, 0x00)
-alt_level_clear_generator("LP2", world, "Bomb Panic", world, lost_park_obj, 0x01, alt_get_final_score_1000_no_target())
-link_alt_level_clear_generator("LP3", world, "Link Challenge", world, lost_park_obj, 0x02)
-alt_level_clear_generator("LP4", world, "Coaster Rescue", world, lost_park_obj, 0x03, alt_get_final_score_1000_no_target())
-boss_level_clear_generator("LP5", world, "Chamelan", "Lost Park Boss", lost_park_boss_obj, 0x01)
+chase_level_clear_generator("Ticket to Ride", world, "Chase Mission", "Lost Park Boss", lost_park_boss_obj, 0x00)
+alt_level_clear_generator("Short Fuse", world, "Bomb Panic", world, lost_park_obj, 0x01, alt_get_final_score_1000_no_target())
+link_alt_level_clear_generator("Linking in the Park", world, "Link Challenge", world, lost_park_obj, 0x02)
+alt_level_clear_generator("Off the Rails", world, "Coaster Rescue", world, lost_park_obj, 0x03, alt_get_final_score_1000_no_target())
+boss_level_clear_generator("Card Sharked", world, "Chamelan", "Lost Park Boss", lost_park_boss_obj, 0x01)
 
 world = "Delight City"
 
 achievement(
-    title = "vs Reala",
+    title = "Amazing Technicolor Battlefield",
     points = 3,
     type = "progression",
     description = format("Defeat Reala in {0}", world),
     trigger = 
         !in_multiplayer_mode() && !on_title() &&
+        // Mare 1 only
+        dword_be(0x10448324) == 0x00 &&
         // Must be playing the level (in-game) for at least a frame
         once(delight_city_obj.is_playing_level()) &&
         // Reset that CP when not in correct world or level
@@ -813,42 +847,42 @@ achievement(
         //final_result_just_shown(target_obj) && target_obj.in_victory_animation()
 )
 
-chase_level_clear_generator("DC1", world, "Chase Mission", "Delight City Boss", delight_city_boss_obj, 0x00)
-alt_level_clear_generator("DC2" ,world, "Neon City Battle", world, delight_city_obj, 0x01, alt_get_final_score_1000_no_target())
-link_alt_level_clear_generator("DC3" ,world, "Link Challenge", world, delight_city_obj, 0x02)
-alt_level_clear_generator("DC4", world, "Broadway Guide", world, delight_city_obj, 0x03, get_escort_final_score(30000, delight_city_obj))
+chase_level_clear_generator("Bright Lights, Big City", world, "Chase Mission", "Delight City Boss", delight_city_boss_obj, 0x00)
+alt_level_clear_generator("Concrete Jungle" ,world, "Neon City Battle", world, delight_city_obj, 0x01, alt_get_final_score_1000_no_target())
+link_alt_level_clear_generator("Linking in the City" ,world, "Link Challenge", world, delight_city_obj, 0x02)
+alt_level_clear_generator("Stage Presence", world, "Broadway Guide", world, delight_city_obj, 0x03, get_escort_final_score(30000, delight_city_obj))
 // Start at 30000, losing 50 pts per sec
-boss_level_clear_generator("DC5", world, "Cerberus", "Delight City Boss", delight_city_boss_obj, 0x01)
+boss_level_clear_generator("Triple Threat", world, "Cerberus", "Delight City Boss", delight_city_boss_obj, 0x01)
 
 world = "Aqua Garden"
 
-chase_level_clear_generator("AQ1", world, "Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
-alt_level_clear_generator("AQ2", world, "Aqua Challenge", world, aqua_garden_obj, 0x01, alt_get_final_score_100_target())
-link_alt_level_clear_generator("AQ3", world, "Link Challenge", world, aqua_garden_obj, 0x02)
-alt_level_clear_generator("AQ4", world, "Marine Escape", world, aqua_garden_obj, 0x03, get_escort_final_score(30000, aqua_garden_obj))
-boss_level_clear_generator("AQ5", world, "Girania", "Aqua Garden Boss", aqua_garden_boss_obj, 0x01)
+chase_level_clear_generator("Making Waves", world, "Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
+alt_level_clear_generator("Don't Burst the Bubble", world, "Aqua Challenge", world, aqua_garden_obj, 0x01, alt_get_final_score_100_target())
+link_alt_level_clear_generator("Linking in the Garden", world, "Link Challenge", world, aqua_garden_obj, 0x02)
+alt_level_clear_generator("Out of the Blue", world, "Marine Escape", world, aqua_garden_obj, 0x03, get_escort_final_score(30000, aqua_garden_obj))
+boss_level_clear_generator("Hook, Line, and Sinker", world, "Girania", "Aqua Garden Boss", aqua_garden_boss_obj, 0x01)
 
 world = "Crystal Castle"
 
-chase_level_clear_generator("CC1", world, "Chase Mission", "Crystal Castle Boss", crystal_castle_boss_obj, 0x00)
-link_alt_level_clear_generator("CC2", world, "Link Challenge", world, crystal_castle_obj, 0x01)
-alt_level_clear_generator("CC3", world, "Labyrinth Guide", world, crystal_castle_obj, 0x02, get_escort_final_score(30000, crystal_castle_obj))
-alt_level_clear_generator("CC4", world, "Jewel Fever", world, crystal_castle_obj, 0x03, alt_get_final_score_100_target())
-boss_level_clear_generator("CC5", world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
+chase_level_clear_generator("Refraction Action", world, "Chase Mission", "Crystal Castle Boss", crystal_castle_boss_obj, 0x00)
+link_alt_level_clear_generator("Linking in the Castle", world, "Link Challenge", world, crystal_castle_obj, 0x01)
+alt_level_clear_generator("Exit Strategy", world, "Labyrinth Guide", world, crystal_castle_obj, 0x02, get_escort_final_score(30000, crystal_castle_obj))
+alt_level_clear_generator("That's Rich", world, "Jewel Fever", world, crystal_castle_obj, 0x03, alt_get_final_score_100_target())
+boss_level_clear_generator("The Cat's out of the Bag", world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
 
 world = "Memory Forest"
 
-chase_level_clear_generator("MF1", world, "Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
-alt_level_clear_generator("MF2", world, "Forest Adventure", world, memory_forest_obj, 0x01, get_escort_final_score(30000, memory_forest_obj))
-link_alt_level_clear_generator("MF3", world, "Link Challenge", world, memory_forest_obj, 0x02)
-alt_level_clear_generator("MF4", world, "Sky Concert", world, memory_forest_obj, 0x03, alt_lives_penalty_final_score())
-boss_level_clear_generator("MF5", world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
+chase_level_clear_generator("Deep Roots", world, "Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
+alt_level_clear_generator("Branching Out", world, "Forest Adventure", world, memory_forest_obj, 0x01, get_escort_final_score(30000, memory_forest_obj))
+link_alt_level_clear_generator("Linking in the Forest", world, "Link Challenge", world, memory_forest_obj, 0x02)
+alt_level_clear_generator("Ending on a High Note", world, "Sky Concert", world, memory_forest_obj, 0x03, alt_lives_penalty_final_score())
+boss_level_clear_generator("Queen's Gambit", world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
 
 world = "Bellbridge"
 
 achievement(
-    title = "END TITLE",
-    points = 3,
+    title = "Nightmare's End",
+    points = 10,
     type = "progression",
     description = format("Defeat Wizeman in Bellbridge"),
     trigger = 
@@ -866,9 +900,46 @@ achievement(
         final_result_just_shown(bellbridge_boss_obj) && chase_final_score_is_set()
 )
 
+achievement(
+    title = "Come on, NiGHTS!",
+    points = 5,
+    type = "progression",
+    description = format("Defeat Reala in {0} after collecting the Ideya of Hope", world),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() &&
+        // Must be in Mare 4 (i.e. after regular three)
+        dword_be(0x10448324) == 0x03 &&
+        // vs Reala starts at 300.0 and cutscenes set to 30.0 -> hits once as battle starts
+        once(get_time_limit() == 300.0 && prev(get_time_limit() == 30.0)) &&
+        // Reset hit when in Mare 1 (restart) or not in Bellbridge
+        never(!is_in_world(world) || dword_be(0x10448324) == 0x00) &&
+        // Unlock when
+        bellbridge_obj.just_won_level()
+)
+
+achievement(
+    title = "Journey of Dreams",
+    points = 25,
+    type = "win_condition",
+    description = format("Defeat Wizeman in Bellbridge after collecting the Ideya of Hope"),
+    trigger = 
+        // This pops when the boss dies and the score updates
+        !in_multiplayer_mode() && !on_title() &&
+        // Must be playing the level (in-game) for at least a frame
+        once(bellbridge_boss_obj.is_playing_level()) &&
+        // Reset that CP when not in correct world or level
+        never(!is_in_world("Bellbridge Boss")) &&
+        true_ending_access_unlocked() &&
+        // Additional sanity check
+        prev(is_in_world("Bellbridge Boss")) &&
+        !dream_gate_obj.dream_gate_only_in_level() &&
+        // Unlock when
+        final_result_just_shown(bellbridge_boss_obj) && chase_final_score_is_set()
+)
+
 leaderboard(
-    title = format("{0}", world),
-    description = format("Score as high as possible in {0}", world),
+    title = "Bellbridge - Chase Mission",
+    description = "Score as high as possible in Bellbridge",
     start = 
     (
         // This pops when the boss dies and the score updates
@@ -897,18 +968,42 @@ leaderboard(
 
 // possibly one per world?
 // Pure Valley: Fluffy Catch catch x at same time
-// Lost Park
-// Delight City: Complete Escort without collecting clock?
 achievement(
-    title = "Delight City Special",
-    points = 0,
+    title = "Caught onto It",
+    points = 3,
     type = "",
-    description = format("Complete Delight City - Broadway Guide without picking up any Time Chips."),
+    description = format("In Pure Valley - Fluffy Catch paraloop five Nightopians at the same time"), // todo names?
     trigger = 
     (
         // This pops when the boss dies and the score updates
         !in_multiplayer_mode() && !on_title() &&
+        // Correct level? Broadway Guide
+        pure_valley_obj.get_level() == 0x03 &&
+        // Additional sanity check
+        prev(is_in_world("Pure Valley")) &&
+        !dream_gate_obj.dream_gate_only_in_level() &&
+        is_in_world("Pure Valley") && pure_valley_obj.is_playing_level() &&
+        pure_valley_obj.get_time_spent() >= 0.1 &&
+        // Unlock when inc by 5 in single frame
+        trigger_when(
+            dword_be(0x10448330) >= prev(dword_be(0x10448330) + 5)
+        )
+    )
+)
 
+// Lost Park
+// Delight City: Complete Escort without collecting clock?
+achievement(
+    title = "No Time for Sightseeing",
+    points = 5,
+    type = "",
+    description = format("In Delight City - Broadway Guide reach the goal without picking up any Time Chips"),
+    trigger = 
+    (
+        // This pops when the boss dies and the score updates
+        !in_multiplayer_mode() && !on_title() &&
+        // Correct level? Broadway Guide
+        delight_city_obj.get_level() == 0x03 &&
         // Additional sanity check
         prev(is_in_world("Delight City")) &&
         !dream_gate_obj.dream_gate_only_in_level() &&
@@ -931,15 +1026,16 @@ achievement(
 
 // Aqua Garden: No multilaps
 achievement(
-    title = "Aqua Garden Special",
-    points = 0,
+    title = "Frontrunning",
+    points = 5,
     type = "",
-    description = format("Complete the first three Mares in Aqua Garden - Chase Mission without ever taking a second lap"),
+    description = format("In Aqua Garden - Chase Mission complete the first three Mares without ever taking a second lap"),
     trigger = 
     (
         // This pops when the boss dies and the score updates
         !in_multiplayer_mode() && !on_title() &&
-
+        // Correct level? Broadway Guide
+        aqua_garden_obj.get_level() == 0x00 &&
         // Additional sanity check
         prev(is_in_world("Aqua Garden")) &&
         !dream_gate_obj.dream_gate_only_in_level() &&
@@ -977,37 +1073,43 @@ list_data = {
         "obj": pure_valley_obj,
         "boss_obj": pure_valley_boss_obj,
         "names": "Pure Valley",
-        "boss_names": "Pure Valley Boss"
+        "boss_names": "Pure Valley Boss",
+        "title": "Eloquent Echo"
     },
     0x01: {
         "obj": lost_park_obj,
         "boss_obj": lost_park_boss_obj,
         "names": "Lost Park",
-        "boss_names": "Lost Park Boss"
+        "boss_names": "Lost Park Boss",
+        "title": "Wandering Wildness"
     },
     0x02: {
         "obj": delight_city_obj,
         "boss_obj": delight_city_boss_obj,
         "names": "Delight City",
-        "boss_names": "Delight City Boss"
+        "boss_names": "Delight City Boss",
+        "title": "Electric Entertainment"
     },
     0x03: {
         "obj": aqua_garden_obj,
         "boss_obj": aqua_garden_boss_obj,
         "names": "Aqua Garden",
-        "boss_names": "Aqua Garden Boss"
+        "boss_names": "Aqua Garden Boss",
+        "title": "Sweeping Seashore"
     },
     0x04: {
         "obj": crystal_castle_obj,
         "boss_obj": crystal_castle_boss_obj,
         "names": "Crystal Castle",
-        "boss_names": "Crystal Castle Boss"
+        "boss_names": "Crystal Castle Boss",
+        "title": "Crystal Choir"
     },
     0x05: {
         "obj": memory_forest_obj,
         "boss_obj": memory_forest_boss_obj,
         "names": "Memory Forest",
-        "boss_names": "Memory Forest Boss"
+        "boss_names": "Memory Forest Boss",
+        "title": "Merry Memory Go Round"
     }
 }
 
@@ -1016,7 +1118,7 @@ for element in list_data {
     item_obj = list_data[element]
 
     achievement(
-        title = item_obj["names"],
+        title = item_obj["title"],
         points = 10,
         type = "",
         description = format("Earn an A Rank in every mission in {0}", item_obj["names"]),
@@ -1040,11 +1142,8 @@ for element in list_data {
     )
 }
 // A Rank Bellbridge both versions
-
-// TODO: this uses high_score_data to ref the target (two total to pop); does this work properly?
-
 achievement(
-    title = "Bellbridge",
+    title = "Growing Wings",
     points = 10,
     type = "",
     description = format("Earn an A Rank in both versions of {0}", "Bellbridge"),
@@ -1059,6 +1158,95 @@ achievement(
         // measured(get_a_ranks_in_world("Pure Valley") == 0x05) && prev(get_a_ranks_in_world("Pure Valley") < 0x05)
 )
 
+// Dreamdrops
+
+dreamdrop_data = {
+    0x00: {
+        "start_adr": 0x10448400,
+        "amount": 4,
+        "world": "Dream Gate",
+        "title": "",
+        "pts": 5
+    },
+    0x01: {
+        "start_adr": 0x1044841c,
+        "amount": 8,
+        "world": "Pure Valley",
+        "title": "",
+        "pts": 10
+    },
+    0x02: {
+        "start_adr": 0x10448424,
+        "amount": 8,
+        "world": "Lost Park",
+        "title": "",
+        "pts": 10
+    },
+    0x03: {
+        "start_adr": 0x1044842c,
+        "amount": 8,
+        "world": "Delight City",
+        "title": "",
+        "pts": 10
+    },
+    0x04: {
+        "start_adr": 0x10448404,
+        "amount": 8,
+        "world": "Aqua Garden",
+        "title": "",
+        "pts": 10
+    },
+    0x05: {
+        "start_adr": 0x1044840c,
+        "amount": 8,
+        "world": "Crystal Castle",
+        "title": "",
+        "pts": 10
+    },
+    0x06: {
+        "start_adr": 0x10448414,
+        "amount": 8,
+        "world": "Memory Forest",
+        "title": "",
+        "pts": 10
+    },
+    0x07: {
+        "start_adr": 0x10448434,
+        "amount": 6,
+        "world": "Bellbridge", // both versions
+        "title": "",
+        "pts": 5
+    },
+    0x08: {
+        "start_adr": 0x1044843a,
+        "amount": 2,
+        "world": "My Dream",
+        "title": "",
+        "pts": 5
+    }
+}
+
+// Dreamdrops
+function sum_world_dreamseeds(start_adr, amount) {
+    return sum_of(range(0, amount - 1, 1), i => 
+        byte(start_adr + i)
+    )
+}
+
+for area in dreamdrop_data {
+    amount_collected = sum_world_dreamseeds(dreamdrop_data[area]["start_adr"], dreamdrop_data[area]["amount"])
+
+    achievement(
+    title = format("Dream Explorer: {0}", dreamdrop_data[area]["world"]),
+    points = dreamdrop_data[area]["pts"],
+    type = "",
+    description = format("Collect all Dreamdrops in {0}", dreamdrop_data[area]["world"]),
+    trigger = 
+        !in_multiplayer_mode() && !on_title() && 
+        measured(amount_collected == dreamdrop_data[area]["amount"]) && prev(amount_collected == dreamdrop_data[area]["amount"] - 1)
+    )
+}
+
 
 // RP
 
@@ -1072,98 +1260,107 @@ rich_presence_conditional_display(!in_multiplayer_mode() && dream_gate_obj.dream
 )
 
 // In Pure Valley
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_in_level(), "{2} is in Pure Valley • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley") && pure_valley_obj.is_playing_level(), "{2} is in Pure Valley • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Pure Valley", pure_valley_obj.get_level(), world_data_map["Pure Valley"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Pure Valley Boss
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_in_level(), "{1} is in Pure Valley • vs. Donbalon • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Pure Valley Boss") && pure_valley_boss_obj.is_playing_level(), "{1} is in Pure Valley • vs. Donbalon • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Lost Park
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Lost Park") && lost_park_obj.is_in_level(), "{2} is in Lost Park • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Lost Park") && lost_park_obj.is_playing_level(), "{2} is in Lost Park • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Lost Park", lost_park_obj.get_level(), world_data_map["Lost Park"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Lost Park Boss
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Lost Park Boss") && lost_park_boss_obj.is_in_level(), "{1} is in Lost Park • vs. Chamelan • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Lost Park Boss") && lost_park_boss_obj.is_playing_level(), "{1} is in Lost Park • vs. Chamelan • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Delight City
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Delight City") && delight_city_obj.is_in_level(), "{2} is in Delight City • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Delight City") && delight_city_obj.is_playing_level(), "{2} is in Delight City • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Delight City", delight_city_obj.get_level(), world_data_map["Delight City"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Delight City Boss
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Delight City Boss") && delight_city_boss_obj.is_in_level(), "{1} is in Delight City • vs. Cerberus • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Delight City Boss") && delight_city_boss_obj.is_playing_level(), "{1} is in Delight City • vs. Cerberus • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Aqua Garden
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Aqua Garden") && aqua_garden_obj.is_in_level(), "{2} is in Aqua Garden • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Aqua Garden") && aqua_garden_obj.is_playing_level(), "{2} is in Aqua Garden • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Aqua Garden", aqua_garden_obj.get_level(), world_data_map["Aqua Garden"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Aqua Garden Boss
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Aqua Garden Boss") && aqua_garden_boss_obj.is_in_level(), "{1} is in Aqua Garden • vs. Girania • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Aqua Garden Boss") && aqua_garden_boss_obj.is_playing_level(), "{1} is in Aqua Garden • vs. Girania • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Crystal Castle
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Crystal Castle") && crystal_castle_obj.is_in_level(), "{2} is in Crystal Castle • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Crystal Castle") && crystal_castle_obj.is_playing_level(), "{2} is in Crystal Castle • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Crystal Castle", crystal_castle_obj.get_level(), world_data_map["Crystal Castle"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Crystal Castle Boss
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Crystal Castle Boss") && crystal_castle_boss_obj.is_in_level(), "{1} is in Crystal Castle • vs. Bomamba • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Crystal Castle Boss") && crystal_castle_boss_obj.is_playing_level(), "{1} is in Crystal Castle • vs. Bomamba • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Memory Forest
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Memory Forest") && memory_forest_obj.is_in_level(), "{2} is in Memory Forest • {0} • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Memory Forest") && memory_forest_obj.is_playing_level(), "{2} is in Memory Forest • {0} • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Memory Forest", memory_forest_obj.get_level(), world_data_map["Memory Forest"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Memory Forest Boss
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Memory Forest Boss") && memory_forest_boss_obj.is_in_level(), "{1} is in Memory Forest • vs. Queen Bella • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Memory Forest Boss") && memory_forest_boss_obj.is_playing_level(), "{1} is in Memory Forest • vs. Queen Bella • {0} / 60 Dreamdrops",
+    rich_presence_value("Dreamdrops", dword_be(0x10448448)),
+    rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
+)
+
+// Bellbridge vs Reala
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Bellbridge") && bellbridge_obj.is_playing_level() &&
+                                  dword_be(0x10448324) == 0x03 && once(get_time_limit() == 300.0 && prev(get_time_limit() == 30.0)) && never(!is_in_world("Bellbridge") || dword_be(0x10448324) == 0x00),
+                                  "{2} is in Bellbridge • vs. Reala • {1} / 60 Dreamdrops",
+    rich_presence_lookup("Level: Bellbridge", bellbridge_obj.get_level(), world_data_map["Bellbridge"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Bellbridge
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Bellbridge") && bellbridge_obj.is_in_level(), "{2} is in Bellbridge • Chase Mission • {1} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Bellbridge") && bellbridge_obj.is_playing_level(), "{2} is in Bellbridge • Chase Mission • {1} / 60 Dreamdrops",
     rich_presence_lookup("Level: Bellbridge", bellbridge_obj.get_level(), world_data_map["Bellbridge"]["levels"], fallback="Unknown Level"),
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In Bellbridge Boss
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Bellbridge Boss") && bellbridge_boss_obj.is_in_level(), "{1} is in Bellbridge • vs. Wizeman • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("Bellbridge Boss") && bellbridge_boss_obj.is_playing_level(), "{1} is in Bellbridge • vs. Wizeman • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
 
 // In My Dream
-rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("My Dream") && mydream_obj.is_in_level(), "{1} is in My Dream • {0} / 60 Dreamdrops",
+rich_presence_conditional_display(!in_multiplayer_mode() && !on_title() && is_in_world("My Dream") && mydream_obj.is_playing_level(), "{1} is in My Dream • {0} / 60 Dreamdrops",
     rich_presence_value("Dreamdrops", dword_be(0x10448448)),
     rich_presence_lookup("Character", get_current_character(), char_map, fallback="The Visitor")
 )
