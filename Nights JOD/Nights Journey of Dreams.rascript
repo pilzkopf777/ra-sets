@@ -651,7 +651,7 @@ function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_w
 function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id, lb_value_data) {
     achievement(
         title = cheevo_title,
-        points = 2,
+        points = 3,
         type = "progression",
         description = format("Complete {0} - {1}", world, mission),
         trigger = 
@@ -706,7 +706,7 @@ function alt_level_clear_generator(cheevo_title, world, mission, world_is_in_wor
 function link_alt_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id) {
     achievement(
         title = cheevo_title,
-        points = 2,
+        points = 3,
         type = "progression",
         description = format("Complete {0} - {1}", world, mission),
         trigger = 
@@ -762,7 +762,7 @@ function link_alt_level_clear_generator(cheevo_title, world, mission, world_is_i
 function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_world_string, target_obj, level_id) {
     achievement(
         title = cheevo_title,
-        points = 5,
+        points = 10,
         type = "progression",
         description = format("Defeat {0} in a rematch in {1}", boss_name, world),
         trigger = 
@@ -978,7 +978,7 @@ achievement(
         // This pops when the boss dies and the score updates
         !in_multiplayer_mode() && !on_title() &&
         // Correct level? Broadway Guide
-        pure_valley_obj.get_level() == 0x03 &&
+        pure_valley_obj.get_level() == 0x02 &&
         // Additional sanity check
         prev(is_in_world("Pure Valley")) &&
         !dream_gate_obj.dream_gate_only_in_level() &&
@@ -1166,7 +1166,7 @@ dreamdrop_data = {
         "amount": 4,
         "world": "Dream Gate",
         "title": "",
-        "pts": 5
+        "pts": 10
     },
     0x01: {
         "start_adr": 0x1044841c,
@@ -1215,14 +1215,14 @@ dreamdrop_data = {
         "amount": 6,
         "world": "Bellbridge", // both versions
         "title": "",
-        "pts": 5
+        "pts": 10
     },
     0x08: {
         "start_adr": 0x1044843a,
         "amount": 2,
         "world": "My Dream",
         "title": "",
-        "pts": 5
+        "pts": 10
     }
 }
 
