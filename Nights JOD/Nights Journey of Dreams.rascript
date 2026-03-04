@@ -813,7 +813,7 @@ function boss_level_clear_generator(cheevo_title, world, boss_name, world_is_in_
 world = "Pure Valley"
 
 chase_level_clear_generator("A Breath of Fresh Air", world, "Chase Mission", "Pure Valley Boss", pure_valley_boss_obj, 0x00)
-link_alt_level_clear_generator("Linking in the Valley", world, "Link Challenge", world, pure_valley_obj, 0x01)
+link_alt_level_clear_generator("Like a Certain Superhero", world, "Link Challenge", world, pure_valley_obj, 0x01)
 alt_level_clear_generator("What Goes Up...", world, "Fluffy Catch", world, pure_valley_obj, 0x02, alt_lives_penalty_final_score())
 alt_level_clear_generator("Go with the Flow", world, "River Rescue", world, pure_valley_obj, 0x03, alt_get_final_score_100_target())
 boss_level_clear_generator("Bouncy House", world, "Donbalon", "Pure Valley Boss", pure_valley_boss_obj, 0x01)
@@ -822,7 +822,7 @@ world = "Lost Park"
 
 chase_level_clear_generator("Ticket to Ride", world, "Chase Mission", "Lost Park Boss", lost_park_boss_obj, 0x00)
 alt_level_clear_generator("Short Fuse", world, "Bomb Panic", world, lost_park_obj, 0x01, alt_get_final_score_1000_no_target())
-link_alt_level_clear_generator("Linking in the Park", world, "Link Challenge", world, lost_park_obj, 0x02)
+link_alt_level_clear_generator("Linking Park", world, "Link Challenge", world, lost_park_obj, 0x02)
 alt_level_clear_generator("Off the Rails", world, "Coaster Rescue", world, lost_park_obj, 0x03, alt_get_final_score_1000_no_target())
 boss_level_clear_generator("Card Sharked", world, "Chamelan", "Lost Park Boss", lost_park_boss_obj, 0x01)
 
@@ -849,7 +849,7 @@ achievement(
 
 chase_level_clear_generator("Bright Lights, Big City", world, "Chase Mission", "Delight City Boss", delight_city_boss_obj, 0x00)
 alt_level_clear_generator("Concrete Jungle" ,world, "Neon City Battle", world, delight_city_obj, 0x01, alt_get_final_score_1000_no_target())
-link_alt_level_clear_generator("Linking in the City" ,world, "Link Challenge", world, delight_city_obj, 0x02)
+link_alt_level_clear_generator("Making the Connection" ,world, "Link Challenge", world, delight_city_obj, 0x02)
 alt_level_clear_generator("Stage Presence", world, "Broadway Guide", world, delight_city_obj, 0x03, get_escort_final_score(30000, delight_city_obj))
 // Start at 30000, losing 50 pts per sec
 boss_level_clear_generator("Triple Threat", world, "Cerberus", "Delight City Boss", delight_city_boss_obj, 0x01)
@@ -858,14 +858,14 @@ world = "Aqua Garden"
 
 chase_level_clear_generator("Making Waves", world, "Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
 alt_level_clear_generator("Don't Burst the Bubble", world, "Aqua Challenge", world, aqua_garden_obj, 0x01, alt_get_final_score_100_target())
-link_alt_level_clear_generator("Linking in the Garden", world, "Link Challenge", world, aqua_garden_obj, 0x02)
+link_alt_level_clear_generator("Squid-in-a-box", world, "Link Challenge", world, aqua_garden_obj, 0x02)
 alt_level_clear_generator("Out of the Blue", world, "Marine Escape", world, aqua_garden_obj, 0x03, get_escort_final_score(30000, aqua_garden_obj))
 boss_level_clear_generator("Hook, Line, and Sinker", world, "Girania", "Aqua Garden Boss", aqua_garden_boss_obj, 0x01)
 
 world = "Crystal Castle"
 
 chase_level_clear_generator("Refraction Action", world, "Chase Mission", "Crystal Castle Boss", crystal_castle_boss_obj, 0x00)
-link_alt_level_clear_generator("Linking in the Castle", world, "Link Challenge", world, crystal_castle_obj, 0x01)
+link_alt_level_clear_generator("Queen of the Castle", world, "Link Challenge", world, crystal_castle_obj, 0x01)
 alt_level_clear_generator("Exit Strategy", world, "Labyrinth Guide", world, crystal_castle_obj, 0x02, get_escort_final_score(30000, crystal_castle_obj))
 alt_level_clear_generator("That's Rich", world, "Jewel Fever", world, crystal_castle_obj, 0x03, alt_get_final_score_100_target())
 boss_level_clear_generator("The Cat's out of the Bag", world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
@@ -874,7 +874,7 @@ world = "Memory Forest"
 
 chase_level_clear_generator("Deep Roots", world, "Chase Mission", "Memory Forest Boss", memory_forest_boss_obj, 0x00)
 alt_level_clear_generator("Branching Out", world, "Forest Adventure", world, memory_forest_obj, 0x01, get_escort_final_score(30000, memory_forest_obj))
-link_alt_level_clear_generator("Linking in the Forest", world, "Link Challenge", world, memory_forest_obj, 0x02)
+link_alt_level_clear_generator("Chain of Memories", world, "Link Challenge", world, memory_forest_obj, 0x02)
 alt_level_clear_generator("Ending on a High Note", world, "Sky Concert", world, memory_forest_obj, 0x03, alt_lives_penalty_final_score())
 boss_level_clear_generator("Queen's Gambit", world, "Queen Bella", "Memory Forest Boss", memory_forest_boss_obj, 0x01)
 
@@ -1102,7 +1102,7 @@ list_data = {
         "boss_obj": crystal_castle_boss_obj,
         "names": "Crystal Castle",
         "boss_names": "Crystal Castle Boss",
-        "title": "The Beat Goes On"
+        "title": "Crystal Choir"
     },
     0x05: {
         "obj": memory_forest_obj,
