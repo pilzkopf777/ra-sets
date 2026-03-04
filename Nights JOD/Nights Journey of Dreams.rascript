@@ -1102,7 +1102,7 @@ list_data = {
         "boss_obj": crystal_castle_boss_obj,
         "names": "Crystal Castle",
         "boss_names": "Crystal Castle Boss",
-        "title": "Crystal Choir"
+        "title": "The Beat Goes On"
     },
     0x05: {
         "obj": memory_forest_obj,
