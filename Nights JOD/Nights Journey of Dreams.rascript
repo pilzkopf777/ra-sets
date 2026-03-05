@@ -617,7 +617,7 @@ function final_result_just_shown(target_obj) {
 function chase_level_clear_generator(cheevo_title, world, mission, world_is_in_world_string, target_obj, level_id) {
     achievement(
         title = cheevo_title,
-        points = 3,
+        points = 5,
         type = "progression",
         description = format("Complete {0} - {1}", world, mission),
         trigger = 
