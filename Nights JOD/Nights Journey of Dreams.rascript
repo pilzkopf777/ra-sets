@@ -877,7 +877,7 @@ world = "Aqua Garden"
 
 chase_level_clear_generator("Making Waves", world, "Chase Mission", "Aqua Garden Boss", aqua_garden_boss_obj, 0x00)
 alt_level_clear_generator("Don't Burst the Bubble", world, "Aqua Challenge", world, aqua_garden_obj, 0x01, alt_get_final_score_100_target())
-link_alt_level_clear_generator("Squid-in-a-box", world, "Link Challenge", world, aqua_garden_obj, 0x02)
+link_alt_level_clear_generator("Squid-in-a-Box", world, "Link Challenge", world, aqua_garden_obj, 0x02)
 alt_level_clear_generator("Out of the Blue", world, "Marine Escape", world, aqua_garden_obj, 0x03, get_escort_final_score(30000, aqua_garden_obj))
 boss_level_clear_generator("Hook, Line, and Sinker", world, "Girania", "Aqua Garden Boss", aqua_garden_boss_obj, 0x01)
 
