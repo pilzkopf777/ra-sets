@@ -563,10 +563,9 @@ achievement(
     description = format("Dualize with NiGHTS and complete your first test flight"),
     trigger = 
         !in_multiplayer_mode() &&
-        never(on_title()) &&
-        never(!dream_gate_obj.dream_gate_only_in_level()) &&
+        !on_title() &&
         // Player must have been in the level for a bit, prevent false trigger via loading state
-        repeated(500, dream_gate_obj.dream_gate_only_in_level()) &&
+        dream_gate_obj.dream_gate_only_in_level() && byte(0x104496c0) == 0x00 &&
         (
             (
                 is_will() &&
@@ -574,6 +573,26 @@ achievement(
             ) || (
                 is_helen() &&
                 event_flags["Helen"]["unlocked_1st_door"] == 0x01 && prev(event_flags["Helen"]["unlocked_1st_door"] == 0x00)
+            )
+        )
+)
+
+achievement(
+    title = "Split Personality",
+    points = 1,
+    type = "",
+    description = format("Meet familiar faces from Twin Seeds in the Dream Gate"),
+    trigger = 
+        !in_multiplayer_mode() &&
+        !on_title() &&
+        dream_gate_obj.dream_gate_only_in_level() && byte(0x104496c0) == 0x00 &&
+        (
+            (
+                is_will() &&
+                prev(dword_be(0x1044b188)) == 0x01 && dword_be(0x1044b188) == 0x03
+            ) || (
+                is_helen() &&
+                prev(dword_be(0x1044b188)) == 0x00 && dword_be(0x1044b188) == 0x02
             )
         )
 )
@@ -1060,6 +1079,39 @@ achievement(
         // I hate this but it seems to be a good solution since I have a reset inside the PauseIf: Reset the achievement if the player restarts the stage
         (
             always_false() || never(aqua_garden_obj.get_time_spent() < 0.2 && prev(aqua_garden_obj.get_time_spent() <= 0.2))
+        )
+    )
+)
+
+achievement(
+    title = "Dash Meter Allergy",
+    points = 5,
+    type = "",
+    description = format("In Memory Forest - Chase Mission, complete the first Mare without flying through any rings"),
+    trigger = 
+    (
+        // This pops when the boss dies and the score updates
+        !in_multiplayer_mode() && !on_title() &&
+        // Correct level? Any Chase Mission
+        memory_forest_obj.get_level() == 0x00 &&
+        // Additional sanity check
+        prev(is_in_world("Memory Forest")) &&
+        !dream_gate_obj.dream_gate_only_in_level() &&
+        is_in_world("Memory Forest") && memory_forest_obj.is_playing_level() &&
+        memory_forest_obj.get_time_spent() >= 0.1 &&
+        // Mare 1
+        prev(dword_be(0x10448324) == 0x00) &&
+        // Deny the achievement when the player gained link while not gaining blue chips -> ring
+        disable_when(
+            // Link increased
+            dword_be(0x10448330) > prev(dword_be(0x10448330)) &&
+            // Blue Chips also increased on same frame
+            dword_be(0x10445f3c) == prev(dword_be(0x10445f3c)),
+            until=memory_forest_obj.get_time_spent() < 0.1
+        ) &&
+        // Unlock when inc by 5 in single frame
+        trigger_when(
+            dword_be(0x10448324) > prev(dword_be(0x10448324))
         )
     )
 )
