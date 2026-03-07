@@ -887,7 +887,7 @@ chase_level_clear_generator("Refraction Action", world, "Chase Mission", "Crysta
 link_alt_level_clear_generator("Queen of the Castle", world, "Link Challenge", world, crystal_castle_obj, 0x01)
 alt_level_clear_generator("Exit Strategy", world, "Labyrinth Guide", world, crystal_castle_obj, 0x02, get_escort_final_score(30000, crystal_castle_obj))
 alt_level_clear_generator("That's Rich", world, "Jewel Fever", world, crystal_castle_obj, 0x03, alt_get_final_score_100_target())
-boss_level_clear_generator("The Cat's out of the Bag", world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
+boss_level_clear_generator("The Cat's Out of the Bag", world, "Bomamba", "Crystal Castle Boss", crystal_castle_boss_obj, 0x01)
 
 world = "Memory Forest"
 
@@ -920,7 +920,7 @@ achievement(
 )
 
 achievement(
-    title = "Come on, NiGHTS!",
+    title = "Come On, NiGHTS!",
     points = 5,
     type = "progression",
     description = format("Defeat Reala in {0} after collecting the Ideya of Hope", world),
@@ -1292,7 +1292,7 @@ for area in dreamdrop_data {
     title = format("Dream Explorer: {0}", dreamdrop_data[area]["world"]),
     points = dreamdrop_data[area]["pts"],
     type = "",
-    description = format("Collect all Dreamdrops in {0}", dreamdrop_data[area]["world"]),
+    description = format("Collect every Dreamdrop in {0}", dreamdrop_data[area]["world"]),
     trigger = 
         !in_multiplayer_mode() && !on_title() && 
         measured(amount_collected == dreamdrop_data[area]["amount"]) && prev(amount_collected == dreamdrop_data[area]["amount"] - 1)
