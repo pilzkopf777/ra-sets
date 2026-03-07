@@ -991,7 +991,7 @@ achievement(
     title = "Caught onto It",
     points = 3,
     type = "",
-    description = format("In Pure Valley - Fluffy Catch paraloop five Nightopians at the same time"), // todo names?
+    description = format("In Pure Valley - Fluffy Catch, paraloop five Nightopians at the same time"), // todo names?
     trigger = 
     (
         // This pops when the boss dies and the score updates
@@ -1016,7 +1016,7 @@ achievement(
     title = "No Time for Sightseeing",
     points = 5,
     type = "",
-    description = format("In Delight City - Broadway Guide reach the goal without picking up any Time Chips"),
+    description = format("In Delight City - Broadway Guide, reach the goal without picking up any Time Chips"),
     trigger = 
     (
         // This pops when the boss dies and the score updates
@@ -1048,7 +1048,7 @@ achievement(
     title = "Frontrunning",
     points = 5,
     type = "",
-    description = format("In Aqua Garden - Chase Mission complete the first three Mares without ever taking a second lap"),
+    description = format("In Aqua Garden - Chase Mission, complete the first three Mares without ever taking a second lap"),
     trigger = 
     (
         // This pops when the boss dies and the score updates
