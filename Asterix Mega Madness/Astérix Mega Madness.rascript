@@ -815,7 +815,7 @@ minigame_score_data = {
         "game_name": "Shoot & Score",
         "target": 3000,
         "title": "Shot and Scored",
-        "score_size": 64,
+        "score_size": 32,
         "p1_score_adr": 0x86658,
         "p2_score_adr": 0x86bb0
     },
@@ -823,7 +823,7 @@ minigame_score_data = {
         "game_name": "Recipe Run",
         "target": 2000,
         "title": "Just Use Beetroot Juice",
-        "score_size": 64,
+        "score_size": 32,
         "p1_score_adr": 0x8d438,
         "p2_score_adr": 0x8d790
     },
@@ -831,7 +831,7 @@ minigame_score_data = {
         "game_name": "Food Feast",
         "target": 2500,
         "title": "The Final Page",
-        "score_size": 64,
+        "score_size": 32,
         "p1_score_adr": 0x81b7c,
         "p2_score_adr": 0x82a40
     },
@@ -839,7 +839,7 @@ minigame_score_data = {
         "game_name": "Boar Bash",
         "target": 3500,
         "title": "Breakfast Is Served",
-        "score_size": 64,
+        "score_size": 32,
         "p1_score_adr": 0x896e4,
         "p2_score_adr": 0x89a2c
     },
@@ -855,7 +855,7 @@ minigame_score_data = {
         "game_name": "Camp Crashing",
         "target": 3000,
         "title": "Cleanup Crew",
-        "score_size": 64,
+        "score_size": 32,
         "p1_score_adr": 0x97bec,
         "p2_score_adr": 0x97f6c
     },
@@ -871,7 +871,7 @@ minigame_score_data = {
         "game_name": "Helmet Hoarding",
         "target": 2000,
         "title": "Stash Superstar",
-        "score_size": 64,
+        "score_size": 32,
         "p1_score_adr": 0x8d670,
         "p2_score_adr": 0x8d9ac
     },
@@ -911,7 +911,7 @@ minigame_score_data = {
         "game_name": "Shoot to Survive",
         "target": 2500,
         "title": "Last Line of Defense",
-        "score_size": 64,
+        "score_size": 32,
         "p1_score_adr": 0x86658,
         "p2_score_adr": 0x86bb0
     }
