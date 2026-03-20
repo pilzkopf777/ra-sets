@@ -320,7 +320,7 @@ achievement(
     trigger = 
         in_a_race() && !in_multiplayer() && !in_challenge() &&
         get_qualification_round() == 4 &&
-        get_qualification_step() == 4 &&
+        // get_qualification_step() == 4 &&
         challenge_or_qualification_text_just_displayed()
 )
 
