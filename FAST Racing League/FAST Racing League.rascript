@@ -77,6 +77,21 @@ formatted_track_map = {
 
 // frames % 60 == 0 -> millis are 0
 time_trial_targets = {
+    0x00: 5100.0, //01'24"08
+    0x01: 7800.0, //02'09"30
+    0x02: 6300.0, //01'44"60
+    0x03: 4800.0,
+    0x10: 5820.0,
+    0x11: 6720.0,
+    0x12: 7380.0,
+    0x13: 3840.0,
+    0x20: 6000.0,
+    0x21: 4860.0,
+    0x22: 7380.0,
+    0x23: 4620.0,
+}
+
+time_trial_targets_dec = {
     0x00: 5100, //01'24"08
     0x01: 7800, //02'09"30
     0x02: 6300, //01'44"60
@@ -90,7 +105,6 @@ time_trial_targets = {
     0x22: 7380,
     0x23: 4620,
 }
-
 
 function in_challenge() {
     return dword_be(0x10642868) == 0x01
@@ -183,8 +197,7 @@ function challenge_or_qualification_text_just_displayed() {
 }
 
 function get_class() {
-    // 0, 1, 2
-    return bit0(0x10648d3b) + bit1(0x10648d3b)
+    return dword_be(0x10648b04)
 }
 
 function get_qualification_round() {
@@ -346,7 +359,7 @@ for current_class in range(0, 2, 1) {
 // Clear Missions
 achievement(
     title = format("Holding the Line"),
-    points = 3,
+    points = 5,
     description = format("Complete every Level A challenge"),
     trigger = 
         in_challenge() &&
@@ -427,9 +440,9 @@ for element in formatted_track_map {
     )
 
     achievement(
-        title = format("Full Throttle: {1}", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
+        title = format("Full Throttle: {1}", frame_time_to_readable_string(time_trial_targets_dec[track_id]), track_name),
         points = 10,
-        description = format("Reach the goal in {0} or less on {1} in Ion Class in either a League or FAST Record race", frame_time_to_readable_string(time_trial_targets[track_id]), track_name),
+        description = format("Reach the goal in {0} or less on {1} in Ion Class in either a League or FAST Record race", frame_time_to_readable_string(time_trial_targets_dec[track_id]), track_name),
         trigger = 
             in_a_race() && !in_multiplayer() &&
             get_formatted_track() == element &&
@@ -437,7 +450,7 @@ for element in formatted_track_map {
             get_qualification_round() == 0x00 &&
             !in_challenge() &&
             get_laps_completed() == 3 && prev(get_laps_completed()) == 2 &&
-            get_total_race_time_in_frames() > time_trial_targets[track_id]
+            get_total_race_time_in_frames() <= time_trial_targets[track_id]
     )
 
 }

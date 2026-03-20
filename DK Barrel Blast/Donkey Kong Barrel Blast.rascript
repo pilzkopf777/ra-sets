@@ -474,81 +474,97 @@ time_trial_data = [
     {
         "track_id": 0x00, // DK Jungle
         "target_time": 5107,
+        "target_time_float": 5107.0,
         "valid_characters": [0x00, 0x05]
     },
     {
         "track_id": 0x01, // DK J Falls
         "target_time": 6883,
+        "target_time_float": 6883.0,
         "valid_characters": [0x01, 0x06]
     },
     {
         "track_id": 0x02, // DK J Sunset
         "target_time": 7308, // 02:01:80
+        "target_time_float": 7308.0,
         "valid_characters": [0x02, 0x07]
     },
     {
         "track_id": 0x03, // Salty Sea
         "target_time": 6781,
+        "target_time_float": 6781.0,
         "valid_characters": [0x0c, 0x0e]
     },
     {
         "track_id": 0x04, // Shimmering Sea
         "target_time": 7128,
+        "target_time_float": 7128.0,
         "valid_characters": [0x03, 0x08]
     },
     {
         "track_id": 0x05, // Open Ocean
         "target_time": 6943, // 1:55:70
+        "target_time_float": 6943.0,
         "valid_characters": [0x04, 0x09]
     },
     {
         "track_id": 0x06, // Mt. Dynamite
         "target_time": 8675,
+        "target_time_float": 8675.0,
         "valid_characters": [0x0a, 0x0f]
     },
     {
         "track_id": 0x07, // Mt. Dynamite Remix
         "target_time": 11744,
+        "target_time_float": 11744.0,
         "valid_characters": [0x0d, 0x0b]
     },
     {
         "track_id": 0x08, // Dynamite Run
         "target_time": 11489,
+        "target_time_float": 11489.0,
         "valid_characters": [0x00, 0x05]
     },
     {
         "track_id": 0x09, // Cranky Temple
         "target_time": 8618,
+        "target_time_float": 8618.0,
         "valid_characters": [0x01, 0x06]
     },
     {
         "track_id": 0x0a, // Temple Heights
         "target_time": 10277,
+        "target_time_float": 10277.0,
         "valid_characters": [0x02, 0x07]
     },
     {
         "track_id": 0x0b, // Cosmic Highway
         "target_time": 10796,
+        "target_time_float": 10796.0,
         "valid_characters": [0x0c, 0x0e]
     },
     {
         "track_id": 0x0c, // Scorching Canyon
         "target_time": 7356,
+        "target_time_float": 7356.0,
         "valid_characters": [0x03, 0x08]
     },
     {
         "track_id": 0x0d, // Parched Palace
         "target_time": 10825,
+        "target_time_float": 10825.0,
         "valid_characters": [0x04, 0x09]
     },
     {
         "track_id": 0x0e, // Mammoth Glacier
         "target_time": 7708,
+        "target_time_float": 7708.0,
         "valid_characters": [0x0a, 0x0f]
     },
     {
         "track_id": 0x0f, // Alpine Peak
         "target_time": 10321,
+        "target_time_float": 10321.0,
         "valid_characters": [0x0d, 0x0b]
     },
 ]
@@ -603,7 +619,7 @@ for element in time_trial_data {
     achievement(
     title = format("Going Ape in {0}", track_map[element["track_id"]]),
     points = 25,
-    description = format("Complete {3} in a Time Trial on Expert in under {2} as {0} or {1}",
+    description = format("Complete {3} in Time Trial on Expert difficulty in under {2} as {0} or {1}",
         character_map[element["valid_characters"][0]], // char 1
         character_map[element["valid_characters"][1]], // char 2
         frame_time_to_readable_string(element["target_time"]), // time
@@ -616,13 +632,13 @@ for element in time_trial_data {
         (
             player_1_obj.get_character() == element["valid_characters"][0] || player_1_obj.get_character() == element["valid_characters"][1]
         ) &&
-        player_1_obj.get_total_time() >= frame_time_to_next_second(element["target_time"]) &&
+        player_1_obj.get_total_time() <= frame_time_to_next_second(element["target_time_float"]) &&
         trigger_when(player_1_obj.finished_race())
     )
 
     leaderboard(
         title = format("Time Trial: {0} (Expert)", track_map[element["track_id"]]),
-        description = format("Complete {0} in a Time Trial on Expert as any character except Ultra Barrel DK as quickly as possible!",
+        description = format("Complete {0} in Time Trial on Expert difficulty as any character except Ultra Barrel DK as quickly as possible!",
         track_map[element["track_id"]] // track
     ),
         start = 
