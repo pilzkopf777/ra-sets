@@ -261,7 +261,7 @@ achievement(
     points = 2,
     description = format("Win a race in League or FAST Records mode without shifting"),
     trigger = 
-        in_a_race() && !in_multiplayer() && !in_challenge() &&
+        in_a_race() && !in_multiplayer() && !in_challenge() && get_qualification_round() == 0x00 &&
         disable_when(player_1_shifted(), until=in_flyover()) &&
         trigger_when(
             get_laps_completed() == 3 && prev(get_laps_completed()) == 2 && player_1_in_1st()
@@ -285,7 +285,7 @@ achievement(
     points = 2,
     description = format("Win a race in League or FAST Records mode without crashing"),
     trigger = 
-        in_a_race() && !in_multiplayer() && !in_challenge() &&
+        in_a_race() && !in_multiplayer() && !in_challenge() && get_qualification_round() == 0x00 &&
         disable_when(ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be) < 0x02 && // Value jumped too high: OOB
                 prev(ptr(dword_be(0x531954), [0x20, 0x6c, 0x310], dword_be)) >= 0x02,
             until=in_flyover()) &&
@@ -378,7 +378,7 @@ achievement(
     description = format("Earn a star rating in every level A challenge"),
     trigger = 
         in_challenge() &&
-        measured(cleared_a_missions == 7) && prev(cleared_a_missions == 6)
+        measured(star_cleared_a_missions == 7) && prev(star_cleared_a_missions == 6)
 )
 
 achievement(
@@ -387,7 +387,7 @@ achievement(
     description = format("Earn a star rating in every level B challenge"),
     trigger = 
         in_challenge() &&
-        measured(cleared_b_missions == 7) && prev(cleared_b_missions == 6)
+        measured(star_cleared_b_missions == 7) && prev(star_cleared_b_missions == 6)
 )
 
 achievement(
@@ -396,7 +396,7 @@ achievement(
     description = format("Earn a star rating in every level C challenge"),
     trigger = 
         in_challenge() &&
-        measured(cleared_c_missions == 7) && prev(cleared_c_missions == 6)
+        measured(star_cleared_c_missions == 7) && prev(star_cleared_c_missions == 6)
 )
 
 // Leaderboards, Target Times
