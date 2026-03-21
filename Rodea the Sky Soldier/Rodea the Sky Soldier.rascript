@@ -390,7 +390,8 @@ class RodeaObject
 
     // Be careful, not all stages end on the victory pose (e.g. chapter 8)
     function in_victory_pose() {
-        return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x4a
+        return ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x4a ||
+               ptr(PLAYER_DATA_POINTER, [0x08, 0x128], dword_be) == 0x46
     }
 
     function on_wire_cable() {
@@ -702,7 +703,7 @@ achievement(
 title = "More than Just an Order",
 points = 1,
 type = "progression",
-description = "Make a promise",
+description = "Receive part of the Key of Time",
 trigger = 
     !check_if_on_title_screen() && prev(get_current_chapter()) == 0 &&
     (
