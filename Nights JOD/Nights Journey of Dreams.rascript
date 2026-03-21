@@ -1201,9 +1201,9 @@ achievement(
     description = format("Earn an A Rank in both versions of {0}", "Bellbridge"),
     trigger = 
         // This pops when the boss dies and the score updates
-        is_in_world("Bellbridge Boss") && bellbridge_boss_obj.is_in_level() &&
+        is_in_world("Bellbridge Boss") && // bellbridge_boss_obj.is_in_level() &&
         !in_multiplayer_mode() && !on_title() && 
-        bellbridge_obj.just_won_level() &&
+        bellbridge_boss_obj.in_victory_animation() &&
         never(on_title()) &&
         measured(tally_of(high_score_data["Bellbridge"], 2, input => once(high_score_data["Bellbridge"][input]["rank"] == 0x00 && high_score_data["Bellbridge"][input]["score"] > 0)))
         // tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0))
@@ -1295,7 +1295,9 @@ for area in dreamdrop_data {
     description = format("Collect every Dreamdrop in {0}", dreamdrop_data[area]["world"]),
     trigger = 
         !in_multiplayer_mode() && !on_title() && 
-        measured(amount_collected == dreamdrop_data[area]["amount"]) && prev(amount_collected == dreamdrop_data[area]["amount"] - 1)
+        measured(
+            amount_collected == dreamdrop_data[area]["amount"], !on_title()
+        ) && prev(amount_collected == dreamdrop_data[area]["amount"] - 1)
     )
 }
 
