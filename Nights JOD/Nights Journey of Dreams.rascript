@@ -1187,7 +1187,7 @@ for element in list_data {
             ) &&
             !in_multiplayer_mode() && !on_title() && 
             never(on_title()) &&
-            measured(tally_of(high_score_data[item_obj["names"]], 5, input => once(high_score_data[item_obj["names"]][input]["rank"] == 0x00 && high_score_data[item_obj["names"]][input]["score"] > 0))) &&
+            measured(tally_of(high_score_data[item_obj["names"]], 5, input => once(high_score_data[item_obj["names"]][input]["rank"] == 0x00 && high_score_data[item_obj["names"]][input]["score"] > 0)), !on_title()) &&
             tally_of(high_score_data[item_obj["names"]], 4, input => once(prev(high_score_data[item_obj["names"]][input]["rank"] == 0x00 && high_score_data[item_obj["names"]][input]["score"] > 0)))
             // tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0))
             // measured(get_a_ranks_in_world("Pure Valley") == 0x05) && prev(get_a_ranks_in_world("Pure Valley") < 0x05)
@@ -1205,7 +1205,7 @@ achievement(
         !in_multiplayer_mode() && !on_title() && 
         bellbridge_boss_obj.in_victory_animation() &&
         never(on_title()) &&
-        measured(tally_of(high_score_data["Bellbridge"], 2, input => once(high_score_data["Bellbridge"][input]["rank"] == 0x00 && high_score_data["Bellbridge"][input]["score"] > 0)))
+        measured(tally_of(high_score_data["Bellbridge"], 2, input => once(high_score_data["Bellbridge"][input]["rank"] == 0x00 && high_score_data["Bellbridge"][input]["score"] > 0)), !on_title())
         // tally_of(high_score_data["Pure Valley"], 5, input => once(high_score_data["Pure Valley"][input]["rank"] == 0x00 && high_score_data["Pure Valley"][input]["score"] > 0))
         // measured(get_a_ranks_in_world("Pure Valley") == 0x05) && prev(get_a_ranks_in_world("Pure Valley") < 0x05)
 )
