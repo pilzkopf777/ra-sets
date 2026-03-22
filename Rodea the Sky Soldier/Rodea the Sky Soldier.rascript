@@ -503,7 +503,14 @@ function escape_bomb_logic() {
 function clear_all_rolling_enemies_logic() {
     chain_target = 6
     return get_current_chapter() == 9 && get_top_objective_id() == 2 &&
-    disable_when(rodea.get_chain() < prev(rodea.get_chain()), until=rodea.died() || prev(get_stage_time() == 0) && get_stage_time() != 0) &&
+    disable_when(rodea.get_chain() < prev(rodea.get_chain()), until=
+        (
+            rodea.died() ||
+            get_top_objective_id() == 2 && prev(get_top_objective_id()) != 2
+        )
+        // (get_top_objective_id() == 2 && prev(get_top_objective_id()) != 2) ||
+        // prev(get_stage_time() == 0) && get_stage_time() != 0
+    ) &&
     trigger_when(rodea.get_chain() == chain_target && prev(rodea.get_chain()) == chain_target - 1)
 }
 
