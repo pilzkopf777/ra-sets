@@ -944,7 +944,10 @@ function trophy_revealed() {
     trophy_state = ptr(dword_be(0x0048319c), [0x01], byte)
     cup_prog = ptr(dword_be(0x0048318c), [0x3c], dword_be)
     // trophy revealed and players was on final race of cup, timecode done
-    return trophy_state == 0x05 && prev(trophy_state < 0x05) && cup_prog == dword_be(0x35204c) && float_be(0x0053f368) > 1200.0
+    return trophy_state == 0x05 && prev(trophy_state < 0x05) && cup_prog == dword_be(0x35204c) &&
+    (
+        float_be(0x0053f368) > 1200.0 || float_be(0x0053f388) > 1200.0
+    )
 }
 
 escalation = ["Run", "Rush", "Rampage"]

@@ -1060,18 +1060,19 @@ achievement(
         !dream_gate_obj.dream_gate_only_in_level() &&
         is_in_world("Aqua Garden") && aqua_garden_obj.is_playing_level() &&
         aqua_garden_obj.get_time_spent() >= 0.1 &&
-        once(byte(0x104496e6) == 0x00) &&
         // byte(0x104496ee) goes from 1 to 0 on new lap; there may never be a switch
         disable_when(
             // Lap completed
             once(byte(0x104496ee) == 0x00 && prev(byte(0x104496ee) == 0x01)) && 
             // Mare did not update for x frames -> the player did not advance the mare...
             (
-                repeated(5, dword_be(0x10448324) == prev(dword_be(0x10448324))) &&
-                // Reset above counter is Mare completed
-                never(dword_be(0x10448324) > prev(dword_be(0x10448324)))
+                (
+                    repeated(5, dword_be(0x10448324) == prev(dword_be(0x10448324)))
+                )
             )
         ) &&
+        // Reset above counter is Mare completed
+        never(dword_be(0x10448324) > prev(dword_be(0x10448324))) &&
         // Unlock when Mare 3 completed
         trigger_when(
             dword_be(0x10448324) == 0x03 && prev(dword_be(0x10448324) == 0x02)

@@ -519,9 +519,12 @@ function spiderweb_climb_cp_11() {
 
     return get_current_chapter() == 11 &&
     (never(rodea.died())) &&
-    once(rodea.get_pos_z() > -363.0 && prev(rodea.get_pos_z()) < -363.0 && rodea.on_wire_cable()) &&
+    once(rodea.get_pos_z() > -355.0 && prev(rodea.get_pos_z()) < -355.0 && rodea.on_wire_cable()) &&
     trigger_when(rodea.get_chain() == 9 && trigger_loc) &&
-    disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9, until=rodea.died() || prev(get_stage_time() == 0) && get_stage_time() != 0)
+    disable_when(rodea.get_chain() < prev(rodea.get_chain()) || trigger_loc && rodea.get_chain() != 9, until=
+        rodea.died() ||
+        rodea.get_pos_z() > -363.0 && prev(rodea.get_pos_z()) < -363.0 && rodea.on_wire_cable()
+    )
 }
 
 function topdown_gun_section_logic() {
