@@ -1071,8 +1071,11 @@ achievement(
                 )
             )
         ) &&
-        // Reset above counter is Mare completed
-        never(dword_be(0x10448324) > prev(dword_be(0x10448324))) &&
+        // Reset above counter is Mare completed AND Mare is < 3
+        never(
+            dword_be(0x10448324) < 3 &&
+            dword_be(0x10448324) > prev(dword_be(0x10448324))
+        ) &&
         // Unlock when Mare 3 completed
         trigger_when(
             dword_be(0x10448324) == 0x03 && prev(dword_be(0x10448324) == 0x02)
