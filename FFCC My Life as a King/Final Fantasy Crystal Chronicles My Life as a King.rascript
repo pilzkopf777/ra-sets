@@ -30,112 +30,254 @@ function ptr(base, offsets, accessor=dword_be)
 
 game_region = dword_be(0x00003180)
 
-region_map = {
-    0x57464345: "US",
-    0x57464350: "EU"
+function is_game_region_eu() {
+    return game_region == 0x57464350
 }
 
-upgrades = {
+function is_game_region_us() {
+    return game_region == 0x57464345
+}
+
+function is_dlc_installed() {
+    return ptr(dword_be(0x00436e94), [0x8F34C, 0x04], dword_be) == 0x03
+}
+
+function is_dlc_not_installed() {
+    return ptr(dword_be(0x00436e94), [0x8F34C, 0x04], dword_be) == 0x01
+}
+
+function dlc_not_init_yet() {
+    return ptr(dword_be(0x00436e94), [0x8F34C, 0x04], dword_be) != 0x01 && ptr(dword_be(0x00436e94), [0x8F34C, 0x04], dword_be) != 0x03 
+}
+
+class KingdomData {
+    // assuming eu data...:
+    start_addon_offset = 0 // 0x8D648 for base, 0x8D648 for dlc
+    post_addon_offset = 0 // 0 for base, 8 for dlc
+
+    amt_adv = 0x54
+    pay_rank = 0x5c
+    elementite = 0x6c
+    gil = 0xa4
+    morale_prog = 0xe4
+    morale_spheres = 0xec
+    city_lvl = 0x104
+    day = 0x134
+
+    function get_development_city_state() {
+        return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.city_lvl + this.post_addon_offset], dword_be)
+    }
+
+    function get_day() {
+        return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.day + this.post_addon_offset], dword_be)
+    }
+
+    function get_pay_rank() {
+        return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.pay_rank + this.post_addon_offset], dword_be)
+    }
+
+    function get_max_adv_count() {
+        return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.amt_adv + this.post_addon_offset], dword_be)
+    }
+}
+
+class TimeData {
+    function get_current_time() {
+        return ptr(dword_be(0x00436e94), [0x03A54C, 0x4C], dword_be)
+    }
+
+    function goes_to_bed_late() {
+        return ptr(dword_be(0x00436e94), [0x03A54C, 0x64], dword_be) == 0x4ec
+    }
+
+    function in_daily_report() {
+        return ptr(dword_be(0x00436e94), [0x03A54C, 0x64], dword_be) == 0x00
+    }
+
+    function get_max_time_ref() {
+        return ptr(dword_be(0x00436e94), [0x03A54C, 0x64], dword_be)
+    }
+
+    function time_paused() {
+        return ptr(dword_be(0x00436e94), [0x03A54C, 0x74], dword_be) == 0x01
+    }
+}
+
+time_data = TimeData()
+
+ptr_to_upgrades_base_list_start = ptr(dword_be(0x00436e94), [0x8F394, 0x15c, 0x0c, 0x20], dword_be)
+ptr_to_upgrades_dlc_list_start  = ptr(dword_be(0x00436e94), [0x8D648, 0x164, 0x0c, 0x20], dword_be)
+
+upgrades_base = {
     "war": {
         "sword": {
-            "total_invested": ptr(dword_be(0x1779b4c), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779b4c), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x22C, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x22C, 0x54], dword_be)
         },
         "dagger": {
-            "total_invested": ptr(dword_be(0x1779b9c), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779b9c), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x28C, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x28C, 0x54], dword_be) 
         },
         "battle": {
-            "total_invested": ptr(dword_be(0x1779bb0), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779bb0), [0x54], dword_be) 
-        },
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x2A4, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x2A4, 0x54], dword_be) 
+        }
     },
     "whm": {
         "restoration": {
-            "total_invested": ptr(dword_be(0x1779ac0), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779ac0), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x184, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x184, 0x54], dword_be)
         },
         "protection": {
-            "total_invested": ptr(dword_be(0x1779ae8), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779ae8), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1B4, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1B4, 0x54], dword_be)
         },
         "holy": {
-            "total_invested": ptr(dword_be(0x1779afc), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779afc), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1CC, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1CC, 0x54], dword_be)
         }
     },
     "blm": {
         "fire": {
-            "total_invested": ptr(dword_be(0x1779a70), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779a70), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x124, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x124, 0x54], dword_be)
         },
         "lightning": {
-            "total_invested": ptr(dword_be(0x1779a98), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779a98), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x154, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x154, 0x54], dword_be)
         },
         "enfeebling": {
-            "total_invested": ptr(dword_be(0x1779aac), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779aac), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x16C, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x16C, 0x54], dword_be)
         }
     },
     "thf": {
         "adventuring": {
-            "total_invested": ptr(dword_be(0x1779b10), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779b10), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1E4, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1E4, 0x54], dword_be)
         },
         "exploration": {
-            "total_invested": ptr(dword_be(0x1779b24), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779b24), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1FC, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1FC, 0x54], dword_be)
         },
         "dirty": {
-            "total_invested": ptr(dword_be(0x1779b38), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779b38), [0x54], dword_be) 
-        }
-    },
-    "item": {
-        "potions": {
-            "total_invested": ptr(dword_be(0x1779a0c), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779a0c), [0x54], dword_be) 
-        },
-        "antidotes": {
-            "total_invested": ptr(dword_be(0x1779a20), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779a20), [0x54], dword_be) 
-        },
-        "survival": {
-            "total_invested": ptr(dword_be(0x1779a5c), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779a5c), [0x54], dword_be) 
-        }
-    },
-    "armory": {
-        "shields": {
-            "total_invested": ptr(dword_be(0x17799bc), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x17799bc), [0x54], dword_be) 
-        },
-        "robes": {
-            "total_invested": ptr(dword_be(0x17799f8), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x17799f8), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x214, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x214, 0x54], dword_be)
         }
     },
     "weapon": {
         "swords": {
-            "total_invested": ptr(dword_be(0x1779944), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779944), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x04, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x04, 0x54], dword_be)
         },
         "hammers": {
-            "total_invested": ptr(dword_be(0x1779958), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779958), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x18, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x18, 0x54], dword_be)
         },
         "daggers": {
-            "total_invested": ptr(dword_be(0x1779980), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779980), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x4C, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x4C, 0x54], dword_be)
         },
         "rods": {
-            "total_invested": ptr(dword_be(0x1779994), [0x4c], dword_be),
-            "current_level": ptr(dword_be(0x1779994), [0x54], dword_be) 
+            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x64, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x64, 0x54], dword_be) 
         }
     }
 }
 
+upgrades_dlc = {
+    "war": {
+        "sword": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x22C, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x22C, 0x54], dword_be)
+        },
+        "dagger": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x28C, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x28C, 0x54], dword_be) 
+        },
+        "battle": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x2A4, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x2A4, 0x54], dword_be) 
+        }
+    },
+    "whm": {
+        "restoration": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x184, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x184, 0x54], dword_be)
+        },
+        "protection": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1B4, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1B4, 0x54], dword_be)
+        },
+        "holy": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1CC, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1CC, 0x54], dword_be)
+        }
+    },
+    "blm": {
+        "fire": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x124, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x124, 0x54], dword_be)
+        },
+        "lightning": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x154, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x154, 0x54], dword_be)
+        },
+        "enfeebling": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x16C, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x16C, 0x54], dword_be)
+        }
+    },
+    "thf": {
+        "adventuring": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1E4, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1E4, 0x54], dword_be)
+        },
+        "exploration": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1FC, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1FC, 0x54], dword_be)
+        },
+        "dirty": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x214, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x214, 0x54], dword_be)
+        }
+    },
+    "weapon": {
+        "swords": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x04, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x04, 0x54], dword_be)
+        },
+        "hammers": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x18, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x18, 0x54], dword_be)
+        },
+        "daggers": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x4C, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x4C, 0x54], dword_be)
+        },
+        "rods": {
+            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x64, 0x4C], dword_be),
+            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x64, 0x54], dword_be) 
+        }
+    }
+}
+
+us_base = {
+    "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
+    "upgrades": upgrades_base
+}
+us_dlc = {
+    "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
+    "upgrades": upgrades_dlc
+}
+eu_base = {
+    "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
+    "upgrades": upgrades_base
+}
+eu_dlc = {
+    "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
+    "upgrades": upgrades_dlc
+}
 
 city_dev_map = {
     0x00: "Settlement",
@@ -146,14 +288,36 @@ city_dev_map = {
     0x05: "Promised Land"
 }
 
-rich_presence_conditional_display(is_game_region_us() && !is_ptr_us_base_valid() && !no_save_loaded(), "US DLC • Traveling the streets of the {0} • Day {1}",
-    rich_presence_lookup("Development State", global_data_us_dlc.get_development_city_state(), city_dev_map, fallback="?"),
-    rich_presence_value("Day", global_data_us_dlc.get_day(), "VALUE")
+max_time_map = {
+    0x00: "Viewing the daily reports",
+    0x9d8: "Traveling the streets",
+    0x4ec: "Traveling the streets"
+}
+
+rich_presence_conditional_display(dlc_not_init_yet(), "On the Title Screen")
+
+rich_presence_conditional_display(is_game_region_us() && is_dlc_installed(), "US DLC • {0} of the {1} • Day {2}",
+    rich_presence_lookup("Screen", time_data.get_max_time_ref(), max_time_map, fallback="?"),
+    rich_presence_lookup("Development State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", us_dlc["kingdom"].get_day(), "VALUE")
 )
 
-rich_presence_conditional_display(is_game_region_us() && is_ptr_us_base_valid() && !no_save_loaded(), "US Base • Traveling the streets of the {0} • Day {1}",
-    rich_presence_lookup("Development State", global_data_us_base.get_development_city_state(), city_dev_map, fallback="?"),
-    rich_presence_value("Day", global_data_us_base.get_day(), "VALUE")
+rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed(), "US Base • {0} of the {1} • Day {2}",
+    rich_presence_lookup("Screen", time_data.get_max_time_ref(), max_time_map, fallback="?"),
+    rich_presence_lookup("Development State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", us_base["kingdom"].get_day(), "VALUE")
+)
+
+rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed(), "EU DLC • {0} of the {1} • Day {2}",
+    rich_presence_lookup("Screen", time_data.get_max_time_ref(), max_time_map, fallback="?"),
+    rich_presence_lookup("Development State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", eu_dlc["kingdom"].get_day(), "VALUE")
+)
+
+rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed(), "EU Base • {0} of the {1} • Day {2}",
+    rich_presence_lookup("Screen", time_data.get_max_time_ref(), max_time_map, fallback="?"),
+    rich_presence_lookup("Development State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", eu_base["kingdom"].get_day(), "VALUE")
 )
 
 rich_presence_display("Playing Final Fantasy Crystal Chronicles: My Life as a King")
