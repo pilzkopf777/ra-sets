@@ -91,11 +91,11 @@ class TimeData {
     }
 
     function in_daily_report() {
-        return ptr(dword_be(0x00436e94), [0x03A54C, 0x64], dword_be) == 0x00
+        return ptr(dword_be(0x00436e94), [0x03A54C, 0x5c], dword_be) == 0xffffffff
     }
 
-    function get_max_time_ref() {
-        return ptr(dword_be(0x00436e94), [0x03A54C, 0x64], dword_be)
+    function get_report_value() {
+        return ptr(dword_be(0x00436e94), [0x03A54C, 0x5c], dword_be)
     }
 
     function time_paused() {
@@ -289,33 +289,31 @@ city_dev_map = {
 }
 
 max_time_map = {
-    0x00: "Viewing the daily reports",
-    0x9d8: "Traveling the streets",
-    0x4ec: "Traveling the streets"
+    0xffffffff: "Viewing the daily reports"
 }
 
 rich_presence_conditional_display(dlc_not_init_yet(), "On the Title Screen")
 
 rich_presence_conditional_display(is_game_region_us() && is_dlc_installed(), "US DLC • {0} of the {1} • Day {2}",
-    rich_presence_lookup("Screen", time_data.get_max_time_ref(), max_time_map, fallback="?"),
+    rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_dlc["kingdom"].get_day(), "VALUE")
 )
 
 rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed(), "US Base • {0} of the {1} • Day {2}",
-    rich_presence_lookup("Screen", time_data.get_max_time_ref(), max_time_map, fallback="?"),
+    rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_base["kingdom"].get_day(), "VALUE")
 )
 
 rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed(), "EU DLC • {0} of the {1} • Day {2}",
-    rich_presence_lookup("Screen", time_data.get_max_time_ref(), max_time_map, fallback="?"),
+    rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_dlc["kingdom"].get_day(), "VALUE")
 )
 
 rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed(), "EU Base • {0} of the {1} • Day {2}",
-    rich_presence_lookup("Screen", time_data.get_max_time_ref(), max_time_map, fallback="?"),
+    rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_base["kingdom"].get_day(), "VALUE")
 )
