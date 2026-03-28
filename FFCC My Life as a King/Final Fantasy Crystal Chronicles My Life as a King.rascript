@@ -51,9 +51,8 @@ function dlc_not_init_yet() {
 }
 
 class KingdomData {
-    // assuming eu data...:
-    start_addon_offset = 0 // 0x8D648 for base, 0x8D648 for dlc
-    post_addon_offset = 0 // 0 for base, 8 for dlc
+    start_addon_offset = 0
+    post_addon_offset = 0
 
     amt_adv = 0x54
     pay_rank = 0x5c
@@ -105,6 +104,8 @@ class TimeData {
 
 time_data = TimeData()
 
+// TODO: make upgrades a class
+
 ptr_to_upgrades_base_list_start = ptr(dword_be(0x00436e94), [0x8F394, 0x15c, 0x0c, 0x20], dword_be)
 ptr_to_upgrades_dlc_list_start  = ptr(dword_be(0x00436e94), [0x8D648, 0x164, 0x0c, 0x20], dword_be)
 
@@ -113,74 +114,6 @@ upgrades_base = {
         "sword": {
             "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x22C, 0x4C], dword_be),
             "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x22C, 0x54], dword_be)
-        },
-        "dagger": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x28C, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x28C, 0x54], dword_be) 
-        },
-        "battle": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x2A4, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x2A4, 0x54], dword_be) 
-        }
-    },
-    "whm": {
-        "restoration": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x184, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x184, 0x54], dword_be)
-        },
-        "protection": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1B4, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1B4, 0x54], dword_be)
-        },
-        "holy": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1CC, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1CC, 0x54], dword_be)
-        }
-    },
-    "blm": {
-        "fire": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x124, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x124, 0x54], dword_be)
-        },
-        "lightning": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x154, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x154, 0x54], dword_be)
-        },
-        "enfeebling": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x16C, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x16C, 0x54], dword_be)
-        }
-    },
-    "thf": {
-        "adventuring": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1E4, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1E4, 0x54], dword_be)
-        },
-        "exploration": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1FC, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x1FC, 0x54], dword_be)
-        },
-        "dirty": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x214, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x214, 0x54], dword_be)
-        }
-    },
-    "weapon": {
-        "swords": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x04, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x04, 0x54], dword_be)
-        },
-        "hammers": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x18, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x18, 0x54], dword_be)
-        },
-        "daggers": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x4C, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x4C, 0x54], dword_be)
-        },
-        "rods": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x64, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x64, 0x54], dword_be) 
         }
     }
 }
@@ -190,93 +123,88 @@ upgrades_dlc = {
         "sword": {
             "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x22C, 0x4C], dword_be),
             "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x22C, 0x54], dword_be)
-        },
-        "dagger": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x28C, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x28C, 0x54], dword_be) 
-        },
-        "battle": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x2A4, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x2A4, 0x54], dword_be) 
-        }
-    },
-    "whm": {
-        "restoration": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x184, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x184, 0x54], dword_be)
-        },
-        "protection": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1B4, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1B4, 0x54], dword_be)
-        },
-        "holy": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1CC, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1CC, 0x54], dword_be)
-        }
-    },
-    "blm": {
-        "fire": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x124, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x124, 0x54], dword_be)
-        },
-        "lightning": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x154, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x154, 0x54], dword_be)
-        },
-        "enfeebling": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x16C, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x16C, 0x54], dword_be)
-        }
-    },
-    "thf": {
-        "adventuring": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1E4, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1E4, 0x54], dword_be)
-        },
-        "exploration": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1FC, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x1FC, 0x54], dword_be)
-        },
-        "dirty": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x214, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x214, 0x54], dword_be)
-        }
-    },
-    "weapon": {
-        "swords": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x04, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x04, 0x54], dword_be)
-        },
-        "hammers": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x18, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x18, 0x54], dword_be)
-        },
-        "daggers": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x4C, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x4C, 0x54], dword_be)
-        },
-        "rods": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x64, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x64, 0x54], dword_be) 
         }
     }
 }
 
+class Dungeon {
+    dungeon_offset = 0x00
+
+    function get_level() {
+        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xB4], dword_be)
+    }
+
+    function get_boss_state() {
+        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be)
+    }
+
+    function is_boss_defeated() {
+        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be) == 0x02
+    }
+
+    function get_amount_explored() {
+        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be)
+    }
+
+    function is_fully_explored() {
+        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be) == ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be)
+    }
+
+    function is_fully_cleared() {
+        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be) == ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be) &&
+               ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be) == 0x02
+    }
+}
+
+dungeons = {
+    "Pallum Dei Caverns": Dungeon(dungeon_offset=0x68),
+    "Kubito Grotto": Dungeon(dungeon_offset=0x7C),
+    "Goblins' Den": Dungeon(dungeon_offset=0x90),
+    "Terun Westway": Dungeon(dungeon_offset=0xA4),
+    "Dolsam Gulch": Dungeon(dungeon_offset=0xB8),
+    "Junun Dei Meadows": Dungeon(dungeon_offset=0xCC),
+    "Polpus Mistmoor": Dungeon(dungeon_offset=0xE0),
+    "...": Dungeon(0xF4),
+}
+
+WanderingMonster {
+    monster_offset = 0x00
+
+    function get_residing_dungeon_ptr_adr() {
+        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x18, this.monster_offset, 0x6C], dword_be)
+    } 
+}
+
+wandering_monsters = {
+    "The Corruptor of Minds": WanderingMonster(monster_offset=0x04)
+}
+
 us_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
-    "upgrades": upgrades_base
+    "upgrades": upgrades_base,
+    "dungeons": dungeons,
+    "wandering_monsters": wandering_monsters
 }
+
 us_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
-    "upgrades": upgrades_dlc
+    "upgrades": upgrades_dlc,
+    "dungeons": dungeons,
+    "wandering_monsters": wandering_monsters
 }
+
 eu_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
-    "upgrades": upgrades_base
+    "upgrades": upgrades_base,
+    "dungeons": dungeons,
+    "wandering_monsters": wandering_monsters
 }
+
 eu_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
-    "upgrades": upgrades_dlc
+    "upgrades": upgrades_dlc,
+    "dungeons": dungeons,
+    "wandering_monsters": wandering_monsters
 }
 
 city_dev_map = {
