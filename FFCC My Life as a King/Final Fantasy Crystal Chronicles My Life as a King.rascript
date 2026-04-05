@@ -104,28 +104,15 @@ class TimeData {
 
 time_data = TimeData()
 
-// TODO: make upgrades a class
+class UpgradeData {
+    dlc_offset = 0x00
+    dlc_offset_2 = 0x00
 
-ptr_to_upgrades_base_list_start = ptr(dword_be(0x00436e94), [0x8F394, 0x15c, 0x0c, 0x20], dword_be)
-ptr_to_upgrades_dlc_list_start  = ptr(dword_be(0x00436e94), [0x8D648, 0x164, 0x0c, 0x20], dword_be)
-
-upgrades_base = {
-    "war": {
-        "sword": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x22C, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_base_list_start), [0x22C, 0x54], dword_be)
-        }
+    function get_sword_lvl() {
+        return ptr(dword_be(0x00436e94), [this.dlc_offset, dlc_offset_2, 0x0c, 0x20, 0x04, 0x54], dword_be)
     }
 }
 
-upgrades_dlc = {
-    "war": {
-        "sword": {
-            "total_invested": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x22C, 0x4C], dword_be),
-            "level": ptr(dword_be(ptr_to_upgrades_dlc_list_start), [0x22C, 0x54], dword_be)
-        }
-    }
-}
 
 class Dungeon {
     dungeon_offset = 0x00
@@ -164,7 +151,6 @@ dungeons = {
     "Dolsam Gulch": Dungeon(dungeon_offset=0xB8),
     "Junun Dei Meadows": Dungeon(dungeon_offset=0xCC),
     "Polpus Mistmoor": Dungeon(dungeon_offset=0xE0),
-    "...": Dungeon(0xF4),
 }
 
 WanderingMonster {
@@ -181,30 +167,34 @@ wandering_monsters = {
 
 us_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
-    "upgrades": upgrades_base,
+    "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
     "dungeons": dungeons,
-    "wandering_monsters": wandering_monsters
+    "wandering_monsters": wandering_monsters,
+    "medals": 0
 }
 
 us_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
-    "upgrades": upgrades_dlc,
+    "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
     "dungeons": dungeons,
-    "wandering_monsters": wandering_monsters
+    "wandering_monsters": wandering_monsters,
+    "medals": 0
 }
 
 eu_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
-    "upgrades": upgrades_base,
+    "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
     "dungeons": dungeons,
-    "wandering_monsters": wandering_monsters
+    "wandering_monsters": wandering_monsters,
+    "medals": 0
 }
 
 eu_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
-    "upgrades": upgrades_dlc,
+    "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
     "dungeons": dungeons,
-    "wandering_monsters": wandering_monsters
+    "wandering_monsters": wandering_monsters,
+    "medals": 0
 }
 
 city_dev_map = {
