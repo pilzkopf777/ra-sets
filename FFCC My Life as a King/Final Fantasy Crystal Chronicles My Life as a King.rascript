@@ -50,6 +50,10 @@ function dlc_not_init_yet() {
     return ptr(dword_be(0x00436e94), [0x8F34C, 0x04], dword_be) != 0x01 && ptr(dword_be(0x00436e94), [0x8F34C, 0x04], dword_be) != 0x03 
 }
 
+function time_data_init() {
+    return ptr(dword_be(0x00436e94), [0x3A54C], dword_be) > 0x80000000
+}
+
 class KingdomData {
     start_addon_offset = 0
     post_addon_offset = 0
@@ -108,11 +112,38 @@ class UpgradeData {
     dlc_offset = 0x00
     dlc_offset_2 = 0x00
 
-    function get_sword_lvl() {
-        return ptr(dword_be(0x00436e94), [this.dlc_offset, dlc_offset_2, 0x0c, 0x20, 0x04, 0x54], dword_be)
+    function get_sum_of_upgrade_levels() {
+        total_performed_upgrades = 0
+
+        for upgrade_offset in range(0x04, 0x14, 0x311) {
+            upgrade_level = ptr(dword_be(0x00436e94), [this.dlc_offset, dlc_offset_2, 0x0c, upgrade_offset, 0x54], dword_be)
+
+            amount_performed = upgrade_level / 5
+            total_performed_upgrades = total_performed_upgrades + amount_performed
+        }
+
+        return total_performed_upgrades
     }
 }
 
+class MedalData {
+    dlc_offset = 0x00
+    dlc_offset_2 = 0x00
+
+    function medal_1_unlocked() {
+        return ptr(dword_be(0x00436e94), [this.dlc_offset, dlc_offset_2, 0x18, 0x04], dword_be) == 0x01
+    }
+
+    function get_sum_of_base_medals_unlocked() {
+        // TODO: not all entries have data sadly.. -> do not use range, instead pull from list?
+        cool_list = []
+
+        for medal_count in range(0x04, 0xB4, 8) {
+            array_push(cool_list, ptr(dword_be(0x00436e94), [this.dlc_offset, dlc_offset_2, 0x18, medal_count], dword_be))
+        }
+
+    }
+}
 
 class Dungeon {
     dungeon_offset = 0x00
@@ -153,7 +184,7 @@ dungeons = {
     "Polpus Mistmoor": Dungeon(dungeon_offset=0xE0),
 }
 
-WanderingMonster {
+class WanderingMonster {
     monster_offset = 0x00
 
     function get_residing_dungeon_ptr_adr() {
@@ -165,36 +196,51 @@ wandering_monsters = {
     "The Corruptor of Minds": WanderingMonster(monster_offset=0x04)
 }
 
+event_flags = {
+    // 1 == Cutscene for first holiday started. Also check time for unlock moment.
+    "first_holiday": ptr(dword_be(0x801304), [0x7A1C, 0x34], dword_be) / 0xff,
+    // 1 == Cutscene done: Celebration of kill. At end of cutscene (== end of day) unlock achievement
+    "cp1_done": ptr(dword_be(0x801304), [0x7BD4, 0x34], dword_be) / 0xff,
+    // 1 == Unlocked park
+    "park_unlocked": ptr(dword_be(0x801304), [0x7C0C, 0x34], dword_be) / 0xff,
+    // 1 == Unlocked spacious houses
+    "spacious_houses_unlocked": ptr(dword_be(0x801304), [0x7C24, 0x34], dword_be) / 0xff,
+    // 1 == Unlocked Skysphere
+    "skysphere_unlocked": 0, // unclear value -> double check?
+    // 1 == Unlocked BLM, cutscene done
+    "cp2_done": ptr(dword_be(0x801304), [0x7CBC, 0x34], dword_be) / 0xff,
+    // 1 == Cutscene done. Next cutscene contains the cp 3 completion check..
+    "cp3_done": ptr(dword_be(0x801304), [0x7D6C, 0x34], dword_be) / 0xff,
+    // 1 == Cutscene done, could also check day count instead though
+    "day_1_done": ptr(dword_be(0x801304), [0x814C, 0x34], dword_be) / 0xff,
+}
+
 us_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
     "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
-    "dungeons": dungeons,
-    "wandering_monsters": wandering_monsters,
-    "medals": 0
+    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C),
+    "is_used_version": is_game_region_us() && !is_dlc_installed()
 }
 
 us_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
     "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
-    "dungeons": dungeons,
-    "wandering_monsters": wandering_monsters,
-    "medals": 0
+    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214),
+    "is_used_version": is_game_region_us() && is_dlc_installed()
 }
 
 eu_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
     "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
-    "dungeons": dungeons,
-    "wandering_monsters": wandering_monsters,
-    "medals": 0
+    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C),
+    "is_used_version": is_game_region_eu() && !is_dlc_installed()
 }
 
 eu_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
     "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
-    "dungeons": dungeons,
-    "wandering_monsters": wandering_monsters,
-    "medals": 0
+    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214),
+    "is_used_version": is_game_region_eu() && is_dlc_installed()
 }
 
 city_dev_map = {
@@ -210,7 +256,100 @@ max_time_map = {
     0xffffffff: "Viewing the daily reports"
 }
 
-rich_presence_conditional_display(dlc_not_init_yet(), "On the Title Screen")
+function on_title() {
+    return dlc_not_init_yet() || !time_data_init()
+}
+
+// Achievements
+
+// Progression
+achievement(
+    title = "COMPL_DAY_1",
+    points = 0,
+    type = "progression",
+    description = "COMPLETE DAY 1",
+    trigger = 
+        !on_title() &&
+        event_flags["day_1_done"] == 1 && prev(event_flags["day_1_done"] == 0)
+)
+
+achievement(
+    title = "COMPL_CP_1",
+    points = 0,
+    type = "progression",
+    description = "COMPLETE CHAPTER 1",
+    trigger = 
+        !on_title() &&
+        event_flags["cp1_done"] == 1 && prev(event_flags["cp1_done"] == 0)
+)
+
+achievement(
+    title = "COMPL_CP_2",
+    points = 0,
+    type = "progression",
+    description = "COMPLETE CHAPTER 2",
+    trigger = 
+        !on_title() &&
+        event_flags["cp2_done"] == 1 && prev(event_flags["cp2_done"] == 0)
+)
+
+achievement(
+    title = "COMPL_CP_3",
+    points = 0,
+    type = "progression",
+    description = "COMPLETE CHAPTER 3",
+    trigger = 
+        !on_title() &&
+        event_flags["cp3_done"] == 1 && prev(event_flags["cp3_done"] == 0)
+)
+
+// Day extension
+achievement(
+    title = "DAY_EXTENDED",
+    points = 0,
+    type = "",
+    description = "EXTEND DAY",
+    trigger = 
+        !on_title() &&
+        time_data.goes_to_bed_late() && prev(!time_data.goes_to_bed_late())
+)
+
+// Rank up kingdom
+achievement(
+    title = "UPGR_TO_TOWN",
+    points = 0,
+    type = "",
+    description = "UPGRADE TO TOWN",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                us_dlc["is_used_version"] &&
+                us_dlc["kingdom"].get_development_city_state() == 1 && prev(us_dlc["kingdom"].get_development_city_state() == 0)
+
+            ) ||
+            (
+               // US BASE
+                us_base["is_used_version"] &&
+                us_base["kingdom"].get_development_city_state() == 1 && prev(us_base["kingdom"].get_development_city_state() == 0)
+            ) ||
+            (
+                // EU DLC
+                eu_dlc["is_used_version"] &&
+                eu_dlc["kingdom"].get_development_city_state() == 1 && prev(eu_dlc["kingdom"].get_development_city_state() == 0)
+            ) ||
+            (
+                // EU BASE
+                eu_base["is_used_version"] &&
+                eu_base["kingdom"].get_development_city_state() == 1 && prev(eu_base["kingdom"].get_development_city_state() == 0)
+            )
+        )
+)
+
+
+
+rich_presence_conditional_display(on_title(), "On the Title Screen")
 
 rich_presence_conditional_display(is_game_region_us() && is_dlc_installed(), "US DLC • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
