@@ -99,7 +99,7 @@ class PlayerData
             0x04: 0xA50
         }
 
-        return ptr(dword_be(0x0048922c), [0x52c, offset_map[this.player_id]], dword_be)  
+        return ptr(dword_be(0x004831ec), [0x52c, 0x59c, offset_map[this.player_id]], dword_be)   
     }
 
     function get_style_barrel_progress() {
@@ -627,6 +627,7 @@ for element in time_trial_data {
     ),
     trigger = 
         !demo_playing() &&
+        in_a_race_state() &&
         get_mode() == 02 &&
         get_track() == element["track_id"] &&
         (
@@ -713,19 +714,19 @@ achievement(
     !demo_playing() &&
     (
         (
-            player_1_obj.is_human_player() && player_1_obj.get_wild_move_combo() == target_wild && prev(player_1_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() == 1
+            player_1_obj.is_human_player() && player_1_obj.get_wild_move_combo() == target_wild && prev(player_1_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() >= 1
         )
         ||
         (
-            player_2_obj.is_human_player() && player_2_obj.get_wild_move_combo() == target_wild && prev(player_2_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() == 2
+            player_2_obj.is_human_player() && player_2_obj.get_wild_move_combo() == target_wild && prev(player_2_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() >= 2
         )
         ||
         (
-            player_3_obj.is_human_player() && player_3_obj.get_wild_move_combo() == target_wild && prev(player_3_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() == 3
+            player_3_obj.is_human_player() && player_3_obj.get_wild_move_combo() == target_wild && prev(player_3_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() >= 3
         )
         ||
         (
-            player_4_obj.is_human_player() && player_4_obj.get_wild_move_combo() == target_wild && prev(player_4_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() == 4
+            player_4_obj.is_human_player() && player_4_obj.get_wild_move_combo() == target_wild && prev(player_4_obj.get_wild_move_combo() == target_wild - 1) && get_players_registered() >= 4
         )
     )
 )
