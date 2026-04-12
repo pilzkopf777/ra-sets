@@ -58,6 +58,7 @@ class KingdomData {
     start_addon_offset = 0
     post_addon_offset = 0
 
+    difficulty = 0x34
     amt_adv = 0x54
     pay_rank = 0x5c
     elementite = 0x6c
@@ -66,6 +67,10 @@ class KingdomData {
     morale_spheres = 0xec
     city_lvl = 0x104
     day = 0x134
+
+    function get_difficulty() {
+        return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.difficulty + this.post_addon_offset], dword_be)
+    }
 
     function get_development_city_state() {
         return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.city_lvl + this.post_addon_offset], dword_be)
@@ -213,6 +218,8 @@ event_flags = {
     "cp3_done": ptr(dword_be(0x801304), [0x7D6C, 0x34], dword_be) / 0xff,
     // 1 == Cutscene done, could also check day count instead though
     "day_1_done": ptr(dword_be(0x801304), [0x814C, 0x34], dword_be) / 0xff,
+    // 1 == credits start rolling
+    "game_clear": ptr(dword_be(0x801304), [0x7E4C, 0x34], dword_be) / 0xff,
 }
 
 us_base = {
@@ -252,12 +259,23 @@ city_dev_map = {
     0x05: "Promised Land"
 }
 
+difficulty_map = {
+    0x00: "Normal",
+    0x01: "Hard",
+    0x02: "Very Hard"
+}
+
 max_time_map = {
     0xffffffff: "Viewing the daily reports"
 }
 
 function on_title() {
     return dlc_not_init_yet() || !time_data_init()
+}
+
+function on_results() {
+    return time_data.get_current_time() == 6300 && time_data.time_paused() && time_data.get_report_value() == 0 &&
+    event_flags["game_clear"] == 1
 }
 
 // Achievements
@@ -301,6 +319,29 @@ achievement(
     trigger = 
         !on_title() &&
         event_flags["cp3_done"] == 1 && prev(event_flags["cp3_done"] == 0)
+)
+
+achievement(
+    title = "WIN",
+    points = 0,
+    type = "win_condition",
+    description = "WIN",
+    trigger = 
+        // Pops on Credits roll
+        !on_title() &&
+        event_flags["game_clear"] == 1 && prev(event_flags["game_clear"] == 0)
+)
+
+achievement(
+    title = "KINGDOM_SCORE",
+    points = 0,
+    type = "",
+    description = "KINGDOM SCORES",
+    trigger = 
+        // Pops on Kingdom Scores screen
+        !on_title() &&
+        event_flags["game_clear"] == 1 &&
+        time_data.time_paused() && prev(!time_data.time_paused())
 )
 
 // Day extension
@@ -382,28 +423,64 @@ achievement(
 
 rich_presence_conditional_display(on_title(), "On the Title Screen")
 
-rich_presence_conditional_display(is_game_region_us() && is_dlc_installed(), "US DLC • {0} of the {1} • Day {2}",
+// US DLC
+rich_presence_conditional_display(is_game_region_us() && is_dlc_installed(), "US DLC • {3} • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
-    rich_presence_value("Day", us_dlc["kingdom"].get_day(), "VALUE")
+    rich_presence_value("Day", us_dlc["kingdom"].get_day(), "VALUE"),
+    rich_presence_lookup("Difficulty", us_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
-rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed(), "US Base • {0} of the {1} • Day {2}",
+rich_presence_conditional_display(is_game_region_us() && is_dlc_installed() && on_results(), "US DLC • {3} • On the Results screen",
+    rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
+    rich_presence_lookup("Development State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", us_dlc["kingdom"].get_day(), "VALUE"),
+    rich_presence_lookup("Difficulty", us_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
+)
+
+// US BASE
+rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed(), "US Base • {3} • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
-    rich_presence_value("Day", us_base["kingdom"].get_day(), "VALUE")
+    rich_presence_value("Day", us_base["kingdom"].get_day(), "VALUE"),
+    rich_presence_lookup("Difficulty", us_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
-rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed(), "EU DLC • {0} of the {1} • Day {2}",
+rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed() && on_results(), "US Base • {3} • On the Results screen",
+    rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
+    rich_presence_lookup("Development State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", us_base["kingdom"].get_day(), "VALUE"),
+    rich_presence_lookup("Difficulty", us_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
+)
+
+// EU DLC
+rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed(), "EU DLC • {3} • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
-    rich_presence_value("Day", eu_dlc["kingdom"].get_day(), "VALUE")
+    rich_presence_value("Day", eu_dlc["kingdom"].get_day(), "VALUE"),
+    rich_presence_lookup("Difficulty", eu_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
-rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed(), "EU Base • {0} of the {1} • Day {2}",
+rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed() && on_results(), "EU DLC • {3} • On the Results screen",
+    rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
+    rich_presence_lookup("Development State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", eu_dlc["kingdom"].get_day(), "VALUE"),
+    rich_presence_lookup("Difficulty", eu_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
+)
+
+// EU BASE
+rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed(), "EU Base • {3} • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
-    rich_presence_value("Day", eu_base["kingdom"].get_day(), "VALUE")
+    rich_presence_value("Day", eu_base["kingdom"].get_day(), "VALUE"),
+    rich_presence_lookup("Difficulty", eu_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
+)
+
+rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed() && on_results(), "EU Base • {3} • On the Results screen",
+    rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
+    rich_presence_lookup("Development State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_value("Day", eu_base["kingdom"].get_day(), "VALUE"),
+    rich_presence_lookup("Difficulty", eu_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
 rich_presence_display("Playing Final Fantasy Crystal Chronicles: My Life as a King")
