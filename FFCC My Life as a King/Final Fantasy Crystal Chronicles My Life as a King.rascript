@@ -347,6 +347,37 @@ achievement(
         )
 )
 
+achievement(
+    title = "UPGR_TO_PROMISED_LAND",
+    points = 0,
+    type = "",
+    description = "UPGRADE TO PROMISED LAND",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                us_dlc["is_used_version"] &&
+                measured(us_dlc["kingdom"].get_development_city_state() == 5, us_dlc["is_used_version"]) && prev(us_dlc["kingdom"].get_development_city_state() == 4)
+            ) ||
+            (
+               // US BASE
+                us_base["is_used_version"] &&
+                measured(us_base["kingdom"].get_development_city_state() == 5, us_base["is_used_version"]) && prev(us_base["kingdom"].get_development_city_state() == 4)
+            ) ||
+            (
+                // EU DLC
+                eu_dlc["is_used_version"] &&
+                measured(eu_dlc["kingdom"].get_development_city_state() == 5, eu_dlc["is_used_version"]) && prev(eu_dlc["kingdom"].get_development_city_state() == 4)
+            ) ||
+            (
+                // EU BASE
+                eu_base["is_used_version"] &&
+                measured(eu_base["kingdom"].get_development_city_state() == 5, eu_base["is_used_version"]) && prev(eu_base["kingdom"].get_development_city_state() == 4)
+            )
+        )
+)
+
 
 
 rich_presence_conditional_display(on_title(), "On the Title Screen")
