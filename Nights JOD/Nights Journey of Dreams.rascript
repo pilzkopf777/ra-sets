@@ -929,7 +929,7 @@ achievement(
         // Must be in Mare 4 (i.e. after regular three)
         dword_be(0x10448324) == 0x03 &&
         // vs Reala starts at 300.0 and cutscenes set to 30.0 -> hits once as battle starts
-        once(get_time_limit() == 300.0 && prev(get_time_limit() == 30.0)) &&
+        once(get_time_limit() == 300.0 && prev(get_time_limit() != 300.0)) &&
         // Reset hit when in Mare 1 (restart) or not in Bellbridge
         never(!is_in_world(world) || dword_be(0x10448324) == 0x00) &&
         // Unlock when
