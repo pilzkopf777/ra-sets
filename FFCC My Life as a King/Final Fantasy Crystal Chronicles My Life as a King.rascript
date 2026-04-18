@@ -57,8 +57,9 @@ function time_data_init() {
 class KingdomData {
     start_addon_offset = 0
     post_addon_offset = 0
+    difficulty_offset = 0
 
-    difficulty = 0x34
+    difficulty = 0x3c
     amt_adv = 0x54
     pay_rank = 0x5c
     elementite = 0x6c
@@ -69,7 +70,7 @@ class KingdomData {
     day = 0x134
 
     function get_difficulty() {
-        return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.difficulty + this.post_addon_offset], dword_be)
+        return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.difficulty + this.post_addon_offset - this.difficulty_offset], dword_be)
     }
 
     function get_development_city_state() {
@@ -223,28 +224,28 @@ event_flags = {
 }
 
 us_base = {
-    "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
+    "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00, difficulty_offset=0x00),
     "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
     "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C),
     "is_used_version": is_game_region_us() && !is_dlc_installed()
 }
 
 us_dlc = {
-    "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
+    "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08, difficulty_offset=0x08),
     "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
     "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214),
     "is_used_version": is_game_region_us() && is_dlc_installed()
 }
 
 eu_base = {
-    "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00),
+    "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00, difficulty_offset=0x00),
     "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
     "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C),
     "is_used_version": is_game_region_eu() && !is_dlc_installed()
 }
 
 eu_dlc = {
-    "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08),
+    "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08, difficulty_offset=0x08),
     "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
     "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214),
     "is_used_version": is_game_region_eu() && is_dlc_installed()
