@@ -353,7 +353,8 @@ achievement(
     description = "EXTEND DAY",
     trigger = 
         !on_title() &&
-        time_data.goes_to_bed_late() && prev(!time_data.goes_to_bed_late())
+        time_data.goes_to_bed_late() &&
+        time_data.get_current_time() == 0 && time_data.get_current_time() == 1
 )
 
 // Rank up kingdom
