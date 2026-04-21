@@ -121,7 +121,7 @@ class UpgradeData {
     function get_sum_of_upgrade_levels() {
         total_performed_upgrades = 0
 
-        for upgrade_offset in range(0x04, 0x14, 0x311) {
+        for upgrade_offset in range(0x04, 0x311, 0x14) {
             upgrade_level = ptr(dword_be(0x00436e94), [this.dlc_offset, dlc_offset_2, 0x0c, upgrade_offset, 0x54], dword_be)
 
             amount_performed = upgrade_level / 5
@@ -155,31 +155,47 @@ class Dungeon {
     dungeon_offset = 0x00
 
     function get_level() {
-        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xB4], dword_be)
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xB4], dword_be)
     }
 
     function get_boss_state() {
-        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be)
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be)
     }
 
     function is_boss_defeated() {
-        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be) == 0x02
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be) == 0x02
     }
 
     function get_amount_explored() {
-        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be)
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be)
+    }
+
+    function get_target_for_full_explore() {
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be)
     }
 
     function is_fully_explored() {
-        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be) == ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be)
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be) == ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be)
     }
 
     function is_fully_cleared() {
-        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be) == ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be) &&
-               ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be) == 0x02
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be) - ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be) +
+               ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be) == 0x02 / 1
     }
 }
 
+// Seemingly 63 dungeons total with DLC, including Infinity Spire; each has offset of 0x14; entries from 0x68 through 0x540
+dungeon_refs = []
+
+// Seemingly 63 dungeons total with DLC, including Infinity Spire; each has offset of 0x14; entries from 0x68 through 0x540
+for current_dungeon_offset in range(0x68, 0x541, 0x14) {
+    current_dungeon = Dungeon(dungeon_offset=current_dungeon_offset)
+    array_push(dungeon_refs, current_dungeon)
+}
+
+dungeon_val = sum_of(dungeon_refs, item => (item.get_amount_explored() / item.get_target_for_full_explore()) + item.get_boss_state() / 3)
+
+/*
 dungeons = {
     "Pallum Dei Caverns": Dungeon(dungeon_offset=0x68),
     "Kubito Grotto": Dungeon(dungeon_offset=0x7C),
@@ -189,18 +205,62 @@ dungeons = {
     "Junun Dei Meadows": Dungeon(dungeon_offset=0xCC),
     "Polpus Mistmoor": Dungeon(dungeon_offset=0xE0),
 }
+*/
 
 class WanderingMonster {
     monster_offset = 0x00
 
-    function get_residing_dungeon_ptr_adr() {
-        return ptr(dword_be(dungeon_list), [0x8B21C, 0x184, 0x18, this.monster_offset, 0x6C], dword_be)
-    } 
+    function monster_just_died() {
+        status_1 = ptr(dword_be(0x00436e94), [0x8B21C, 0x18c, 0x18, this.monster_offset, 0x04], dword_be)
+        status_2 = ptr(dword_be(0x00436e94), [0x8B21C, 0x18c, 0x18, this.monster_offset, 0x74], dword_be)
+
+        // Monster went from any status to dead (to dodge flicker)
+        return status_2 == 1 && status_1 == 3 && prev(status_1 != 3)
+    }
 }
 
-wandering_monsters = {
-    "The Corruptor of Minds": WanderingMonster(monster_offset=0x04)
-}
+wandering_monsters = [
+    {
+        "name": "The Corruptor of Minds",
+        "true_name": "Mind Flayer",
+        "obj": WanderingMonster(monster_offset=0x04)
+    },
+    {
+        "name": "The Unstoppable Fiend",
+        "true_name": "Behemoth",
+        "obj": WanderingMonster(monster_offset=0x0C)
+    },
+    {
+        "name": "The Clockwork Executioner",
+        "true_name": "Steel Golem",
+        "obj": WanderingMonster(monster_offset=0x14)
+    },
+    {
+        "name": "The Everliving Drake",
+        "true_name": "Zombie Dragon",
+        "obj": WanderingMonster(monster_offset=0x1C)
+    },
+    {
+        "name": "The Ravenous Howler",
+        "true_name": "Brutal Wolf",
+        "obj": WanderingMonster(monster_offset=0x24)
+    },
+    {
+        "name": "The Demonic Duo",
+        "true_name": "Imp",
+        "obj": WanderingMonster(monster_offset=0x2C)
+    },
+    {
+        "name": "The Tiny Tomb Twins",
+        "true_name": "Tonberry",
+        "obj": WanderingMonster(monster_offset=0x34)
+    },
+    {
+        "name": "The Silver-Shelled Beast",
+        "true_name": "Gil Snapper",
+        "obj": WanderingMonster(monster_offset=0x3C)
+    }
+]
 
 event_flags = {
     // 1 == Cutscene for first holiday started. Also check time for unlock moment.
@@ -286,7 +346,7 @@ achievement(
     title = "COMPL_DAY_1",
     points = 0,
     type = "progression",
-    description = "COMPLETE DAY 1",
+    description = "Complete the first day",
     trigger = 
         !on_title() &&
         event_flags["day_1_done"] == 1 && prev(event_flags["day_1_done"] == 0)
@@ -296,7 +356,7 @@ achievement(
     title = "COMPL_CP_1",
     points = 0,
     type = "progression",
-    description = "COMPLETE CHAPTER 1",
+    description = "Complete chapter 1",
     trigger = 
         !on_title() &&
         event_flags["cp1_done"] == 1 && prev(event_flags["cp1_done"] == 0)
@@ -306,7 +366,7 @@ achievement(
     title = "COMPL_CP_2",
     points = 0,
     type = "progression",
-    description = "COMPLETE CHAPTER 2",
+    description = "Complete chapter 2",
     trigger = 
         !on_title() &&
         event_flags["cp2_done"] == 1 && prev(event_flags["cp2_done"] == 0)
@@ -316,7 +376,7 @@ achievement(
     title = "COMPL_CP_3",
     points = 0,
     type = "progression",
-    description = "COMPLETE CHAPTER 3",
+    description = "Complete chapter 3",
     trigger = 
         !on_title() &&
         event_flags["cp3_done"] == 1 && prev(event_flags["cp3_done"] == 0)
@@ -350,7 +410,7 @@ achievement(
     title = "DAY_EXTENDED",
     points = 0,
     type = "",
-    description = "EXTEND DAY",
+    description = "Mingle with the inhabitants of the kingdom and earn the right to stay up past your bedtime",
     trigger = 
         !on_title() &&
         time_data.goes_to_bed_late() &&
@@ -362,7 +422,7 @@ achievement(
     title = "UPGR_TO_TOWN",
     points = 0,
     type = "",
-    description = "UPGRADE TO TOWN",
+    description = "Develop the kingdom to the rank of \"Town\"",
     trigger = 
         !on_title() &&
         (
@@ -390,11 +450,38 @@ achievement(
         )
 )
 
+// Dungeon rate
+achievement(
+    title = "DUNGEON_SWEEP",
+    points = 0,
+    type = "",
+    description = "...",
+    trigger = 
+        !on_title() &&
+        measured(dungeon_val == 63) && prev(dungeon_val) == 62
+)
+
+// Kill legendary monsters
+
+for monster in wandering_monsters {
+    achievement(
+        title = format("{0}", monster["name"]),
+        points = 0,
+        type = "",
+        description = format("Defeat the {0}", monster["true_name"]),
+        trigger = 
+            !on_title() &&
+            monster["obj"].monster_just_died()
+    )
+}
+
+
+
 achievement(
     title = "UPGR_TO_PROMISED_LAND",
     points = 0,
     type = "",
-    description = "UPGRADE TO PROMISED LAND",
+    description = "Develop the kingdom to the rank of \"Promised Land\"",
     trigger = 
         !on_title() &&
         (
