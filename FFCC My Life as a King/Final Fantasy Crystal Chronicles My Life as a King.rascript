@@ -118,11 +118,38 @@ class UpgradeData {
     dlc_offset = 0x00
     dlc_offset_2 = 0x00
 
+    function get_sum_of_upgrade_gil_paid() {
+        total_upgrade_amt_paid = 0
+
+        for upgrade_offset in range(0x04, 0x311, 0x14) {
+            upgrade_amt_paid = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x0c, 0x20, upgrade_offset, 0x4C], dword_be)
+
+            total_upgrade_amt_paid = total_upgrade_amt_paid + upgrade_amt_paid
+        }
+
+        return total_upgrade_amt_paid
+    }
+
+/*
+    function get_single_cond_for_upgrades_for_sale() {
+        total_single_cond = []
+
+        for upgrade_offset in range(0x04, 0x311, 0x14) {
+            target = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x0c, 0x20, upgrade_offset, 0xF4], dword_be)
+            upgrade_for_sale = once(target == 3 || target == 5)
+
+            array_push(total_single_cond, upgrade_for_sale)
+        }
+
+        return total_single_cond
+    }
+*/
+
     function get_sum_of_upgrade_levels() {
         total_performed_upgrades = 0
 
         for upgrade_offset in range(0x04, 0x311, 0x14) {
-            upgrade_level = ptr(dword_be(0x00436e94), [this.dlc_offset, dlc_offset_2, 0x0c, upgrade_offset, 0x54], dword_be)
+            upgrade_level = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x0c, 0x20, upgrade_offset, 0x54], dword_be)
 
             amount_performed = upgrade_level / 5
             total_performed_upgrades = total_performed_upgrades + amount_performed
@@ -206,6 +233,21 @@ dungeons = {
     "Polpus Mistmoor": Dungeon(dungeon_offset=0xE0),
 }
 */
+
+class KingdomBuilding {
+    entry_offset = 0x00
+
+    function get_building_type() {
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x4C4, 0x20, this.entry_offset, 0x3C], dword_be)
+    }
+}
+
+building_refs = []
+
+for current_building_offset in range(0x04, 0x1401, 0x14) {
+    current_building = KingdomBuilding(entry_offset=current_building_offset)
+    array_push(building_refs, current_building)
+}
 
 class WanderingMonster {
     monster_offset = 0x00
@@ -460,6 +502,31 @@ achievement(
         !on_title() &&
         measured(dungeon_val == 63) && prev(dungeon_val) == 62
 )
+
+// Buidlings
+achievement(
+    title = "WEAPON_SHOP_COUNT",
+    points = 0,
+    type = "",
+    description = "...",
+    trigger = 
+        !on_title() &&
+        // Too long... barely
+        measured(tally_of(building_refs, 50, item => once(item.get_building_type() == 0x191))) && tally_of(building_refs, 49, item => once(item.get_building_type() == 0x191))
+)
+
+// Upgrades
+/*
+achievement(
+    title = "SALES_SWEEP",
+    points = 0,
+    type = "",
+    description = "...",
+    trigger = 
+        !on_title() &&
+        tally(100, eu_dlc["upgrades"].get_single_cond_for_upgrades_for_sale())
+)
+*/
 
 // Kill legendary monsters
 
