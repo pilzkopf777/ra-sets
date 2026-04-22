@@ -1,4 +1,4 @@
-def generate_ra_logic(num_entries, check_value, target_hits, shrine=False):
+def generate_ra_logic(num_entries, check_value, target_hits, name, shrine=False):
     """
     Generates a RetroAchievements logic string with a repeating pointer chain.
     
@@ -48,12 +48,12 @@ def generate_ra_logic(num_entries, check_value, target_hits, shrine=False):
         logic_string += block
 
     # Add the final condition to evaluate target hits
-    logic_string += f"0=1.{target_hits}."
+    logic_string += f"0=1.{target_hits}.\":{name}:...::::Pilzkopf:0:::::00000"
     
-    return logic_string
+    return '111000020:"' + logic_string
 
 # print("=== Standard Output (shrine=False) ===")
 # print(generate_ra_logic(num_entries=256, check_value=0x191, target_hits=49, shrine=False))
 
 print("\n=== Shrine Output (shrine=True) ===")
-print(generate_ra_logic(num_entries=256, check_value=0x1F7, target_hits=40, shrine=True))
+print(generate_ra_logic(num_entries=256, check_value=0x1F7, target_hits=40, name="Wow cheevo!", shrine=True))
