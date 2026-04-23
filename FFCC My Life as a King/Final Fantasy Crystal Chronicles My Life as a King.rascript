@@ -164,7 +164,11 @@ class MedalData {
     dlc_offset_2 = 0x00
 
     function medal_1_unlocked() {
-        return ptr(dword_be(0x00436e94), [this.dlc_offset, dlc_offset_2, 0x18, 0x04], dword_be) == 0x01
+        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x18, 0x04], dword_be) == 0x01
+    }
+
+    function medal_1_amount_owned() {
+        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2 - 0x08, 0x18, 0x04], dword_be)
     }
 
     function get_sum_of_base_medals_unlocked() {
@@ -249,6 +253,23 @@ for current_building_offset in range(0x04, 0x1401, 0x14) {
     array_push(building_refs, current_building)
 }
 
+class Adventurer {
+    entry_offset = 0x00
+
+    function get_job_id() {
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x13c, 0x18, this.entry_offset, 0x4C], dword_be)
+    }
+}
+
+adventurer_list = []
+
+for adventurer_offset in range(0x04, 0x8D, 0x08) {
+    current_adv = Adventurer(entry_offset=adventurer_offset)
+    array_push(adventurer_list, current_adv)
+}
+
+any_whm = any_of(adventurer_list, item => item.get_job_id() == 0x03) && none_of(adventurer_list, item => item.get_job_id() == 0x03)
+
 class WanderingMonster {
     monster_offset = 0x00
 
@@ -321,9 +342,18 @@ event_flags = {
     "cp3_done": ptr(dword_be(0x801304), [0x7D6C, 0x34], dword_be) / 0xff,
     // 1 == Cutscene done, could also check day count instead though
     "day_1_done": ptr(dword_be(0x801304), [0x814C, 0x34], dword_be) / 0xff,
+    // 1 == Crowned Archlord, cutscene done
+    "archlord": ptr(dword_be(0x801304), [0x7E44, 0x34], dword_be) / 0xff,
     // 1 == credits start rolling
-    "game_clear": ptr(dword_be(0x801304), [0x7E4C, 0x34], dword_be) / 0xff,
+    "game_clear": ptr(dword_be(0x801304), [0x7E4C, 0x34], dword_be) / 0xff
 }
+
+memories_seen = 0
+
+for memory in range(0x7DC4, 0x7E35, 0x08) {
+    memories_seen = memories_seen + ptr(dword_be(0x801304), [memory, 0x34], dword_be) / 0xff
+}
+
 
 us_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00, difficulty_offset=0x00),
@@ -503,9 +533,27 @@ achievement(
         measured(dungeon_val == 63) && prev(dungeon_val) == 62
 )
 
-// Buidlings
+// Memories
 achievement(
-    title = "WEAPON_SHOP_COUNT",
+    title = "MEMORIES",
+    points = 0,
+    type = "",
+    description = "...",
+    trigger = 
+        !on_title() &&
+        measured(memories_seen == 5) && prev(memories_seen) == 4
+)
+
+/*
+Setup
+
+The generated logic is too long. Using Remember/Recall cuts down the size a lot so for these achievements a custom Python script is used to manually generated these cheevos.
+Concepts for those:
+- Enable three shrine buffs on the same day / same time
+- Have one 
+
+achievement(
+    title = "...",
     points = 0,
     type = "",
     description = "...",
@@ -514,22 +562,69 @@ achievement(
         // Too long... barely
         measured(tally_of(building_refs, 50, item => once(item.get_building_type() == 0x191))) && tally_of(building_refs, 49, item => once(item.get_building_type() == 0x191))
 )
+*/
 
-// Upgrades
-/*
+// Medals
 achievement(
-    title = "SALES_SWEEP",
+    title = "MEDAL_ONE",
     points = 0,
     type = "",
     description = "...",
     trigger = 
         !on_title() &&
-        tally(100, eu_dlc["upgrades"].get_single_cond_for_upgrades_for_sale())
+        (
+            (
+                // US DLC
+                us_dlc["is_used_version"] &&
+                us_dlc["medals"].medal_1_unlocked() && us_dlc["medals"].medal_1_amount_owned() == 10
+            ) ||
+            (
+               // US BASE
+                us_base["is_used_version"] &&
+                us_base["medals"].medal_1_unlocked() && us_base["medals"].medal_1_amount_owned() == 10
+            ) ||
+            (
+                // EU DLC
+                eu_dlc["is_used_version"] &&
+                eu_dlc["medals"].medal_1_unlocked() && eu_dlc["medals"].medal_1_amount_owned() == 10
+            ) ||
+            (
+                // EU BASE
+                eu_base["is_used_version"] &&
+                eu_base["medals"].medal_1_unlocked() && eu_base["medals"].medal_1_amount_owned() == 10
+            )
+        )
 )
-*/
+
+// Adventurers
+achievement(
+    title = "HIRE_WHM",
+    points = 0,
+    type = "",
+    description = "...",
+    trigger = 
+        !on_title() &&
+        any_of(adventurer_list, item => item.get_job_id() == 0x03) && none_of(adventurer_list, item => item.get_job_id() == 0x03)
+)
+
+achievement(
+    title = "HIRE_ALL",
+    points = 0,
+    type = "",
+    description = "...",
+    trigger = 
+        never(on_title()) &&
+        // WAR
+        once(any_of(adventurer_list, item => item.get_job_id() == 0x01) && none_of(adventurer_list, item => item.get_job_id() == 0x01)) &&
+        // BLM
+        once(any_of(adventurer_list, item => item.get_job_id() == 0x02) && none_of(adventurer_list, item => item.get_job_id() == 0x02)) && 
+        // WHM
+        once(any_of(adventurer_list, item => item.get_job_id() == 0x03) && none_of(adventurer_list, item => item.get_job_id() == 0x03)) && 
+        // THF
+        once(any_of(adventurer_list, item => item.get_job_id() == 0x04) && none_of(adventurer_list, item => item.get_job_id() == 0x04))
+)
 
 // Kill legendary monsters
-
 for monster in wandering_monsters {
     achievement(
         title = format("{0}", monster["name"]),
@@ -541,7 +636,6 @@ for monster in wandering_monsters {
             monster["obj"].monster_just_died()
     )
 }
-
 
 
 achievement(
