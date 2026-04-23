@@ -725,22 +725,22 @@ achievement(
             (
                 // US DLC
                 us_dlc["is_used_version"] &&
-                measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid(), when=us_dlc["is_used_version"]) >= target && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_dlc["is_used_version"]) && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
             ) ||
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid(), when=us_base["is_used_version"]) >= target && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_base["is_used_version"]) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
             ) ||
             (
                 // EU DLC
                 eu_dlc["is_used_version"] &&
-                measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid(), when=eu_dlc["is_used_version"]) >= target && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_dlc["is_used_version"]) && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
             ) ||
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid(), when=eu_base["is_used_version"]) >= target && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_base["is_used_version"]) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
             )
         )
 )
