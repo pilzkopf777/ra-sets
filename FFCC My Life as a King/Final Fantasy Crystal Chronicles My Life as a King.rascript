@@ -277,21 +277,31 @@ class Adventurer {
     function get_job_id() {
         return ptr(dword_be(0x00436e94), [0x8B21C, 0x13c, 0x18, this.entry_offset, this.dlc_offset, 0x4C], dword_be)
     }
+
+    function get_level() {
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x13c, 0x18, this.entry_offset, this.dlc_offset, 0x3C], dword_be)
+    }
 }
 
-adventurer_list_base = []
-adventurer_list_dlc = []
+
+any_lvl_50_base = always_false()
+any_lvl_50_dlc = always_false()
 
 for adventurer_offset in range(0x04, 0x8D, 0x08) {
     current_adv = Adventurer(entry_offset=adventurer_offset, dlc_offset=0x26C)
-    array_push(adventurer_list_base, current_adv)
-
     current_adv_dlc = Adventurer(entry_offset=adventurer_offset, dlc_offset=0x274)
-    array_push(adventurer_list_dlc, current_adv_dlc)
+
+    cond_base = current_adv.get_level() == 50 && prev(current_adv.get_level() != 50)
+    cond_dlc = current_adv_dlc.get_level() == 50 && prev(current_adv_dlc.get_level() != 50)
+
+    any_lvl_50_base = any_lvl_50_base || cond_base
+    any_lvl_50_dlc = any_lvl_50_dlc || cond_dlc
+
 }
 
-any_whm_base = any_of(adventurer_list_base, item => item.get_job_id() == 0x03) && prev(none_of(adventurer_list_base, item => item.get_job_id() == 0x03))
-any_whm_dlc = any_of(adventurer_list_dlc, item => item.get_job_id() == 0x03) && prev(none_of(adventurer_list_dlc, item => item.get_job_id() == 0x03))
+// any_lvl_50_base = any_of(adventurer_list_base, item => item.get_level() == 50) && prev(none_of(adventurer_list_base, item => item.get_level() == 50))
+// any_lvl_50_dlc = any_of(adventurer_list_dlc, item => item.get_level() == 50) && prev(none_of(adventurer_list_dlc, item => item.get_level() == 50))
+
 
 class WanderingMonster {
     monster_offset = 0x00
@@ -368,7 +378,9 @@ event_flags = {
     // 1 == Crowned Archlord, cutscene done
     "archlord": ptr(dword_be(0x801304), [0x7E44, 0x34], dword_be) / 0xff,
     // 1 == credits start rolling
-    "game_clear": ptr(dword_be(0x801304), [0x7E4C, 0x34], dword_be) / 0xff
+    "game_clear": ptr(dword_be(0x801304), [0x7E4C, 0x34], dword_be) / 0xff,
+    // 1 == completed subquest
+    "subquest": ptr(dword_be(0x801304), [0x784C, 0x3C], dword_be),
 }
 
 memories_seen = 0
@@ -376,7 +388,6 @@ memories_seen = 0
 for memory in range(0x7DC4, 0x7E35, 0x08) {
     memories_seen = memories_seen + ptr(dword_be(0x801304), [memory, 0x34], dword_be) / 0xff
 }
-
 
 us_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00, difficulty_offset=0x00),
@@ -506,6 +517,39 @@ achievement(
 )
 
 achievement(
+    title = "WIN_HARDER",
+    points = 0,
+    type = "win_condition",
+    description = "WIN_HARDER",
+    trigger = 
+        // Pops on Credits roll
+        !on_title() &&
+        event_flags["game_clear"] == 1 && prev(event_flags["game_clear"] == 0) &&
+        (
+            (
+                // US DLC
+                us_dlc["is_used_version"] &&
+                us_dlc["kingdom"].get_difficulty() > 0
+            ) ||
+            (
+               // US BASE
+                us_base["is_used_version"] &&
+                us_base["kingdom"].get_difficulty() > 0
+            ) ||
+            (
+                // EU DLC
+                eu_dlc["is_used_version"] &&
+                eu_dlc["kingdom"].get_difficulty() > 0
+            ) ||
+            (
+                // EU BASE
+                eu_base["is_used_version"] &&
+                eu_base["kingdom"].get_difficulty() > 0
+            )
+        )
+)
+
+achievement(
     title = "KINGDOM_SCORE",
     points = 0,
     type = "",
@@ -527,6 +571,59 @@ achievement(
         !on_title() &&
         time_data.goes_to_bed_late() &&
         prev(time_data.get_current_time()) == 0 && time_data.get_current_time() == 1
+)
+
+achievement(
+    title = "PAY_RATE",
+    points = 0,
+    type = "",
+    description = "Increase the Pay Rank of the kingdom to the highest level and reward your adventurers starting the next day",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                us_dlc["is_used_version"] &&
+                measured(us_dlc["kingdom"].get_pay_rank() == 4, when=us_dlc["is_used_version"]) && prev(us_dlc["kingdom"].get_pay_rank() == 3)
+            ) ||
+            (
+               // US BASE
+                us_base["is_used_version"] &&
+                measured(us_base["kingdom"].get_pay_rank() == 4, when=us_base["is_used_version"]) && prev(us_base["kingdom"].get_pay_rank() == 3)
+            ) ||
+            (
+                // EU DLC
+                eu_dlc["is_used_version"] &&
+                measured(eu_dlc["kingdom"].get_pay_rank() == 4, when=eu_dlc["is_used_version"]) && prev(eu_dlc["kingdom"].get_pay_rank() == 3)
+            ) ||
+            (
+                // EU BASE
+                eu_base["is_used_version"] &&
+                measured(eu_base["kingdom"].get_pay_rank() == 4, when=eu_base["is_used_version"]) && prev(eu_base["kingdom"].get_pay_rank() == 3)
+            )
+        )
+)
+
+achievement(
+    title = "HIRED_COUNT",
+    points = 0,
+    type = "",
+    description = "Hire the maximum amount of adventurers to fight for your kingdom",
+    trigger = 
+        !on_title() &&
+        measured(ptr(dword_be(0x801304), [0x8B21C, 0x13c, 0x1c], dword_be) == 18) &&
+        prev(ptr(dword_be(0x801304), [0x8B21C, 0x13c, 0x1c], dword_be) == 17)
+)
+
+// Subquest
+achievement(
+    title = "SUBQUEST",
+    points = 0,
+    type = "",
+    description = "Help a citizen of your kingdom with their everyday troubles",
+    trigger = 
+        !on_title() &&
+        event_flags["subquest"] == 1 && prev(event_flags["subquest"] == 0)
 )
 
 // Rank up kingdom
@@ -561,126 +658,6 @@ achievement(
         )
 )
 
-// Dungeon rate
-achievement(
-    title = "DUNGEON_SWEEP",
-    points = 0,
-    type = "",
-    description = "...",
-    trigger = 
-        !on_title() &&
-        measured(dungeon_val == 63) && prev(dungeon_val) == 62
-)
-
-// Memories
-achievement(
-    title = "MEMORIES",
-    points = 0,
-    type = "",
-    description = "...",
-    trigger = 
-        never(on_title()) &&
-        measured(memories_seen == 5) && prev(memories_seen) == 4
-)
-
-/*
-Setup
-
-The generated logic is too long. Using Remember/Recall cuts down the size a lot so for these achievements a custom Python script is used to manually generated these cheevos.
-Concepts for those:
-- Enable three shrine buffs on the same day / same time
-- Have one 
-
-achievement(
-    title = "...",
-    points = 0,
-    type = "",
-    description = "...",
-    trigger = 
-        !on_title() &&
-        // Too long... barely
-        measured(tally_of(building_refs, 50, item => once(item.get_building_type() == 0x191))) && tally_of(building_refs, 49, item => once(item.get_building_type() == 0x191))
-)
-*/
-
-// Medals
-achievement(
-    title = "GET_MEDAL",
-    points = 0,
-    type = "",
-    description = "...",
-    trigger = 
-        !on_title() &&
-        (
-            (
-                // US DLC
-                is_dlc_installed() &&
-                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 1, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 0)
-            ) ||
-            (
-               // US BASE
-               is_dlc_not_installed() &&
-                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 1, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 0)
-            )
-        )
-)
-
-achievement(
-    title = "GET_40_MEDALS",
-    points = 0,
-    type = "",
-    description = "...",
-    trigger = 
-        !on_title() &&
-        (
-            (
-                // US DLC
-                is_dlc_installed() &&
-                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 40, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 39)
-            ) ||
-            (
-               // US BASE
-               is_dlc_not_installed() &&
-                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 40, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 39)
-            )
-        )
-)
-
-achievement(
-    title = "GET_82_MEDALS",
-    points = 0,
-    type = "",
-    description = "...",
-    trigger = 
-        !on_title() &&
-        (
-            (
-                // US DLC
-                is_dlc_installed() &&
-                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 82, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 81)
-            ) ||
-            (
-               // US BASE
-               is_dlc_not_installed() &&
-                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 82, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 81)
-            )
-        )
-)
-
-// Kill legendary monsters
-for monster in wandering_monsters {
-    achievement(
-        title = format("{0}", monster["name"]),
-        points = 0,
-        type = "",
-        description = format("Defeat the {0}", monster["true_name"]),
-        trigger = 
-            !on_title() &&
-            monster["obj"].monster_just_died()
-    )
-}
-
-
 achievement(
     title = "UPGR_TO_PROMISED_LAND",
     points = 0,
@@ -711,6 +688,183 @@ achievement(
             )
         )
 )
+
+
+// Dungeon rate
+achievement(
+    title = "DUNGEON_SWEEP",
+    points = 0,
+    type = "",
+    description = "Fully explore and defear the boss in 63 different dungeons",
+    trigger = 
+        !on_title() &&
+        measured(dungeon_val == 63) && prev(dungeon_val) == 62
+)
+
+// Memories
+achievement(
+    title = "MEMORIES",
+    points = 0,
+    type = "",
+    description = "...",
+    trigger = 
+        never(on_title()) &&
+        measured(memories_seen == 5) && prev(memories_seen) == 4
+)
+
+target = 5000
+// Upgrades
+achievement(
+    title = "SPEND_LOADS_ON_UPGRADES",
+    points = 0,
+    type = "",
+    description = "...",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                us_dlc["is_used_version"] &&
+                measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid(), when=us_dlc["is_used_version"]) >= target && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+            ) ||
+            (
+               // US BASE
+                us_base["is_used_version"] &&
+                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid(), when=us_base["is_used_version"]) >= target && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+            ) ||
+            (
+                // EU DLC
+                eu_dlc["is_used_version"] &&
+                measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid(), when=eu_dlc["is_used_version"]) >= target && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+            ) ||
+            (
+                // EU BASE
+                eu_base["is_used_version"] &&
+                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid(), when=eu_base["is_used_version"]) >= target && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+            )
+        )
+)
+
+/*
+Setup
+
+The generated logic is too long. Using Remember/Recall cuts down the size a lot so for these achievements a custom Python script is used to manually generated these cheevos.
+Concepts for those:
+- Enable three shrine buffs on the same day / same time
+- Have one 
+
+achievement(
+    title = "...",
+    points = 0,
+    type = "",
+    description = "...",
+    trigger = 
+        !on_title() &&
+        // Too long... barely
+        measured(tally_of(building_refs, 50, item => once(item.get_building_type() == 0x191))) && tally_of(building_refs, 49, item => once(item.get_building_type() == 0x191))
+)
+*/
+
+achievement(
+    title = "LVL_50",
+    points = 0,
+    type = "",
+    description = "Train any adventurer to reach level 50",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                is_dlc_installed() &&
+                any_lvl_50_dlc
+            ) ||
+            (
+                // US BASE
+                is_dlc_not_installed() &&
+                any_lvl_50_base
+            )
+        )
+)
+
+// Medals
+achievement(
+    title = "GET_MEDAL",
+    points = 0,
+    type = "",
+    description = "Earn your first medal",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                is_dlc_installed() &&
+                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 1, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 0)
+            ) ||
+            (
+               // US BASE
+               is_dlc_not_installed() &&
+                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 1, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 0)
+            )
+        )
+)
+
+achievement(
+    title = "GET_40_MEDALS",
+    points = 0,
+    type = "",
+    description = "Earn a total of 40 different medals",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                is_dlc_installed() &&
+                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 40, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 39)
+            ) ||
+            (
+               // US BASE
+               is_dlc_not_installed() &&
+                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 40, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 39)
+            )
+        )
+)
+
+achievement(
+    title = "GET_82_MEDALS",
+    points = 0,
+    type = "",
+    description = "Earn a total of 82 different medals",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                is_dlc_installed() &&
+                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 82, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 81)
+            ) ||
+            (
+               // US BASE
+               is_dlc_not_installed() &&
+                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 82, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 81)
+            )
+        )
+)
+
+// Kill legendary monsters
+for monster in wandering_monsters {
+    achievement(
+        title = format("{0}", monster["name"]),
+        points = 0,
+        type = "",
+        description = format("Defeat the {0}", monster["true_name"]),
+        trigger = 
+            !on_title() &&
+            monster["obj"].monster_just_died()
+    )
+}
+
+
+
 
 
 
