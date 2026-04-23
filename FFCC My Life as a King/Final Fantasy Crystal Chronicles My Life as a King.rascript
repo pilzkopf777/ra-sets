@@ -162,23 +162,40 @@ class UpgradeData {
 class MedalData {
     dlc_offset = 0x00
     dlc_offset_2 = 0x00
+    dlc_offset_3 = 0x00
 
     function medal_1_unlocked() {
-        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x18, 0x04], dword_be) == 0x01
+        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x18, 0x04, this.dlc_offset_3], dword_be) == 0x01
     }
 
     function medal_1_amount_owned() {
-        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2 - 0x08, 0x18, 0x04], dword_be)
+        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2 + 0x08, 0x18, 0x04], dword_be)
+    }
+
+    function get_sum_of_dlc_medals_unlocked() {
+        total = 0
+
+        // Deduct 5 (6?) from final amount due to unused medals in the data (DLC? Test with Base?)
+
+        for medal_count in range(0x04, 0x2BD, 8) {
+            value = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x18, medal_count, this.dlc_offset_3], dword_be)
+            total = total + value
+        }
+        
+        return total - 6
     }
 
     function get_sum_of_base_medals_unlocked() {
-        // TODO: not all entries have data sadly.. -> do not use range, instead pull from list?
-        cool_list = []
+       total = 0
 
-        for medal_count in range(0x04, 0xB4, 8) {
-            array_push(cool_list, ptr(dword_be(0x00436e94), [this.dlc_offset, dlc_offset_2, 0x18, medal_count], dword_be))
+        // Deduct 5 (6?) from final amount due to unused medals in the data (DLC? Test with Base?)
+
+        for medal_count in range(0x04, 0x155, 8) {
+            value = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x18, medal_count, this.dlc_offset_3], dword_be)
+            total = total + value
         }
-
+        
+        return total - 6
     }
 }
 
@@ -255,20 +272,26 @@ for current_building_offset in range(0x04, 0x1401, 0x14) {
 
 class Adventurer {
     entry_offset = 0x00
+    dlc_offset = 0x00
 
     function get_job_id() {
-        return ptr(dword_be(0x00436e94), [0x8B21C, 0x13c, 0x18, this.entry_offset, 0x4C], dword_be)
+        return ptr(dword_be(0x00436e94), [0x8B21C, 0x13c, 0x18, this.entry_offset, this.dlc_offset, 0x4C], dword_be)
     }
 }
 
-adventurer_list = []
+adventurer_list_base = []
+adventurer_list_dlc = []
 
 for adventurer_offset in range(0x04, 0x8D, 0x08) {
-    current_adv = Adventurer(entry_offset=adventurer_offset)
-    array_push(adventurer_list, current_adv)
+    current_adv = Adventurer(entry_offset=adventurer_offset, dlc_offset=0x26C)
+    array_push(adventurer_list_base, current_adv)
+
+    current_adv_dlc = Adventurer(entry_offset=adventurer_offset, dlc_offset=0x274)
+    array_push(adventurer_list_dlc, current_adv_dlc)
 }
 
-any_whm = any_of(adventurer_list, item => item.get_job_id() == 0x03) && none_of(adventurer_list, item => item.get_job_id() == 0x03)
+any_whm_base = any_of(adventurer_list_base, item => item.get_job_id() == 0x03) && prev(none_of(adventurer_list_base, item => item.get_job_id() == 0x03))
+any_whm_dlc = any_of(adventurer_list_dlc, item => item.get_job_id() == 0x03) && prev(none_of(adventurer_list_dlc, item => item.get_job_id() == 0x03))
 
 class WanderingMonster {
     monster_offset = 0x00
@@ -358,28 +381,28 @@ for memory in range(0x7DC4, 0x7E35, 0x08) {
 us_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00, difficulty_offset=0x00),
     "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
-    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C),
+    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C, dlc_offset_3=0xA4),
     "is_used_version": is_game_region_us() && !is_dlc_installed()
 }
 
 us_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08, difficulty_offset=0x08),
     "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
-    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214),
+    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214, dlc_offset_3=0xAC),
     "is_used_version": is_game_region_us() && is_dlc_installed()
 }
 
 eu_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00, difficulty_offset=0x00),
     "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
-    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C),
+    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C, dlc_offset_3=0xA4),
     "is_used_version": is_game_region_eu() && !is_dlc_installed()
 }
 
 eu_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08, difficulty_offset=0x08),
     "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
-    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214),
+    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214, dlc_offset_3=0xAC),
     "is_used_version": is_game_region_eu() && is_dlc_installed()
 }
 
@@ -412,6 +435,23 @@ function on_results() {
 }
 
 // Achievements
+achievement(
+    title = "DEBUG",
+    points = 0,
+    type = "",
+    description = "DEBUG",
+    trigger = 
+        !on_title()
+)
+
+achievement(
+    title = "DEBUG_2",
+    points = 0,
+    type = "",
+    description = "DEBUG_2",
+    trigger = 
+        never(time_data.in_daily_report() || time_data.get_current_time() < 10)
+)
 
 // Progression
 achievement(
@@ -486,7 +526,7 @@ achievement(
     trigger = 
         !on_title() &&
         time_data.goes_to_bed_late() &&
-        time_data.get_current_time() == 0 && time_data.get_current_time() == 1
+        prev(time_data.get_current_time()) == 0 && time_data.get_current_time() == 1
 )
 
 // Rank up kingdom
@@ -502,7 +542,6 @@ achievement(
                 // US DLC
                 us_dlc["is_used_version"] &&
                 us_dlc["kingdom"].get_development_city_state() == 1 && prev(us_dlc["kingdom"].get_development_city_state() == 0)
-
             ) ||
             (
                // US BASE
@@ -540,7 +579,7 @@ achievement(
     type = "",
     description = "...",
     trigger = 
-        !on_title() &&
+        never(on_title()) &&
         measured(memories_seen == 5) && prev(memories_seen) == 4
 )
 
@@ -566,7 +605,7 @@ achievement(
 
 // Medals
 achievement(
-    title = "MEDAL_ONE",
+    title = "GET_MEDAL",
     points = 0,
     type = "",
     description = "...",
@@ -575,53 +614,57 @@ achievement(
         (
             (
                 // US DLC
-                us_dlc["is_used_version"] &&
-                us_dlc["medals"].medal_1_unlocked() && us_dlc["medals"].medal_1_amount_owned() == 10
+                is_dlc_installed() &&
+                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 1, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 0)
             ) ||
             (
                // US BASE
-                us_base["is_used_version"] &&
-                us_base["medals"].medal_1_unlocked() && us_base["medals"].medal_1_amount_owned() == 10
-            ) ||
-            (
-                // EU DLC
-                eu_dlc["is_used_version"] &&
-                eu_dlc["medals"].medal_1_unlocked() && eu_dlc["medals"].medal_1_amount_owned() == 10
-            ) ||
-            (
-                // EU BASE
-                eu_base["is_used_version"] &&
-                eu_base["medals"].medal_1_unlocked() && eu_base["medals"].medal_1_amount_owned() == 10
+               is_dlc_not_installed() &&
+                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 1, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 0)
             )
         )
 )
 
-// Adventurers
 achievement(
-    title = "HIRE_WHM",
+    title = "GET_40_MEDALS",
     points = 0,
     type = "",
     description = "...",
     trigger = 
         !on_title() &&
-        any_of(adventurer_list, item => item.get_job_id() == 0x03) && none_of(adventurer_list, item => item.get_job_id() == 0x03)
+        (
+            (
+                // US DLC
+                is_dlc_installed() &&
+                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 40, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 39)
+            ) ||
+            (
+               // US BASE
+               is_dlc_not_installed() &&
+                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 40, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 39)
+            )
+        )
 )
 
 achievement(
-    title = "HIRE_ALL",
+    title = "GET_82_MEDALS",
     points = 0,
     type = "",
     description = "...",
     trigger = 
-        never(on_title()) &&
-        // WAR
-        once(any_of(adventurer_list, item => item.get_job_id() == 0x01) && none_of(adventurer_list, item => item.get_job_id() == 0x01)) &&
-        // BLM
-        once(any_of(adventurer_list, item => item.get_job_id() == 0x02) && none_of(adventurer_list, item => item.get_job_id() == 0x02)) && 
-        // WHM
-        once(any_of(adventurer_list, item => item.get_job_id() == 0x03) && none_of(adventurer_list, item => item.get_job_id() == 0x03)) && 
-        // THF
-        once(any_of(adventurer_list, item => item.get_job_id() == 0x04) && none_of(adventurer_list, item => item.get_job_id() == 0x04))
+        !on_title() &&
+        (
+            (
+                // US DLC
+                is_dlc_installed() &&
+                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 82, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 81)
+            ) ||
+            (
+               // US BASE
+               is_dlc_not_installed() &&
+                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 82, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 81)
+            )
+        )
 )
 
 // Kill legendary monsters
