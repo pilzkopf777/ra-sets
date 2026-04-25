@@ -68,6 +68,7 @@ class KingdomData {
     morale_spheres = 0xec
     city_lvl = 0x104
     day = 0x134
+    behest_ptr = 0x154
 
     function get_difficulty() {
         return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.difficulty + this.post_addon_offset - this.difficulty_offset], dword_be)
@@ -87,6 +88,10 @@ class KingdomData {
 
     function get_max_adv_count() {
         return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.amt_adv + this.post_addon_offset], dword_be)
+    }
+
+    function get_behests_posted_count() {
+        return ptr(dword_be(0x00436e94), [this.start_addon_offset, this.behest_ptr + this.post_addon_offset, 0x44, 0x28], dword_be)
     }
 }
 
@@ -237,11 +242,16 @@ dungeon_refs = []
 
 // Seemingly 63 dungeons total with DLC, including Infinity Spire; each has offset of 0x14; entries from 0x68 through 0x540
 for current_dungeon_offset in range(0x68, 0x541, 0x14) {
-    current_dungeon = Dungeon(dungeon_offset=current_dungeon_offset)
-    array_push(dungeon_refs, current_dungeon)
+    // Do NOT include Infinity Spire or Shrine of Awakening / Final Boss dungeon in list of dungeons
+    if (current_dungeon_offset != 0x540 || current_dungeon_offset != 0x234) {
+        current_dungeon = Dungeon(dungeon_offset=current_dungeon_offset)
+        array_push(dungeon_refs, current_dungeon)
+    }
 }
 
 dungeon_val = sum_of(dungeon_refs, item => (item.get_amount_explored() / item.get_target_for_full_explore()) + item.get_boss_state() / 3)
+
+infinity_spire = Dungeon(dungeon_offset=0x540)
 
 /*
 dungeons = {
@@ -287,17 +297,46 @@ class Adventurer {
 any_lvl_50_base = always_false()
 any_lvl_50_dlc = always_false()
 
+any_whm_base = always_false()
+any_whm_dlc = always_false()
+
+any_blm_base = always_false()
+any_blm_dlc = always_false()
+
+any_thf_base = always_false()
+any_thf_dlc = always_false()
+
 for adventurer_offset in range(0x04, 0x8D, 0x08) {
     current_adv = Adventurer(entry_offset=adventurer_offset, dlc_offset=0x26C)
     current_adv_dlc = Adventurer(entry_offset=adventurer_offset, dlc_offset=0x274)
 
-    cond_base = current_adv.get_level() == 50 && prev(current_adv.get_level() != 50)
-    cond_dlc = current_adv_dlc.get_level() == 50 && prev(current_adv_dlc.get_level() != 50)
+    lvl_50_cond_base = current_adv.get_level() == 50 && prev(current_adv.get_level() != 50)
+    lvl_50_cond_dlc = current_adv_dlc.get_level() == 50 && prev(current_adv_dlc.get_level() != 50)
 
-    any_lvl_50_base = any_lvl_50_base || cond_base
-    any_lvl_50_dlc = any_lvl_50_dlc || cond_dlc
+    whm_cond_base = current_adv.get_job_id() == 0x03 && prev(current_adv.get_job_id() != 0x03)
+    whm_cond_dlc = current_adv_dlc.get_job_id() == 0x03 && prev(current_adv_dlc.get_job_id() != 0x03)
 
+    blm_cond_base = current_adv.get_job_id() == 0x02 && prev(current_adv.get_job_id() != 0x02)
+    blm_cond_dlc = current_adv_dlc.get_job_id() == 0x02 && prev(current_adv_dlc.get_job_id() != 0x02)
+
+    thf_cond_base = current_adv.get_job_id() == 0x04 && prev(current_adv.get_job_id() != 0x04)
+    thf_cond_dlc = current_adv_dlc.get_job_id() == 0x04 && prev(current_adv_dlc.get_job_id() != 0x04)
+
+    any_lvl_50_base = any_lvl_50_base || lvl_50_cond_base
+    any_lvl_50_dlc = any_lvl_50_dlc || lvl_50_cond_dlc
+
+    any_whm_base = any_whm_base || whm_cond_base
+    any_whm_dlc = any_whm_dlc || whm_cond_dlc
+
+    any_blm_base = any_blm_base || blm_cond_base
+    any_blm_dlc = any_blm_dlc || blm_cond_dlc
+
+    any_thf_base = any_thf_base || thf_cond_base
+    any_thf_dlc = any_thf_dlc || thf_cond_dlc
 }
+
+one_of_each_base = any_whm_base && any_blm_base && any_thf_base
+one_of_each_dlc = any_whm_dlc && any_blm_dlc && any_thf_dlc
 
 // any_lvl_50_base = any_of(adventurer_list_base, item => item.get_level() == 50) && prev(none_of(adventurer_list_base, item => item.get_level() == 50))
 // any_lvl_50_dlc = any_of(adventurer_list_dlc, item => item.get_level() == 50) && prev(none_of(adventurer_list_dlc, item => item.get_level() == 50))
@@ -368,7 +407,7 @@ event_flags = {
     // 1 == Unlocked spacious houses
     "spacious_houses_unlocked": ptr(dword_be(0x801304), [0x7C24, 0x34], dword_be) / 0xff,
     // 1 == Unlocked Skysphere
-    "skysphere_unlocked": 0, // unclear value -> double check?
+    "skysphere_unlocked": ptr(dword_be(0x801304), [0x7C3C, 0x34], dword_be), //TODO: REVIEW THIS VAL
     // 1 == Unlocked BLM, cutscene done
     "cp2_done": ptr(dword_be(0x801304), [0x7CBC, 0x34], dword_be) / 0xff,
     // 1 == Cutscene done. Next cutscene contains the cp 3 completion check..
@@ -511,20 +550,56 @@ achievement(
     type = "win_condition",
     description = "WIN",
     trigger = 
-        // Pops on Credits roll
-        !on_title() &&
-        event_flags["game_clear"] == 1 && prev(event_flags["game_clear"] == 0)
+        // Pops on Kingdom Scores screen
+        never(on_title()) &&
+        event_flags["game_clear"] == 1 &&
+        repeated(85, time_data.get_current_time() == 6300)
+)
+
+function final_rank_is_a() {
+    return ascii_string_equals(0x00434911, "A") || ascii_string_equals(0x00434911, "S")
+}
+
+function final_rank_is_sss() {
+    return ascii_string_equals(0x00434911, "S S S")
+}
+
+achievement(
+    title = "WIN_A",
+    points = 0,
+    type = "",
+    description = "Complete the game with an A rank or higher on any difficulty",
+    trigger = 
+        // Pops on Kingdom Scores screen
+        never(on_title()) &&
+        event_flags["game_clear"] == 1 &&
+        final_rank_is_a() &&
+        repeated(85, time_data.get_current_time() == 6300)
+)
+
+achievement(
+    title = "WIN_SSS",
+    points = 0,
+    type = "",
+    description = "Complete the game with a SSS rank on any difficulty",
+    trigger = 
+        // Pops on Kingdom Scores screen
+        never(on_title()) &&
+        event_flags["game_clear"] == 1 &&
+        final_rank_is_sss() &&
+        repeated(85, time_data.get_current_time() == 6300)
 )
 
 achievement(
     title = "WIN_HARDER",
     points = 0,
     type = "win_condition",
-    description = "WIN_HARDER",
+    description = "Complete the game with any rank on Hard or Very Hard difficulty",
     trigger = 
         // Pops on Credits roll
-        !on_title() &&
-        event_flags["game_clear"] == 1 && prev(event_flags["game_clear"] == 0) &&
+        never(on_title()) &&
+        event_flags["game_clear"] == 1 &&
+        repeated(85, time_data.get_current_time() == 6300) &&
         (
             (
                 // US DLC
@@ -547,18 +622,6 @@ achievement(
                 eu_base["kingdom"].get_difficulty() > 0
             )
         )
-)
-
-achievement(
-    title = "KINGDOM_SCORE",
-    points = 0,
-    type = "",
-    description = "KINGDOM SCORES",
-    trigger = 
-        // Pops on Kingdom Scores screen
-        !on_title() &&
-        event_flags["game_clear"] == 1 &&
-        time_data.time_paused() && prev(!time_data.time_paused())
 )
 
 // Day extension
@@ -584,24 +647,34 @@ achievement(
             (
                 // US DLC
                 us_dlc["is_used_version"] &&
-                measured(us_dlc["kingdom"].get_pay_rank() == 4, when=us_dlc["is_used_version"]) && prev(us_dlc["kingdom"].get_pay_rank() == 3)
+                measured(us_dlc["kingdom"].get_pay_rank() == 4, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["kingdom"].get_pay_rank() == 3)
             ) ||
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["kingdom"].get_pay_rank() == 4, when=us_base["is_used_version"]) && prev(us_base["kingdom"].get_pay_rank() == 3)
+                measured(us_base["kingdom"].get_pay_rank() == 4, when=us_base["is_used_version"] && !on_title()) && prev(us_base["kingdom"].get_pay_rank() == 3)
             ) ||
             (
                 // EU DLC
                 eu_dlc["is_used_version"] &&
-                measured(eu_dlc["kingdom"].get_pay_rank() == 4, when=eu_dlc["is_used_version"]) && prev(eu_dlc["kingdom"].get_pay_rank() == 3)
+                measured(eu_dlc["kingdom"].get_pay_rank() == 4, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["kingdom"].get_pay_rank() == 3)
             ) ||
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["kingdom"].get_pay_rank() == 4, when=eu_base["is_used_version"]) && prev(eu_base["kingdom"].get_pay_rank() == 3)
+                measured(eu_base["kingdom"].get_pay_rank() == 4, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["kingdom"].get_pay_rank() == 3)
             )
         )
+)
+
+achievement(
+    title = "Ship It",
+    points = 0,
+    type = "",
+    description = "Unlock the Skysphere",
+    trigger = 
+        !on_title() &&
+        event_flags["skysphere_unlocked"] == 1 && prev(event_flags["skysphere_unlocked"] == 0)
 )
 
 achievement(
@@ -611,13 +684,59 @@ achievement(
     description = "Hire the maximum amount of adventurers to fight for your kingdom",
     trigger = 
         !on_title() &&
-        measured(ptr(dword_be(0x801304), [0x8B21C, 0x13c, 0x1c], dword_be) == 18) &&
+        measured(ptr(dword_be(0x801304), [0x8B21C, 0x13c, 0x1c], dword_be) == 18, when=!on_title()) &&
         prev(ptr(dword_be(0x801304), [0x8B21C, 0x13c, 0x1c], dword_be) == 17)
 )
 
-// Subquest
+// Holiday
 achievement(
-    title = "SUBQUEST",
+    title = "Take a Break",
+    points = 0,
+    type = "",
+    description = "Celebrate the kingdom's very first holiday",
+    trigger = 
+        never(on_title() || time_data.in_daily_report()) &&
+        once(event_flags["first_holiday"] == 1 && prev(event_flags["first_holiday"] == 0)) &&
+        time_data.get_current_time() == 1 && prev(time_data.get_current_time() == 0)
+)
+
+// Behest count
+achievement(
+    title = "Public Service Announcement",
+    points = 0,
+    type = "",
+    description = "Post four different behests at the same time",
+    trigger = 
+        !on_title() &&
+        !in_daily_report() &&
+        time_data.get_current_time() == 1 && prev(time_data.get_current_time() == 0) &&
+        (
+            (
+                // US DLC
+                us_dlc["is_used_version"] &&
+                us_dlc["kingdom"].get_behests_posted_count() == 4
+            ) ||
+            (
+                // US BASE
+                us_base["is_used_version"] &&
+                us_base["kingdom"].get_behests_posted_count() == 4
+            ) ||
+            (
+                // EU DLC
+                eu_dlc["is_used_version"] &&
+                eu_dlc["kingdom"].get_behests_posted_count() == 4
+            ) ||
+            (
+                // EU BASE
+                eu_base["is_used_version"] &&
+                eu_base["kingdom"].get_behests_posted_count() == 4
+            )
+        )
+)
+
+// Sidequest
+achievement(
+    title = "A Little Helping Hand",
     points = 0,
     type = "",
     description = "Help a citizen of your kingdom with their everyday troubles",
@@ -625,13 +744,12 @@ achievement(
         !on_title() &&
         event_flags["subquest"] == 1 && prev(event_flags["subquest"] == 0)
 )
-
 // Rank up kingdom
 achievement(
-    title = "UPGR_TO_TOWN",
+    title = "Development Plans",
     points = 0,
     type = "",
-    description = "Develop the kingdom to the rank of \"Town\"",
+    description = "Develop your kingdom to the rank of \"Town\"",
     trigger = 
         !on_title() &&
         (
@@ -659,43 +777,85 @@ achievement(
 )
 
 achievement(
-    title = "UPGR_TO_PROMISED_LAND",
+    title = "Cannot get much higher",
     points = 0,
     type = "",
-    description = "Develop the kingdom to the rank of \"Promised Land\"",
+    description = "Develop your kingdom to the rank of \"Promised Land\"",
     trigger = 
         !on_title() &&
         (
             (
                 // US DLC
                 us_dlc["is_used_version"] &&
-                measured(us_dlc["kingdom"].get_development_city_state() == 5, us_dlc["is_used_version"]) && prev(us_dlc["kingdom"].get_development_city_state() == 4)
+                measured(us_dlc["kingdom"].get_development_city_state() == 5, us_dlc["is_used_version"], when=!on_title()) && prev(us_dlc["kingdom"].get_development_city_state() == 4)
             ) ||
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["kingdom"].get_development_city_state() == 5, us_base["is_used_version"]) && prev(us_base["kingdom"].get_development_city_state() == 4)
+                measured(us_base["kingdom"].get_development_city_state() == 5, us_base["is_used_version"], when=!on_title()) && prev(us_base["kingdom"].get_development_city_state() == 4)
             ) ||
             (
                 // EU DLC
                 eu_dlc["is_used_version"] &&
-                measured(eu_dlc["kingdom"].get_development_city_state() == 5, eu_dlc["is_used_version"]) && prev(eu_dlc["kingdom"].get_development_city_state() == 4)
+                measured(eu_dlc["kingdom"].get_development_city_state() == 5, eu_dlc["is_used_version"], when=!on_title()) && prev(eu_dlc["kingdom"].get_development_city_state() == 4)
             ) ||
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["kingdom"].get_development_city_state() == 5, eu_base["is_used_version"]) && prev(eu_base["kingdom"].get_development_city_state() == 4)
+                measured(eu_base["kingdom"].get_development_city_state() == 5, eu_base["is_used_version"], when=!on_title()) && prev(eu_base["kingdom"].get_development_city_state() == 4)
             )
         )
 )
 
+infinity_spire_floor = infinity_spire.get_level() - 9
+
+// Infinity Spire
+achievement(
+    title = "INFINITY_1",
+    points = 0,
+    type = "",
+    description = "Clear the first floor of the Infinity Spire",
+    trigger = 
+        !on_title() &&
+        infinity_spire_floor == 2 && prev(infinity_spire_floor == 1)
+)
+
+achievement(
+    title = "INFINITY_2",
+    points = 0,
+    type = "",
+    description = "Clear floor 50 of the Infinity Spire",
+    trigger = 
+        !on_title() &&
+        measured(infinity_spire_floor == 51, when=!on_title()) && prev(infinity_spire_floor == 50)
+)
+
+achievement(
+    title = "INFINITY_3",
+    points = 0,
+    type = "",
+    description = "Clear floor 99 of the Infinity Spire",
+    trigger = 
+        !on_title() &&
+        measured(infinity_spire_floor == 100, when=!on_title()) && prev(infinity_spire_floor == 99)
+)
 
 // Dungeon rate
 achievement(
-    title = "DUNGEON_SWEEP",
+    title = "Every nook and cranny",
     points = 0,
     type = "",
-    description = "Fully explore and defear the boss in 63 different dungeons",
+    description = "Defeat the boss and fully explore any dungeon",
+    trigger = 
+        !on_title() &&
+        dungeon_val == 1 && prev(dungeon_val) == 0
+)
+
+achievement(
+    title = "Dungeon World Tour",
+    points = 0,
+    type = "",
+    description = "Defeat the boss and fully explore 63 different dungeons",
     trigger = 
         !on_title() &&
         measured(dungeon_val == 63) && prev(dungeon_val) == 62
@@ -703,44 +863,44 @@ achievement(
 
 // Memories
 achievement(
-    title = "MEMORIES",
+    title = "Memories",
     points = 0,
     type = "",
-    description = "...",
+    description = "Read five entries of Chime's personal report during the attack on the Dark Lord",
     trigger = 
         never(on_title()) &&
-        measured(memories_seen == 5) && prev(memories_seen) == 4
+        measured(memories_seen == 5, when=!on_title()) && prev(memories_seen) == 4
 )
 
 target = 5000
 // Upgrades
 achievement(
-    title = "SPEND_LOADS_ON_UPGRADES",
+    title = "Investing in people",
     points = 0,
     type = "",
-    description = "...",
+    description = format("Invest a total of {0} gil into research", total),
     trigger = 
         !on_title() &&
         (
             (
                 // US DLC
                 us_dlc["is_used_version"] &&
-                measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_dlc["is_used_version"]) && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
             ) ||
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_base["is_used_version"]) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
             ) ||
             (
                 // EU DLC
                 eu_dlc["is_used_version"] &&
-                measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_dlc["is_used_version"]) && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
             ) ||
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_base["is_used_version"]) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
             )
         )
 )
@@ -765,11 +925,78 @@ achievement(
 )
 */
 
+
+// Other stuff missing: specific upgrade schools, anything related to library, build x buldings? (maybe only houses or utility etc)
+// Spire floor 1, 50, etc
+
+achievement(
+    title = "WHM",
+    points = 0,
+    type = "",
+    description = "Have any adventurer change their job to a White Mage",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                is_dlc_installed() &&
+                any_whm_dlc
+            ) ||
+            (
+                // US BASE
+                is_dlc_not_installed() &&
+                any_whm_base
+            )
+        )
+)
+
+achievement(
+    title = "BLM",
+    points = 0,
+    type = "",
+    description = "Have any adventurer change their job to a Black Mage",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                is_dlc_installed() &&
+                any_blm_dlc
+            ) ||
+            (
+                // US BASE
+                is_dlc_not_installed() &&
+                any_blm_base
+            )
+        )
+)
+
+achievement(
+    title = "THF",
+    points = 0,
+    type = "",
+    description = "Have any adventurer change their job to a Thief",
+    trigger = 
+        !on_title() &&
+        (
+            (
+                // US DLC
+                is_dlc_installed() &&
+                any_thf_dlc
+            ) ||
+            (
+                // US BASE
+                is_dlc_not_installed() &&
+                any_thf_base
+            )
+        )
+)
+
 achievement(
     title = "LVL_50",
     points = 0,
     type = "",
-    description = "Train any adventurer to reach level 50",
+    description = "Have any adventurer reach level 50",
     trigger = 
         !on_title() &&
         (
@@ -798,12 +1025,12 @@ achievement(
             (
                 // US DLC
                 is_dlc_installed() &&
-                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 1, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 0)
+                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 1, when=is_dlc_installed() && !on_title()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 0)
             ) ||
             (
                // US BASE
                is_dlc_not_installed() &&
-                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 1, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 0)
+                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 1, when=is_dlc_not_installed() && !on_title()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 0)
             )
         )
 )
@@ -819,12 +1046,12 @@ achievement(
             (
                 // US DLC
                 is_dlc_installed() &&
-                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 40, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 39)
+                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 40, when=is_dlc_installed() && !on_title()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 39)
             ) ||
             (
                // US BASE
                is_dlc_not_installed() &&
-                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 40, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 39)
+                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 40, when=is_dlc_not_installed() && !on_title()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 39)
             )
         )
 )
@@ -840,12 +1067,12 @@ achievement(
             (
                 // US DLC
                 is_dlc_installed() &&
-                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 82, when=is_dlc_installed()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 81)
+                measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 82, when=is_dlc_installed() && !on_title()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 81)
             ) ||
             (
-               // US BASE
-               is_dlc_not_installed() &&
-                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 82, when=is_dlc_not_installed()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 81)
+                // US BASE
+                is_dlc_not_installed() &&
+                measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 82, when=is_dlc_not_installed() && !on_title()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 81)
             )
         )
 )
@@ -862,10 +1089,6 @@ for monster in wandering_monsters {
             monster["obj"].monster_just_died()
     )
 }
-
-
-
-
 
 
 rich_presence_conditional_display(on_title(), "On the Title Screen")
