@@ -239,6 +239,7 @@ class Dungeon {
 
 // Seemingly 63 dungeons total with DLC, including Infinity Spire; each has offset of 0x14; entries from 0x68 through 0x540
 dungeon_refs = []
+tally_cond = []
 
 // Seemingly 63 dungeons total with DLC, including Infinity Spire; each has offset of 0x14; entries from 0x68 through 0x540
 for current_dungeon_offset in range(0x68, 0x541, 0x14) {
@@ -246,10 +247,10 @@ for current_dungeon_offset in range(0x68, 0x541, 0x14) {
     if (current_dungeon_offset != 0x540 || current_dungeon_offset != 0x234) {
         current_dungeon = Dungeon(dungeon_offset=current_dungeon_offset)
         array_push(dungeon_refs, current_dungeon)
+
+        array_push(tally_cond, once(current_dungeon.get_amount_explored() == current_dungeon.get_target_for_full_explore() && current_dungeon.is_boss_defeated()))
     }
 }
-
-dungeon_val = sum_of(dungeon_refs, item => (item.get_amount_explored() / item.get_target_for_full_explore()) + item.get_boss_state() / 3)
 
 infinity_spire = Dungeon(dungeon_offset=0x540)
 
@@ -484,25 +485,6 @@ function on_results() {
     event_flags["game_clear"] == 1
 }
 
-// Achievements
-achievement(
-    title = "DEBUG",
-    points = 0,
-    type = "",
-    description = "DEBUG",
-    trigger = 
-        !on_title()
-)
-
-achievement(
-    title = "DEBUG_2",
-    points = 0,
-    type = "",
-    description = "DEBUG_2",
-    trigger = 
-        never(time_data.in_daily_report() || time_data.get_current_time() < 10)
-)
-
 // Progression
 achievement(
     title = "COMPL_DAY_1",
@@ -708,7 +690,7 @@ achievement(
     description = "Post four different behests at the same time",
     trigger = 
         !on_title() &&
-        !in_daily_report() &&
+        !time_data.in_daily_report() &&
         time_data.get_current_time() == 1 && prev(time_data.get_current_time() == 0) &&
         (
             (
@@ -787,22 +769,22 @@ achievement(
             (
                 // US DLC
                 us_dlc["is_used_version"] &&
-                measured(us_dlc["kingdom"].get_development_city_state() == 5, us_dlc["is_used_version"], when=!on_title()) && prev(us_dlc["kingdom"].get_development_city_state() == 4)
+                measured(us_dlc["kingdom"].get_development_city_state() == 5, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["kingdom"].get_development_city_state() == 4)
             ) ||
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["kingdom"].get_development_city_state() == 5, us_base["is_used_version"], when=!on_title()) && prev(us_base["kingdom"].get_development_city_state() == 4)
+                measured(us_base["kingdom"].get_development_city_state() == 5, when=us_base["is_used_version"] && !on_title()) && prev(us_base["kingdom"].get_development_city_state() == 4)
             ) ||
             (
                 // EU DLC
                 eu_dlc["is_used_version"] &&
-                measured(eu_dlc["kingdom"].get_development_city_state() == 5, eu_dlc["is_used_version"], when=!on_title()) && prev(eu_dlc["kingdom"].get_development_city_state() == 4)
+                measured(eu_dlc["kingdom"].get_development_city_state() == 5, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["kingdom"].get_development_city_state() == 4)
             ) ||
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["kingdom"].get_development_city_state() == 5, eu_base["is_used_version"], when=!on_title()) && prev(eu_base["kingdom"].get_development_city_state() == 4)
+                measured(eu_base["kingdom"].get_development_city_state() == 5, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["kingdom"].get_development_city_state() == 4)
             )
         )
 )
@@ -837,7 +819,8 @@ achievement(
     description = "Clear floor 99 of the Infinity Spire",
     trigger = 
         !on_title() &&
-        measured(infinity_spire_floor == 100, when=!on_title()) && prev(infinity_spire_floor == 99)
+        measured(infinity_spire_floor == 99, when=!on_title()) && 
+        infinity_spire.is_boss_defeated() && prev(!infinity_spire.is_boss_defeated())
 )
 
 // Dungeon rate
@@ -848,7 +831,7 @@ achievement(
     description = "Defeat the boss and fully explore any dungeon",
     trigger = 
         !on_title() &&
-        dungeon_val == 1 && prev(dungeon_val) == 0
+        measured(tally(1, tally_cond))
 )
 
 achievement(
@@ -858,7 +841,7 @@ achievement(
     description = "Defeat the boss and fully explore 63 different dungeons",
     trigger = 
         !on_title() &&
-        measured(dungeon_val == 63) && prev(dungeon_val) == 62
+        measured(tally(63, tally_cond))
 )
 
 // Memories
@@ -878,7 +861,7 @@ achievement(
     title = "Investing in people",
     points = 0,
     type = "",
-    description = format("Invest a total of {0} gil into research", total),
+    description = format("Invest a total of {0} gil into research", target),
     trigger = 
         !on_title() &&
         (
@@ -1094,14 +1077,14 @@ for monster in wandering_monsters {
 rich_presence_conditional_display(on_title(), "On the Title Screen")
 
 // US DLC
-rich_presence_conditional_display(is_game_region_us() && is_dlc_installed(), "US DLC • {3} • {0} of the {1} • Day {2}",
+rich_presence_conditional_display(is_game_region_us() && is_dlc_installed(), "{3} • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_dlc["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", us_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
-rich_presence_conditional_display(is_game_region_us() && is_dlc_installed() && on_results(), "US DLC • {3} • On the Results screen",
+rich_presence_conditional_display(is_game_region_us() && is_dlc_installed() && on_results(), "{3} • On the Results screen",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_dlc["kingdom"].get_day(), "VALUE"),
@@ -1109,14 +1092,14 @@ rich_presence_conditional_display(is_game_region_us() && is_dlc_installed() && o
 )
 
 // US BASE
-rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed(), "US Base • {3} • {0} of the {1} • Day {2}",
+rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed(), "{3} • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_base["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", us_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
-rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed() && on_results(), "US Base • {3} • On the Results screen",
+rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed() && on_results(), "{3} • On the Results screen",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_base["kingdom"].get_day(), "VALUE"),
@@ -1124,14 +1107,14 @@ rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed() && 
 )
 
 // EU DLC
-rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed(), "EU DLC • {3} • {0} of the {1} • Day {2}",
+rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed(), "{3} • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_dlc["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", eu_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
-rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed() && on_results(), "EU DLC • {3} • On the Results screen",
+rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed() && on_results(), "{3} • On the Results screen",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_dlc["kingdom"].get_day(), "VALUE"),
@@ -1139,14 +1122,14 @@ rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed() && o
 )
 
 // EU BASE
-rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed(), "EU Base • {3} • {0} of the {1} • Day {2}",
+rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed(), "{3} • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_base["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", eu_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
-rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed() && on_results(), "EU Base • {3} • On the Results screen",
+rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed() && on_results(), "{3} • On the Results screen",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
     rich_presence_lookup("Development State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_base["kingdom"].get_day(), "VALUE"),
