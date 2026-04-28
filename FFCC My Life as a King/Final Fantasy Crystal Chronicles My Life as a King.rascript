@@ -609,7 +609,7 @@ achievement(
 achievement(
     title = "WIN_HARDER",
     points = 0,
-    type = "win_condition",
+    type = "",
     description = "Complete the game with any rank on Hard or Very Hard difficulty",
     trigger = 
         // Pops on Credits roll
