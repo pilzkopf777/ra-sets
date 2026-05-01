@@ -304,6 +304,10 @@ class Adventurer {
     }
 }
 
+function get_adv_hired() {
+    return ptr(dword_be(0x00436e94), [0x8B21C, 0x13c, 0x1c], dword_be)
+}
+
 
 any_lvl_50_base = always_false()
 any_lvl_50_dlc = always_false()
@@ -317,21 +321,23 @@ any_blm_dlc = always_false()
 any_thf_base = always_false()
 any_thf_dlc = always_false()
 
-for adventurer_offset in range(0x04, 0x8D, 0x08) {
+amt_adv_logic = 1
+
+for adventurer_offset in range(0x04, 0x7D, 0x08) {
     current_adv = Adventurer(entry_offset=adventurer_offset, dlc_offset=0x26C)
     current_adv_dlc = Adventurer(entry_offset=adventurer_offset, dlc_offset=0x274)
 
-    lvl_50_cond_base = current_adv.get_level() >= 50 && prev(current_adv.get_level() < 50)
-    lvl_50_cond_dlc = current_adv_dlc.get_level() >= 50 && prev(current_adv_dlc.get_level() < 50)
+    lvl_50_cond_base = current_adv.get_level() >= 50 && prev(current_adv.get_level() < 50) && get_adv_hired() >= amt_adv_logic
+    lvl_50_cond_dlc = current_adv_dlc.get_level() >= 50 && prev(current_adv_dlc.get_level() < 50) && get_adv_hired() >= amt_adv_logic
 
-    whm_cond_base = current_adv.get_job_id() == 0x03 && prev(current_adv.get_job_id() != 0x03)
-    whm_cond_dlc = current_adv_dlc.get_job_id() == 0x03 && prev(current_adv_dlc.get_job_id() != 0x03)
+    whm_cond_base = current_adv.get_job_id() == 0x03 && prev(current_adv.get_job_id() != 0x03) && get_adv_hired() >= amt_adv_logic
+    whm_cond_dlc = current_adv_dlc.get_job_id() == 0x03 && prev(current_adv_dlc.get_job_id() != 0x03) && get_adv_hired() >= amt_adv_logic
 
-    blm_cond_base = current_adv.get_job_id() == 0x02 && prev(current_adv.get_job_id() != 0x02)
-    blm_cond_dlc = current_adv_dlc.get_job_id() == 0x02 && prev(current_adv_dlc.get_job_id() != 0x02)
+    blm_cond_base = current_adv.get_job_id() == 0x02 && prev(current_adv.get_job_id() != 0x02) && get_adv_hired() >= amt_adv_logic
+    blm_cond_dlc = current_adv_dlc.get_job_id() == 0x02 && prev(current_adv_dlc.get_job_id() != 0x02) && get_adv_hired() >= amt_adv_logic
 
-    thf_cond_base = current_adv.get_job_id() == 0x04 && prev(current_adv.get_job_id() != 0x04)
-    thf_cond_dlc = current_adv_dlc.get_job_id() == 0x04 && prev(current_adv_dlc.get_job_id() != 0x04)
+    thf_cond_base = current_adv.get_job_id() == 0x04 && prev(current_adv.get_job_id() != 0x04) && get_adv_hired() >= amt_adv_logic
+    thf_cond_dlc = current_adv_dlc.get_job_id() == 0x04 && prev(current_adv_dlc.get_job_id() != 0x04) && get_adv_hired() >= amt_adv_logic
 
     any_lvl_50_base = any_lvl_50_base || lvl_50_cond_base
     any_lvl_50_dlc = any_lvl_50_dlc || lvl_50_cond_dlc
@@ -344,6 +350,8 @@ for adventurer_offset in range(0x04, 0x8D, 0x08) {
 
     any_thf_base = any_thf_base || thf_cond_base
     any_thf_dlc = any_thf_dlc || thf_cond_dlc
+
+    amt_adv_logic = amt_adv_logic + 1
 }
 
 one_of_each_base = any_whm_base && any_blm_base && any_thf_base
@@ -700,7 +708,7 @@ achievement(
     description = "Have 20 or more adventurers fight for your kingdom at the same time",
     trigger = 
         !on_title() &&
-        ptr(dword_be(0x00436e94), [0x8B21C, 0x13c, 0x1c], dword_be) == 20 &&
+        get_adv_hired() == 20 &&
         time_data.get_current_time() == 1 && prev(time_data.get_current_time() == 0)
 )
 
@@ -830,31 +838,40 @@ achievement(
     title = "INFINITY_1",
     points = 0,
     type = "",
-    description = "Clear the first floor of the Infinity Spire",
+    description = "Clear level 10 of the Infinity Spire",
     trigger = 
         !on_title() &&
-        infinity_spire_floor == 2 && prev(infinity_spire_floor == 1)
+        infinity_spire.get_level() >= 11 && prev(infinity_spire.get_level() <= 10)
 )
 
 achievement(
     title = "INFINITY_2",
     points = 0,
     type = "",
-    description = "Clear floor 50 of the Infinity Spire",
+    description = "Clear level 25 of the Infinity Spire",
     trigger = 
         !on_title() &&
-        measured(infinity_spire_floor == 51, when=!on_title()) && prev(infinity_spire_floor == 50)
+        infinity_spire.get_level() >= 26 && prev(infinity_spire.get_level() <= 25)
 )
 
 achievement(
     title = "INFINITY_3",
     points = 0,
     type = "",
-    description = "Clear floor 99 of the Infinity Spire",
+    description = "Clear level 50 of the Infinity Spire",
     trigger = 
         !on_title() &&
-        measured(infinity_spire_floor == 99, when=!on_title()) && 
-        infinity_spire.is_boss_defeated() && prev(!infinity_spire.is_boss_defeated())
+        infinity_spire.get_level() >= 51 && prev(infinity_spire.get_level() <= 50)
+)
+
+achievement(
+    title = "INFINITY_4",
+    points = 0,
+    type = "",
+    description = "Clear level 99 of the Infinity Spire",
+    trigger = 
+        !on_title() &&
+        infinity_spire.get_level() >= 100 && prev(infinity_spire.get_level() <= 99)
 )
 
 // Dungeon rate
@@ -862,10 +879,10 @@ achievement(
     title = "Dungeon Tour",
     points = 0,
     type = "",
-    description = "Defeat the boss and fully explore any dungeon",
+    description = "Defeat the boss and fully explore 10 different dungeons excluding the Infinity Spire",
     trigger = 
         !on_title() &&
-        measured(tally(1, tally_cond))
+        measured(tally(10, tally_cond))
 )
 
 achievement(
