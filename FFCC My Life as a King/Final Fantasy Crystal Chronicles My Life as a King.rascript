@@ -173,7 +173,6 @@ class UpgradeData {
     }
 }
 
-// TODO: chain is broken for eu dlc/base
 class MedalData {
     dlc_offset = 0x00
     dlc_offset_2 = 0x00
@@ -548,7 +547,7 @@ achievement(
     title = "WIN",
     points = 0,
     type = "win_condition",
-    description = "WIN",
+    description = "Be crowned the Archlord and complete the game on any difficulty",
     trigger = 
         // Pops on Kingdom Scores screen
         never(on_title()) &&
@@ -556,17 +555,39 @@ achievement(
         repeated(85, time_data.get_current_time() == 6300)
 )
 
-/*
-RAScript hates multiple MeasuredIfs in LBs so we're doing it manually..
+
+// RAScript hates multiple MeasuredIfs in LBs so we're doing it manually..
 
 for diff in difficulty_map {
     leaderboard(
-        title = format("Road to Archlord ({0}) ", difficulty_map[diff]),
+        title = format("Road to Archlord NEW ({0}) ", difficulty_map[diff]),
         description = format("Be crowned the Archlord in as few days as possible on {0} difficulty!", difficulty_map[diff]),
         start = 
         (
             event_flags["game_clear"] == 1 &&
-            repeated(85, time_data.get_current_time() == 6300)
+            repeated(85, time_data.get_current_time() == 6300) &&
+            (
+                (
+                    // US DLC
+                    us_dlc["is_used_version"] &&
+                    us_dlc["kingdom"].get_difficulty() == diff
+                ) ||
+                (
+                // US BASE
+                    us_base["is_used_version"] &&
+                    us_base["kingdom"].get_difficulty() == diff
+                ) ||
+                (
+                    // EU DLC
+                    eu_dlc["is_used_version"] &&
+                    eu_dlc["kingdom"].get_difficulty() == diff
+                ) ||
+                (
+                    // EU BASE
+                    eu_base["is_used_version"] &&
+                    eu_base["kingdom"].get_difficulty() == diff
+                )
+            )
         ),
         cancel = always_false(),
         submit = always_true(),
@@ -577,7 +598,7 @@ for diff in difficulty_map {
         format = "VALUE", lower_is_better = true
     )
 }
-*/
+
 
 
 function final_rank_is_a() {
@@ -876,32 +897,32 @@ achievement(
 
 // Dungeon rate
 achievement(
-    title = "Dungeon Tour",
+    title = "DUNGEON_1",
     points = 0,
     type = "",
     description = "Defeat the boss and fully explore 10 different dungeons excluding the Infinity Spire",
     trigger = 
-        !on_title() &&
+        never(on_title()) &&
         measured(tally(10, tally_cond))
 )
 
 achievement(
-    title = "Dungeon World Tour",
+    title = "DUNGEON_2",
     points = 0,
     type = "",
     description = "Defeat the boss and fully explore 55 different dungeons excluding the Infinity Spire",
     trigger = 
-        !on_title() &&
+        never(on_title()) &&
         measured(tally(55, tally_cond))
 )
 
 achievement(
-    title = "Even Grander Dungeon World Tour",
+    title = "DUNGEON_3",
     points = 0,
     type = "",
     description = "Defeat the boss and fully explore all dungeons excluding the Infinity Spire",
     trigger = 
-        !on_title() &&
+        never(on_title()) &&
         measured(tally(62, tally_cond))
 )
 
@@ -922,7 +943,7 @@ achievement(
     title = "HAPPY_MORALE",
     points = 0,
     type = "",
-    description = "HAPPY_MORALE",
+    description = "Raise morale 50 times during a morale boost by calling Chime and selecting \"Raise morale!\"",
     trigger = 
         never(on_title()) &&
         (
@@ -1068,7 +1089,7 @@ achievement(
     title = "WHM",
     points = 0,
     type = "",
-    description = "Have any adventurer change their job to a White Mage",
+    description = "Have any adventurer change their job to become a White Mage",
     trigger = 
         !on_title() &&
         (
@@ -1089,7 +1110,7 @@ achievement(
     title = "BLM",
     points = 0,
     type = "",
-    description = "Have any adventurer change their job to a Black Mage",
+    description = "Have any adventurer change their job to become a Black Mage",
     trigger = 
         !on_title() &&
         (
@@ -1110,7 +1131,7 @@ achievement(
     title = "THF",
     points = 0,
     type = "",
-    description = "Have any adventurer change their job to a Thief",
+    description = "Have any adventurer change their job to become a Thief",
     trigger = 
         !on_title() &&
         (
@@ -1218,7 +1239,7 @@ for monster in wandering_monsters {
         title = format("{0}", monster["name"]),
         points = 0,
         type = "",
-        description = format("Defeat the wandering {0}", monster["true_name"]),
+        description = format("Defeat the {0}", monster["true_name"]),
         trigger = 
             !on_title() &&
             monster["obj"].monster_just_died()
@@ -1231,14 +1252,14 @@ rich_presence_conditional_display(on_title(), "On the Title Screen")
 // US DLC
 rich_presence_conditional_display(is_game_region_us() && is_dlc_installed(), "{3} difficulty • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
-    rich_presence_lookup("Development State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_lookup("Development_State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_dlc["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", us_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
 rich_presence_conditional_display(is_game_region_us() && is_dlc_installed() && on_results(), "{3} difficulty • On the Results screen",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
-    rich_presence_lookup("Development State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_lookup("Development_State", us_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_dlc["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", us_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
@@ -1246,14 +1267,14 @@ rich_presence_conditional_display(is_game_region_us() && is_dlc_installed() && o
 // US BASE
 rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed(), "{3} difficulty • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
-    rich_presence_lookup("Development State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_lookup("Development_State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_base["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", us_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
 rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed() && on_results(), "{3} difficulty • On the Results screen",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
-    rich_presence_lookup("Development State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_lookup("Development_State", us_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", us_base["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", us_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
@@ -1261,14 +1282,14 @@ rich_presence_conditional_display(is_game_region_us() && !is_dlc_installed() && 
 // EU DLC
 rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed(), "{3} difficulty • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
-    rich_presence_lookup("Development State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_lookup("Development_State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_dlc["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", eu_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
 rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed() && on_results(), "{3} difficulty • On the Results screen",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
-    rich_presence_lookup("Development State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_lookup("Development_State", eu_dlc["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_dlc["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", eu_dlc["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
@@ -1276,14 +1297,14 @@ rich_presence_conditional_display(is_game_region_eu() && is_dlc_installed() && o
 // EU BASE
 rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed(), "{3} difficulty • {0} of the {1} • Day {2}",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
-    rich_presence_lookup("Development State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_lookup("Development_State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_base["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", eu_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
 
 rich_presence_conditional_display(is_game_region_eu() && !is_dlc_installed() && on_results(), "{3} difficulty • On the Results screen",
     rich_presence_lookup("Screen", time_data.get_report_value(), max_time_map, fallback="Traveling the streets"),
-    rich_presence_lookup("Development State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
+    rich_presence_lookup("Development_State", eu_base["kingdom"].get_development_city_state(), city_dev_map, fallback="?"),
     rich_presence_value("Day", eu_base["kingdom"].get_day(), "VALUE"),
     rich_presence_lookup("Difficulty", eu_base["kingdom"].get_difficulty(), difficulty_map, fallback="?")
 )
