@@ -235,15 +235,6 @@ class Dungeon {
     function get_target_for_full_explore() {
         return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be)
     }
-
-    function is_fully_explored() {
-        return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be) == ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be)
-    }
-
-    function is_fully_cleared() {
-        return ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x7C], dword_be) - ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0x84], dword_be) +
-               ptr(dword_be(0x00436e94), [0x8B21C, 0x184, 0x20, this.dungeon_offset, 0xD4], dword_be) == 0x02 / 1
-    }
 }
 
 // Seemingly 63 dungeons total with DLC, including Infinity Spire; each has offset of 0x14; entries from 0x68 through 0x540
@@ -257,23 +248,17 @@ for current_dungeon_offset in range(0x68, 0x541, 0x14) {
         current_dungeon = Dungeon(dungeon_offset=current_dungeon_offset)
         array_push(dungeon_refs, current_dungeon)
 
-        array_push(tally_cond, once(current_dungeon.get_amount_explored() == current_dungeon.get_target_for_full_explore() && current_dungeon.is_boss_defeated()))
+        // Due to the way loading save files is done in the game I check for mem only
+        // The tally which references this is luckily safeguarding inpromper hit gains
+        array_push(tally_cond,
+        once(
+            current_dungeon.get_amount_explored() == current_dungeon.get_target_for_full_explore() && current_dungeon.is_boss_defeated()
+        ))
     }
 }
 
 infinity_spire = Dungeon(dungeon_offset=0x540)
 
-/*
-dungeons = {
-    "Pallum Dei Caverns": Dungeon(dungeon_offset=0x68),
-    "Kubito Grotto": Dungeon(dungeon_offset=0x7C),
-    "Goblins' Den": Dungeon(dungeon_offset=0x90),
-    "Terun Westway": Dungeon(dungeon_offset=0xA4),
-    "Dolsam Gulch": Dungeon(dungeon_offset=0xB8),
-    "Junun Dei Meadows": Dungeon(dungeon_offset=0xCC),
-    "Polpus Mistmoor": Dungeon(dungeon_offset=0xE0),
-}
-*/
 
 class KingdomBuilding {
     entry_offset = 0x00
@@ -544,7 +529,7 @@ achievement(
 )
 
 achievement(
-    title = "WIN",
+    title = "Long Live the King",
     points = 0,
     type = "win_condition",
     description = "Be crowned the Archlord and complete the game on any difficulty",
@@ -560,10 +545,11 @@ achievement(
 
 for diff in difficulty_map {
     leaderboard(
-        title = format("Road to Archlord NEW ({0}) ", difficulty_map[diff]),
+        title = format("Road to Archlord ({0}) ", difficulty_map[diff]),
         description = format("Be crowned the Archlord in as few days as possible on {0} difficulty!", difficulty_map[diff]),
         start = 
         (
+            never(on_title()) &&
             event_flags["game_clear"] == 1 &&
             repeated(85, time_data.get_current_time() == 6300) &&
             (
@@ -682,7 +668,7 @@ achievement(
 )
 
 achievement(
-    title = "PAY_RATE",
+    title = "Competitive Salary",
     points = 0,
     type = "",
     description = "Increase the Pay Rank of the kingdom to the highest level and reward your adventurers starting the next day",
@@ -723,7 +709,7 @@ achievement(
 )
 
 achievement(
-    title = "HIRED_COUNT",
+    title = "Full Party",
     points = 0,
     type = "",
     description = "Have 20 or more adventurers fight for your kingdom at the same time",
@@ -822,7 +808,7 @@ achievement(
 )
 
 achievement(
-    title = "PROMISED_LAND",
+    title = "A Place to Call Home",
     points = 0,
     type = "",
     description = "Develop your kingdom to the rank of \"Promised Land\"",
@@ -876,7 +862,7 @@ achievement(
 )
 
 achievement(
-    title = "INFINITY_3",
+    title = "Omegone",
     points = 0,
     type = "",
     description = "Clear level 50 of the Infinity Spire",
@@ -886,7 +872,7 @@ achievement(
 )
 
 achievement(
-    title = "INFINITY_4",
+    title = "Top of the World",
     points = 0,
     type = "",
     description = "Clear level 99 of the Infinity Spire",
@@ -928,7 +914,7 @@ achievement(
 
 // Memories
 achievement(
-    title = "Memories",
+    title = "Reading Between the Lines",
     points = 0,
     type = "",
     description = "Read five entries of Chime's personal report during the attack on the Dark Lord",
@@ -1128,7 +1114,7 @@ achievement(
 )
 
 achievement(
-    title = "THF",
+    title = "Treasure Hunter, Not a Thief",
     points = 0,
     type = "",
     description = "Have any adventurer change their job to become a Thief",
