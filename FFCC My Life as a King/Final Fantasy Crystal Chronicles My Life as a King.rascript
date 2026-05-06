@@ -489,7 +489,7 @@ function on_results() {
 
 // Progression
 achievement(
-    title = "COMPL_DAY_1",
+    title = "Laying the Groundwork",
     points = 0,
     type = "progression",
     description = "Complete the first day",
@@ -499,7 +499,7 @@ achievement(
 )
 
 achievement(
-    title = "COMPL_CP_1",
+    title = "Eviction Notice",
     points = 0,
     type = "progression",
     description = "Complete chapter 1",
@@ -509,7 +509,7 @@ achievement(
 )
 
 achievement(
-    title = "COMPL_CP_2",
+    title = "Family Business",
     points = 0,
     type = "progression",
     description = "Complete chapter 2",
@@ -519,7 +519,7 @@ achievement(
 )
 
 achievement(
-    title = "COMPL_CP_3",
+    title = "Empire of Old",
     points = 0,
     type = "progression",
     description = "Complete chapter 3",
@@ -1072,7 +1072,7 @@ achievement(
 // Spire floor 1, 50, etc
 
 achievement(
-    title = "WHM",
+    title = "Heal the Heart",
     points = 0,
     type = "",
     description = "Have any adventurer change their job to become a White Mage",
