@@ -490,7 +490,7 @@ function on_results() {
 // Progression
 achievement(
     title = "Laying the Groundwork",
-    points = 0,
+    points = 1,
     type = "progression",
     description = "Complete the first day",
     trigger = 
@@ -500,7 +500,7 @@ achievement(
 
 achievement(
     title = "Eviction Notice",
-    points = 0,
+    points = 5,
     type = "progression",
     description = "Complete chapter 1",
     trigger = 
@@ -510,7 +510,7 @@ achievement(
 
 achievement(
     title = "Family Business",
-    points = 0,
+    points = 5,
     type = "progression",
     description = "Complete chapter 2",
     trigger = 
@@ -520,7 +520,7 @@ achievement(
 
 achievement(
     title = "Empire of Old",
-    points = 0,
+    points = 10,
     type = "progression",
     description = "Complete chapter 3",
     trigger = 
@@ -530,7 +530,7 @@ achievement(
 
 achievement(
     title = "Long Live the King",
-    points = 0,
+    points = 10,
     type = "win_condition",
     description = "Be crowned the Archlord and complete the game on any difficulty",
     trigger = 
@@ -597,7 +597,7 @@ function final_rank_is_sss() {
 
 achievement(
     title = "WIN_A",
-    points = 0,
+    points = 10,
     type = "",
     description = "Complete the game with an A rank or higher on any difficulty",
     trigger = 
@@ -610,7 +610,7 @@ achievement(
 
 achievement(
     title = "WIN_SSS",
-    points = 0,
+    points = 25,
     type = "",
     description = "Complete the game with a SSS rank on any difficulty",
     trigger = 
@@ -623,7 +623,7 @@ achievement(
 
 achievement(
     title = "WIN_HARDER",
-    points = 0,
+    points = 10,
     type = "",
     description = "Complete the game with any rank on Hard or Very Hard difficulty",
     trigger = 
@@ -657,8 +657,8 @@ achievement(
 
 // Day extension
 achievement(
-    title = "DAY_EXTENDED",
-    points = 0,
+    title = "Working Overtime",
+    points = 3,
     type = "",
     description = "Mingle with the inhabitants of the kingdom and earn the right to stay up past your bedtime",
     trigger = 
@@ -669,7 +669,7 @@ achievement(
 
 achievement(
     title = "Competitive Salary",
-    points = 0,
+    points = 3,
     type = "",
     description = "Increase the Pay Rank of the kingdom to the highest level and reward your adventurers starting the next day",
     trigger = 
@@ -700,7 +700,7 @@ achievement(
 
 achievement(
     title = "Ship It",
-    points = 0,
+    points = 2,
     type = "",
     description = "Unlock the Skysphere",
     trigger = 
@@ -710,7 +710,7 @@ achievement(
 
 achievement(
     title = "Full Party",
-    points = 0,
+    points = 5,
     type = "",
     description = "Have 20 or more adventurers fight for your kingdom at the same time",
     trigger = 
@@ -722,7 +722,7 @@ achievement(
 // Holiday
 achievement(
     title = "Take a Break",
-    points = 0,
+    points = 2,
     type = "",
     description = "Celebrate the kingdom's very first holiday",
     trigger = 
@@ -734,7 +734,7 @@ achievement(
 // Behest count
 achievement(
     title = "Public Service Announcement",
-    points = 0,
+    points = 3,
     type = "",
     description = "Post four different behests at the same time",
     trigger = 
@@ -768,7 +768,7 @@ achievement(
 // Sidequest
 achievement(
     title = "A Little Helping Hand",
-    points = 0,
+    points = 5,
     type = "",
     description = "Help a citizen of your kingdom with their everyday troubles",
     trigger = 
@@ -778,7 +778,7 @@ achievement(
 // Rank up kingdom
 achievement(
     title = "Development Plans",
-    points = 0,
+    points = 3,
     type = "",
     description = "Develop your kingdom to the rank of \"Town\"",
     trigger = 
@@ -809,7 +809,7 @@ achievement(
 
 achievement(
     title = "A Place to Call Home",
-    points = 0,
+    points = 10,
     type = "",
     description = "Develop your kingdom to the rank of \"Promised Land\"",
     trigger = 
@@ -843,7 +843,7 @@ infinity_spire_floor = infinity_spire.get_level() - 9
 // Infinity Spire
 achievement(
     title = "INFINITY_1",
-    points = 0,
+    points = 5,
     type = "",
     description = "Clear level 10 of the Infinity Spire",
     trigger = 
@@ -853,7 +853,7 @@ achievement(
 
 achievement(
     title = "INFINITY_2",
-    points = 0,
+    points = 10,
     type = "",
     description = "Clear level 25 of the Infinity Spire",
     trigger = 
@@ -863,7 +863,7 @@ achievement(
 
 achievement(
     title = "Omegone",
-    points = 0,
+    points = 25,
     type = "",
     description = "Clear level 50 of the Infinity Spire",
     trigger = 
@@ -873,7 +873,7 @@ achievement(
 
 achievement(
     title = "Top of the World",
-    points = 0,
+    points = 50,
     type = "",
     description = "Clear level 99 of the Infinity Spire",
     trigger = 
@@ -883,8 +883,8 @@ achievement(
 
 // Dungeon rate
 achievement(
-    title = "DUNGEON_1",
-    points = 0,
+    title = "Taste for Adventure",
+    points = 10,
     type = "",
     description = "Defeat the boss and fully explore 10 different dungeons excluding the Infinity Spire",
     trigger = 
@@ -893,8 +893,8 @@ achievement(
 )
 
 achievement(
-    title = "DUNGEON_2",
-    points = 0,
+    title = "A Knack for Cartography",
+    points = 25,
     type = "",
     description = "Defeat the boss and fully explore 55 different dungeons excluding the Infinity Spire",
     trigger = 
@@ -903,8 +903,8 @@ achievement(
 )
 
 achievement(
-    title = "DUNGEON_3",
-    points = 0,
+    title = "Now I've Seen It All!",
+    points = 25,
     type = "",
     description = "Defeat the boss and fully explore all dungeons excluding the Infinity Spire",
     trigger = 
@@ -915,7 +915,7 @@ achievement(
 // Memories
 achievement(
     title = "Reading Between the Lines",
-    points = 0,
+    points = 2,
     type = "",
     description = "Read five entries of Chime's personal report during the attack on the Dark Lord",
     trigger = 
@@ -926,8 +926,8 @@ achievement(
 // Gain happiness on day
 target = 50
 achievement(
-    title = "HAPPY_MORALE",
-    points = 0,
+    title = "Satisfaction Guaranteed!",
+    points = 3,
     type = "",
     description = "Raise morale 50 times during a morale boost by calling Chime and selecting \"Raise morale!\"",
     trigger = 
@@ -985,7 +985,7 @@ target_string = "5,000"
 // Upgrades
 achievement(
     title = "INVEST",
-    points = 0,
+    points = 5,
     type = "",
     description = format("Invest a total of {0} gil into research", target_string),
     trigger = 
@@ -1018,7 +1018,7 @@ target = 100000
 target_string = "100,000"
 achievement(
     title = "INVEST_HIGH",
-    points = 0,
+    points = 10,
     type = "",
     description = format("Invest a total of {0} gil into research", target_string),
     trigger = 
@@ -1073,7 +1073,7 @@ achievement(
 
 achievement(
     title = "Heal the Heart",
-    points = 0,
+    points = 2,
     type = "",
     description = "Have any adventurer change their job to become a White Mage",
     trigger = 
@@ -1094,7 +1094,7 @@ achievement(
 
 achievement(
     title = "BLM",
-    points = 0,
+    points = 2,
     type = "",
     description = "Have any adventurer change their job to become a Black Mage",
     trigger = 
@@ -1115,7 +1115,7 @@ achievement(
 
 achievement(
     title = "Treasure Hunter, Not a Thief",
-    points = 0,
+    points = 2,
     type = "",
     description = "Have any adventurer change their job to become a Thief",
     trigger = 
@@ -1136,7 +1136,7 @@ achievement(
 
 achievement(
     title = "LVL_50",
-    points = 0,
+    points = 5,
     type = "",
     description = "Have any adventurer reach level 50",
     trigger = 
@@ -1158,7 +1158,7 @@ achievement(
 // Medals
 achievement(
     title = "GET_MEDAL",
-    points = 0,
+    points = 5,
     type = "",
     description = "Earn your first medal",
     trigger = 
@@ -1179,7 +1179,7 @@ achievement(
 
 achievement(
     title = "GET_40_MEDALS",
-    points = 0,
+    points = 25,
     type = "",
     description = "Earn a total of 40 different medals",
     trigger = 
@@ -1200,7 +1200,7 @@ achievement(
 
 achievement(
     title = "GET_82_MEDALS",
-    points = 0,
+    points = 50,
     type = "",
     description = "Earn a total of 82 different medals",
     trigger = 
@@ -1223,7 +1223,7 @@ achievement(
 for monster in wandering_monsters {
     achievement(
         title = format("{0}", monster["name"]),
-        points = 0,
+        points = 10,
         type = "",
         description = format("Defeat the {0}", monster["true_name"]),
         trigger = 
