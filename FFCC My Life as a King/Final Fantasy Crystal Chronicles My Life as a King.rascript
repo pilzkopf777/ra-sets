@@ -1093,7 +1093,7 @@ achievement(
 )
 
 achievement(
-    title = "BLM",
+    title = "Ohohohoho!",
     points = 2,
     type = "",
     description = "Have any adventurer change their job to become a Black Mage",
