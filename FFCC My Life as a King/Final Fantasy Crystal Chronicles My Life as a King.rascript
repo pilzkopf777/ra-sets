@@ -353,7 +353,8 @@ class WanderingMonster {
         status_2 = ptr(dword_be(0x00436e94), [0x8B21C, 0x18c, 0x18, this.monster_offset, 0x74], dword_be)
 
         // Monster went from any status to dead (to dodge flicker)
-        return status_2 == 1 && status_1 == 3 && prev(status_1 != 3)
+        return status_2 == 1 && status_1 == 1 && prev(status_1 == 3)
+
     }
 }
 
@@ -929,7 +930,7 @@ achievement(
     title = "Satisfaction Guaranteed!",
     points = 3,
     type = "",
-    description = "Raise morale 50 times during a morale boost by calling Chime and selecting \"Raise morale!\"",
+    description = "Raise morale 50 times during a single morale boost by calling Chime and selecting \"Raise morale!\"",
     trigger = 
         never(on_title()) &&
         (
