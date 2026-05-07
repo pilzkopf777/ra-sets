@@ -596,7 +596,7 @@ function final_rank_is_sss() {
 }
 
 achievement(
-    title = "WIN_A",
+    title = "First-Class Governance",
     points = 10,
     type = "",
     description = "Complete the game with an A rank or higher on any difficulty",
@@ -609,7 +609,7 @@ achievement(
 )
 
 achievement(
-    title = "WIN_SSS",
+    title = "The Triple Crown King",
     points = 25,
     type = "",
     description = "Complete the game with a SSS rank on any difficulty",
@@ -622,7 +622,7 @@ achievement(
 )
 
 achievement(
-    title = "WIN_HARDER",
+    title = "No Child's Play",
     points = 10,
     type = "",
     description = "Complete the game with any rank on Hard or Very Hard difficulty",
@@ -842,7 +842,7 @@ infinity_spire_floor = infinity_spire.get_level() - 9
 
 // Infinity Spire
 achievement(
-    title = "INFINITY_1",
+    title = "A Long Way to Go",
     points = 5,
     type = "",
     description = "Clear level 10 of the Infinity Spire",
@@ -852,7 +852,7 @@ achievement(
 )
 
 achievement(
-    title = "INFINITY_2",
+    title = "Moving On Up",
     points = 10,
     type = "",
     description = "Clear level 25 of the Infinity Spire",
@@ -984,7 +984,7 @@ target = 5000
 target_string = "5,000"
 // Upgrades
 achievement(
-    title = "INVEST",
+    title = "Seed Money",
     points = 5,
     type = "",
     description = format("Invest a total of {0} gil into research", target_string),
@@ -1017,7 +1017,7 @@ achievement(
 target = 100000
 target_string = "100,000"
 achievement(
-    title = "INVEST_HIGH",
+    title = "Fiscal Dominance",
     points = 10,
     type = "",
     description = format("Invest a total of {0} gil into research", target_string),
@@ -1135,7 +1135,7 @@ achievement(
 )
 
 achievement(
-    title = "LVL_50",
+    title = "It's All About Experience",
     points = 5,
     type = "",
     description = "Have any adventurer reach level 50",
@@ -1157,7 +1157,7 @@ achievement(
 
 // Medals
 achievement(
-    title = "GET_MEDAL",
+    title = "A Token of Gratitude",
     points = 5,
     type = "",
     description = "Earn your first medal",
@@ -1178,7 +1178,7 @@ achievement(
 )
 
 achievement(
-    title = "GET_40_MEDALS",
+    title = "Highly Decorated",
     points = 25,
     type = "",
     description = "Earn a total of 40 different medals",
@@ -1199,7 +1199,7 @@ achievement(
 )
 
 achievement(
-    title = "GET_82_MEDALS",
+    title = "We Need a Larger Treasury",
     points = 50,
     type = "",
     description = "Earn a total of 82 different medals",
