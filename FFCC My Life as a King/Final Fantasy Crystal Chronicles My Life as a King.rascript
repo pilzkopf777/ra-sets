@@ -191,11 +191,11 @@ class MedalData {
     dlc_offset_3 = 0x00
 
     function medal_1_unlocked() {
-        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x18, 0x04, this.dlc_offset_3], dword_be) == 0x01
+        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x34, 0x18, 0x04, this.dlc_offset_3], dword_be) == 0x01
     }
 
     function medal_1_amount_owned() {
-        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2 + 0x08, 0x18, 0x04], dword_be)
+        return ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2 + 0x08, 0x34, 0x18, 0x04], dword_be)
     }
 
     function get_sum_of_dlc_medals_unlocked() {
@@ -204,7 +204,7 @@ class MedalData {
         // Deduct 5 (6?) from final amount due to unused medals in the data (DLC? Test with Base?)
 
         for medal_count in range(0x04, 0x2BD, 8) {
-            value = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x18, medal_count, this.dlc_offset_3], dword_be)
+            value = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x34, 0x18, medal_count, this.dlc_offset_3], dword_be)
             total = total + value
         }
         
@@ -217,7 +217,7 @@ class MedalData {
         // Deduct 5 (6?) from final amount due to unused medals in the data (DLC? Test with Base?)
 
         for medal_count in range(0x04, 0x155, 8) {
-            value = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x18, medal_count, this.dlc_offset_3], dword_be)
+            value = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x34, 0x18, medal_count, this.dlc_offset_3], dword_be)
             total = total + value
         }
         
@@ -447,28 +447,28 @@ for memory in range(0x7DC4, 0x7E35, 0x08) {
 us_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00, difficulty_offset=0x00),
     "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
-    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C, dlc_offset_3=0xA4),
+    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x14C, dlc_offset_3=0xA4),
     "is_used_version": is_game_region_us() && !is_dlc_installed()
 }
 
 us_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08, difficulty_offset=0x08),
     "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
-    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214, dlc_offset_3=0xAC),
+    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x154, dlc_offset_3=0xAC),
     "is_used_version": is_game_region_us() && is_dlc_installed()
 }
 
 eu_base = {
     "kingdom": KingdomData(start_addon_offset=0x8F394, post_addon_offset=0x00, difficulty_offset=0x00),
     "upgrades": UpgradeData(dlc_offset=0x8F394, dlc_offset_2=0x15c),
-    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x20C, dlc_offset_3=0xA4),
+    "medals": MedalData(dlc_offset=0x8F394, dlc_offset_2=0x14C, dlc_offset_3=0xA4),
     "is_used_version": is_game_region_eu() && !is_dlc_installed()
 }
 
 eu_dlc = {
     "kingdom": KingdomData(start_addon_offset=0x8D648, post_addon_offset=0x08, difficulty_offset=0x08),
     "upgrades": UpgradeData(dlc_offset=0x8D648, dlc_offset_2=0x164),
-    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x214, dlc_offset_3=0xAC),
+    "medals": MedalData(dlc_offset=0x8D648, dlc_offset_2=0x154, dlc_offset_3=0xAC),
     "is_used_version": is_game_region_eu() && is_dlc_installed()
 }
 
@@ -556,6 +556,7 @@ achievement(
 
 // RAScript hates multiple MeasuredIfs in LBs so we're doing it manually..
 
+/*
 for diff in difficulty_map {
     leaderboard(
         title = format("Road to Archlord ({0}) ", difficulty_map[diff]),
@@ -597,7 +598,7 @@ for diff in difficulty_map {
         format = "VALUE", lower_is_better = true
     )
 }
-
+*/
 
 
 function final_rank_is_a() {
