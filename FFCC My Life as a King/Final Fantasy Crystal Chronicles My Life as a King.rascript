@@ -423,7 +423,7 @@ event_flags = {
     // 1 == Unlocked spacious houses
     "spacious_houses_unlocked": ptr(dword_be(0x801304), [0x7C24, 0x34], dword_be) / 0xff,
     // 1 == Unlocked Skysphere
-    "skysphere_unlocked": ptr(dword_be(0x801304), [0x7C3C, 0x34], dword_be), //TODO: REVIEW THIS VAL
+    "skysphere_unlocked": ptr(dword_be(0x801304), [0x7C3C, 0x34], dword_be) / 0xff,
     // 1 == Unlocked BLM, cutscene done
     "cp2_done": ptr(dword_be(0x801304), [0x7CBC, 0x34], dword_be) / 0xff,
     // 1 == Cutscene done. Next cutscene contains the cp 3 completion check..
