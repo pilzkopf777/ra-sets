@@ -144,6 +144,18 @@ class UpgradeData {
         return total_upgrade_amt_paid
     }
 
+    function get_sum_of_upgrade_gil_paid_BASE() {
+        total_upgrade_amt_paid = 0
+
+        for upgrade_offset in range(0x04, 0x270, 0x14) {
+            upgrade_amt_paid = ptr(dword_be(0x00436e94), [this.dlc_offset, this.dlc_offset_2, 0x0c, 0x20, upgrade_offset, 0x4C], dword_be)
+
+            total_upgrade_amt_paid = total_upgrade_amt_paid + upgrade_amt_paid
+        }
+
+        return total_upgrade_amt_paid
+    }
+
 /*
     function get_single_cond_for_upgrades_for_sale() {
         total_single_cond = []
@@ -679,22 +691,22 @@ achievement(
             (
                 // US DLC
                 us_dlc["is_used_version"] &&
-                measured(us_dlc["kingdom"].get_pay_rank() == 4, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["kingdom"].get_pay_rank() == 3)
+                measured(us_dlc["kingdom"].get_pay_rank() == 3, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["kingdom"].get_pay_rank() == 2)
             ) ||
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["kingdom"].get_pay_rank() == 4, when=us_base["is_used_version"] && !on_title()) && prev(us_base["kingdom"].get_pay_rank() == 3)
+                measured(us_base["kingdom"].get_pay_rank() == 3, when=us_base["is_used_version"] && !on_title()) && prev(us_base["kingdom"].get_pay_rank() == 2)
             ) ||
             (
                 // EU DLC
                 eu_dlc["is_used_version"] &&
-                measured(eu_dlc["kingdom"].get_pay_rank() == 4, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["kingdom"].get_pay_rank() == 3)
+                measured(eu_dlc["kingdom"].get_pay_rank() == 3, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["kingdom"].get_pay_rank() == 2)
             ) ||
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["kingdom"].get_pay_rank() == 4, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["kingdom"].get_pay_rank() == 3)
+                measured(eu_base["kingdom"].get_pay_rank() == 3, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["kingdom"].get_pay_rank() == 2)
             )
         )
 )
@@ -1000,7 +1012,7 @@ achievement(
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
             ) ||
             (
                 // EU DLC
@@ -1010,7 +1022,7 @@ achievement(
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
             )
         )
 )
@@ -1033,7 +1045,7 @@ achievement(
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
             ) ||
             (
                 // EU DLC
@@ -1043,7 +1055,7 @@ achievement(
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
             )
         )
 )
@@ -1171,8 +1183,8 @@ achievement(
                 measured(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 1, when=is_dlc_installed() && !on_title()) && prev(us_dlc["medals"].get_sum_of_dlc_medals_unlocked() == 0)
             ) ||
             (
-               // US BASE
-               is_dlc_not_installed() &&
+                // US BASE
+                is_dlc_not_installed() &&
                 measured(us_base["medals"].get_sum_of_base_medals_unlocked() == 1, when=is_dlc_not_installed() && !on_title()) && prev(us_base["medals"].get_sum_of_base_medals_unlocked() == 0)
             )
         )
