@@ -726,10 +726,10 @@ achievement(
     title = "Full Party",
     points = 5,
     type = "",
-    description = "Have 20 or more adventurers fight for your kingdom at the same time",
+    description = "Have 19 or more adventurers fight for your kingdom at the same time",
     trigger = 
         !on_title() &&
-        get_adv_hired() == 20 &&
+        get_adv_hired() == 19 &&
         time_data.get_current_time() == 1 && prev(time_data.get_current_time() == 0)
 )
 
@@ -994,6 +994,112 @@ achievement(
 
 )
 
+//DEBUG
+leaderboard(
+    title = "Internal Records: Lot of Gil",
+    description = "Just testing something, please ignore me.",
+    start = 
+    (
+        !on_title() &&
+        (
+            // US DLC
+            us_dlc["is_used_version"] &&
+            measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+        ) ||
+        (
+            // US BASE
+            us_base["is_used_version"] &&
+            measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
+        ) ||
+        (
+            // EU DLC
+            eu_dlc["is_used_version"] &&
+            measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+        ) ||
+        (
+            // EU BASE
+            eu_base["is_used_version"] &&
+            measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
+        )
+    ),
+    cancel = always_false(),
+    submit = always_true(),
+    value =
+    (
+        measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid(), when=us_dlc["is_used_version"] && !on_title())
+    ),
+    format = "VALUE", lower_is_better = false
+)
+
+
+
+
+/*
+leaderboard(
+    title = "TEST1",
+    description = "Just testing something, please ignore me.",
+    start = 
+    (
+        !on_title()
+    ),
+    cancel = always_false(),
+    submit = always_true(),
+    value =
+    (
+        measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid(), when=us_dlc["is_used_version"] && !on_title())
+    ),
+    format = "VALUE", lower_is_better = false
+)
+
+leaderboard(
+    title = "TEST2",
+    description = "Just testing something, please ignore me.",
+    start = 
+    (
+        !on_title()
+    ),
+    cancel = always_false(),
+    submit = always_true(),
+    value =
+    (
+        measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE(), when=us_base["is_used_version"] && !on_title())
+    ),
+    format = "VALUE", lower_is_better = false
+)
+
+leaderboard(
+    title = "TEST3",
+    description = "Just testing something, please ignore me.",
+    start = 
+    (
+        !on_title()
+    ),
+    cancel = always_false(),
+    submit = always_true(),
+    value =
+    (
+        measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid(), when=eu_dlc["is_used_version"] && !on_title())
+    ),
+    format = "VALUE", lower_is_better = false
+)
+
+leaderboard(
+    title = "TEST4",
+    description = "Just testing something, please ignore me.",
+    start = 
+    (
+        !on_title()
+    ),
+    cancel = always_false(),
+    submit = always_true(),
+    value =
+    (
+        measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE(), when=eu_base["is_used_version"] && !on_title())
+    ),
+    format = "VALUE", lower_is_better = false
+)
+*/
+
 target = 5000
 target_string = "5,000"
 // Upgrades
@@ -1003,27 +1109,32 @@ achievement(
     type = "",
     description = format("Invest a total of {0} gil into research", target_string),
     trigger = 
-        !on_title() &&
+        !on_title() && time_data.time_paused() &&
         (
             (
                 // US DLC
                 us_dlc["is_used_version"] &&
-                measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target) &&
+                // e.g. Player has 5100, must be below 7000 -> 7000 is larger than player amount
+                us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target + 3000
             ) ||
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
+                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target) &&
+                us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target + 3000
             ) ||
             (
                 // EU DLC
                 eu_dlc["is_used_version"] &&
-                measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target) &&
+                eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target + 3000
             ) ||
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
+                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target) &&
+                eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target + 3000
             )
         )
 )
@@ -1036,27 +1147,32 @@ achievement(
     type = "",
     description = format("Invest a total of {0} gil into research", target_string),
     trigger = 
-        !on_title() &&
+        !on_title() && time_data.time_paused() &&
         (
             (
                 // US DLC
                 us_dlc["is_used_version"] &&
-                measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=us_dlc["is_used_version"] && !on_title()) && prev(us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target) &&
+                // e.g. Player has 5100, must be below 7000 -> 7000 is larger than player amount
+                us_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target + 3000
             ) ||
             (
                // US BASE
                 us_base["is_used_version"] &&
-                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
+                measured(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=us_base["is_used_version"] && !on_title()) && prev(us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target) &&
+                us_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target + 3000
             ) ||
             (
                 // EU DLC
                 eu_dlc["is_used_version"] &&
-                measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target)
+                measured(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() >= target, when=eu_dlc["is_used_version"] && !on_title()) && prev(eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target) &&
+                eu_dlc["upgrades"].get_sum_of_upgrade_gil_paid() < target + 3000
             ) ||
             (
                 // EU BASE
                 eu_base["is_used_version"] &&
-                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target)
+                measured(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() >= target, when=eu_base["is_used_version"] && !on_title()) && prev(eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target) &&
+                eu_base["upgrades"].get_sum_of_upgrade_gil_paid_BASE() < target + 3000
             )
         )
 )
