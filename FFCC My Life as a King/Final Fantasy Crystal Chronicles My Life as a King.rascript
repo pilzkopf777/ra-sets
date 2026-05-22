@@ -602,11 +602,13 @@ for diff in difficulty_map {
 
 
 function final_rank_is_a() {
-    return ascii_string_equals(0x00434911, "A") || ascii_string_equals(0x00434911, "S")
+    save_anti_check = !ascii_string_equals(0x00434915, "v")
+    return ascii_string_equals(0x00434911, "A") && save_anti_check || ascii_string_equals(0x00434911, "S") && save_anti_check
 }
 
 function final_rank_is_sss() {
-    return ascii_string_equals(0x00434911, "S S S")
+    save_anti_check = !ascii_string_equals(0x00434915, "v")
+    return ascii_string_equals(0x00434911, "S S S") && save_anti_check
 }
 
 achievement(
