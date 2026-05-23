@@ -600,15 +600,19 @@ for diff in difficulty_map {
 }
 */
 
+// A = 0x41
+// S = 0x53
+char1 = byte(0x00434911)
+char2 = byte(0x00434913)
+char3 = byte(0x00434915)
+save_anti_check = char3 != 0x76 // is char "v" from "Save"
 
 function final_rank_is_a() {
-    save_anti_check = !ascii_string_equals(0x00434915, "v")
-    return ascii_string_equals(0x00434911, "A") && save_anti_check || ascii_string_equals(0x00434911, "S") && save_anti_check
+    return char1 == 0x41 && save_anti_check || char1 == 0x53 && save_anti_check
 }
 
 function final_rank_is_sss() {
-    save_anti_check = !ascii_string_equals(0x00434915, "v")
-    return ascii_string_equals(0x00434911, "S S S") && save_anti_check
+    return char1 == 0x53 && char2 == 0x53 && char3 == 0x53 && save_anti_check
 }
 
 achievement(
