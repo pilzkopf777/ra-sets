@@ -87,7 +87,7 @@ class PlayerData
             0x04: 0xA8C
         }
 
-        return ptr(dword_be(0x004831ec), [0x52c, 0x58c, offset_map[this.player_id]], dword_be)  
+        return ptr(dword_be(0x003e7bb0), [0x04, 0x68c8, 0xe64, 0x284, 0x1b4, offset_map[this.player_id]], dword_be)  
     }
 
     function get_wild_move_combo() {
@@ -99,7 +99,7 @@ class PlayerData
             0x04: 0xA50
         }
 
-        return ptr(dword_be(0x004831ec), [0x52c, 0x59c, offset_map[this.player_id]], dword_be)   
+        return ptr(dword_be(0x003e7bb0), [0x04, 0x68c8, 0xe64, 0x284, 0x1c4, offset_map[this.player_id]], dword_be)   
     }
 
     function get_style_barrel_progress() {
@@ -142,7 +142,6 @@ function get_players_registered() {
     return byte(0x00351fa3)
 }
 
-// TODO: test this
 function demo_playing() {
     // demo_ends_in = ptr(dword_be(0x0048c10c), [0x78], float_be)
     // demo_starts_in = ptr(dword_be(0x0048c10c), [0x94], float_be)
@@ -742,7 +741,7 @@ function banana_fairy_logic_for_player(player_id) {
     cond = []
     player_obj = PlayerData(player_id)
 
-    for count in range(1, 100, 1) {
+    for count in range(1, 80, 1) {
         array_push(cond, banana_combo_went_up_by_x(player_id, count) && never(!player_obj.using_banana_fairy()))
     }
 
@@ -753,7 +752,7 @@ function buddy_logic_for_player(player_id) {
     cond = []
     player_obj = PlayerData(player_id)
 
-    for count in range(1, 100, 1) {
+    for count in range(1, 80, 1) {
         array_push(cond, banana_combo_went_up_by_x(player_id, count) && never(!player_obj.is_riding_buddy()))
     }
 
