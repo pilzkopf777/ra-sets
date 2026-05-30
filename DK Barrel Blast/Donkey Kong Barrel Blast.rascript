@@ -28,6 +28,10 @@ function ptr(base, offsets, accessor=dword_be)
     return val
 }
 
+function is_combo_pointer_broken() {
+    return ptr(dword_be(0x003e7bb0), [0x04]) == 0x00
+}
+
 class PlayerData
 {
     player_id = 0 // 1 through 4
@@ -685,6 +689,7 @@ achievement(
     description = "Land all four tricks in a Style Barrel",
     trigger = 
     !demo_playing() &&
+    !is_combo_pointer_broken() &&
     (
         (
             player_1_obj.is_human_player() && player_1_obj.player_got_50_in_style_barrel() && get_players_registered() == 1
@@ -768,6 +773,7 @@ achievement(
     description = format("Collect {0} bananas using the Banana Fairy before it expires", target_fairy),
     trigger = 
     !demo_playing() &&
+    never(is_combo_pointer_broken()) &&
     (
         (
             player_1_obj.is_human_player() &&
@@ -877,6 +883,7 @@ for element in buddy_data {
         trigger = 
         !demo_playing() &&
         get_track() == buddy_data[element]["map"] &&
+        never(is_combo_pointer_broken()) &&
         (
             (
                 player_1_obj.is_human_player() &&
