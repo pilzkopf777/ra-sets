@@ -630,7 +630,7 @@ achievement(
 
 achievement(
     title = "The Triple Crown King",
-    points = 25,
+    points = 50,
     type = "",
     description = "Complete the game with a SSS rank on any difficulty",
     trigger = 
@@ -924,7 +924,7 @@ achievement(
 
 achievement(
     title = "Now I've Seen It All!",
-    points = 25,
+    points = 50,
     type = "",
     description = "Defeat the boss and fully explore all dungeons excluding the Infinity Spire",
     trigger = 
@@ -1336,7 +1336,7 @@ achievement(
 
 achievement(
     title = "We Need a Larger Treasury",
-    points = 50,
+    points = 100,
     type = "",
     description = "Earn a total of 82 different medals",
     trigger = 
