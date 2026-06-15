@@ -37,7 +37,13 @@ helmets = ptr(dword(0x90fd60), [0x1C], dword)
 
 glue = ptr(dword(0x90fd60), [0x2C], byte)
 magnesia = ptr(dword(0x90fd60), [0x2D], byte)
-pigeons = 0 // todo
+
+total_pigeons_left = 0
+for element in range(0x04, 0x1F4, 0x14) {
+    current_pidgeon_adr = ptr(dword(0x92889c), [0x84, element], dword)
+    total_pigeons_left = total_pigeons_left + current_pidgeon_adr
+}
+pigeons = 50 - total_pigeons_left
 
 upgrades_unlocked = bitcount(ptr(dword(0x90fd60), [0x3A], byte) + ptr(dword(0x90fd60), [0x3B], byte)) // 9 in total
 
@@ -54,6 +60,17 @@ achievement(
         // in-game?
         current_sport == 0x01 &&
         olympics_score >= target && prev(olympics_score < target)
+    )
+)
+
+achievement(
+    title = "50_PIGEONS",
+    points = 0,
+    description = "...",
+    trigger = 
+    (
+        // in-game?
+        pigeons == 50 && prev(pigeons < 50)
     )
 )
 
@@ -148,20 +165,20 @@ SportLookup = {
 
 rich_presence_conditional_display(always_true(), "Asterix & Obelix are {0} • Helmets: {1} • Pigeons: {2} / 50 ",
     rich_presence_lookup("World", current_location, WorldLookup, fallback="in an unknown area"),
-    rich_presence_value("Helmets", ...),
-    rich_presence_value("Pigeons", ...),
+    rich_presence_value("Helmets", helmets),
+    rich_presence_value("Pigeons", pigeons)
 )
 
-rich_presence_conditional_display(current_location = 0xffffffff, "Asterix & Obelix are {0} • Helmets: {1} • Pigeons: {2} / 50 ",
+rich_presence_conditional_display(current_location == 0xffffffff, "Asterix & Obelix are {0} • Helmets: {1} • Pigeons: {2} / 50 ",
     rich_presence_lookup("World", prior(current_location), WorldLookup, fallback="in an unknown area"),
-    rich_presence_value("Helmets", ...),
-    rich_presence_value("Pigeons", ...),
+    rich_presence_value("Helmets", helmets),
+    rich_presence_value("Pigeons", pigeons)
 )
 
 rich_presence_conditional_display(always_true(), "{0} is partaking in {3} • Helmets: {1} • Pigeons: {2} / 50 ",
     rich_presence_lookup("World", current_location, WorldLookup, fallback="in an unknown area"),
-    rich_presence_value("Helmets", ...),
-    rich_presence_value("Pigeons", ...),
+    rich_presence_value("Helmets", helmets),
+    rich_presence_value("Pigeons", pigeons),
     rich_presence_lookup("Sport", current_sport, SportLookup, fallback="an unknown dicipline")
 )
 
