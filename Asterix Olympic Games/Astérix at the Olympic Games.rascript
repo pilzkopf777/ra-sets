@@ -73,7 +73,10 @@ event_flags = {
     "opened_vip_zone_door": ptr(dword(0x9287ac), [0x14], byte) == 0xCF,
     "back_to_village": ptr(dword(0x9287c8), [0x14], byte) == 0xCF,
     "opened_door_path_to_lair": ptr(dword(0x928824), [0x14], byte) == 0xCF,
-    "first_dart_board_done": ptr(dword(0x92882c), [0x14], byte) == 0xCF
+    "first_dart_board_done": ptr(dword(0x92882c), [0x14], byte) == 0xCF,
+    "escape_underground": ptr(dword(0x00928610), [0x14], byte) == 0xCF,
+    "win_final_race": ptr(dword(0x00928624), [0x14], byte) == 0xCF,
+    "win_final_laudi_battle": ptr(dword(0x009286fc), [0x14], byte) == 0xCF,
 }
 
 achievement(
@@ -86,6 +89,123 @@ achievement(
         not_in_main_menu() &&
         current_location == 0x01 &&
         event_flags["back_to_village"] && prev(!event_flags["back_to_village"])
+    )
+)
+
+achievement(
+    title = "CLEAR_OLYMPIC_VILLAGE",
+    points = 0,
+    description = "...",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        current_location == 0x02 &&
+        event_flags["opened_door_path_to_lair"] && prev(!event_flags["opened_door_path_to_lair"])
+    )
+)
+
+achievement(
+    title = "CLEAR_PATH_TO_LAIR",
+    points = 0,
+    description = "Open door to lair",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        current_location == 0x03 &&
+        event_flags["opened_doctor_lair_door"] && prev(!event_flags["opened_doctor_lair_door"])
+    )
+)
+
+achievement(
+    title = "CLEAR_LAIR",
+    points = 0,
+    description = "Exit lair",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        current_location == 0x09 &&
+        event_flags["exited_lair"] && prev(!event_flags["exited_lair"])
+    )
+)
+
+achievement(
+    title = "CLEAR_CATCH_DOC",
+    points = 0,
+    description = "Caught doc",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        current_location == 0x06 &&
+        event_flags["caught_doctor"] && prev(!event_flags["caught_doctor"])
+    )
+)
+
+achievement(
+    title = "CLEAR_GET_TO_CITY",
+    points = 0,
+    description = "Gain access to city from VIP zone",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        current_location == 0x04 &&
+        event_flags["opened_vip_zone_door"] && prev(!event_flags["opened_vip_zone_door"])
+    )
+)
+
+achievement(
+    title = "CLEAR_GOTO_BRUTUS_DOOR",
+    points = 0,
+    description = "Open door to Brutus quarters",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        current_location == 0x05 &&
+        event_flags["brutus_door_opened"] && prev(!event_flags["brutus_door_opened"])
+    )
+)
+
+achievement(
+    title = "CLEAR_ESCAPE_UG",
+    points = 0,
+    description = "Exit UG area",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        current_location == 0x0a &&
+        event_flags["escape_underground"] && prev(!event_flags["escape_underground"])
+    )
+)
+
+achievement(
+    title = "CLEAR_WIN_VS_BRUTUS",
+    points = 0,
+    description = "...",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        current_location == 0x0b &&
+        event_flags["win_final_race"] && prev(!event_flags["win_final_race"])
+    )
+)
+
+achievement(
+    title = "CLEAR_GAME",
+    points = 0,
+    description = "...",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        current_location == 0x07 &&
+        event_flags["win_final_laudi_battle"] && prev(!event_flags["win_final_laudi_battle"])
     )
 )
 
@@ -227,7 +347,8 @@ WorldLookup = {
     0x06: "chasing Doctormabus",
     0x04: "in the VIP Zone",
     0x05: "in the City",
-    0x0a: "in the Catacombs"
+    0x0a: "in the Catacombs",
+    0x07: "facing a horde of Romans"
 }
 
 SportLookup = {
