@@ -40,7 +40,8 @@ current_sport = ptr(dword(0x006cbd00), [0x12FA], byte)
 sports_char_p1 = ptr(dword(0x006cbd00), [0x1220], byte)
 
 multiplier = ptr(dword(0x006cbd00), [0x518], byte)
-combo = ptr(dword(0x006cbd00), [0x534], byte)
+combo_asterix = ptr(dword(0x006cbd00), [0x530], byte)
+combo_obelix = ptr(dword(0x006cbd00), [0x534], byte)
 romans_in_sky = ptr(dword(0x006cbd00), [0x544], byte)
 
 hp_remaining = ptr(dword(0x90fd60), [0x19], byte)
@@ -64,6 +65,28 @@ movies_unlocked = bitcount(ptr(dword(0x90fd60), [0x3C], byte)) +
 
 olympics_score = ptr(dword(0x6cbd00), [0x41C, 0x18C], dword)
 
+sport_time_left = ptr(dword(0x006cbd00), [0x4c8, 0x104], float)
+sport_countdown_time_left = ptr(dword(0x006cbd00), [0x4c8, 0xec], float)
+sport_countdown_step = ptr(dword(0x006cbd00), [0x4c8, 0xf0], byte)
+
+sport_player_in_control = ptr(dword(0x006cbd00), [0x12f8], byte)
+
+function sport_countdown_started() {
+    return sport_countdown_step == 0x00 && sport_countdown_time_left < 0.9 && prev(sport_countdown_time_left >= 0.9) 
+}
+
+function sport_started() {
+    return sport_countdown_step == 0x02 && prev(sport_countdown_step == 0x01)
+}
+
+function sport_ended() {
+    return sport_countdown_step == 0x03 && prev(sport_countdown_step == 0x02)
+}
+
+function sport_score_screen_opened() {
+    return sport_player_in_control == 0x0c && prev(sport_player_in_control != 0x0c)
+}
+
 event_flags = {
     "all_disciplines_cleared": ptr(dword(0x928628), [0x14], byte) == 0xCF,
     "exited_lair": ptr(dword(0x9286a4), [0x14], byte) == 0xCF,
@@ -82,7 +105,7 @@ event_flags = {
 achievement(
     title = "CLEAR_CHAPTER_FOREST",
     points = 0,
-    description = "...",
+    description = "Return to forest, go to Olympia",
     trigger = 
     (
         game_has_booted_up() &&
@@ -95,7 +118,7 @@ achievement(
 achievement(
     title = "CLEAR_OLYMPIC_VILLAGE",
     points = 0,
-    description = "...",
+    description = "Clear 1st ambush, open path to road to lair",
     trigger = 
     (
         game_has_booted_up() &&
@@ -186,7 +209,7 @@ achievement(
 achievement(
     title = "CLEAR_WIN_VS_BRUTUS",
     points = 0,
-    description = "...",
+    description = "Win Chariot Race vs Brutus",
     trigger = 
     (
         game_has_booted_up() &&
@@ -199,7 +222,7 @@ achievement(
 achievement(
     title = "CLEAR_GAME",
     points = 0,
-    description = "...",
+    description = "Complete final Laudi battle",
     trigger = 
     (
         game_has_booted_up() &&
@@ -209,6 +232,7 @@ achievement(
     )
 )
 
+// SCORE
 target = 5000
 achievement(
     title = "LONG_JUMP_SCORE",
@@ -221,6 +245,28 @@ achievement(
         is_playing_sports() &&
         current_sport == 0x01 &&
         olympics_score >= target && prev(olympics_score < target)
+    )
+)
+
+// SPECIAL SPORTS
+toadball_score_p1 = ptr(dword(0x009102dc), [0x1ec], word)
+toadball_score_p2 = ptr(dword(0x009102dc), [0x1ed], word)
+
+target = 4
+achievement(
+    title = "TOADBALL_NO_LESS",
+    points = 0,
+    description = format("Complete the Toadball event without ever dropping below {0} points", target),
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        is_playing_sports() &&
+        current_sport == 0x03 &&
+        // checkpoint on start
+        // deny when score too low
+        never(toadball_score_p1 < target && prev(toadball_score_p1 >= target))
+        // unlock on win
     )
 )
 
@@ -273,14 +319,17 @@ achievement(
 )
 
 achievement(
-    title = "50_COMBO",
+    title = "50_combo_asterix",
     points = 0,
     description = "Reach a combo of 50 hits",
     trigger = 
     (
         game_has_booted_up() &&
         not_in_main_menu() &&
-        combo >= 50 && prev(combo < 50)
+        (
+            combo_obelix >= 50 && prev(combo_obelix < 50) ||
+            combo_obelix >= 50 && prev(combo_obelix < 50)
+        )
     )
 )
 
@@ -303,7 +352,6 @@ achievement(
     trigger = 
     (
         game_has_booted_up() &&
-        // game paused?
         not_in_main_menu() &&
         current_location == 0x02 &&
         measured(upgrades_unlocked == 9) && prev(upgrades_unlocked == 8)
@@ -341,7 +389,7 @@ WorldLookup = {
     0x01: "in the Forest of Carnutes",
     0x08: "outside the Olympic Vilage",
     0x02: "inside the Olympic Vilage",
-    0x0b: "partaking in the Olympic Games",
+    0x0b: "competing in the Olympic Games",
     0x03: "on their way to the red cypress trees",
     0x09: "inside Doctormabus' Lair",
     0x06: "chasing Doctormabus",
@@ -381,7 +429,7 @@ CharLookup = {
 
 // rich_presence_conditional_display(SAVE_GAME_STATE == 0, "Asterix & Obelix are in the main menu")
 
-rich_presence_conditional_display(game_has_booted_up() && current_location == 0x0b, "{0} is partaking in {3} • Helmets: {1} • Pigeons: {2} / 50 ",
+rich_presence_conditional_display(game_has_booted_up() && current_location == 0x0b, "{0} is competing in {3} • Helmets: {1} • Pigeons: {2} / 50 ",
     rich_presence_lookup("Character", sports_char_p1, CharLookup, fallback="An unknown character"),
     rich_presence_value("Helmets", helmets),
     rich_presence_value("Pigeons", pigeons),
