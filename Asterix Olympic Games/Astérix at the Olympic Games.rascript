@@ -63,19 +63,26 @@ upgrades_unlocked = bitcount(ptr(dword(0x90fd60), [0x3A], byte) + ptr(dword(0x90
 movies_unlocked = bitcount(ptr(dword(0x90fd60), [0x3C], byte)) +
                   bitcount(ptr(dword(0x90fd60), [0x3D], byte)) // 16 in total
 
-olympics_score = ptr(dword(0x6cbd00), [0x41C, 0x18C], dword)
+olympics_score_p1 = ptr(dword(0x6cbd00), [0x41C, 0x18C], dword)
+olympics_score_p2 = ptr(dword(0x6cbd00), [0x41C, 0x190], dword)
 
 sport_time_left = ptr(dword(0x006cbd00), [0x4c8, 0x104], float)
 sport_countdown_time_left = ptr(dword(0x006cbd00), [0x4c8, 0xec], float)
 sport_countdown_step = ptr(dword(0x006cbd00), [0x4c8, 0xf0], byte)
 
-sport_player_in_control = ptr(dword(0x006cbd00), [0x12f8], byte)
+what_player_score_shown = ptr(dword(0x006cbd00), [0x12fb], byte)
 
 sport_p1_won = ptr(dword(0x006cbd00), [0x12fe], byte) == 0x00
 sport_p2_won = ptr(dword(0x006cbd00), [0x12fe], byte) == 0x01
 
-coop_enabled = ptr(dword(0x006cbd00), [0x1222], byte) == 0x01
-coop_disabled = ptr(dword(0x006cbd00), [0x1222], byte) == 0x00
+function coop_is_enabled() {
+    return ptr(dword(0x006cbd00), [0x1222], byte) == 0x01
+}
+
+function coop_is_disabled() {
+    return ptr(dword(0x006cbd00), [0x1222], byte) == 0x00
+}
+
 
 function sport_countdown_started() {
     return sport_countdown_step == 0x00 && sport_countdown_time_left < 0.9 && prev(sport_countdown_time_left >= 0.9) 
@@ -87,10 +94,6 @@ function sport_started() {
 
 function sport_ended() {
     return sport_countdown_step == 0x03 && prev(sport_countdown_step == 0x02)
-}
-
-function sport_score_screen_opened() {
-    return sport_player_in_control == 0x0c && prev(sport_player_in_control != 0x0c)
 }
 
 event_flags = {
@@ -249,9 +252,79 @@ achievement(
         game_has_booted_up() &&
         not_in_main_menu() &&
         is_playing_sports() &&
-        current_sport == 0x01 &&
-        olympics_score >= target && prev(olympics_score < target)
+        current_sport == 0x00 &&
+        sport_countdown_step == 0x02 &&
+        (
+            (
+                // if solo: only p1 counts
+                coop_is_disabled() &&
+                // score updated
+                olympics_score_p1 != prev(olympics_score_p1) &&
+                // check p1 score
+                olympics_score_p1 >= target
+            ) ||
+            (
+                // if coop: both may score accordingly
+                coop_is_enabled() &&
+                // score updated
+                olympics_score_p1 != prev(olympics_score_p1) &&
+                // check p1 score
+                olympics_score_p1 >= target
+            ) ||
+            (
+                // p2 in coop
+                coop_is_enabled() &&
+                // score updated
+                olympics_score_p2 != prev(olympics_score_p2) &&
+                // check p2 score
+                olympics_score_p2 >= target
+            )
+        )
     )
+)
+
+leaderboard(
+    title = format("Long Jump Score"),
+    description = "Score high on long jump",
+    start = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        is_playing_sports() &&
+        current_sport == 0x00 &&
+        sport_countdown_step == 0x02 &&
+        (
+            (
+                // if solo: only p1 counts
+                coop_is_disabled() &&
+                // score updated
+                olympics_score_p1 != prev(olympics_score_p1)
+            ) ||
+            (
+                // if coop: both may score accordingly
+                coop_is_enabled() &&
+                // score updated
+                olympics_score_p1 != prev(olympics_score_p1)
+            ) ||
+            (
+                // p2 in coop
+                coop_is_enabled() &&
+                // score updated
+                olympics_score_p2 != prev(olympics_score_p2)
+            )
+        )
+    ),
+    cancel = always_false(),
+    submit = always_true(),
+    value = max_of(
+        // if solo: only p1 counts
+        measured(olympics_score_p1, when=coop_is_disabled() && what_player_score_shown == 0x00),
+        // if coop: both may score accordingly
+        measured(olympics_score_p1, when=coop_is_enabled() && what_player_score_shown == 0x00),
+        // p2 in coop
+        measured(olympics_score_p2, when=coop_is_enabled() && what_player_score_shown == 0x01)
+    ),
+    format = "VALUE", lower_is_better = true
 )
 
 // SPECIAL SPORTS
@@ -268,7 +341,7 @@ achievement(
         game_has_booted_up() &&
         not_in_main_menu() &&
         is_playing_sports() &&
-        coop_disabled &&
+        coop_is_disabled() &&
         current_sport == 0x03 &&
         // reset when score falls too low
         never(toadball_score_p1 < target && prev(toadball_score_p1 >= target)) &&
