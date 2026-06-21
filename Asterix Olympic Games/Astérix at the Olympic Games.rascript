@@ -242,98 +242,250 @@ achievement(
 )
 
 // SCORE
-target = 5000
+top_score_targets = {
+    0x00: 17200, // long jump
+    0x01: 19200, // foot race
+    0x02: 21920, // tug of war
+    0x03: 21200, // toadball
+    0x04: 19850, // kota
+    0x05: 22190, // hammer throw
+    0x06: 18500, // javelin
+    0x07: 21620, // music
+    0x08: 19080 // chariot
+}
+
+SportLookup = {
+    0x00: "the Long Jump",
+    0x01: "the Foot Race",
+    0x02: "the Tug of War",
+    0x03: "Toadball",
+    0x04: "King of the Arena",
+    0x05: "Hammer Throwing",
+    0x06: "Javelin",
+    0x07: "the Romanophone",
+    0x08: "the Chariot Race"
+}
+
+// Sports where single player at a time
+sports_with_single_player_struct = [0x00, 0x05, 0x06]
+
+for element in sports_with_single_player_struct {
+    achievement(
+        title = format("{0} Score Achievement", SportLookup[element]),
+        points = 0,
+        description = format("Score {0} or more points in {1} event", top_score_targets[0x00], SportLookup[0x00]),
+        trigger = 
+        (
+            game_has_booted_up() &&
+            not_in_main_menu() &&
+            is_playing_sports() &&
+            current_sport == element &&
+            sport_countdown_step == 0x02 &&
+            (
+                (
+                    // if solo: only p1 counts
+                    coop_is_disabled() &&
+                    // score updated
+                    olympics_score_p1 != prev(olympics_score_p1) &&
+                    // check p1 score
+                    olympics_score_p1 >= top_score_targets[element]
+                ) ||
+                (
+                    // if coop: both may score accordingly
+                    coop_is_enabled() &&
+                    // score updated
+                    olympics_score_p1 != prev(olympics_score_p1) &&
+                    // check p1 score
+                    olympics_score_p1 >= top_score_targets[element]
+                ) ||
+                (
+                    // p2 in coop
+                    coop_is_enabled() &&
+                    // score updated
+                    olympics_score_p2 != prev(olympics_score_p2) &&
+                    // check p2 score
+                    olympics_score_p2 >= top_score_targets[element]
+                )
+            )
+        )
+    )
+
+    leaderboard(
+        title = format("{0} LB", SportLookup[element]),
+        description = format("Score high in {0} event", SportLookup[element]),
+        start = 
+        (
+            game_has_booted_up() &&
+            not_in_main_menu() &&
+            is_playing_sports() &&
+            current_sport == element &&
+            sport_countdown_step == 0x02 &&
+            (
+                (
+                    // if solo: only p1 counts
+                    coop_is_disabled() &&
+                    // score updated
+                    olympics_score_p1 != prev(olympics_score_p1)
+                ) ||
+                (
+                    // if coop: both may score accordingly
+                    coop_is_enabled() &&
+                    // score updated
+                    olympics_score_p1 != prev(olympics_score_p1)
+                ) ||
+                (
+                    // p2 in coop
+                    coop_is_enabled() &&
+                    // score updated
+                    olympics_score_p2 != prev(olympics_score_p2)
+                )
+            )
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value = max_of(
+            // if solo: only p1 counts
+            measured(olympics_score_p1, when=coop_is_disabled() && what_player_score_shown == 0x00),
+            // if coop: both may score accordingly
+            measured(olympics_score_p1, when=coop_is_enabled() && what_player_score_shown == 0x00),
+            // p2 in coop
+            measured(olympics_score_p2, when=coop_is_enabled() && what_player_score_shown == 0x01)
+        ),
+        format = "VALUE", lower_is_better = true
+    )
+}
+
+// Sports always vs CPU
+sports_with_multi_player_struct = [0x01, 0x02, 0x03, 0x04, 0x07, 0x08]
+
+for element in sports_with_multi_player_struct {
+    achievement(
+        title = format("{0} Score Achievement", SportLookup[element]),
+        points = 0,
+        description = format("Score {0} or more points in {1} event playing against as a computer-controlled opponent", top_score_targets[0x00], SportLookup[0x00]),
+        trigger = 
+        (
+            game_has_booted_up() &&
+            not_in_main_menu() &&
+            is_playing_sports() &&
+            current_sport == element &&
+            sport_countdown_step == 0x02 &&
+            (
+                (
+                    // only solo is allowed, human is always p1
+                    coop_is_disabled() &&
+                    // score updated
+                    olympics_score_p1 != prev(olympics_score_p1) &&
+                    // check p1 score
+                    olympics_score_p1 >= top_score_targets[element]
+                )
+            )
+        )
+    )
+
+    leaderboard(
+        title = format("{0} LB", SportLookup[element]),
+        description = format("Score high in {0} event", SportLookup[element]),
+        start = 
+        (
+            game_has_booted_up() &&
+            not_in_main_menu() &&
+            is_playing_sports() &&
+            current_sport == element &&
+            sport_countdown_step == 0x02 &&
+            (
+                (
+                    // only solo is allowed, human is always p1
+                    coop_is_disabled() &&
+                    // score updated
+                    olympics_score_p1 != prev(olympics_score_p1)
+                )
+            )
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value = (
+            // score
+            measured(olympics_score_p1)
+        ),
+        format = "VALUE", lower_is_better = true
+    )
+}
+
+
+// SPECIAL SPORTS
+long_jump_extensions = ptr(dword(0x009102dc), [0x26c], float)
+
 achievement(
-    title = "LONG_JUMP_SCORE",
+    title = "LONG_JUMP_AIR_COMBO",
     points = 0,
-    description = format("Score {0} or more points in the Long Jump event", target),
+    description = format("Extend your jump three times mid-air by completing the button inputs in the Long Jump event"),
     trigger = 
     (
         game_has_booted_up() &&
         not_in_main_menu() &&
         is_playing_sports() &&
+        coop_is_disabled() &&
         current_sport == 0x00 &&
-        sport_countdown_step == 0x02 &&
-        (
-            (
-                // if solo: only p1 counts
-                coop_is_disabled() &&
-                // score updated
-                olympics_score_p1 != prev(olympics_score_p1) &&
-                // check p1 score
-                olympics_score_p1 >= target
-            ) ||
-            (
-                // if coop: both may score accordingly
-                coop_is_enabled() &&
-                // score updated
-                olympics_score_p1 != prev(olympics_score_p1) &&
-                // check p1 score
-                olympics_score_p1 >= target
-            ) ||
-            (
-                // p2 in coop
-                coop_is_enabled() &&
-                // score updated
-                olympics_score_p2 != prev(olympics_score_p2) &&
-                // check p2 score
-                olympics_score_p2 >= target
-            )
-        )
+        // unlock on extension count
+        long_jump_extensions == 3.0 && prev(long_jump_extensions == 2.0)
     )
 )
 
-leaderboard(
-    title = format("Long Jump Score"),
-    description = "Score high on long jump",
-    start = 
+foot_race_stretch = ptr(dword(0x009102dc), [0x3f0], dword)
+
+achievement(
+    title = "FOOT_RACE_NO_STRETCH",
+    points = 0,
+    description = format("Win against a computer-controlled opponent in the Foot Race event without completing the photo finish button inputs"),
+    trigger = 
     (
         game_has_booted_up() &&
         not_in_main_menu() &&
         is_playing_sports() &&
-        current_sport == 0x00 &&
-        sport_countdown_step == 0x02 &&
-        (
-            (
-                // if solo: only p1 counts
-                coop_is_disabled() &&
-                // score updated
-                olympics_score_p1 != prev(olympics_score_p1)
-            ) ||
-            (
-                // if coop: both may score accordingly
-                coop_is_enabled() &&
-                // score updated
-                olympics_score_p1 != prev(olympics_score_p1)
-            ) ||
-            (
-                // p2 in coop
-                coop_is_enabled() &&
-                // score updated
-                olympics_score_p2 != prev(olympics_score_p2)
-            )
-        )
-    ),
-    cancel = always_false(),
-    submit = always_true(),
-    value = max_of(
-        // if solo: only p1 counts
-        measured(olympics_score_p1, when=coop_is_disabled() && what_player_score_shown == 0x00),
-        // if coop: both may score accordingly
-        measured(olympics_score_p1, when=coop_is_enabled() && what_player_score_shown == 0x00),
-        // p2 in coop
-        measured(olympics_score_p2, when=coop_is_enabled() && what_player_score_shown == 0x01)
-    ),
-    format = "VALUE", lower_is_better = true
+        coop_is_disabled() &&
+        current_sport == 0x01 &&
+        // reset when playing performs action
+        never(foot_race_stretch == 0x01 && prev(foot_race_stretch == 0x00)) &&
+        // checkpoint on start
+        once(sport_countdown_started()) &&
+        // unlock on win
+        trigger_when(sport_ended() && sport_p1_won) &&
+        // reset on lose
+        never(sport_ended() && sport_p2_won)
+    )
 )
 
-// SPECIAL SPORTS
+rope_button = ptr(dword(0x009102dc), [0x00], byte) // TODO
+
+achievement(
+    title = "TUG_OF_WAR_ONE_BTN",
+    points = 0,
+    description = format("Win against a computer-controlled opponent in the Tug of War event without the required button input switching to a different one"),
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        is_playing_sports() &&
+        coop_is_disabled() &&
+        current_sport == 0x02 &&
+        // reset when btn input changes
+        never(rope_button != prev(rope_button)) &&
+        // checkpoint on start
+        once(sport_countdown_started()) &&
+        // unlock on win
+        trigger_when(sport_ended() && sport_p1_won) &&
+        // reset on lose
+        never(sport_ended() && sport_p2_won)
+    )
+)
+
 toadball_score_p1 = ptr(dword(0x009102dc), [0x1ed], byte)
 toadball_score_p2 = ptr(dword(0x009102dc), [0x1ec], byte)
 
 target = 4
 achievement(
-    title = "TOADBALL_NO_LESS",
+    title = "TOADBALL_NO_LESS_PTS",
     points = 0,
     description = format("Win against a computer-controlled opponent in the Toadball event without ever dropping below {0} points", target),
     trigger = 
@@ -353,6 +505,18 @@ achievement(
         never(sport_ended() && sport_p2_won)
     )
 )
+
+// KOTA: score mult?
+
+// HAMMER: ?
+
+// JAVELIN: x clouds?
+
+// MUSIC: no wrong note?
+
+// CHARIOT: HP?
+
+// OTHER STUFF
 
 achievement(
     title = "MOVIES",
@@ -403,7 +567,7 @@ achievement(
 )
 
 achievement(
-    title = "50_combo_asterix",
+    title = "50_COMBO",
     points = 0,
     description = "Reach a combo of 50 hits",
     trigger = 
@@ -481,18 +645,6 @@ WorldLookup = {
     0x05: "in the City",
     0x0a: "in the Catacombs",
     0x07: "facing a horde of Romans"
-}
-
-SportLookup = {
-    0x00: "the Long Jump",
-    0x01: "the Foot Race",
-    0x02: "the Tug of War",
-    0x03: "Toadball",
-    0x04: "King of the Arena",
-    0x05: "Hammer Throwing",
-    0x06: "Javelin",
-    0x07: "the Romanophone",
-    0x08: "the Chariot Race"
 }
 
 CharLookup = {
