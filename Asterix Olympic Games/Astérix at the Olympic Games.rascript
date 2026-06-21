@@ -71,6 +71,12 @@ sport_countdown_step = ptr(dword(0x006cbd00), [0x4c8, 0xf0], byte)
 
 sport_player_in_control = ptr(dword(0x006cbd00), [0x12f8], byte)
 
+sport_p1_won = ptr(dword(0x006cbd00), [0x12fe], byte) == 0x00
+sport_p2_won = ptr(dword(0x006cbd00), [0x12fe], byte) == 0x01
+
+coop_enabled = ptr(dword(0x006cbd00), [0x1222], byte) == 0x01
+coop_disabled = ptr(dword(0x006cbd00), [0x1222], byte) == 0x00
+
 function sport_countdown_started() {
     return sport_countdown_step == 0x00 && sport_countdown_time_left < 0.9 && prev(sport_countdown_time_left >= 0.9) 
 }
@@ -249,24 +255,29 @@ achievement(
 )
 
 // SPECIAL SPORTS
-toadball_score_p1 = ptr(dword(0x009102dc), [0x1ec], word)
-toadball_score_p2 = ptr(dword(0x009102dc), [0x1ed], word)
+toadball_score_p1 = ptr(dword(0x009102dc), [0x1ed], byte)
+toadball_score_p2 = ptr(dword(0x009102dc), [0x1ec], byte)
 
 target = 4
 achievement(
     title = "TOADBALL_NO_LESS",
     points = 0,
-    description = format("Complete the Toadball event without ever dropping below {0} points", target),
+    description = format("Win against a computer-controlled opponent in the Toadball event without ever dropping below {0} points", target),
     trigger = 
     (
         game_has_booted_up() &&
         not_in_main_menu() &&
         is_playing_sports() &&
+        coop_disabled &&
         current_sport == 0x03 &&
+        // reset when score falls too low
+        never(toadball_score_p1 < target && prev(toadball_score_p1 >= target)) &&
         // checkpoint on start
-        // deny when score too low
-        never(toadball_score_p1 < target && prev(toadball_score_p1 >= target))
+        once(sport_countdown_started()) &&
         // unlock on win
+        trigger_when(sport_ended() && sport_p1_won) &&
+        // reset on lose
+        never(sport_ended() && sport_p2_won)
     )
 )
 
