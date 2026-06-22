@@ -92,9 +92,9 @@ time_limit = 48000
 // HAYWIRE
 
 achievement(
-    title = "time_trial_pilz_track",
-    points = 0,
-    description = "pilz_track_48_sec_or_less",
+    title = "Need for Seed",
+    points = 10,
+    description = "In a Time Trial, complete a lap in less than 0:48.0 on Pilzkopf's track, \"Haywire\"",
     set = achievementsetradevtracks,
     trigger =
     (
@@ -110,8 +110,8 @@ achievement(
 )
 
 leaderboard(
-    title = "LB_time_trial_pilz_track",
-    description = "time_trial_pilz_track",
+    title = "Pilzkopf - Time Trial - Single Lap",
+    description = "In a Time Trial, complete a lap as quickly as possible on Pilzkopf's track, \"Haywire\"",
     set = achievementsetradevtracks,
     start = 
     (
@@ -127,9 +127,9 @@ leaderboard(
 )
 
 achievement(
-    title = "1st_place_pilz_track",
-    points = 0,
-    description = "1st_place_pilz_track",
+    title = "By a Country Mile",
+    points = 5,
+    description = "In a Single Race, finish in first place on Pilzkopf's track, \"Haywire\"",
     set = achievementsetradevtracks,
     trigger =
     (
@@ -143,8 +143,8 @@ achievement(
 )
 
 leaderboard(
-    title = "LB_regular_race_pilz_track",
-    description = "regular_race_pilz_track",
+    title = "Pilzkopf - Single Race",
+    description = "In a Single Race, complete three laps as quickly as possible on Pilzkopf's track, \"Haywire\"",
     set = achievementsetradevtracks,
     start = 
     (
@@ -157,6 +157,6 @@ leaderboard(
     ),
     cancel = always_false(),
     submit = always_true(),
-    value = measured(prev(p1_three_to_four) / 10),
+    value = measured(p1_three_to_four / 10),
     format = "MILLISECS", lower_is_better = true
 )
