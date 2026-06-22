@@ -637,7 +637,7 @@ WorldLookup = {
     0x01: "in the Forest of Carnutes",
     0x08: "outside the Olympic Vilage",
     0x02: "inside the Olympic Vilage",
-    0x0b: "competing in the Olympic Games",
+    0x0b: "in the main menu",
     0x03: "on their way to the red cypress trees",
     0x09: "inside Doctormabus' Lair",
     0x06: "chasing Doctormabus",

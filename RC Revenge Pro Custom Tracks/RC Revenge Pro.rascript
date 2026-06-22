@@ -1,0 +1,73 @@
+// RC Revenge Pro
+// #ID = 32849
+
+achievementsetradevtracks = achievement_set("RA Dev Tracks", type="BONUS", id=38653)
+
+track_data = (       
+        dword(dword(0x1F093C)) == 1985229328 &&
+        dword(dword(0x1F093C) + 0x04) == 0 &&
+        dword(dword(0x1F093C) + 0x08) == 3 &&
+        dword(dword(0x1F093C) + 0x0C) == 4 &&
+        word(dword(0x1F093C) + 0x14) == 0 &&
+        dword(dword(0x1F093C) + 0x18) == 0x00 &&
+        dword(dword(0x1F093C) + 0x1C) == 0x26 &&
+        dword(dword(0x1F093C) + 0x20) == 0x19 &&
+        dword(dword(0x1F093C) + 0x24) == 0x2d &&
+        dword(dword(0x1F093C) + 0x28) == 0x29 &&
+        dword(dword(0x1F093C) + 0x2C) == 0x19 &&
+        dword(dword(0x1F093C) + 0x30) == 0x26 &&
+        dword(dword(0x1F093C) + 0x34) == 0x29 &&
+        dword(dword(0x1F093C) + 0x38) == 0x2d &&
+        dword(dword(0x1F093C) + 0x3C) == 0x11 &&
+        dword(dword(0x1F093C) + 0x40) == 0x11 &&
+        dword(dword(0x1F093C) + 0x44) == 0x26 &&
+        dword(dword(0x1F093C) + 0x48) == 0x2a &&
+        dword(dword(0x1F093C) + 0x4C) == 0x2e &&
+        dword(dword(0x1F093C) + 0x50) == 0x2c &&
+        dword(dword(0x1F093C) + 0x54) == 0x2d &&
+        dword(dword(0x1F093C) + 0x58) == 0x29 &&
+        dword(dword(0x1F093C) + 0x5C) == 0x1d &&
+        dword(dword(0x1F093C) + 0x60) == 0x2e &&
+        dword(dword(0x1F093C) + 0x64) == 0x2a &&
+        dword(dword(0x1F093C) + 0x68) == 0x17 &&
+        dword(dword(0x1F093C) + 0x6C) == 0x2e &&
+        dword(dword(0x1F093C) + 0x70) == 0x19 &&
+        dword(dword(0x1F093C) + 0x74) == 0x2d &&
+        dword(dword(0x1F093C) + 0x78) == 0x30 &&
+        dword(dword(0x1F093C) + 0x7C) == 0x2e &&
+        dword(dword(0x1F093C) + 0x80) == 0x2c &&
+        dword(dword(0x1F093C) + 0x84) == 0x2d &&
+        dword(dword(0x1F093C) + 0x88) == 0x1f &&
+        dword(dword(0x1F093C) + 0x8C) == 0x26 &&
+        dword(dword(0x1F093C) + 0x90) == 0x17 &&
+        dword(dword(0x1F093C) + 0x94) == 0x2e &&
+        dword(dword(0x1F093C) + 0x98) == 0x17 &&
+        dword(dword(0x1F093C) + 0x9C) == 0x29 &&
+        dword(dword(0x1F093C) + 0xA0) == 0x2d &&
+        dword(dword(0x1F093C) + 0xA4) == 0x2a &&
+        dword(dword(0x1F093C) + 0xA8) == 0x2e &&
+        dword(dword(0x1F093C) + 0xAC) == 0x2c &&
+        dword(dword(0x1F093C) + 0xB0) == 0x18 &&
+        dword(dword(0x1F093C) + 0xB4) == 0x17 &&
+        dword(dword(0x1F093C) + 0xB8) == 0x18 &&
+        dword(dword(0x1F093C) + 0xBC) == 0x17 &&
+        dword(dword(0x1F093C) + 0xC0) == 0x2e &&
+        dword(dword(0x1F093C) + 0xC4) == 0x19 &&
+        dword(dword(0x1F093C) + 0xC8) == 0x26 &&
+        dword(dword(0x1F093C) + 0xCC) == 0x18 &&
+        dword(dword(0x1F093C) + 0xD0) == 0xffffffff
+      )
+
+achievement(
+    title = "time_trial_pilz_track",
+    points = 0,
+    description = "pilz_track_48_sec_or_less",
+    set = achievementsetradevtracks,
+    trigger =
+    (
+      dword(0x1EDC4C) == 268435966
+    ) &&
+    (
+      track_data
+    )
+)
