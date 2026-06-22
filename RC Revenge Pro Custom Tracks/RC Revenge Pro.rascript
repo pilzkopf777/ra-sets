@@ -29,6 +29,7 @@ level_id = byte(0x1edc4a)
 
 p1_laps_completed = ptr(dword(0x1ee7e8), [0x104], word)
 p1_lap_time = ptr(dword(0x1ee7e8), [0x140], dword)
+p1_three_to_four = ptr(dword(0x1ee7e8), [0x150], dword)
 p1_pos = ptr(dword(0x1ee7e8), [0x13C], word)
 
 track_data = (       
@@ -156,6 +157,6 @@ leaderboard(
     ),
     cancel = always_false(),
     submit = always_true(),
-    value = measured(prev(p1_lap_time) / 10),
+    value = measured(prev(p1_three_to_four) / 10),
     format = "MILLISECS", lower_is_better = true
 )
