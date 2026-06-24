@@ -31,6 +31,7 @@ p1_laps_completed = ptr(dword(0x1ee7e8), [0x104], word)
 p1_lap_time = ptr(dword(0x1ee7e8), [0x140], dword)
 p1_three_to_four = ptr(dword(0x1ee7e8), [0x150], dword)
 p1_pos = ptr(dword(0x1ee7e8), [0x13C], word)
+p1_car = byte(0x001edcdf)
 
 track_data = (       
     ptr(dword(0x1F093C), [0x00], dword) == 1985229328 &&
@@ -94,7 +95,7 @@ time_limit = 48000
 achievement(
     title = "Need for Seed",
     points = 10,
-    description = "In a Time Trial, complete a lap in less than 0:48.0 on Pilzkopf's track, \"Haywire\"",
+    description = "In a Time Trial, complete a lap in less than 0:48.0 using the RC Action on Pilzkopf's track, \"Haywire\"",
     set = achievementsetradevtracks,
     trigger =
     (
@@ -103,6 +104,7 @@ achievement(
         // quit game
         never(dword(0x001ed900) == 0x04) &&
         once(p1_laps_completed == 0xffff) &&
+        p1_car == 0x04 &&
         p1_lap_time < time_limit &&
         trigger_when(p1_laps_completed == prev(p1_laps_completed + 1)) &&
         track_data
@@ -110,7 +112,7 @@ achievement(
 )
 
 leaderboard(
-    title = "Pilzkopf - Time Trial - Single Lap",
+    title = "Haywire - Time Trial - Single Lap",
     description = "In a Time Trial, complete a lap as quickly as possible on Pilzkopf's track, \"Haywire\"",
     set = achievementsetradevtracks,
     start = 
@@ -143,7 +145,7 @@ achievement(
 )
 
 leaderboard(
-    title = "Pilzkopf - Single Race",
+    title = "Haywire - Single Race",
     description = "In a Single Race, complete three laps as quickly as possible on Pilzkopf's track, \"Haywire\"",
     set = achievementsetradevtracks,
     start = 
