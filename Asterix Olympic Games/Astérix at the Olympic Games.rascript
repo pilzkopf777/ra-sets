@@ -589,8 +589,8 @@ achievement(
 
 // MUSIC: no wrong note?
 
-p1_hp = 0
-half_hp_val = 0
+p1_hp = byte(0)
+half_hp_val = 50.0
 
 // CHARIOT: HP?
 achievement(
