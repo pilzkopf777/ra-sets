@@ -261,7 +261,7 @@ SportLookup = {
     0x03: "Toadball",
     0x04: "King of the Arena",
     0x05: "Hammer Throwing",
-    0x06: "Javelin",
+    0x06: "the Javelin throw",
     0x07: "the Romanophone",
     0x08: "the Chariot Race"
 }
@@ -437,7 +437,7 @@ foot_race_stretch = ptr(dword(0x009102dc), [0x3f0], dword)
 achievement(
     title = "FOOT_RACE_NO_STRETCH",
     points = 0,
-    description = format("Win against a computer-controlled opponent in the Foot Race event without completing the photo finish button inputs"),
+    description = format("Win against a computer-controlled opponent without completing the photo finish button inputs in the Foot Race event"),
     trigger = 
     (
         game_has_booted_up() &&
@@ -456,12 +456,12 @@ achievement(
     )
 )
 
-rope_button = ptr(dword(0x009102dc), [0x00], byte) // TODO
+rope_button = ptr(dword(0x009102dc), [0x16c], byte)
 
 achievement(
     title = "TUG_OF_WAR_ONE_BTN",
     points = 0,
-    description = format("Win against a computer-controlled opponent in the Tug of War event without the required button input switching to a different one"),
+    description = format("Win against a computer-controlled opponent without the required button input switching to a different one in the Tug of War event"),
     trigger = 
     (
         game_has_booted_up() &&
@@ -470,7 +470,7 @@ achievement(
         coop_is_disabled() &&
         current_sport == 0x02 &&
         // reset when btn input changes
-        never(rope_button != prev(rope_button)) &&
+        never(rope_button != prev(rope_button) && sport_time_left < 43.0) &&
         // checkpoint on start
         once(sport_countdown_started()) &&
         // unlock on win
@@ -487,7 +487,7 @@ target = 4
 achievement(
     title = "TOADBALL_NO_LESS_PTS",
     points = 0,
-    description = format("Win against a computer-controlled opponent in the Toadball event without ever dropping below {0} points", target),
+    description = format("Win against a computer-controlled opponent without ever dropping below {0} points in the Toadball event", target),
     trigger = 
     (
         game_has_booted_up() &&
@@ -507,10 +507,64 @@ achievement(
 )
 
 // KOTA: score mult?
+p1_mult = ptr(dword(0x009102dc), [0x1D4], byte)
+p2_mult = ptr(dword(0x009102dc), [0x1D5], byte)
+dart_height = ptr(dword(0x009102dc), [0x1E8], float)
+
+achievement(
+    title = "KOTA_ALL_TAKEN",
+    points = 0,
+    description = format("Win against a computer-controlled opponent while claiming every bonus dart board in the King of the Arena event"),
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        is_playing_sports() &&
+        coop_is_disabled() &&
+        current_sport == 0x04 &&
+        // reset when opp steals board
+        never(p2_mult == 0x03 && prev(p2_mult == 0x01)) &&
+        // reset when board unclaimed
+        never(dart_height >= 18.0 && prev(dart_height < 18.0) && p1_mult == 0x01 && p2_mult == 0x00) &&
+        // checkpoint on start
+        once(sport_countdown_started()) &&
+        // unlock on win
+        trigger_when(sport_ended() && sport_p1_won) &&
+        // reset on lose
+        never(sport_ended() && sport_p2_won)
+    )
+)
 
 // HAMMER: ?
 
-// JAVELIN: x clouds?
+// JAVELIN: x clouds
+javelin_clouds_p1 = ptr(dword(0x009102dc), [0x65C], float)
+javelin_clouds_p2 = ptr(dword(0x009102dc), [0x674], float)
+
+target = 9
+target_float = 9.0
+achievement(
+    title = "JAV_CLOUDS",
+    points = 0,
+    description = format("Pass the javelin through {0} clouds in one throw in the Javelin throw event", target),
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        is_playing_sports() &&
+        current_sport == 0x06 &&
+        (
+            (
+                javelin_clouds_p1 == target_float && prev(javelin_clouds_p1 == target_float - 1.0)
+            )
+            ||
+            (
+                coop_is_enabled() &&
+                javelin_clouds_p2 == target_float && prev(javelin_clouds_p2 == target_float - 1.0)
+            )
+        )
+    )
+)
 
 // MUSIC: no wrong note?
 
