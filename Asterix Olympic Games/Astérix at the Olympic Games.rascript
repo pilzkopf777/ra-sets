@@ -75,6 +75,8 @@ what_player_score_shown = ptr(dword(0x006cbd00), [0x12fb], byte)
 sport_p1_won = ptr(dword(0x006cbd00), [0x12fe], byte) == 0x00
 sport_p2_won = ptr(dword(0x006cbd00), [0x12fe], byte) == 0x01
 
+enemy_lock_count = ptr(dword(0x006cbd00), [0x550], dword)
+
 function coop_is_enabled() {
     return ptr(dword(0x006cbd00), [0x1222], byte) == 0x01
 }
@@ -442,9 +444,9 @@ achievement(
     (
         game_has_booted_up() &&
         not_in_main_menu() &&
-        is_playing_sports() &&
+        never(!is_playing_sports()) &&
         coop_is_disabled() &&
-        current_sport == 0x01 &&
+        never(current_sport != 0x01) &&
         // reset when playing performs action
         never(foot_race_stretch == 0x01 && prev(foot_race_stretch == 0x00)) &&
         // checkpoint on start
@@ -466,9 +468,9 @@ achievement(
     (
         game_has_booted_up() &&
         not_in_main_menu() &&
-        is_playing_sports() &&
+        never(!is_playing_sports()) &&
         coop_is_disabled() &&
-        current_sport == 0x02 &&
+        never(current_sport != 0x02) &&
         // reset when btn input changes
         never(rope_button != prev(rope_button) && sport_time_left < 43.0) &&
         // checkpoint on start
@@ -492,9 +494,9 @@ achievement(
     (
         game_has_booted_up() &&
         not_in_main_menu() &&
-        is_playing_sports() &&
+        never(!is_playing_sports()) &&
         coop_is_disabled() &&
-        current_sport == 0x03 &&
+        never(current_sport != 0x03) &&
         // reset when score falls too low
         never(toadball_score_p1 < target && prev(toadball_score_p1 >= target)) &&
         // checkpoint on start
@@ -519,9 +521,9 @@ achievement(
     (
         game_has_booted_up() &&
         not_in_main_menu() &&
-        is_playing_sports() &&
+        never(!is_playing_sports()) &&
         coop_is_disabled() &&
-        current_sport == 0x04 &&
+        never(current_sport != 0x04) &&
         // reset when opp steals board
         never(p2_mult == 0x03 && prev(p2_mult == 0x01)) &&
         // reset when board unclaimed
@@ -587,10 +589,55 @@ achievement(
 
 // MUSIC: no wrong note?
 
+p1_hp = 0
+half_hp_val = 0
+
 // CHARIOT: HP?
+achievement(
+    title = "CHARIOT_HP",
+    points = 0,
+    description = format("Win against a computer-controlled opponent without dropping below half your health in the Chariot Race event"),
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        never(!is_playing_sports()) &&
+        coop_is_disabled() &&
+        never(current_sport != 0x08) &&
+        // reset when low hp
+        never(p1_hp < half_hp_val && prev(p1_hp >= half_hp_val)) &&
+        // checkpoint on start
+        once(sport_countdown_started()) &&
+        // unlock on win
+        trigger_when(sport_ended() && sport_p1_won) &&
+        // reset on lose
+        never(sport_ended() && sport_p2_won)
+    )
+)
+
+// SPECIAL ADV CHALLENGES
+achievement(
+    title = "CART_DEFENSE",
+    points = 0,
+    description = "...",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        never(not_in_main_menu()) &&
+        // switched to area
+        once(current_location == 0x08 && prev(current_location == 0xffffffff)) &&
+        // correct prev quest..
+        event_flags["exited_lair"] &&
+        // and no further
+        !event_flags["caught_doctor"] &&
+        // trigger when cart defended / enemy lock downed
+        trigger_when(enemy_lock_count == 0 && prev(enemy_lock_count > 0))
+        // deny when cart broken
+    )
+)
+
 
 // OTHER STUFF
-
 achievement(
     title = "MOVIES",
     points = 0,
