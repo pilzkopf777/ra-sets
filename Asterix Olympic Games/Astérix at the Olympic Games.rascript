@@ -536,6 +536,25 @@ achievement(
 )
 
 // HAMMER: ?
+target = 3.90
+
+hammer_nail_precision = ptr(dword(0x009102dc), [0x284], float)
+hammer_throw_status = ptr(dword(0x009102dc), [0x296], byte)
+
+achievement(
+    title = "HAMMER_NAIL_BONUS",
+    points = 0,
+    description = format("Score a Nail-on-the-Head bonus multipler of {0} or more in the Hammer Throwing event", target),
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        is_playing_sports() &&
+        current_sport == 0x05 &&
+        hammer_throw_status == 0x06 &&
+        hammer_nail_precision >= target && prev(hammer_nail_precision < target)
+    )
+)
 
 // JAVELIN: x clouds
 javelin_clouds_p1 = ptr(dword(0x009102dc), [0x65C], float)
