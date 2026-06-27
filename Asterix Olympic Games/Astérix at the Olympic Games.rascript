@@ -77,6 +77,8 @@ sport_p2_won = ptr(dword(0x006cbd00), [0x12fe], byte) == 0x01
 
 enemy_lock_count = ptr(dword(0x006cbd00), [0x550], dword)
 
+game_paused = ptr(dword(0x006deed4), [0x30]) == 0x01
+
 function coop_is_enabled() {
     return ptr(dword(0x006cbd00), [0x1222], byte) == 0x01
 }
@@ -84,7 +86,6 @@ function coop_is_enabled() {
 function coop_is_disabled() {
     return ptr(dword(0x006cbd00), [0x1222], byte) == 0x00
 }
-
 
 function sport_countdown_started() {
     return sport_countdown_step == 0x00 && sport_countdown_time_left < 0.9 && prev(sport_countdown_time_left >= 0.9) 
@@ -96,6 +97,23 @@ function sport_started() {
 
 function sport_ended() {
     return sport_countdown_step == 0x03 && prev(sport_countdown_step == 0x02)
+}
+
+function cutscene_started() {
+    return ptr(dword(0x006de6f0), [0x0C], dword) == 0x01 && prev(ptr(dword(0x006de6f0), [0x0C], dword) == 0x00)
+}
+
+
+music_box_goal = ptr(dword(0x006cbd00), [0x4C0, 0x164], byte)
+music_box_prog = ptr(dword(0x006cbd00), [0x4C0, 0x166], byte)
+music_box_sliding_val = ptr(dword(0x006cbd00), [0x4C0, 0x168], float)
+
+function completed_music_box() {
+    return music_box_sliding_val > 0.00 && prev(music_box_sliding_val == 0.00)
+}
+
+function started_music_box() {
+    return music_box_goal != prev(music_box_goal)
 }
 
 event_flags = {
@@ -117,6 +135,7 @@ achievement(
     title = "CLEAR_CHAPTER_FOREST",
     points = 0,
     description = "Return to forest, go to Olympia",
+    type = "progression",
     trigger = 
     (
         game_has_booted_up() &&
@@ -130,6 +149,7 @@ achievement(
     title = "CLEAR_OLYMPIC_VILLAGE",
     points = 0,
     description = "Clear 1st ambush, open path to road to lair",
+    type = "progression",
     trigger = 
     (
         game_has_booted_up() &&
@@ -143,6 +163,7 @@ achievement(
     title = "CLEAR_PATH_TO_LAIR",
     points = 0,
     description = "Open door to lair",
+    type = "progression",
     trigger = 
     (
         game_has_booted_up() &&
@@ -156,6 +177,7 @@ achievement(
     title = "CLEAR_LAIR",
     points = 0,
     description = "Exit lair",
+    type = "progression",
     trigger = 
     (
         game_has_booted_up() &&
@@ -169,6 +191,7 @@ achievement(
     title = "CLEAR_CATCH_DOC",
     points = 0,
     description = "Caught doc",
+    type = "progression",
     trigger = 
     (
         game_has_booted_up() &&
@@ -182,6 +205,7 @@ achievement(
     title = "CLEAR_GET_TO_CITY",
     points = 0,
     description = "Gain access to city from VIP zone",
+    type = "progression",
     trigger = 
     (
         game_has_booted_up() &&
@@ -195,6 +219,7 @@ achievement(
     title = "CLEAR_GOTO_BRUTUS_DOOR",
     points = 0,
     description = "Open door to Brutus quarters",
+    type = "progression",
     trigger = 
     (
         game_has_booted_up() &&
@@ -208,6 +233,7 @@ achievement(
     title = "CLEAR_ESCAPE_UG",
     points = 0,
     description = "Exit UG area",
+    type = "progression",
     trigger = 
     (
         game_has_booted_up() &&
@@ -221,6 +247,7 @@ achievement(
     title = "CLEAR_WIN_VS_BRUTUS",
     points = 0,
     description = "Win Chariot Race vs Brutus",
+    type = "progression",
     trigger = 
     (
         game_has_booted_up() &&
@@ -234,6 +261,7 @@ achievement(
     title = "CLEAR_GAME",
     points = 0,
     description = "Complete final Laudi battle",
+    type = "win_condition",
     trigger = 
     (
         game_has_booted_up() &&
@@ -263,9 +291,21 @@ SportLookup = {
     0x03: "Toadball",
     0x04: "King of the Arena",
     0x05: "Hammer Throwing",
-    0x06: "the Javelin throw",
+    0x06: "the Javelin",
     0x07: "the Romanophone",
     0x08: "the Chariot Race"
+}
+
+CleanSportLookup = {
+    0x00: "Long Jump",
+    0x01: "Foot Race",
+    0x02: "Tug of War",
+    0x03: "Toadball",
+    0x04: "King of the Arena",
+    0x05: "Hammer Throwing",
+    0x06: "Javelin",
+    0x07: "The Romanophone",
+    0x08: "Chariot Race"
 }
 
 // Sports where single player at a time
@@ -313,8 +353,8 @@ for element in sports_with_single_player_struct {
     )
 
     leaderboard(
-        title = format("{0} LB", SportLookup[element]),
-        description = format("Score high in {0} event", SportLookup[element]),
+        title = format("{0}", CleanSportLookup[element]),
+        description = format("Score as many points as possible in {0} event", SportLookup[element]),
         start = 
         (
             game_has_booted_up() &&
@@ -386,8 +426,8 @@ for element in sports_with_multi_player_struct {
     )
 
     leaderboard(
-        title = format("{0} LB", SportLookup[element]),
-        description = format("Score high in {0} event", SportLookup[element]),
+        title = format("{0}", CleanSportLookup[element]),
+        description = format("Score as many points as possible in {0} event", SportLookup[element]),
         start = 
         (
             game_has_booted_up() &&
@@ -527,7 +567,7 @@ achievement(
         // reset when opp steals board
         never(p2_mult == 0x03 && prev(p2_mult == 0x01)) &&
         // reset when board unclaimed
-        never(dart_height >= 18.0 && prev(dart_height < 18.0) && p1_mult == 0x01 && p2_mult == 0x00) &&
+        never(dart_height < 18.0 && prev(dart_height >= 18.0) && p1_mult == 0x01 && p2_mult == 0x01) &&
         // checkpoint on start
         once(sport_countdown_started()) &&
         // unlock on win
@@ -537,7 +577,7 @@ achievement(
     )
 )
 
-// HAMMER: ?
+// HAMMER: precision
 target = 3.90
 
 hammer_nail_precision = ptr(dword(0x009102dc), [0x284], float)
@@ -620,6 +660,7 @@ achievement(
     title = "CART_DEFENSE",
     points = 0,
     description = "...",
+    type = "missable",
     trigger = 
     (
         game_has_booted_up() &&
@@ -631,8 +672,31 @@ achievement(
         // and no further
         !event_flags["caught_doctor"] &&
         // trigger when cart defended / enemy lock downed
-        trigger_when(enemy_lock_count == 0 && prev(enemy_lock_count > 0))
+        trigger_when(enemy_lock_count == 0 && prev(enemy_lock_count > 0)) &&
         // deny when cart broken
+        never(cutscene_started()) &&
+        // death
+        never(hp_remaining == 0x00 && prev(hp_remaining > 0x00))
+    )
+)
+
+// FAST MUSIC BOX
+target = 5000
+achievement(
+    title = "FAST_MUSIC",
+    points = 0,
+    description = "...",
+    type = "missable",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        never(not_in_main_menu()) &&
+        once(started_music_box()) &&
+        trigger_when(completed_music_box()) &&
+        // deny when taken too long
+        never(repeated(target, !game_paused)) &&
+        // death
+        never(hp_remaining == 0x00 && prev(hp_remaining > 0x00))
     )
 )
 
