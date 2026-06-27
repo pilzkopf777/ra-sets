@@ -34,6 +34,9 @@ function not_in_main_menu() {
     return current_location != 0x00
 }
 
+olympic_base_address = ptr(dword(0x006cbd00), [0x5BC], dword) // [32-bit pointer] Olympic Games data
+statistics_base_address = ptr(dword(0x006cbd00), [0x40], dword) // used to be 0x0090fd60
+
 current_location = ptr(dword(0x006cbd00), [0x160], dword)
 current_sport = ptr(dword(0x006cbd00), [0x12FA], byte)
 
@@ -44,13 +47,13 @@ combo_asterix = ptr(dword(0x006cbd00), [0x530], byte)
 combo_obelix = ptr(dword(0x006cbd00), [0x534], byte)
 romans_in_sky = ptr(dword(0x006cbd00), [0x544], byte)
 
-hp_remaining = ptr(dword(0x90fd60), [0x19], byte)
-max_hp = ptr(dword(0x90fd60), [0x1A], byte)
+hp_remaining = ptr(statistics_base_address, [0x19], byte)
+max_hp = ptr(statistics_base_address, [0x1A], byte)
 
-helmets = ptr(dword(0x90fd60), [0x1C], dword)
+helmets = ptr(statistics_base_address, [0x1C], dword)
 
-glue = ptr(dword(0x90fd60), [0x2C], byte)
-magnesia = ptr(dword(0x90fd60), [0x2D], byte)
+glue = ptr(statistics_base_address, [0x2C], byte)
+magnesia = ptr(statistics_base_address, [0x2D], byte)
 
 total_pigeons_left = 0
 for element in range(0x04, 0x1F4, 0x14) {
@@ -59,9 +62,8 @@ for element in range(0x04, 0x1F4, 0x14) {
 }
 pigeons = 50 - total_pigeons_left
 
-upgrades_unlocked = bitcount(ptr(dword(0x90fd60), [0x3A], byte) + ptr(dword(0x90fd60), [0x3B], byte)) // 9 in total
-movies_unlocked = bitcount(ptr(dword(0x90fd60), [0x3C], byte)) +
-                  bitcount(ptr(dword(0x90fd60), [0x3D], byte)) // 16 in total
+upgrades_unlocked = ptr(statistics_base_address, [0x3A], bitcount) + ptr(statistics_base_address, [0x3B], bitcount) // 9 in total
+movies_unlocked = ptr(statistics_base_address, [0x3C], bitcount) + ptr(statistics_base_address, [0x3D], bitcount) // 16 in total
 
 olympics_score_p1 = ptr(dword(0x6cbd00), [0x41C, 0x18C], dword)
 olympics_score_p2 = ptr(dword(0x6cbd00), [0x41C, 0x190], dword)
@@ -103,7 +105,7 @@ function cutscene_started() {
     return ptr(dword(0x006de6f0), [0x0C], dword) == 0x01 && prev(ptr(dword(0x006de6f0), [0x0C], dword) == 0x00)
 }
 
-
+// TODO: These values are not good at showing the actual prog, using the sliding val is not stable.
 music_box_goal = ptr(dword(0x006cbd00), [0x4C0, 0x164], byte)
 music_box_prog = ptr(dword(0x006cbd00), [0x4C0, 0x166], byte)
 music_box_sliding_val = ptr(dword(0x006cbd00), [0x4C0, 0x168], float)
@@ -456,7 +458,7 @@ for element in sports_with_multi_player_struct {
 
 
 // SPECIAL SPORTS
-long_jump_extensions = ptr(dword(0x009102dc), [0x26c], float)
+long_jump_extensions = ptr(olympic_base_address, [0x26c], float)
 
 achievement(
     title = "LONG_JUMP_AIR_COMBO",
@@ -467,14 +469,13 @@ achievement(
         game_has_booted_up() &&
         not_in_main_menu() &&
         is_playing_sports() &&
-        coop_is_disabled() &&
         current_sport == 0x00 &&
         // unlock on extension count
         long_jump_extensions == 3.0 && prev(long_jump_extensions == 2.0)
     )
 )
 
-foot_race_stretch = ptr(dword(0x009102dc), [0x3f0], dword)
+foot_race_stretch = ptr(olympic_base_address, [0x3f0], dword)
 
 achievement(
     title = "FOOT_RACE_NO_STRETCH",
@@ -498,7 +499,7 @@ achievement(
     )
 )
 
-rope_button = ptr(dword(0x009102dc), [0x16c], byte)
+rope_button = ptr(olympic_base_address, [0x16c], byte)
 
 achievement(
     title = "TUG_OF_WAR_ONE_BTN",
@@ -522,8 +523,8 @@ achievement(
     )
 )
 
-toadball_score_p1 = ptr(dword(0x009102dc), [0x1ed], byte)
-toadball_score_p2 = ptr(dword(0x009102dc), [0x1ec], byte)
+toadball_score_p1 = ptr(olympic_base_address, [0x1ed], byte)
+toadball_score_p2 = ptr(olympic_base_address, [0x1ec], byte)
 
 target = 4
 achievement(
@@ -549,9 +550,9 @@ achievement(
 )
 
 // KOTA: score mult?
-p1_mult = ptr(dword(0x009102dc), [0x1D4], byte)
-p2_mult = ptr(dword(0x009102dc), [0x1D5], byte)
-dart_height = ptr(dword(0x009102dc), [0x1E8], float)
+p1_mult = ptr(olympic_base_address, [0x1D4], byte)
+p2_mult = ptr(olympic_base_address, [0x1D5], byte)
+dart_height = ptr(olympic_base_address, [0x1E8], float)
 
 achievement(
     title = "KOTA_ALL_TAKEN",
@@ -567,7 +568,9 @@ achievement(
         // reset when opp steals board
         never(p2_mult == 0x03 && prev(p2_mult == 0x01)) &&
         // reset when board unclaimed
-        never(dart_height < 18.0 && prev(dart_height >= 18.0) && p1_mult == 0x01 && p2_mult == 0x01) &&
+        never(
+            dart_height < 12.0 && prev(dart_height >= 12.0) && p1_mult == 0x01 && p2_mult == 0x01
+        ) &&
         // checkpoint on start
         once(sport_countdown_started()) &&
         // unlock on win
@@ -580,8 +583,8 @@ achievement(
 // HAMMER: precision
 target = 3.90
 
-hammer_nail_precision = ptr(dword(0x009102dc), [0x284], float)
-hammer_throw_status = ptr(dword(0x009102dc), [0x296], byte)
+hammer_nail_precision = ptr(olympic_base_address, [0x284], float)
+hammer_throw_status = ptr(olympic_base_address, [0x296], byte)
 
 achievement(
     title = "HAMMER_NAIL_BONUS",
@@ -599,8 +602,8 @@ achievement(
 )
 
 // JAVELIN: x clouds
-javelin_clouds_p1 = ptr(dword(0x009102dc), [0x65C], float)
-javelin_clouds_p2 = ptr(dword(0x009102dc), [0x674], float)
+javelin_clouds_p1 = ptr(olympic_base_address, [0x65C], float)
+javelin_clouds_p2 = ptr(olympic_base_address, [0x674], float)
 
 target = 9
 target_float = 9.0
@@ -627,23 +630,26 @@ achievement(
     )
 )
 
-// MUSIC: no wrong note?
+// MUSIC: no wrong note? -> TODO
 
-p1_hp = byte(0)
-half_hp_val = 50.0
+p2_hp = ptr(olympic_base_address, [0x24, 0x4B4], float)
+p1_hp = ptr(olympic_base_address, [0x24, 0xA0C], float)
+half_hp_val = 70.0
 
 // CHARIOT: HP?
 achievement(
     title = "CHARIOT_HP",
     points = 0,
-    description = format("Win against a computer-controlled opponent without dropping below half your health in the Chariot Race event"),
+    description = format("Win against a computer-controlled opponent without dropping 70% of your health in the Chariot Race event"),
     trigger = 
     (
+        (
+            current_sport == 0x08 || current_location == 0x06
+        ) &&
         game_has_booted_up() &&
-        not_in_main_menu() &&
-        never(!is_playing_sports()) &&
+        never(!not_in_main_menu()) &&
+        never(current_location == 0xffffffff) &&
         coop_is_disabled() &&
-        never(current_sport != 0x08) &&
         // reset when low hp
         never(p1_hp < half_hp_val && prev(p1_hp >= half_hp_val)) &&
         // checkpoint on start
@@ -664,7 +670,7 @@ achievement(
     trigger = 
     (
         game_has_booted_up() &&
-        never(not_in_main_menu()) &&
+        never(!not_in_main_menu()) &&
         // switched to area
         once(current_location == 0x08 && prev(current_location == 0xffffffff)) &&
         // correct prev quest..
@@ -680,6 +686,7 @@ achievement(
     )
 )
 
+/*
 // FAST MUSIC BOX
 target = 5000
 achievement(
@@ -690,15 +697,16 @@ achievement(
     trigger = 
     (
         game_has_booted_up() &&
-        never(not_in_main_menu()) &&
+        never(!not_in_main_menu()) &&
         once(started_music_box()) &&
-        trigger_when(completed_music_box()) &&
+        trigger_when(completed_music_box())
         // deny when taken too long
         never(repeated(target, !game_paused)) &&
         // death
         never(hp_remaining == 0x00 && prev(hp_remaining > 0x00))
     )
 )
+*/
 
 
 // OTHER STUFF
@@ -780,7 +788,7 @@ achievement(
 achievement(
     title = "ALL_MOVES",
     points = 0,
-    description = "Unlock all moves",
+    description = "Purchase all moves",
     trigger = 
     (
         game_has_booted_up() &&
