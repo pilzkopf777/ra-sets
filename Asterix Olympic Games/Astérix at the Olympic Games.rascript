@@ -118,19 +118,21 @@ function started_music_box() {
     return music_box_goal != prev(music_box_goal)
 }
 
+event_flag_base_address = ptr(dword(0x006cbd00), [0x1D8], dword)
+
 event_flags = {
-    "all_disciplines_cleared": ptr(dword(0x928628), [0x14], byte) == 0xCF,
-    "exited_lair": ptr(dword(0x9286a4), [0x14], byte) == 0xCF,
-    "brutus_door_opened": ptr(dword(0x928730), [0x14], byte) == 0xCF,
-    "caught_doctor": ptr(dword(0x92874c), [0x14], byte) == 0xCF,
-    "opened_doctor_lair_door": ptr(dword(0x928798), [0x14], byte) == 0xCF,
-    "opened_vip_zone_door": ptr(dword(0x9287ac), [0x14], byte) == 0xCF,
-    "back_to_village": ptr(dword(0x9287c8), [0x14], byte) == 0xCF,
-    "opened_door_path_to_lair": ptr(dword(0x928824), [0x14], byte) == 0xCF,
-    "first_dart_board_done": ptr(dword(0x92882c), [0x14], byte) == 0xCF,
-    "escape_underground": ptr(dword(0x00928610), [0x14], byte) == 0xCF,
-    "win_final_race": ptr(dword(0x00928624), [0x14], byte) == 0xCF,
-    "win_final_laudi_battle": ptr(dword(0x009286fc), [0x14], byte) == 0xCF,
+    "all_disciplines_cleared": ptr(event_flag_base_address, [0x3E8, 0x14], byte) == 0xCF,
+    "exited_lair": ptr(event_flag_base_address, [0x464, 0x14], byte) == 0xCF,
+    "brutus_door_opened": ptr(event_flag_base_address, [0x4F0, 0x14], byte) == 0xCF,
+    "caught_doctor": ptr(event_flag_base_address, [0x50C, 0x14], byte) == 0xCF,
+    "opened_doctor_lair_door": ptr(event_flag_base_address, [0x558, 0x14], byte) == 0xCF,
+    "opened_vip_zone_door": ptr(event_flag_base_address, [0x56C, 0x14], byte) == 0xCF,
+    "back_to_village": ptr(event_flag_base_address, [0x588, 0x14], byte) == 0xCF,
+    "opened_door_path_to_lair": ptr(event_flag_base_address, [0x5E4, 0x14], byte) == 0xCF,
+    "first_dart_board_done": ptr(event_flag_base_address, [0x5EC, 0x14], byte) == 0xCF,
+    "escape_underground": ptr(event_flag_base_address, [0x3D0, 0x14], byte) == 0xCF,
+    "win_final_race": ptr(event_flag_base_address, [0x3E4, 0x14], byte) == 0xCF,
+    "win_final_laudi_battle": ptr(event_flag_base_address, [0x4BC, 0x14], byte) == 0xCF,
 }
 
 achievement(
