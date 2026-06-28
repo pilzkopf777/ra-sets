@@ -115,10 +115,16 @@ function cutscene_started() {
 // TODO: These values are not good at showing the actual prog, using the sliding val is not stable.
 music_box_goal = ptr(olympic_games_main_adr, [0x4C0, 0x164], byte)
 music_box_prog = ptr(olympic_games_main_adr, [0x4C0, 0x166], byte)
-music_box_sliding_val = ptr(olympic_games_main_adr, [0x4C0, 0x168], float)
+
+music_goal_sliding_prog = ptr(olympic_games_main_adr, [0x04, 0x1a0, 0x20, 0x38, 0x50, 0x50], float)
+
+function get_value_below_end_of_song() {
+    correction_buffer = 0.05
+    return 1.0 - (1.0 / music_box_goal) - correction_buffer
+}
 
 function completed_music_box() {
-    return music_box_sliding_val > 0.00 && prev(music_box_sliding_val == 0.00)
+    return music_goal_sliding_prog >= get_value_below_end_of_song() && music_box_prog == 0x00 && prev(music_box_prog == music_box_goal - 1)
 }
 
 function started_music_box() {
@@ -319,12 +325,36 @@ CleanSportLookup = {
     0x08: "Chariot Race"
 }
 
+SportCheevoNames = {
+    0x00: "Going the Distance",
+    0x01: "The Long Road",
+    0x02: "Line in the Sand",
+    0x03: "Ribbiting Performance",
+    0x04:  "",
+    0x05: "One Mighty Swing",
+    0x06: "",
+    0x07: "Virtuoso",
+    0x08: ""
+}
+
+SportSpecialCheevoNames = {
+    0x00: "Boundless",
+    0x01: "Walk it out",
+    0x02: "For you Mashing Pleasure",
+    0x03: "Anti-Amphibian Approach",
+    0x04: "Target Hog",
+    0x05: "Nailed it",
+    0x06: "Pierce the skies",
+    0x07: "Hitting all the right notes",
+    0x08: ""
+}
+
 // Sports where single player at a time
 sports_with_single_player_struct = [0x00, 0x05, 0x06]
 
 for element in sports_with_single_player_struct {
     achievement(
-        title = format("{0} Score Achievement", SportLookup[element]),
+        title = format("{0}", SportCheevoNames[element]),
         points = 0,
         description = format("Score {0} or more points in {1} event", top_score_targets[0x00], SportLookup[0x00]),
         trigger = 
@@ -413,7 +443,7 @@ sports_with_multi_player_struct = [0x01, 0x02, 0x03, 0x04, 0x07, 0x08]
 
 for element in sports_with_multi_player_struct {
     achievement(
-        title = format("{0} Score Achievement", SportLookup[element]),
+        title = format("{0} Score Achievement", SportCheevoNames[element]),
         points = 0,
         description = format("Score {0} or more points in {1} event playing against as a computer-controlled opponent", top_score_targets[0x00], SportLookup[0x00]),
         trigger = 
@@ -470,7 +500,7 @@ for element in sports_with_multi_player_struct {
 long_jump_extensions = ptr(olympic_base_address, [0x26c], float)
 
 achievement(
-    title = "LONG_JUMP_AIR_COMBO",
+    title = format("{0}", SportSpecialCheevoNames[0x00]),
     points = 0,
     description = format("Extend your jump three times mid-air by completing the button inputs in the Long Jump event"),
     trigger = 
@@ -487,7 +517,7 @@ achievement(
 foot_race_stretch = ptr(olympic_base_address, [0x3f0], dword)
 
 achievement(
-    title = "FOOT_RACE_NO_STRETCH",
+    title = format("{0}", SportSpecialCheevoNames[0x01]),
     points = 0,
     description = format("Win against a computer-controlled opponent without completing the photo finish button inputs in the Foot Race event"),
     trigger = 
@@ -511,7 +541,7 @@ achievement(
 rope_button = ptr(olympic_base_address, [0x16c], byte)
 
 achievement(
-    title = "TUG_OF_WAR_ONE_BTN",
+    title = format("{0}", SportSpecialCheevoNames[0x02]),
     points = 0,
     description = format("Win against a computer-controlled opponent without the required button input switching to a different one in the Tug of War event"),
     trigger = 
@@ -537,7 +567,7 @@ toadball_score_p2 = ptr(olympic_base_address, [0x1ec], byte)
 
 target = 4
 achievement(
-    title = "TOADBALL_NO_LESS_PTS",
+    title = format("{0}", SportSpecialCheevoNames[0x03]),
     points = 0,
     description = format("Win against a computer-controlled opponent without ever dropping below {0} points in the Toadball event", target),
     trigger = 
@@ -564,7 +594,7 @@ p2_mult = ptr(olympic_base_address, [0x1D5], byte)
 dart_height = ptr(olympic_base_address, [0x1E8], float)
 
 achievement(
-    title = "KOTA_ALL_TAKEN",
+    title = format("{0}", SportSpecialCheevoNames[0x04]),
     points = 0,
     description = format("Win against a computer-controlled opponent while claiming every bonus dart board in the King of the Arena event"),
     trigger = 
@@ -596,7 +626,7 @@ hammer_nail_precision = ptr(olympic_base_address, [0x284], float)
 hammer_throw_status = ptr(olympic_base_address, [0x296], byte)
 
 achievement(
-    title = "HAMMER_NAIL_BONUS",
+    title = format("{0}", SportSpecialCheevoNames[0x05]),
     points = 0,
     description = format("Score a Nail-on-the-Head bonus multipler of {0} or more in the Hammer Throwing event", target),
     trigger = 
@@ -617,7 +647,7 @@ javelin_clouds_p2 = ptr(olympic_base_address, [0x674], float)
 target = 9
 target_float = 9.0
 achievement(
-    title = "JAV_CLOUDS",
+    title = format("{0}", SportSpecialCheevoNames[0x06]),
     points = 0,
     description = format("Pass the javelin through {0} clouds in one throw in the Javelin throw event", target),
     trigger = 
@@ -647,7 +677,7 @@ half_hp_val = 70.0
 
 // CHARIOT: HP?
 achievement(
-    title = "CHARIOT_HP",
+    title = format("{0}", SportSpecialCheevoNames[0x08]),
     points = 0,
     description = format("Win against a computer-controlled opponent without dropping 70% of your health in the Chariot Race event"),
     trigger = 
@@ -671,6 +701,7 @@ achievement(
 )
 
 // SPECIAL ADV CHALLENGES
+/*
 achievement(
     title = "CART_DEFENSE",
     points = 0,
@@ -694,8 +725,9 @@ achievement(
         never(hp_remaining == 0x00 && prev(hp_remaining > 0x00))
     )
 )
+*/
 
-/*
+
 // FAST MUSIC BOX
 target = 5000
 achievement(
@@ -708,14 +740,14 @@ achievement(
         game_has_booted_up() &&
         never(!not_in_main_menu()) &&
         once(started_music_box()) &&
-        trigger_when(completed_music_box())
+        trigger_when(completed_music_box()) &&
         // deny when taken too long
         never(repeated(target, !game_paused)) &&
         // death
         never(hp_remaining == 0x00 && prev(hp_remaining > 0x00))
     )
 )
-*/
+
 
 
 // OTHER STUFF
