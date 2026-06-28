@@ -22,8 +22,13 @@ function ptr(base, offsets, accessor=dword)
     return val
 }
 
+olympic_games_main_adr = ptr(dword(0x6cbf78), [0x48], dword)
+cutscene_main_adr = ptr(dword(0x6cbf78), [0x12A38], dword)
+pause_main_adr = ptr(dword(0x6cbf78), [0x1321C], dword)
+
+
 function game_has_booted_up() {
-    return dword(0x006cbd00) != 0x00
+    return olympic_games_main_adr != 0x00
 }
 
 function is_playing_sports() {
@@ -34,18 +39,20 @@ function not_in_main_menu() {
     return current_location != 0x00
 }
 
-olympic_base_address = ptr(dword(0x006cbd00), [0x5BC], dword) // [32-bit pointer] Olympic Games data
-statistics_base_address = ptr(dword(0x006cbd00), [0x40], dword) // used to be 0x0090fd60
 
-current_location = ptr(dword(0x006cbd00), [0x160], dword)
-current_sport = ptr(dword(0x006cbd00), [0x12FA], byte)
 
-sports_char_p1 = ptr(dword(0x006cbd00), [0x1220], byte)
+olympic_base_address = ptr(olympic_games_main_adr, [0x5BC], dword) // [32-bit pointer] Olympic Games data
+statistics_base_address = ptr(olympic_games_main_adr, [0x40], dword) // used to be 0x0090fd60
 
-multiplier = ptr(dword(0x006cbd00), [0x518], byte)
-combo_asterix = ptr(dword(0x006cbd00), [0x530], byte)
-combo_obelix = ptr(dword(0x006cbd00), [0x534], byte)
-romans_in_sky = ptr(dword(0x006cbd00), [0x544], byte)
+current_location = ptr(olympic_games_main_adr, [0x160], dword)
+current_sport = ptr(olympic_games_main_adr, [0x12FA], byte)
+
+sports_char_p1 = ptr(olympic_games_main_adr, [0x1220], byte)
+
+multiplier = ptr(olympic_games_main_adr, [0x518], byte)
+combo_asterix = ptr(olympic_games_main_adr, [0x530], byte)
+combo_obelix = ptr(olympic_games_main_adr, [0x534], byte)
+romans_in_sky = ptr(olympic_games_main_adr, [0x544], byte)
 
 hp_remaining = ptr(statistics_base_address, [0x19], byte)
 max_hp = ptr(statistics_base_address, [0x1A], byte)
@@ -68,25 +75,25 @@ movies_unlocked = ptr(statistics_base_address, [0x3C], bitcount) + ptr(statistic
 olympics_score_p1 = ptr(dword(0x6cbd00), [0x41C, 0x18C], dword)
 olympics_score_p2 = ptr(dword(0x6cbd00), [0x41C, 0x190], dword)
 
-sport_time_left = ptr(dword(0x006cbd00), [0x4c8, 0x104], float)
-sport_countdown_time_left = ptr(dword(0x006cbd00), [0x4c8, 0xec], float)
-sport_countdown_step = ptr(dword(0x006cbd00), [0x4c8, 0xf0], byte)
+sport_time_left = ptr(olympic_games_main_adr, [0x4c8, 0x104], float)
+sport_countdown_time_left = ptr(olympic_games_main_adr, [0x4c8, 0xec], float)
+sport_countdown_step = ptr(olympic_games_main_adr, [0x4c8, 0xf0], byte)
 
-what_player_score_shown = ptr(dword(0x006cbd00), [0x12fb], byte)
+what_player_score_shown = ptr(olympic_games_main_adr, [0x12fb], byte)
 
-sport_p1_won = ptr(dword(0x006cbd00), [0x12fe], byte) == 0x00
-sport_p2_won = ptr(dword(0x006cbd00), [0x12fe], byte) == 0x01
+sport_p1_won = ptr(olympic_games_main_adr, [0x12fe], byte) == 0x00
+sport_p2_won = ptr(olympic_games_main_adr, [0x12fe], byte) == 0x01
 
-enemy_lock_count = ptr(dword(0x006cbd00), [0x550], dword)
+enemy_lock_count = ptr(olympic_games_main_adr, [0x550], dword)
 
-game_paused = ptr(dword(0x006deed4), [0x30]) == 0x01
+game_paused = ptr(pause_main_adr, [0x30]) == 0x01
 
 function coop_is_enabled() {
-    return ptr(dword(0x006cbd00), [0x1222], byte) == 0x01
+    return ptr(olympic_games_main_adr, [0x1222], byte) == 0x01
 }
 
 function coop_is_disabled() {
-    return ptr(dword(0x006cbd00), [0x1222], byte) == 0x00
+    return ptr(olympic_games_main_adr, [0x1222], byte) == 0x00
 }
 
 function sport_countdown_started() {
@@ -102,13 +109,13 @@ function sport_ended() {
 }
 
 function cutscene_started() {
-    return ptr(dword(0x006de6f0), [0x0C], dword) == 0x01 && prev(ptr(dword(0x006de6f0), [0x0C], dword) == 0x00)
+    return ptr(cutscene_main_adr, [0x0C], dword) == 0x01 && prev(ptr(cutscene_main_adr, [0x0C], dword) == 0x00)
 }
 
 // TODO: These values are not good at showing the actual prog, using the sliding val is not stable.
-music_box_goal = ptr(dword(0x006cbd00), [0x4C0, 0x164], byte)
-music_box_prog = ptr(dword(0x006cbd00), [0x4C0, 0x166], byte)
-music_box_sliding_val = ptr(dword(0x006cbd00), [0x4C0, 0x168], float)
+music_box_goal = ptr(olympic_games_main_adr, [0x4C0, 0x164], byte)
+music_box_prog = ptr(olympic_games_main_adr, [0x4C0, 0x166], byte)
+music_box_sliding_val = ptr(olympic_games_main_adr, [0x4C0, 0x168], float)
 
 function completed_music_box() {
     return music_box_sliding_val > 0.00 && prev(music_box_sliding_val == 0.00)
@@ -118,7 +125,7 @@ function started_music_box() {
     return music_box_goal != prev(music_box_goal)
 }
 
-event_flag_base_address = ptr(dword(0x006cbd00), [0x1D8], dword)
+event_flag_base_address = ptr(olympic_games_main_adr, [0x1D8], dword)
 
 event_flags = {
     "all_disciplines_cleared": ptr(event_flag_base_address, [0x3E8, 0x14], byte) == 0xCF,
