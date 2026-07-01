@@ -114,21 +114,16 @@ function cutscene_started() {
 
 // TODO: These values are not good at showing the actual prog, using the sliding val is not stable.
 music_box_goal = ptr(olympic_games_main_adr, [0x4C0, 0x164], byte)
-music_box_prog = ptr(olympic_games_main_adr, [0x4C0, 0x166], byte)
+music_box_prog = ptr(olympic_games_main_adr, [0x04, 0x1A0, 0x92], byte)
 
-music_goal_sliding_prog = ptr(olympic_games_main_adr, [0x04, 0x1a0, 0x20, 0x38, 0x50, 0x50], float)
-
-function get_value_below_end_of_song() {
-    correction_buffer = 0.05
-    return 1.0 - (1.0 / music_box_goal) - correction_buffer
-}
+music_box_active_state = ptr(olympic_games_main_adr, [0x4C0, 0x198], byte)
 
 function completed_music_box() {
-    return music_goal_sliding_prog >= get_value_below_end_of_song() && music_box_prog == 0x00 && prev(music_box_prog == music_box_goal - 1)
+    return music_box_prog == music_box_goal && prev(music_box_prog == music_box_goal - 1)
 }
 
 function started_music_box() {
-    return music_box_goal != prev(music_box_goal)
+    return music_box_active_state == 0x01 && prev(music_box_active_state == 0x00)
 }
 
 event_flag_base_address = ptr(olympic_games_main_adr, [0x1D8], dword)
@@ -330,23 +325,23 @@ SportCheevoNames = {
     0x01: "The Long Road",
     0x02: "Line in the Sand",
     0x03: "Ribbiting Performance",
-    0x04:  "",
+    0x04: "Ring Royalty",
     0x05: "One Mighty Swing",
-    0x06: "",
+    0x06: "Pierce the Skies",
     0x07: "Virtuoso",
-    0x08: ""
+    0x08: "Wheely Good Achievement"
 }
 
 SportSpecialCheevoNames = {
     0x00: "Boundless",
-    0x01: "Walk it out",
-    0x02: "For you Mashing Pleasure",
+    0x01: "Walk It Out",
+    0x02: "For Your Mashing Pleasure",
     0x03: "Anti-Amphibian Approach",
     0x04: "Target Hog",
-    0x05: "Nailed it",
-    0x06: "Pierce the skies",
-    0x07: "Hitting all the right notes",
-    0x08: ""
+    0x05: "Nailed It",
+    0x06: "Cloud Nine",
+    0x07: "Hitting All the Right Notes",
+    0x08: "Driving Without Insurance?"
 }
 
 // Sports where single player at a time
@@ -655,21 +650,35 @@ achievement(
         game_has_booted_up() &&
         not_in_main_menu() &&
         is_playing_sports() &&
-        current_sport == 0x06 &&
-        (
-            (
-                javelin_clouds_p1 == target_float && prev(javelin_clouds_p1 == target_float - 1.0)
-            )
-            ||
-            (
-                coop_is_enabled() &&
-                javelin_clouds_p2 == target_float && prev(javelin_clouds_p2 == target_float - 1.0)
-            )
-        )
+        current_sport == 0x06
     )
 )
 
 // MUSIC: no wrong note? -> TODO
+
+achievement(
+    title = format("{0}", SportSpecialCheevoNames[0x07]),
+    points = 0,
+    description = format("MUSIC BOX NO ERROR"),
+    type = "",
+    trigger = 
+(
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        is_playing_sports() &&
+        current_sport == 0x07 &&
+        // checkpoint on start
+        once(sport_countdown_started()) &&
+        // unlock on win
+        trigger_when(sport_ended() && sport_p1_won) &&
+        // reset on lose
+        never(sport_ended() && sport_p2_won) &&
+        // reset on lose pts
+        never(music_box_prog < prev(music_box_prog))
+    )
+)
+
+
 
 p2_hp = ptr(olympic_base_address, [0x24, 0x4B4], float)
 p1_hp = ptr(olympic_base_address, [0x24, 0xA0C], float)
@@ -729,11 +738,13 @@ achievement(
 
 
 // FAST MUSIC BOX
-target = 5000
+target = 1800
+in_sec = target / 50
+
 achievement(
     title = "FAST_MUSIC",
     points = 0,
-    description = "...",
+    description = format("MUSIC BOX IN {0} SEC", in_sec),
     type = "missable",
     trigger = 
     (
@@ -742,12 +753,11 @@ achievement(
         once(started_music_box()) &&
         trigger_when(completed_music_box()) &&
         // deny when taken too long
-        never(repeated(target, !game_paused)) &&
+        never(repeated(target, music_box_active_state == 0x01 && !game_paused)) &&
         // death
         never(hp_remaining == 0x00 && prev(hp_remaining > 0x00))
     )
 )
-
 
 
 // OTHER STUFF
