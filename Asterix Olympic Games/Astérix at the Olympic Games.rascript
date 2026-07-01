@@ -144,9 +144,9 @@ event_flags = {
 }
 
 achievement(
-    title = "CLEAR_CHAPTER_FOREST",
+    title = "To Olympia!",
     points = 0,
-    description = "Return to forest, go to Olympia",
+    description = "Head out to the Olympic Games in Ancient Greece",
     type = "progression",
     trigger = 
     (
@@ -160,7 +160,7 @@ achievement(
 achievement(
     title = "Event Security",
     points = 0,
-    description = "Clear 1st ambush, open path to road to lair",
+    description = "Defeat Silenceus and make your way to Doctormabus' lair",
     type = "progression",
     trigger = 
     (
@@ -174,7 +174,7 @@ achievement(
 achievement(
     title = "Breaking and Entering",
     points = 0,
-    description = "Open door to lair",
+    description = "Open the path to Doctormabus' lair",
     type = "progression",
     trigger = 
     (
@@ -188,7 +188,7 @@ achievement(
 achievement(
     title = "Exit Strategy",
     points = 0,
-    description = "Exit lair",
+    description = "Exit the lair and make chase",
     type = "progression",
     trigger = 
     (
@@ -202,7 +202,7 @@ achievement(
 achievement(
     title = "A Bitter Pill",
     points = 0,
-    description = "Caught doc",
+    description = "Catch Doctormabus",
     type = "progression",
     trigger = 
     (
@@ -216,7 +216,7 @@ achievement(
 achievement(
     title = "Off to Town",
     points = 0,
-    description = "Gain access to city from VIP zone",
+    description = "Gain access to the City",
     type = "progression",
     trigger = 
     (
@@ -230,7 +230,7 @@ achievement(
 achievement(
     title = "Knock, Knock",
     points = 0,
-    description = "Open door to Brutus quarters",
+    description = "Open the doorway to Brutus' private quarters",
     type = "progression",
     trigger = 
     (
@@ -244,7 +244,7 @@ achievement(
 achievement(
     title = "Tunnel Vision",
     points = 0,
-    description = "Exit UG area",
+    description = "Escape the underground",
     type = "progression",
     trigger = 
     (
@@ -258,7 +258,7 @@ achievement(
 achievement(
     title = "Our Newest Champion!",
     points = 0,
-    description = "Win Chariot Race vs Brutus",
+    description = "Win the final Chariot Race against Brutus",
     type = "progression",
     trigger = 
     (
@@ -270,9 +270,9 @@ achievement(
 )
 
 achievement(
-    title = "CLEAR_GAME",
+    title = "Interdimensional Showdown",
     points = 0,
-    description = "Complete final Laudi battle",
+    description = "Defeat the horde of Romans and foil Brutus' plans",
     type = "win_condition",
     trigger = 
     (
@@ -774,7 +774,7 @@ achievement(
 )
 
 achievement(
-    title = "20_PIGEONS",
+    title = "Special Delivery",
     points = 0,
     description = "Rescue 20 pigeons",
     trigger = 
@@ -786,7 +786,7 @@ achievement(
 )
 
 achievement(
-    title = "40_PIGEONS",
+    title = "Priority Mail",
     points = 0,
     description = "Rescue 40 pigeons",
     trigger = 
@@ -798,7 +798,7 @@ achievement(
 )
 
 achievement(
-    title = "50_PIGEONS",
+    title = "Zero Unread Messages",
     points = 0,
     description = "Rescue all 50 pigeons",
     trigger = 
@@ -818,14 +818,20 @@ achievement(
         game_has_booted_up() &&
         not_in_main_menu() &&
         (
-            combo_obelix >= 50 && prev(combo_obelix < 50) ||
+            coop_is_disabled() &&
+            combo_asterix >= 50 && prev(combo_asterix < 50)
+        )
+        &&
+        (
+            coop_is_enabled() &&
             combo_obelix >= 50 && prev(combo_obelix < 50)
         )
+
     )
 )
 
 achievement(
-    title = "40_MULT",
+    title = "Big Money",
     points = 0,
     description = "Earn a multiplier of 40 or higher",
     trigger = 
@@ -837,7 +843,7 @@ achievement(
 )
 
 achievement(
-    title = "ALL_MOVES",
+    title = "Training Session",
     points = 0,
     description = "Purchase all moves",
     trigger = 
@@ -846,6 +852,33 @@ achievement(
         not_in_main_menu() &&
         current_location == 0x02 &&
         measured(upgrades_unlocked == 9) && prev(upgrades_unlocked == 8)
+    )
+)
+
+grabbed_shield_upg = max_hp - 12
+// 12 starting, 24 total = 12 to collect 
+
+achievement(
+    title = "HALF_SHIELD",
+    points = 0,
+    description = "Collect half of the upgrades",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        measured(grabbed_shield_upg == 6) && prev(grabbed_shield_upg == 5)
+    )
+)
+
+achievement(
+    title = "FULL_SHIELD",
+    points = 0,
+    description = "Collect all shield upgrades",
+    trigger = 
+    (
+        game_has_booted_up() &&
+        not_in_main_menu() &&
+        measured(grabbed_shield_upg == 12) && prev(grabbed_shield_upg == 11)
     )
 )
 
