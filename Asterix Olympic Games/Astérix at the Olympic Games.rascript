@@ -158,7 +158,7 @@ achievement(
 )
 
 achievement(
-    title = "CLEAR_OLYMPIC_VILLAGE",
+    title = "Event Security",
     points = 0,
     description = "Clear 1st ambush, open path to road to lair",
     type = "progression",
@@ -172,7 +172,7 @@ achievement(
 )
 
 achievement(
-    title = "CLEAR_PATH_TO_LAIR",
+    title = "Breaking and Entering",
     points = 0,
     description = "Open door to lair",
     type = "progression",
@@ -186,7 +186,7 @@ achievement(
 )
 
 achievement(
-    title = "CLEAR_LAIR",
+    title = "Exit Strategy",
     points = 0,
     description = "Exit lair",
     type = "progression",
@@ -200,7 +200,7 @@ achievement(
 )
 
 achievement(
-    title = "CLEAR_CATCH_DOC",
+    title = "A Bitter Pill",
     points = 0,
     description = "Caught doc",
     type = "progression",
@@ -214,7 +214,7 @@ achievement(
 )
 
 achievement(
-    title = "CLEAR_GET_TO_CITY",
+    title = "Off to Town",
     points = 0,
     description = "Gain access to city from VIP zone",
     type = "progression",
@@ -228,7 +228,7 @@ achievement(
 )
 
 achievement(
-    title = "CLEAR_GOTO_BRUTUS_DOOR",
+    title = "Knock, Knock",
     points = 0,
     description = "Open door to Brutus quarters",
     type = "progression",
@@ -242,7 +242,7 @@ achievement(
 )
 
 achievement(
-    title = "CLEAR_ESCAPE_UG",
+    title = "Tunnel Vision",
     points = 0,
     description = "Exit UG area",
     type = "progression",
@@ -256,7 +256,7 @@ achievement(
 )
 
 achievement(
-    title = "CLEAR_WIN_VS_BRUTUS",
+    title = "Our Newest Champion!",
     points = 0,
     description = "Win Chariot Race vs Brutus",
     type = "progression",
@@ -742,7 +742,7 @@ target = 1800
 in_sec = target / 50
 
 achievement(
-    title = "FAST_MUSIC",
+    title = "Can Stop the Music",
     points = 0,
     description = format("MUSIC BOX IN {0} SEC", in_sec),
     type = "missable",
@@ -810,7 +810,7 @@ achievement(
 )
 
 achievement(
-    title = "50_COMBO",
+    title = "Combo Conqueror",
     points = 0,
     description = "Reach a combo of 50 hits",
     trigger = 
@@ -850,7 +850,7 @@ achievement(
 )
 
 achievement(
-    title = "ALL_GLUE",
+    title = "Sticky Situation",
     points = 0,
     description = "Collect all glue",
     trigger = 
@@ -862,7 +862,7 @@ achievement(
 )
 
 achievement(
-    title = "ALL_MAGNESIA",
+    title = "Chalk It Up to Luck",
     points = 0,
     description = "Collect all magnesia",
     trigger = 
