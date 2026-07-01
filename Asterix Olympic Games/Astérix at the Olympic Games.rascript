@@ -145,7 +145,7 @@ event_flags = {
 
 achievement(
     title = "To Olympia!",
-    points = 0,
+    points = 1,
     description = "Head out to the Olympic Games in Ancient Greece",
     type = "progression",
     trigger = 
@@ -159,7 +159,7 @@ achievement(
 
 achievement(
     title = "Event Security",
-    points = 0,
+    points = 5,
     description = "Defeat Silenceus and make your way to Doctormabus' lair",
     type = "progression",
     trigger = 
@@ -173,7 +173,7 @@ achievement(
 
 achievement(
     title = "Breaking and Entering",
-    points = 0,
+    points = 5,
     description = "Open the path to Doctormabus' lair",
     type = "progression",
     trigger = 
@@ -187,7 +187,7 @@ achievement(
 
 achievement(
     title = "Exit Strategy",
-    points = 0,
+    points = 5,
     description = "Exit the lair and make chase",
     type = "progression",
     trigger = 
@@ -201,7 +201,7 @@ achievement(
 
 achievement(
     title = "A Bitter Pill",
-    points = 0,
+    points = 10,
     description = "Catch Doctormabus",
     type = "progression",
     trigger = 
@@ -215,7 +215,7 @@ achievement(
 
 achievement(
     title = "Off to Town",
-    points = 0,
+    points = 5,
     description = "Gain access to the City",
     type = "progression",
     trigger = 
@@ -229,7 +229,7 @@ achievement(
 
 achievement(
     title = "Knock, Knock",
-    points = 0,
+    points = 5,
     description = "Open the doorway to Brutus' private quarters",
     type = "progression",
     trigger = 
@@ -243,7 +243,7 @@ achievement(
 
 achievement(
     title = "Tunnel Vision",
-    points = 0,
+    points = 5,
     description = "Escape the underground",
     type = "progression",
     trigger = 
@@ -257,7 +257,7 @@ achievement(
 
 achievement(
     title = "Our Newest Champion!",
-    points = 0,
+    points = 10,
     description = "Win the final Chariot Race against Brutus",
     type = "progression",
     trigger = 
@@ -271,7 +271,7 @@ achievement(
 
 achievement(
     title = "Interdimensional Showdown",
-    points = 0,
+    points = 25,
     description = "Defeat the horde of Romans and foil Brutus' plans",
     type = "win_condition",
     trigger = 
@@ -350,7 +350,7 @@ sports_with_single_player_struct = [0x00, 0x05, 0x06]
 for element in sports_with_single_player_struct {
     achievement(
         title = format("{0}", SportCheevoNames[element]),
-        points = 0,
+        points = 10,
         description = format("Score {0} or more points in {1} event", top_score_targets[0x00], SportLookup[0x00]),
         trigger = 
         (
@@ -439,7 +439,7 @@ sports_with_multi_player_struct = [0x01, 0x02, 0x03, 0x04, 0x07, 0x08]
 for element in sports_with_multi_player_struct {
     achievement(
         title = format("{0} Score Achievement", SportCheevoNames[element]),
-        points = 0,
+        points = 10,
         description = format("Score {0} or more points in {1} event playing against as a computer-controlled opponent", top_score_targets[0x00], SportLookup[0x00]),
         trigger = 
         (
@@ -496,7 +496,7 @@ long_jump_extensions = ptr(olympic_base_address, [0x26c], float)
 
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x00]),
-    points = 0,
+    points = 3,
     description = format("Extend your jump three times mid-air by completing the button inputs in the Long Jump event"),
     trigger = 
     (
@@ -513,7 +513,7 @@ foot_race_stretch = ptr(olympic_base_address, [0x3f0], dword)
 
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x01]),
-    points = 0,
+    points = 3,
     description = format("Win against a computer-controlled opponent without completing the photo finish button inputs in the Foot Race event"),
     trigger = 
     (
@@ -537,7 +537,7 @@ rope_button = ptr(olympic_base_address, [0x16c], byte)
 
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x02]),
-    points = 0,
+    points = 5,
     description = format("Win against a computer-controlled opponent without the required button input switching to a different one in the Tug of War event"),
     trigger = 
     (
@@ -563,7 +563,7 @@ toadball_score_p2 = ptr(olympic_base_address, [0x1ec], byte)
 target = 4
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x03]),
-    points = 0,
+    points = 4,
     description = format("Win against a computer-controlled opponent without ever dropping below {0} points in the Toadball event", target),
     trigger = 
     (
@@ -590,7 +590,7 @@ dart_height = ptr(olympic_base_address, [0x1E8], float)
 
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x04]),
-    points = 0,
+    points = 3,
     description = format("Win against a computer-controlled opponent while claiming every bonus dart board in the King of the Arena event"),
     trigger = 
     (
@@ -622,7 +622,7 @@ hammer_throw_status = ptr(olympic_base_address, [0x296], byte)
 
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x05]),
-    points = 0,
+    points = 4,
     description = format("Score a Nail-on-the-Head bonus multipler of {0} or more in the Hammer Throwing event", target),
     trigger = 
     (
@@ -643,7 +643,7 @@ target = 9
 target_float = 9.0
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x06]),
-    points = 0,
+    points = 5,
     description = format("Pass the javelin through {0} clouds in one throw in the Javelin throw event", target),
     trigger = 
     (
@@ -658,8 +658,8 @@ achievement(
 
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x07]),
-    points = 0,
-    description = format("MUSIC BOX NO ERROR"),
+    points = 2,
+    description = format("Win against a computer-controlled opponent without playing any wrong notes in the Romanophone event"),
     type = "",
     trigger = 
 (
@@ -743,7 +743,7 @@ in_sec = target / 50
 
 achievement(
     title = "Can Stop the Music",
-    points = 0,
+    points = 10,
     description = format("MUSIC BOX IN {0} SEC", in_sec),
     type = "missable",
     trigger = 
@@ -762,8 +762,8 @@ achievement(
 
 // OTHER STUFF
 achievement(
-    title = "MOVIES",
-    points = 0,
+    title = "A Little Bit of Movie Magic",
+    points = 10,
     description = "Purchase every movie in the gallery",
     trigger = 
     (
@@ -775,7 +775,7 @@ achievement(
 
 achievement(
     title = "Special Delivery",
-    points = 0,
+    points = 5,
     description = "Rescue 20 pigeons",
     trigger = 
     (
@@ -787,7 +787,7 @@ achievement(
 
 achievement(
     title = "Priority Mail",
-    points = 0,
+    points = 10,
     description = "Rescue 40 pigeons",
     trigger = 
     (
@@ -799,7 +799,7 @@ achievement(
 
 achievement(
     title = "Zero Unread Messages",
-    points = 0,
+    points = 25,
     description = "Rescue all 50 pigeons",
     trigger = 
     (
@@ -811,7 +811,7 @@ achievement(
 
 achievement(
     title = "Combo Conqueror",
-    points = 0,
+    points = 10,
     description = "Reach a combo of 50 hits",
     trigger = 
     (
@@ -832,7 +832,7 @@ achievement(
 
 achievement(
     title = "Big Money",
-    points = 0,
+    points = 10,
     description = "Earn a multiplier of 40 or higher",
     trigger = 
     (
@@ -844,7 +844,7 @@ achievement(
 
 achievement(
     title = "Training Session",
-    points = 0,
+    points = 5,
     description = "Purchase all moves",
     trigger = 
     (
@@ -860,7 +860,7 @@ grabbed_shield_upg = max_hp - 12
 
 achievement(
     title = "HALF_SHIELD",
-    points = 0,
+    points = 5,
     description = "Collect half of the upgrades",
     trigger = 
     (
@@ -872,7 +872,7 @@ achievement(
 
 achievement(
     title = "FULL_SHIELD",
-    points = 0,
+    points = 10,
     description = "Collect all shield upgrades",
     trigger = 
     (
@@ -884,7 +884,7 @@ achievement(
 
 achievement(
     title = "Sticky Situation",
-    points = 0,
+    points = 5,
     description = "Collect all glue",
     trigger = 
     (
@@ -896,7 +896,7 @@ achievement(
 
 achievement(
     title = "Chalk It Up to Luck",
-    points = 0,
+    points = 5,
     description = "Collect all magnesia",
     trigger = 
     (
