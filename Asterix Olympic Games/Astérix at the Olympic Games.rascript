@@ -296,6 +296,18 @@ top_score_targets = {
     0x08: 19080 // chariot
 }
 
+top_score_targets_string = {
+    0x00: "17,200", // long jump
+    0x01: "19,200", // foot race
+    0x02: "21,920", // tug of war
+    0x03: "21,200", // toadball
+    0x04: "19,850", // kota
+    0x05: "22,190", // hammer throw
+    0x06: "18,500", // javelin
+    0x07: "21,620", // music
+    0x08: "19,080" // chariot
+}
+
 SportLookup = {
     0x00: "the Long Jump",
     0x01: "the Foot Race",
@@ -351,7 +363,7 @@ for element in sports_with_single_player_struct {
     achievement(
         title = format("{0}", SportCheevoNames[element]),
         points = 10,
-        description = format("Score {0} or more points in {1} event", top_score_targets[0x00], SportLookup[0x00]),
+        description = format("Score {0} or more points in {1} event", top_score_targets_string[element], SportLookup[element]),
         trigger = 
         (
             game_has_booted_up() &&
@@ -438,9 +450,9 @@ sports_with_multi_player_struct = [0x01, 0x02, 0x03, 0x04, 0x07, 0x08]
 
 for element in sports_with_multi_player_struct {
     achievement(
-        title = format("{0} Score Achievement", SportCheevoNames[element]),
+        title = format("{0}", SportCheevoNames[element]),
         points = 10,
-        description = format("Score {0} or more points in {1} event playing against as a computer-controlled opponent", top_score_targets[0x00], SportLookup[0x00]),
+        description = format("Score {0} or more points in {1} event playing against as a computer-controlled opponent", top_score_targets_string[element], SportLookup[element]),
         trigger = 
         (
             game_has_booted_up() &&
