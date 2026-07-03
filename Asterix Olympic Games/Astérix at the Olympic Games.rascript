@@ -830,15 +830,16 @@ achievement(
         game_has_booted_up() &&
         not_in_main_menu() &&
         (
-            coop_is_disabled() &&
-            combo_asterix >= 50 && prev(combo_asterix < 50)
+            (
+                coop_is_disabled() &&
+                combo_asterix >= 50 && prev(combo_asterix < 50)
+            )
+            ||
+            (
+                coop_is_enabled() &&
+                combo_obelix >= 50 && prev(combo_obelix < 50)
+            )
         )
-        &&
-        (
-            coop_is_enabled() &&
-            combo_obelix >= 50 && prev(combo_obelix < 50)
-        )
-
     )
 )
 
