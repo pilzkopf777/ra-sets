@@ -64,7 +64,7 @@ magnesia = ptr(statistics_base_address, [0x2D], byte)
 
 total_pigeons_left = 0
 for element in range(0x04, 0x1F4, 0x14) {
-    current_pidgeon_adr = ptr(dword(0x92889c), [0x84, element], dword)
+    current_pidgeon_adr = ptr(olympic_games_main_adr, [0x1d8, 0x65c, 0x84, element], dword)
     total_pigeons_left = total_pigeons_left + current_pidgeon_adr
 }
 pigeons = 50 - total_pigeons_left
@@ -72,8 +72,8 @@ pigeons = 50 - total_pigeons_left
 upgrades_unlocked = ptr(statistics_base_address, [0x3A], bitcount) + ptr(statistics_base_address, [0x3B], bitcount) // 9 in total
 movies_unlocked = ptr(statistics_base_address, [0x3C], bitcount) + ptr(statistics_base_address, [0x3D], bitcount) // 16 in total
 
-olympics_score_p1 = ptr(dword(0x6cbd00), [0x41C, 0x18C], dword)
-olympics_score_p2 = ptr(dword(0x6cbd00), [0x41C, 0x190], dword)
+olympics_score_p1 = ptr(olympic_games_main_adr, [0x41C, 0x18C], dword)
+olympics_score_p2 = ptr(olympic_games_main_adr, [0x41C, 0x190], dword)
 
 sport_time_left = ptr(olympic_games_main_adr, [0x4c8, 0x104], float)
 sport_countdown_time_left = ptr(olympic_games_main_adr, [0x4c8, 0xec], float)
@@ -113,6 +113,7 @@ function cutscene_started() {
 }
 
 // TODO: These values are not good at showing the actual prog, using the sliding val is not stable.
+// TODO: THESE NEED ANOTHER CLOSER LOOK, WRONG OFFSETS?
 music_box_goal = ptr(olympic_games_main_adr, [0x4C0, 0x164], byte)
 music_box_prog = ptr(olympic_games_main_adr, [0x04, 0x1A0, 0x92], byte)
 
@@ -656,13 +657,24 @@ target_float = 9.0
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x06]),
     points = 5,
-    description = format("Pass the javelin through {0} clouds in one throw in the Javelin throw event", target),
+    description = format("Pass the javelin through {0} clouds in one throw in the Javelin event", target),
     trigger = 
     (
         game_has_booted_up() &&
         not_in_main_menu() &&
         is_playing_sports() &&
-        current_sport == 0x06
+        current_sport == 0x06 &&
+        (
+            (
+                // p1
+                javelin_clouds_p1 == 9.0 && prev(javelin_clouds_p1 == 8.0)
+            ) ||
+            (
+                // p2
+                coop_is_enabled() &&
+                javelin_clouds_p2 == 9.0 && prev(javelin_clouds_p2 == 8.0)
+            )
+        )
     )
 )
 
@@ -686,7 +698,7 @@ achievement(
         // reset on lose
         never(sport_ended() && sport_p2_won) &&
         // reset on lose pts
-        never(music_box_prog < prev(music_box_prog))
+        never(music_box_prog < prev(music_box_prog)) // TODO: something wrong?
     )
 )
 
