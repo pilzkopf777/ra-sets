@@ -712,7 +712,7 @@ half_hp_val = 70.0
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x08]),
     points = 0,
-    description = format("Win against a computer-controlled opponent without dropping 70% of your health in the Chariot Race event"),
+    description = format("Win against a computer-controlled opponent without dropping below 70% of your health in the Chariot Race event"),
     trigger = 
     (
         (
@@ -768,7 +768,7 @@ in_sec = target / 50
 achievement(
     title = "Can Stop the Music",
     points = 10,
-    description = format("MUSIC BOX IN {0} SEC", in_sec),
+    description = format("Complete a Romanophone music box in {0} seconds or less", in_sec),
     type = "missable",
     trigger = 
     (
@@ -858,7 +858,7 @@ achievement(
 achievement(
     title = "Big Money",
     points = 10,
-    description = "Earn a multiplier of 40 or higher",
+    description = "Earn a helmet multiplier of 40 or higher",
     trigger = 
     (
         game_has_booted_up() &&
@@ -884,9 +884,9 @@ grabbed_shield_upg = max_hp - 12
 // 12 starting, 24 total = 12 to collect 
 
 achievement(
-    title = "HALF_SHIELD",
+    title = "Half the Battle",
     points = 5,
-    description = "Collect half of the upgrades",
+    description = "Collect half of the shield upgrades",
     trigger = 
     (
         game_has_booted_up() &&
@@ -896,7 +896,7 @@ achievement(
 )
 
 achievement(
-    title = "FULL_SHIELD",
+    title = "Feeling Complete",
     points = 10,
     description = "Collect all shield upgrades",
     trigger = 
@@ -910,7 +910,7 @@ achievement(
 achievement(
     title = "Sticky Situation",
     points = 5,
-    description = "Collect all glue",
+    description = "Collect all buckets of glue",
     trigger = 
     (
         game_has_booted_up() &&
@@ -922,7 +922,7 @@ achievement(
 achievement(
     title = "Chalk It Up to Luck",
     points = 5,
-    description = "Collect all magnesia",
+    description = "Collect all buckets of magnesia",
     trigger = 
     (
         game_has_booted_up() &&
