@@ -369,7 +369,7 @@ for element in sports_with_single_player_struct {
             not_in_main_menu() &&
             is_playing_sports() &&
             current_sport == element &&
-            sport_countdown_step >= 0x02 &&
+            sport_countdown_step >= 0x02 && sport_countdown_step <= 0x03 &&
             (
                 (
                     // if solo: only p1 counts
@@ -408,7 +408,7 @@ for element in sports_with_single_player_struct {
             not_in_main_menu() &&
             is_playing_sports() &&
             current_sport == element &&
-            sport_countdown_step >= 0x02 &&
+            sport_countdown_step >= 0x02 && sport_countdown_step <= 0x03 &&
             (
                 (
                     // if solo: only p1 counts
@@ -458,7 +458,7 @@ for element in sports_with_multi_player_struct {
             not_in_main_menu() &&
             is_playing_sports() &&
             current_sport == element &&
-            sport_countdown_step >= 0x02 &&
+            sport_countdown_step >= 0x02 && sport_countdown_step <= 0x03 &&
             (
                 (
                     // only solo is allowed, human is always p1
@@ -481,7 +481,7 @@ for element in sports_with_multi_player_struct {
             not_in_main_menu() &&
             is_playing_sports() &&
             current_sport == element &&
-            sport_countdown_step >= 0x02 &&
+            sport_countdown_step >= 0x02 && sport_countdown_step <= 0x03 &&
             (
                 (
                     // only solo is allowed, human is always p1
@@ -708,12 +708,10 @@ half_hp_val = 70.0
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x08]),
     points = 3,
-    description = format("Win against a computer-controlled opponent without dropping below 70% of your health in the Chariot Race event"),
+    description = format("Win against a computer-controlled opponent without dropping below 70% of your health in the Chariot Race event in the Olympic Games"),
     trigger = 
     (
-        (
-            current_sport == 0x08 || current_location == 0x06
-        ) &&
+        current_sport == 0x08 && current_location != 0x06 &&
         game_has_booted_up() &&
         never(!not_in_main_menu()) &&
         never(current_location == 0xffffffff) &&
