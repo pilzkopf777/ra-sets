@@ -451,7 +451,7 @@ for element in sports_with_multi_player_struct {
     achievement(
         title = format("{0}", SportCheevoNames[element]),
         points = 10,
-        description = format("Score {0} or more points in {1} event playing against as a computer-controlled opponent", top_score_targets_string[element], SportLookup[element]),
+        description = format("Score {0} or more points in {1} event playing against a computer-controlled opponent", top_score_targets_string[element], SportLookup[element]),
         trigger = 
         (
             game_has_booted_up() &&
