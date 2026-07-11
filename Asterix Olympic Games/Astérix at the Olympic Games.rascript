@@ -369,7 +369,7 @@ for element in sports_with_single_player_struct {
             not_in_main_menu() &&
             is_playing_sports() &&
             current_sport == element &&
-            sport_countdown_step == 0x02 &&
+            sport_countdown_step >= 0x02 &&
             (
                 (
                     // if solo: only p1 counts
@@ -408,7 +408,7 @@ for element in sports_with_single_player_struct {
             not_in_main_menu() &&
             is_playing_sports() &&
             current_sport == element &&
-            sport_countdown_step == 0x02 &&
+            sport_countdown_step >= 0x02 &&
             (
                 (
                     // if solo: only p1 counts
@@ -458,7 +458,7 @@ for element in sports_with_multi_player_struct {
             not_in_main_menu() &&
             is_playing_sports() &&
             current_sport == element &&
-            sport_countdown_step == 0x02 &&
+            sport_countdown_step >= 0x02 &&
             (
                 (
                     // only solo is allowed, human is always p1
@@ -481,7 +481,7 @@ for element in sports_with_multi_player_struct {
             not_in_main_menu() &&
             is_playing_sports() &&
             current_sport == element &&
-            sport_countdown_step == 0x02 &&
+            sport_countdown_step >= 0x02 &&
             (
                 (
                     // only solo is allowed, human is always p1
