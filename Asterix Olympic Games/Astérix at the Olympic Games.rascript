@@ -112,8 +112,6 @@ function cutscene_started() {
     return ptr(cutscene_main_adr, [0x0C], dword) == 0x01 && prev(ptr(cutscene_main_adr, [0x0C], dword) == 0x00)
 }
 
-// TODO: These values are not good at showing the actual prog, using the sliding val is not stable.
-// TODO: THESE NEED ANOTHER CLOSER LOOK, WRONG OFFSETS?
 music_box_goal = ptr(olympic_games_main_adr, [0x4C0, 0x164], byte)
 music_box_prog = ptr(olympic_games_main_adr, [0x04, 0x1A0, 0x92], byte)
 
@@ -354,7 +352,7 @@ SportSpecialCheevoNames = {
     0x05: "Nailed It",
     0x06: "Cloud Nine",
     0x07: "Hitting All the Right Notes",
-    0x08: "Driving Without Insurance?"
+    0x08: "Driving Without Insurance"
 }
 
 // Sports where single player at a time
@@ -678,8 +676,6 @@ achievement(
     )
 )
 
-// MUSIC: no wrong note? -> TODO
-
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x07]),
     points = 2,
@@ -698,7 +694,7 @@ achievement(
         // reset on lose
         never(sport_ended() && sport_p2_won) &&
         // reset on lose pts
-        never(music_box_prog < prev(music_box_prog)) // TODO: something wrong?
+        never(music_box_prog < prev(music_box_prog))
     )
 )
 
@@ -711,7 +707,7 @@ half_hp_val = 70.0
 // CHARIOT: HP?
 achievement(
     title = format("{0}", SportSpecialCheevoNames[0x08]),
-    points = 0,
+    points = 3,
     description = format("Win against a computer-controlled opponent without dropping below 70% of your health in the Chariot Race event"),
     trigger = 
     (
@@ -762,13 +758,13 @@ achievement(
 
 
 // FAST MUSIC BOX
-target = 1800
+target = 800
 in_sec = target / 50
 
 achievement(
     title = "Can Stop the Music",
     points = 10,
-    description = format("Complete a Romanophone music box in {0} seconds or less", in_sec),
+    description = format("Complete a Romanophone music box outside of the Olympic Games events in {0} seconds or less", in_sec),
     type = "missable",
     trigger = 
     (
