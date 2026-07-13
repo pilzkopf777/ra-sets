@@ -440,7 +440,7 @@ for element in sports_with_single_player_struct {
             // p2 in coop
             measured(olympics_score_p2, when=coop_is_enabled() && what_player_score_shown == 0x01)
         ),
-        format = "VALUE", lower_is_better = true
+        format = "VALUE", lower_is_better = false
     )
 }
 
@@ -497,7 +497,7 @@ for element in sports_with_multi_player_struct {
             // score
             measured(olympics_score_p1)
         ),
-        format = "VALUE", lower_is_better = true
+        format = "VALUE", lower_is_better = false
     )
 }
 
@@ -867,9 +867,11 @@ achievement(
     description = "Purchase all moves",
     trigger = 
     (
+        (
+            current_location == 0x02 || current_location == 0x07
+        ) &&
         game_has_booted_up() &&
         not_in_main_menu() &&
-        current_location == 0x02 &&
         measured(upgrades_unlocked == 9) && prev(upgrades_unlocked == 8)
     )
 )
