@@ -105,7 +105,7 @@ achievement(
         never(dword(0x001ed900) == 0x04) &&
         once(p1_laps_completed == 0xffff) &&
         p1_car == 0x04 &&
-        p1_lap_time < time_limit &&
+        prev(p1_lap_time) < time_limit &&
         trigger_when(p1_laps_completed == prev(p1_laps_completed + 1)) &&
         track_data
     )
