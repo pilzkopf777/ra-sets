@@ -496,7 +496,7 @@ function on_title() {
 }
 
 function on_results() {
-    return time_data.get_current_time() == 6300 && time_data.time_paused() && time_data.get_report_value() == 0 &&
+    return time_data.get_current_time() >= 6300 && time_data.time_paused() && time_data.get_report_value() == 0 &&
     event_flags["game_clear"] == 1
 }
 
@@ -531,6 +531,27 @@ achievement(
         event_flags["cp2_done"] == 1 && prev(event_flags["cp2_done"] == 0)
 )
 
+// A = 0x41
+// S = 0x53
+char1 = byte(0x00434911)
+char2 = byte(0x00434913)
+char3 = byte(0x00434915)
+char4 = byte(0x00434917)
+save_anti_check = char3 != 0x76 // is char "v" from "Save"
+
+function final_rank_is_a() {
+    return char1 == 0x41 && save_anti_check || char1 == 0x53 && save_anti_check
+}
+
+function final_rank_is_sss() {
+    return char1 == 0x53 && char2 == 0x53 && char3 == 0x53 && save_anti_check
+}
+
+function text_went_from_staff_to_res() {
+    return prev(char1 == 0x53 && char2 == 0x54 && char3 == 0x41 && char4 == 0x46) &&
+           char4 == 0x00 && save_anti_check
+}
+
 achievement(
     title = "Empire of Old",
     points = 10,
@@ -550,7 +571,7 @@ achievement(
         // Pops on Kingdom Scores screen
         never(on_title()) &&
         event_flags["game_clear"] == 1 &&
-        repeated(85, time_data.get_current_time() == 6300)
+        repeated(75, char4 == 0x00 && save_anti_check && time_data.get_current_time() == prev(time_data.get_current_time()))
 )
 
 
@@ -565,7 +586,7 @@ for diff in difficulty_map {
         (
             never(on_title()) &&
             event_flags["game_clear"] == 1 &&
-            repeated(85, time_data.get_current_time() == 6300) &&
+            repeated(75, time_data.get_current_time() == 6300) &&
             (
                 (
                     // US DLC
@@ -600,21 +621,6 @@ for diff in difficulty_map {
 }
 */
 
-// A = 0x41
-// S = 0x53
-char1 = byte(0x00434911)
-char2 = byte(0x00434913)
-char3 = byte(0x00434915)
-save_anti_check = char3 != 0x76 // is char "v" from "Save"
-
-function final_rank_is_a() {
-    return char1 == 0x41 && save_anti_check || char1 == 0x53 && save_anti_check
-}
-
-function final_rank_is_sss() {
-    return char1 == 0x53 && char2 == 0x53 && char3 == 0x53 && save_anti_check
-}
-
 achievement(
     title = "First-Class Governance",
     points = 10,
@@ -625,7 +631,7 @@ achievement(
         never(on_title()) &&
         event_flags["game_clear"] == 1 &&
         final_rank_is_a() &&
-        repeated(85, time_data.get_current_time() == 6300)
+        repeated(75, char4 == 0x00 && save_anti_check && time_data.get_current_time() == prev(time_data.get_current_time()))
 )
 
 achievement(
@@ -638,7 +644,7 @@ achievement(
         never(on_title()) &&
         event_flags["game_clear"] == 1 &&
         final_rank_is_sss() &&
-        repeated(85, time_data.get_current_time() == 6300)
+        repeated(75, char4 == 0x00 && save_anti_check && time_data.get_current_time() == prev(time_data.get_current_time()))
 )
 
 achievement(
@@ -650,7 +656,7 @@ achievement(
         // Pops on Credits roll
         never(on_title()) &&
         event_flags["game_clear"] == 1 &&
-        repeated(85, time_data.get_current_time() == 6300) &&
+        repeated(75, char4 == 0x00 && save_anti_check && time_data.get_current_time() == prev(time_data.get_current_time())) &&
         (
             (
                 // US DLC
