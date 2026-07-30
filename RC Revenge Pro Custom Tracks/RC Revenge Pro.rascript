@@ -95,7 +95,7 @@ time_limit = 48000
 achievement(
     title = "Need for Seed",
     points = 10,
-    description = "In a Time Trial, complete a lap in less than 0:48.0 using the RC Action on Pilzkopf's track, \"Haywire\"",
+    description = "Beat the Target Time of 48.0 on Pilzkopf's track: \"Haywire\" using the \"RC Action\"",
     set = achievementsetradevtracks,
     trigger =
     (
@@ -106,6 +106,7 @@ achievement(
         once(p1_laps_completed == 0xffff) &&
         p1_car == 0x04 &&
         prev(p1_lap_time) < time_limit &&
+        prev(p1_lap_time) > 0 &&
         trigger_when(p1_laps_completed == prev(p1_laps_completed + 1)) &&
         track_data
     )
@@ -113,12 +114,13 @@ achievement(
 
 leaderboard(
     title = "Haywire - Time Trial - Single Lap",
-    description = "In a Time Trial, complete a lap as quickly as possible on Pilzkopf's track, \"Haywire\"",
+    description = "Best Single Lap time on Pilzkopf's track: \"Haywire\" using the \"RC Action\"",
     set = achievementsetradevtracks,
     start = 
     (
         race_type == 0x100001FE &&
         level_id == 0x61 &&
+        prev(p1_lap_time) > 0 &&
         p1_laps_completed == prev(p1_laps_completed + 1) &&
         track_data
     ),
@@ -131,7 +133,7 @@ leaderboard(
 achievement(
     title = "By a Country Mile",
     points = 5,
-    description = "In a Single Race, finish in first place on Pilzkopf's track, \"Haywire\"",
+    description = "Come in 1st place on Pilzkopf's track: \"Haywire\"",
     set = achievementsetradevtracks,
     trigger =
     (
@@ -146,7 +148,7 @@ achievement(
 
 leaderboard(
     title = "Haywire - Single Race",
-    description = "In a Single Race, complete three laps as quickly as possible on Pilzkopf's track, \"Haywire\"",
+    description = "Best 3 Lap Race time on Pilzkopf's track: \"Haywire\" using the \"RC Action\"",
     set = achievementsetradevtracks,
     start = 
     (
