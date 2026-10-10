@@ -708,17 +708,38 @@ for objective_count in range(0, obj_solo_data["Geometry"]["total"] - 1, 1) {
     )
 }
 
+function get_current_zone() {
+    return dword(0x002b2e5c)
+}
+
 achievement(
     title = "Jungle Tour",
     points = 10,
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Biology A"),
     trigger = 
-        !in_main_menu() &&
-        in_original_mode() &&
-        get_original_mode_table() == 00 &&
-        // trigger as cutscene ends
-        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
+        never(!in_original_mode()) &&
+        never(get_original_mode_table() != 00) &&
+        // Player entered Zero Gravity while unlocking table
+        once(
+            !in_main_menu() && get_current_zone() == 0xffffffff && prev(byte(0x0044919c) == 0x00) && byte(0x0044919c) == 0x02
+        ) &&
+        (
+            (
+                // Option 1: Regular clear
+                prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
+            )
+            ||
+            (
+                // Option 2: Game Over / Quit level
+                prev(!in_main_menu()) && in_main_menu()
+            )
+            ||
+            (
+                // Option 3: Return to main play area, no bonus
+                prev(get_current_zone() == 0x0e) && get_current_zone() == 0x18
+            )
+        )
 )
 
 achievement(
