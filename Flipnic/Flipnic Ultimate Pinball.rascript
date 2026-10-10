@@ -712,17 +712,22 @@ function get_current_zone() {
     return dword(0x002b2e5c)
 }
 
-achievement(
-    title = "Jungle Tour",
-    points = 10,
-    type = "progression",
-    description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Biology A"),
-    trigger = 
+evo_a_unlock_status = byte(0x0044919c) // after bio 1
+evo_b_unlock_status = byte(0x0044919e) // after metal 1
+evo_c_unlock_status = byte(0x004491a0) // after optics 1
+mtl_b_unlock_status = byte(0x004491a2) // after bio 2
+opc_b_unlock_status = byte(0x004491a3) // after metal 2
+geo_a_unlock_status = byte(0x004491a4) // after optics 2
+evo_d_unlock_status = byte(0x004491a5) // after geometry 1
+
+
+function table_unlock_logic(table_unlock_status_obj, table_id, flag_trigger_zone, zero_grav_zone_id, return_zone_id) {
+    return (
         never(!in_original_mode()) &&
-        never(get_original_mode_table() != 00) &&
+        never(get_original_mode_table() != table_id) &&
         // Player entered Zero Gravity while unlocking table
         once(
-            !in_main_menu() && get_current_zone() == 0xffffffff && prev(byte(0x0044919c) == 0x00) && byte(0x0044919c) == 0x02
+            !in_main_menu() && get_current_zone() == flag_trigger_zone && prev(table_unlock_status_obj == 0x00) && table_unlock_status_obj == 0x02
         ) &&
         (
             (
@@ -737,9 +742,19 @@ achievement(
             ||
             (
                 // Option 3: Return to main play area, no bonus
-                prev(get_current_zone() == 0x0e) && get_current_zone() == 0x18
+                prev(get_current_zone() == zero_grav_zone_id) && get_current_zone() == return_zone_id
             )
         )
+    )
+}
+
+achievement(
+    title = "Jungle Tour",
+    points = 10,
+    type = "progression",
+    description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Biology A"),
+    trigger = 
+        table_unlock_logic(evo_a_unlock_status, 00, 0xffffffff, 0x0e, 0x18)
 )
 
 achievement(
@@ -761,11 +776,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Metallurgy A"),
     trigger = 
-        !in_main_menu() &&
-        in_original_mode() &&
-        get_original_mode_table() == 10 &&
-        // trigger as cutscene ends
-        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
+        table_unlock_logic(evo_b_unlock_status, 10, 0x16, 0x22, 0x16)
 )
 
 achievement(
@@ -787,11 +798,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Optics A"),
     trigger = 
-        !in_main_menu() &&
-        in_original_mode() &&
-        get_original_mode_table() == 20 &&
-        // trigger as cutscene ends
-        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
+        table_unlock_logic(evo_c_unlock_status, 20, 0x26, 0x27, 0x26)
 )
 
 achievement(
@@ -814,11 +821,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Biology B"),
     trigger = 
-        !in_main_menu() &&
-        in_original_mode() &&
-        get_original_mode_table() == 02 &&
-        // trigger as cutscene ends
-        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
+        table_unlock_logic(mtl_b_unlock_status, 02, 0xffffffff, 0x0e, 0x18)
 )
 
 achievement(
@@ -827,11 +830,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Metallurgy B"),
     trigger = 
-        !in_main_menu() &&
-        in_original_mode() &&
-        get_original_mode_table() == 12 &&
-        // trigger as cutscene ends
-        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
+        table_unlock_logic(opc_b_unlock_status, 12, 0x16, 0x22, 0x16)
 )
 
 achievement(
@@ -840,11 +839,7 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Optics B"),
     trigger = 
-        !in_main_menu() &&
-        in_original_mode() &&
-        get_original_mode_table() == 22 &&
-        // trigger as cutscene ends
-        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
+        table_unlock_logic(geo_a_unlock_status, 22, 0x26, 0x27, 0x26)
 )
 
 achievement(
@@ -853,12 +848,23 @@ achievement(
     type = "progression",
     description = format("In Original Mode on {0}, complete the main objectives and unlock the next table", "Geometry A"),
     trigger = 
-        !in_main_menu() &&
-        in_original_mode() &&
-        get_original_mode_table() == 30 &&
-        // trigger as cutscene ends
-        prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
-)
+        // Slightly different timing here..
+        (
+            in_original_mode())&&
+            get_original_mode_table() == 30 &&
+            (
+                (
+                    // Option 1: Regular clear
+                    prev(check_if_matching_cutscene_is_playing("NEXT_STAGE")) && check_if_no_cutscene_playing()
+                )
+                ||
+                (
+                    // Option 2: Game Over / Flag updates on swapping back to 0x02 table section
+                    get_current_zone() == 0x02 && prev(evo_d_unlock_status == 0x00) && evo_d_unlock_status >= 0x02
+                )
+            )
+        )
+
 
 // Table clear final boss (on credits)
 achievement(
