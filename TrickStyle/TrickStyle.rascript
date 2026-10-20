@@ -23,14 +23,10 @@ function ptr(base, offsets, accessor=tbyte)
     return val
 }
 
-map_id = dword(0x6c4f80)
-
+map_id = ptr(tbyte(0x11b890), [0x00], dword)
 checkpoint_count = ptr(tbyte(0x6c5b3c), [0x01a8], dword)
-
 victory_state = ptr(tbyte(0x6c5b3c), [0x2e0], dword)
-
 time_left = ptr(tbyte(0x6c5b3c), [0x22c], float)
-
 countdown_state = dword(0x135804)
 
 function race_ended() {
@@ -41,12 +37,38 @@ function credits_started() {
     return float(0x0ed4f4) > 0.1 && prev(float(0x0ed4f4) <= 0.1)
 }
 
+main_menu_state = dword(0x0ef4b0)
+title_screen_anim_timer = float(0x0ef4b4)
+player_count = dword(0x0efe5c)
+
+function in_demo() {
+    return player_count == 0x00 && main_menu_state == 0x00
+}
+
+function on_the_title_screen() {
+    return main_menu_state == 0x02 || main_menu_state == 0x01
+}
+
+function in_main_menu() {
+    return main_menu_state == 0x03
+}
+
+function in_gameplay() {
+    return !on_the_title_screen() && !in_demo() && !in_main_menu()
+}
+
 map_map = {
-    0x01: "Velodrome",
+    0x01: "the Velodrome",
+    0x02: "the Velodrome", // Tutorial
+    0x03: "the Velodrome",
+    0x04: "the Velodrome",
+    0x05: "the Velodrome",
+    0x06: "the Velodrome",
     0x15: "UK Race 1",
     0x16: "UK Race 2",
     0x17: "UK Race 3",
     0x18: "UK Race 4",
+    0x19: "UK Race 5",
     0x1B: "Stuntbowl UK",
     0x1F: "USA Race 1",
     0x20: "USA Race 2",
@@ -65,6 +87,14 @@ map_map = {
     0x09: "Magno Race 1",
 }
 
+time_trial_targets = {
+    0x15: 0, // 01:14:00
+    0x16: 0, // 01:20:00
+    0x17: 0, // 01:35:00
+    0x18: 0, // 01:19:00
+    0x19: 100.0 // 01:40:00
+}
+
 char_map = {
     0x01: "Angel",
     0x02: "Brad",
@@ -78,9 +108,10 @@ char_map = {
 }
 
 board_map = {
-    0x00: "Rookie Board",
-    0x01: "Turbo Board",
-    0x03: "Combat Board"
+    0x00: "Rookie",
+    0x01: "Turbo",
+    0x02: "Stunt",
+    0x03: "Combat"
 }
 
 class PlayerObject {
@@ -89,36 +120,36 @@ class PlayerObject {
         return byte(0x143c78)
     }
 
-    funciton get_board() {
+    function get_board() {
         return byte(0x143c79)
     }
 
     function get_x() {
-        return ptr(tbyte(0x6c5b3c), [0xAC, 0x2C, 0x04, 0x40], float)
+        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0xAC, 0x2C, 0x04, 0x40], float)
     }
 
     function get_y() {
-        return ptr(tbyte(0x6c5b3c), [0xAC, 0x2C, 0x04, 0x44], float)
+        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0xAC, 0x2C, 0x04, 0x44], float)
     }
 
     function get_z() {
-        return ptr(tbyte(0x6c5b3c), [0xAC, 0x2C, 0x04, 0x48], float)
+        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0xAC, 0x2C, 0x04, 0x48], float)
     }
 
     function get_race_pos() {
-        return ptr(tbyte(0x6c5b3c), [0x238], dword)
+        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0x238], dword)
     }
 
     function get_trick() {
-        return ptr(tbyte(0x6c5b3c), [0x2E8], dword)
+        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0x2E8], dword)
     }
 
     function get_score() {
-        return ptr(tbyte(0x6c5b3c), [0x3A8], dword)
+        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0x3A8], dword)
     }
 
     function get_time_spent() {
-        return ptr(tbyte(0x6c5b3c), [0x230], float) 
+        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0x3A8], float) 
     }
 
     function entered_area(x1, x2, y1, y2, z1, z2) {
@@ -207,3 +238,20 @@ achievement(
     )
 
 )
+
+
+
+// RP
+
+rich_presence_conditional_display(on_the_title_screen() || in_demo(), "On the Title Screen")
+
+rich_presence_conditional_display(in_main_menu(), "In the Main Menu")
+
+rich_presence_conditional_display(in_gameplay(), "{0} is competing in {1} on the {2} board", // Challenges completed: {3}
+    rich_presence_lookup("Player", player.get_char(), char_map, fallback="Unknown character"),
+    rich_presence_lookup("Map", map_id, map_map, fallback="Unknown map"),
+    rich_presence_lookup("Board", player.get_board(), board_map, fallback="Unknown board")
+    //rich_presence_value("ChallengeCount", ...(), "VALUE")
+)
+
+rich_presence_display("Playing TrickStyle")
