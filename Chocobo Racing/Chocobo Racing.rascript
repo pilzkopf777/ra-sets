@@ -47,6 +47,10 @@ function handicap_p2_off() {
     return bit3(0x1e929a) == 0x01
 }
 
+function game_init() {
+    return byte(0x08d5b7) == 0x04
+}
+
 array_of_gp_config_maps = [byte(0x07ae3c), byte(0x07ae3d), byte(0x07ae3e), byte(0x07ae3f)]
 
 function gp_contains_requested_maps(requested_maps_array) {
@@ -489,12 +493,8 @@ achievement(
 
 
 // RP
-
-rich_presence_conditional_display(on_title_screen() || in_demo(), "On the Title Screen")
-rich_presence_conditional_display(in_main_menu() || !in_race(), "In the Main Menu")
-
 rp_adjusted_mode_map = {
-    0x01: "in Story Mode",
+    0x01: "in the Story Mode",
     0x02: "in a Time Attack",
     0x03: "in a Grand Prix",
     0x04: "in a VS Race",
@@ -514,8 +514,10 @@ rp_adjusted_track_map = {
     0x09: "on F.F.VIII Circuit"
 }
 
+rich_presence_conditional_display(on_title_screen() || in_demo() || !game_init(), "On the Title Screen")
+
 rich_presence_conditional_display(in_race() && playing_solo(), "{0} is {1} {2}",
-    rich_presence_lookup("Player", p1_char, character_map, fallback="An unknown character"),
+    rich_presence_lookup("Player1", p1_char, character_map, fallback="An unknown character"),
     rich_presence_lookup("Mode", current_mode, rp_adjusted_mode_map, fallback="in an unknown mode"),
     rich_presence_lookup("Track", track, rp_adjusted_track_map, fallback="on an unknown race track")
 )
@@ -527,7 +529,9 @@ rich_presence_conditional_display(in_race() && playing_vs(), "{0} and {1} are {2
     rich_presence_lookup("Track", track, rp_adjusted_track_map, fallback="on an unknown race track")
 )
 
-rich_presence_display("Playing Chocobo Racing")
+// rich_presence_conditional_display(in_main_menu(), "In the Main Menu")
+
+rich_presence_display("In the Main Menu")
 
 
 
