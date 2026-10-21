@@ -23,12 +23,17 @@ function on_title_screen() {
     return byte(0x08d761) == 0x01
 }
 
-function in_main_menu() {
+function in_mode_select() {
     return byte(0x08d5b6) == 0x01
 }
 
+function on_any_main_menu_screen() {
+    return word(0x07afb2) == 0x00
+}
+
 function in_race() {
-    return byte(0x07afec) == 0x00
+    // return byte(0x07afec) == 0x00
+    return word(0x07afb2) == 0x8010
 }
 
 function story_mode_score_revealed() {
@@ -40,11 +45,11 @@ function finished_race() {
 }
 
 function handicap_p1_off() {
-    return bit2(0x1e929a) == 0x01
+    return bit2(0x1e929a) == 0x00
 }
 
 function handicap_p2_off() {
-    return bit3(0x1e929a) == 0x01
+    return bit3(0x1e929a) == 0x00
 }
 
 function game_init() {
@@ -190,7 +195,7 @@ for count in range(0, 7, 1) {
     achievement(
         title = chapter_metadata["name"],
         points = chapter_metadata["pts"],
-        description = format("Complete the {0} chapter of Story mode without using the handicap", chapter_metadata["chapter_string"]),
+        description = format("Complete the {0} chapter of Story Mode without using the handicap", chapter_metadata["chapter_string"]),
         trigger = (
             story_chapter_done(count + 1) &&
             current_mode == 0x01 &&
@@ -494,11 +499,12 @@ achievement(
 
 // RP
 rp_adjusted_mode_map = {
-    0x01: "in the Story Mode",
+    0x01: "in Story Mode",
     0x02: "in a Time Attack",
     0x03: "in a Grand Prix",
     0x04: "in a VS Race",
     0x05: "in a Relay Race",
+    0x09: "in a Test Run"
 }
 
 rp_adjusted_track_map = {
@@ -516,6 +522,11 @@ rp_adjusted_track_map = {
 
 rich_presence_conditional_display(on_title_screen() || in_demo() || !game_init(), "On the Title Screen")
 
+// Normally display race data but for Story Mode there's an exception:
+rich_presence_conditional_display(current_mode == 0x01 && !in_race(), "Watching a cutscene in Story Mode")
+
+rich_presence_conditional_display(on_any_main_menu_screen(), "In the Main Menu")
+
 rich_presence_conditional_display(in_race() && playing_solo(), "{0} is {1} {2}",
     rich_presence_lookup("Player1", p1_char, character_map, fallback="An unknown character"),
     rich_presence_lookup("Mode", current_mode, rp_adjusted_mode_map, fallback="in an unknown mode"),
@@ -529,9 +540,7 @@ rich_presence_conditional_display(in_race() && playing_vs(), "{0} and {1} are {2
     rich_presence_lookup("Track", track, rp_adjusted_track_map, fallback="on an unknown race track")
 )
 
-// rich_presence_conditional_display(in_main_menu(), "In the Main Menu")
-
-rich_presence_display("In the Main Menu")
+rich_presence_display("Playing Chocobo Racing")
 
 
 
