@@ -8,8 +8,8 @@ p1_char = byte(0x08c02d)
 p2_char = byte(0x08c05d)
 p1_abl = byte(0x08c02c)
 p2_abl = byte(0x08c05c)
-gp_pts_p1 = byte(0x08c028)
-gp_pts_p2 = 0
+first_place_gp_score = byte(0x08d2ac)
+first_place_gp_char = byte(0x08d2b0)
 race_time = dword(0x07b044)
 goal_lap_count = byte(0x07ae36)
 team_comp_definition = byte(0x08d752)
@@ -41,7 +41,23 @@ function story_mode_score_revealed() {
 }
 
 function finished_race() {
-    return prev(byte(0x07afca) == 0x00) && byte(0x07afca) == 0x01
+    return prev(byte(0x07b048) == 0x03) && byte(0x07b048) == 0x04
+}
+
+function custom_char_p1() {
+    return p1_char != byte(0x08c033)
+}
+
+function base_char_p1() {
+    return p1_char == byte(0x08c033)
+}
+
+function custom_char_p2() {
+    return p2_char != byte(0x08c063)
+}
+
+function base_char_p2() {
+    return p2_char == byte(0x08c063)
 }
 
 function handicap_p1_off() {
@@ -56,16 +72,23 @@ function game_init() {
     return byte(0x08d5b7) == 0x04
 }
 
+function ending_cutscene_ended() {
+    return current_mode == 0x09 && prev(current_mode == 0x01) && track == 0x08 && byte(0x07ae18) == 0x01
+}
+
+// player map selection
 array_of_gp_config_maps = [byte(0x07ae3c), byte(0x07ae3d), byte(0x07ae3e), byte(0x07ae3f)]
 
-function gp_contains_requested_maps(requested_maps_array) {
-    final_cond = always_true()
-
-    for req_map in requested_maps_array {
-        final_cond = final_cond && array_contains(array_of_gp_config_maps, req_map)
-    }
-
-    return final_cond
+function gp_contains_requested_map(requested_map) {
+    return once(
+        in_race() &&
+        (
+            array_of_gp_config_maps[0] == requested_map ||
+            array_of_gp_config_maps[1] == requested_map ||
+            array_of_gp_config_maps[2] == requested_map ||
+            array_of_gp_config_maps[3] == requested_map
+        )
+    ) 
 }
 
 story_mode_intermission_prog = byte(0x07b0a0)
@@ -85,6 +108,10 @@ function playing_vs() {
 
 function only_watching() {
     return team_comp_definition == 0x02
+}
+
+function gp_scores_revealed() {
+    return byte(0x08d78c) == 0x82 && prev(byte(0x08d78c) < 0x82)
 }
 
 mode_map = {
@@ -188,6 +215,44 @@ story_prog_data = {
 }
 
 
+for current_track in track_map {
+    // track is key, track_map[key] is value
+
+
+    leaderboard(
+        title = format("Time Attack: {0} (Standard Character)", track_map[current_track]),
+        description = format("Reach the goal as quickly as possible on {0} with any regular character", track_map[current_track]),
+        start = 
+        (
+            in_race() && finished_race() && base_char_p1() && track == current_track
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            race_time * 2
+        ),
+        format = "FRAMES", lower_is_better = true
+    )
+
+    leaderboard(
+        title = format("Time Attack: {0} (Custom Character)", track_map[current_track]),
+        description = format("Reach the goal as quickly as possible on {0} with any custom character", track_map[current_track]),
+        start = 
+        (
+            in_race() && finished_race() && custom_char_p1() && track == current_track
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            race_time * 2
+        ),
+        format = "FRAMES", lower_is_better = true
+    )
+}
+
+
 // Story mode prog (except final)
 for count in range(0, 7, 1) {
     chapter_metadata = story_prog_data[count]
@@ -204,13 +269,19 @@ for count in range(0, 7, 1) {
     )
 }
 
-// TODO: Final Chapter
-
+achievement(
+    title = "The Domain of the Gods",
+    points = 25,
+    description = "Complete the final chapter of Story Mode without using the handicap and watch the end credits",
+    trigger = (
+        ending_cutscene_ended()
+    )
+)
 
 achievement(
     title = "Racing Perfection",
     points = 25,
-    description = "Obtain a perfect 100 points score on the Story Mode.",
+    description = "Obtain a perfect score of 100 points score in Story Mode",
     id = 83626,
     trigger = (
         current_mode == 0x09 &&
@@ -219,23 +290,39 @@ achievement(
     )
 )
 
-
+// TODO: OR P2
 achievement(
-    title = "Star Breed", // TODO
+    title = "Star Breed",
     points = 25,
-    description = "Get a perfect 36 points in a Grand Prix with Vulcan-O Valley, Fantasia and F.F.VIII Circuit in the rotation.",
+    description = "Score a perfect 36 points in a Grand Prix with Vulcan-O Valley, Fantasia and F.F.VIII Circuit in rotation",
     id = 83554,
     trigger = (
-        always_false()
+        gp_contains_requested_map(0x07) &&
+        gp_contains_requested_map(0x08) &&
+        gp_contains_requested_map(0x09) &&
+        prev(in_race()) && in_race() &&
+        never(on_any_main_menu_screen() && byte(0x07afec) != 0x0b) &&
+        gp_scores_revealed() &&
+        // ID matches last track
+        byte(0x07ae3f) == track && 
+        p1_char == first_place_gp_char
     )
 )
 
-
+// TODO: OR P2
 achievement(
-    title = "Pro Racer", points = 10,
-    description = "Get a perfect 36 points in Grand Prix.",
-    id = 83553, badge = "90639", published = "16/09/2019 02:22:23", modified = "25/04/2022 01:59:26",
-    trigger = once(byte(0x096868) == 3) && byte(0x07AE38) == 3 && byte(0x08C028) == 36
+    title = "Pro Racer",
+    points = 10,
+    description = "Score a perfect 36 points in a Grand Prix",
+    id = 83553,
+    trigger = (
+        prev(in_race()) && in_race() &&
+        !on_any_main_menu_screen() && byte(0x07afec) == 0x0b &&
+        gp_scores_revealed() &&
+        // ID matches last track
+        byte(0x07ae3f) == track && 
+        p1_char == first_place_gp_char
+    )
 )
 
 achievement(
