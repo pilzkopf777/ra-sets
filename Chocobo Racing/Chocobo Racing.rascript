@@ -221,7 +221,7 @@ for current_track in track_map {
 
     leaderboard(
         title = format("Time Attack: {0} (Standard Character)", track_map[current_track]),
-        description = format("Reach the goal as quickly as possible on {0} with any regular character", track_map[current_track]),
+        description = format("Reach the goal as quickly as possible in a Time Attack on {0} with any regular character", track_map[current_track]),
         start = 
         (
             in_race() && finished_race() && base_char_p1() && track == current_track
@@ -237,7 +237,7 @@ for current_track in track_map {
 
     leaderboard(
         title = format("Time Attack: {0} (Custom Character)", track_map[current_track]),
-        description = format("Reach the goal as quickly as possible on {0} with any custom character", track_map[current_track]),
+        description = format("Reach the goal as quickly as possible in a Time Attack on {0} with any custom character", track_map[current_track]),
         start = 
         (
             in_race() && finished_race() && custom_char_p1() && track == current_track
