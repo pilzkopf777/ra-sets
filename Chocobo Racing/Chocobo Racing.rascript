@@ -1,6 +1,26 @@
 // Chocobo Racing
 // #ID = 11352
 
+function ptr(base, offsets, accessor=tbyte)
+{
+    val = base
+
+    for i in range(0, length(offsets) - 1)
+    {
+        addr = val + offsets[i]
+        if (i == length(offsets) - 1)
+        {
+            val = accessor(addr)
+        }
+        else
+        {
+            val = tbyte(addr)
+        }
+    }
+    
+    return val
+}
+
 current_mode = byte(0x07ae38)
 track = byte(0x07afa8)
 story_score = byte(0x08d759)
@@ -13,6 +33,8 @@ first_place_gp_char = byte(0x08d2b0)
 race_time = dword(0x07b044)
 goal_lap_count = byte(0x07ae36)
 team_comp_definition = byte(0x08d752)
+
+p1_race_pos = ptr(tbyte(0x08d32c), [0x27A], byte)
 
 function in_demo() {
     return byte(0x07afab) == 0x01
@@ -214,17 +236,84 @@ story_prog_data = {
     },
 }
 
+old_relay_cheevo_id_map = {
+    0x00: 83566,
+    0x01: 83567,
+    0x02: 83568,
+    0x03: 83569,
+    0x04: 83570,
+    0x05: 83571,
+    0x06: 83572,
+    0x07: 83573,
+    0x08: 83574,
+    0x09: 83575
+}
+
+time_trial_target = {
+    0x00: 0,
+    0x01: 0,
+    0x02: 0,
+    0x03: 0,
+    0x04: 0,
+    0x05: 0,
+    0x06: 0,
+    0x07: 0,
+    0x08: 0,
+    0x09: 0
+}
+
+track_cheevo_names = {
+    0x00: {
+        "timetrial": "Experimenting with Efficiency",
+        "relay": "Test Track Tag Team",
+    },
+    0x01: {
+        "timetrial": "Kupo de Grace",
+        "relay": "Pass the Branch",
+    },
+    0x02: {
+        "timetrial": "The Tides of Time",
+        "relay": "The Flow of Time",
+    },
+    0x03: {
+        "timetrial": "Mettle of Mythril",
+        "relay": "All Terrain Triumph",
+    },
+    0x04: {
+        "timetrial": "Haunting Hour",
+        "relay": "The Three Haunted Racers",
+    },
+    0x05: {
+        "timetrial": "Terrace of Eternity",
+        "relay": "The Scenic Route",
+    },
+    0x06: {
+        "timetrial": "Intermittent Fasting",
+        "relay": "Sweet, Sweet Victory",
+    },
+    0x07: {
+        "timetrial": "High Temperatures, Tight Timing",
+        "relay": "Air Conditioning Required",
+    },
+    0x08: {
+        "timetrial": "Inching Towards Infinity",
+        "relay": "A Victory One Dreams About",
+    },
+    0x09: {
+        "timetrial": "Triple Triad? No, We're Tearing Tracks!",
+        "relay": "Twists, Turns and Around and Round And...",
+    },
+}
+
 
 for current_track in track_map {
-    // track is key, track_map[key] is value
-
-
+    // Leaderboards
     leaderboard(
         title = format("Time Attack: {0} (Standard Character)", track_map[current_track]),
         description = format("Reach the goal as quickly as possible in a Time Attack on {0} with any regular character", track_map[current_track]),
         start = 
         (
-            in_race() && finished_race() && base_char_p1() && track == current_track
+            in_race() && finished_race() && base_char_p1() && track == current_track && current_mode == 0x02
         ),
         cancel = always_false(),
         submit = always_true(),
@@ -240,7 +329,7 @@ for current_track in track_map {
         description = format("Reach the goal as quickly as possible in a Time Attack on {0} with any custom character", track_map[current_track]),
         start = 
         (
-            in_race() && finished_race() && custom_char_p1() && track == current_track
+            in_race() && finished_race() && custom_char_p1() && track == current_track && current_mode == 0x02
         ),
         cancel = always_false(),
         submit = always_true(),
@@ -249,6 +338,40 @@ for current_track in track_map {
             race_time * 2
         ),
         format = "FRAMES", lower_is_better = true
+    )
+
+    // Time Trial
+    achievement(
+        title = track_cheevo_names[current_track]["timetrial"],
+        points = 5,
+        description = format("Beat the time of {0} on {1} in Time Attack (handicap may be activated)", track_map[current_track]),
+        id = old_relay_cheevo_id_map[current_track],
+        trigger = (
+            in_race() &&
+            finished_race() &&
+            track == current_track &&
+            current_mode == 0x02 &&
+            trigger_when(race_time <= time_trial_target[current_track])
+        )
+    )
+
+    // Relay Races
+    achievement(
+        title = track_cheevo_names[current_track]["relay"],
+        points = 5,
+        description = format("Beat the computer in a Relay Race set at 3 laps each on {0}.", track_map[current_track]),
+        id = old_relay_cheevo_id_map[current_track],
+        trigger = (
+            current_mode == 0x05 &&
+            // vs cpu
+            team_comp_definition == 0x01 &&
+            // 3 laps * 3
+            goal_lap_count == 0x09 &&
+            // correct map
+            track == current_track &&
+            finished_race() &&
+            p1_race_pos == 0x00
+        )
     )
 }
 
@@ -290,7 +413,6 @@ achievement(
     )
 )
 
-// TODO: OR P2
 achievement(
     title = "Star Breed",
     points = 25,
@@ -303,13 +425,25 @@ achievement(
         prev(in_race()) && in_race() &&
         never(on_any_main_menu_screen() && byte(0x07afec) != 0x0b) &&
         gp_scores_revealed() &&
+        current_mode == 0x03 &&
         // ID matches last track
-        byte(0x07ae3f) == track && 
-        p1_char == first_place_gp_char
+        byte(0x07ae3f) == track &&
+        (
+            (
+                // p1 is valid
+                p1_char == first_place_gp_char &&
+                first_place_gp_score == 36
+            )
+            ||
+            (
+                // p2 is valid
+                p2_char == first_place_gp_char &&
+                first_place_gp_score == 36
+            )
+        ) 
     )
 )
 
-// TODO: OR P2
 achievement(
     title = "Pro Racer",
     points = 10,
@@ -319,91 +453,25 @@ achievement(
         prev(in_race()) && in_race() &&
         !on_any_main_menu_screen() && byte(0x07afec) == 0x0b &&
         gp_scores_revealed() &&
+        current_mode == 0x03 &&
         // ID matches last track
         byte(0x07ae3f) == track && 
-        p1_char == first_place_gp_char
+        (
+            (
+                // p1 is valid
+                p1_char == first_place_gp_char &&
+                first_place_gp_score == 36
+            )
+            ||
+            (
+                // p2 is valid
+                p2_char == first_place_gp_char &&
+                first_place_gp_score == 36
+            )
+        ) 
     )
 )
 
-achievement(
-    title = "Cid's Test Track Relay", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on Cid's Test Track.",
-    id = 83566, badge = "90655", published = "16/09/2019 02:23:57", modified = "04/10/2019 16:17:01",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 0 && once(byte(0x0084D2) == 6)
-)
-
-achievement(
-    title = "Moogle Forest Relay", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on Moogle Forest.",
-    id = 83567, badge = "90656", published = "16/09/2019 02:24:00", modified = "22/10/2019 20:51:01",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 1 && once(byte(0x0084D2) == 6)
-)
-
-achievement(
-    title = "The Ancient Gate Relay ", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on The Ancient Gate.",
-    id = 83568, badge = "90657", published = "16/09/2019 02:24:02", modified = "22/10/2019 20:51:01",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 2 && once(byte(0x0084D2) == 6)
-)
-
-achievement(
-    title = "Mithril Mines Relay", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on Mithril Mines.",
-    id = 83569, badge = "90658", published = "16/09/2019 02:24:05", modified = "22/10/2019 20:51:01",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 3 && once(byte(0x0084D2) == 6)
-)
-
-achievement(
-    title = "The Black Manor Relay", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on The Black Manor.",
-    id = 83570, badge = "90661", published = "16/09/2019 02:24:08", modified = "22/10/2019 20:51:01",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 4 && once(byte(0x0084D2) == 6)
-)
-
-achievement(
-    title = "Floating Gardens Relay", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on Floating Gardens.",
-    id = 83571, badge = "90660", published = "16/09/2019 02:24:11", modified = "22/10/2019 20:51:01",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 5 && once(byte(0x0084D2) == 6)
-)
-
-achievement(
-    title = "Gingerbread Land Relay", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on Gingerbread Land.",
-    id = 83572, badge = "90662", published = "16/09/2019 02:24:13", modified = "22/10/2019 20:51:01",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 6 && once(byte(0x0084D2) == 6)
-)
-
-achievement(
-    title = "Vulcan-O Valley Relay", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on Vulcan-O Valley.",
-    id = 83573, badge = "90663", published = "16/09/2019 02:24:16", modified = "12/06/2020 03:27:33",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 7 && once(byte(0x0084D2) == 6)
-)
-
-achievement(
-    title = "Fantasia Relay", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on Fantasia.",
-    id = 83574, badge = "90664", published = "16/09/2019 02:24:19", modified = "22/10/2019 20:51:01",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 8 && once(byte(0x0084D2) == 6)
-)
-
-achievement(
-    title = "FFVIII Circuit Relay", points = 5,
-    description = "Beat the computer in Relay Race set at 3 laps each on FFVIII Circuit.",
-    id = 83575, badge = "90665", published = "16/09/2019 02:24:23", modified = "22/10/2019 20:51:01",
-    trigger = never(byte(0x07AE38) != 5) && byte(0x07AE36) == 9 && byte(0x096868) == 3 && never(byte(0x096868) == 26) &&
-              byte(0x07AE3C) == 9 && once(byte(0x0084D2) == 6)
-)
 
 achievement(
     title = "Chocobo Grand Prix", points = 5,
