@@ -118,6 +118,7 @@ map_map = {
     0x07: "Guide Race 1",
     0x08: "Globe Switch 1",
     0x09: "Magno Race 1",
+    0x0a: "Globe Collect 1"
 }
 
 char_map = {
@@ -177,8 +178,8 @@ class PlayerObject {
         return ptr(tbyte(0x11b890), [0xBBC, 0x230], float) 
     }
 
-    function reached_race_goal_checkpoint() {
-        return ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == 0x04 && prev(ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == 0x03)
+    function reached_race_goal_checkpoint(amount_of_checkpoints) {
+        return ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == amount_of_checkpoints + 1 && prev(ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == amount_of_checkpoints)
     }
 
     function entered_area(x1, x2, y1, y2, z1, z2) {
@@ -287,6 +288,24 @@ time_trial_map_dict = {
     0x2D: "Japan Race 5",
 }
 
+time_trial_map_checkpoint_count = {
+    0x15: 3,
+    0x16: 3,
+    0x17: 3,
+    0x18: 3,
+    0x19: 3,
+    0x1F: 3,
+    0x20: 3,
+    0x21: 3,
+    0x22: 3,
+    0x23: 4,
+    0x29: 3,
+    0x2A: 3,
+    0x2B: 3,
+    0x2C: 3,
+    0x2D: 1,
+}
+
 time_trial_targets = {
     0x15: 74.0, // 01:14:00
     0x16: 80.0, // 01:20:00
@@ -342,7 +361,7 @@ for map in time_trial_map_dict {
         start = 
         (
             map_id == map &&
-            player.reached_race_goal_checkpoint()
+            player.reached_race_goal_checkpoint(time_trial_map_checkpoint_count[map])
         ),
         cancel = always_false(),
         submit = always_true(),
@@ -362,7 +381,7 @@ for map in time_trial_map_dict {
                     ),
         trigger = (
             map_id == map &&
-            trigger_when(player.reached_race_goal_checkpoint()) &&
+            trigger_when(player.reached_race_goal_checkpoint(time_trial_map_checkpoint_count[map])) &&
             player.get_time_spent() <= time_trial_targets[map]
         )
     )
