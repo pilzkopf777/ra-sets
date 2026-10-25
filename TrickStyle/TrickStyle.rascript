@@ -24,14 +24,7 @@ function ptr(base, offsets, accessor=tbyte)
 }
 
 map_id = ptr(tbyte(0x11b890), [0x00], dword)
-checkpoint_count = ptr(tbyte(0x6c5b3c), [0x01a8], dword)
-victory_state = ptr(tbyte(0x6c5b3c), [0x2e0], dword)
-time_left = ptr(tbyte(0x6c5b3c), [0x22c], float)
-countdown_state = dword(0x135804)
-
-function race_ended() {
-    return countdown_state == 0x21 && prev(countdown_state == 0x11)
-}
+checkpoint_count = ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword)
 
 function credits_started() {
     return float(0x0ed4f4) > 0.1 && prev(float(0x0ed4f4) <= 0.1)
@@ -55,6 +48,46 @@ function in_main_menu() {
 
 function in_gameplay() {
     return !on_the_title_screen() && !in_demo() && !in_main_menu()
+}
+
+function completed_event(event_result_slot_adr) {
+    return bit2(event_result_slot_adr) == 1
+}
+
+function tally_progression_data(lower_limit, upper_limit) {
+    cond = []
+
+    start_id_slot_adr = 0x143c7a
+    start_result_slot_adr = 0x143cba
+
+    for current_offset in range(0, 15, 1) {
+
+        array_push(cond,
+            (
+                once(
+                    // meets lower limit req
+                    byte(start_id_slot_adr + current_offset) >= lower_limit && 
+                    // and higher too
+                    byte(start_id_slot_adr + current_offset) <= upper_limit &&
+                    // and the mission was completed
+                    completed_event(start_result_slot_adr + current_offset)
+                )
+            )
+        )
+    }
+
+    return cond
+}
+
+function check_if_player_completed_obj_logic(target_amount_of_maps, lower_limit, upper_limit) {
+        if (lower_limit == upper_limit) {
+            // No range - use simplified check instead
+            return tally(target_amount_of_maps, tally_progression_data(lower_limit, upper_limit)) && never(in_main_menu() || on_the_title_screen())
+        } else {
+            return measured(
+                tally(target_amount_of_maps, tally_progression_data(lower_limit, upper_limit))) && never(in_main_menu() || on_the_title_screen()
+            )
+        }
 }
 
 map_map = {
@@ -87,14 +120,6 @@ map_map = {
     0x09: "Magno Race 1",
 }
 
-time_trial_targets = {
-    0x15: 0, // 01:14:00
-    0x16: 0, // 01:20:00
-    0x17: 0, // 01:35:00
-    0x18: 0, // 01:19:00
-    0x19: 100.0 // 01:40:00
-}
-
 char_map = {
     0x01: "Angel",
     0x02: "Brad",
@@ -125,31 +150,35 @@ class PlayerObject {
     }
 
     function get_x() {
-        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0xAC, 0x2C, 0x04, 0x40], float)
+        return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x2C, 0x04, 0x40], float)
     }
 
     function get_y() {
-        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0xAC, 0x2C, 0x04, 0x44], float)
+        return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x2C, 0x04, 0x44], float)
     }
 
     function get_z() {
-        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0xAC, 0x2C, 0x04, 0x48], float)
+        return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x2C, 0x04, 0x48], float)
     }
 
     function get_race_pos() {
-        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0x238], dword)
+        return ptr(tbyte(0x11b890), [0xBBC, 0x238], dword)
     }
 
     function get_trick() {
-        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0x2E8], dword)
+        return ptr(tbyte(0x11b890), [0xBBC, 0x2E8], dword)
     }
 
     function get_score() {
-        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0x3A8], dword)
+        return ptr(tbyte(0x11b890), [0xBBC, 0x3A8], dword)
     }
 
     function get_time_spent() {
-        return ptr(tbyte(0x11b8b4), [0x00, 0x1C, 0x3A8], float) 
+        return ptr(tbyte(0x11b890), [0xBBC, 0x230], float) 
+    }
+
+    function reached_race_goal_checkpoint() {
+        return ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == 0x04 && prev(ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == 0x03)
     }
 
     function entered_area(x1, x2, y1, y2, z1, z2) {
@@ -175,26 +204,169 @@ class PlayerObject {
 
 player = PlayerObject()
 
-// for this, get a list of unlocked races and actions in memory..
-//achievement(
-//    title = format("UK ALL RACES"),
-//    points = 0,
-//    description = format("UK ALL RACES"),
-//    trigger = (
-//        map_id == 0x1b &&
-//        race_ended() && player.get_race_pos() == 0x01
-//    )
-//)
+achievement(
+    title = format("UK RACES"),
+    points = 0,
+    description = format("UK RACES"),
+    trigger = (
+        check_if_player_completed_obj_logic(5, 0x15, 0x19)
+    )
+)
 
 achievement(
     title = format("UK BOSS"),
     points = 0,
     description = format("UK BOSS"),
     trigger = (
-        map_id == 0x1b &&
-        race_ended() && player.get_race_pos() == 0x01
+        check_if_player_completed_obj_logic(1, 0x1b, 0x1b)
     )
 )
+
+achievement(
+    title = format("US RACES"),
+    points = 0,
+    description = format("US RACES"),
+    trigger = (
+        check_if_player_completed_obj_logic(5, 0x1f, 0x23)
+    )
+)
+
+achievement(
+    title = format("US BOSS"),
+    points = 0,
+    description = format("US BOSS"),
+    trigger = (
+        check_if_player_completed_obj_logic(1, 0x25, 0x25)
+    )
+)
+
+achievement(
+    title = format("JPN RACES"),
+    points = 0,
+    description = format("JPN RACES"),
+    trigger = (
+        check_if_player_completed_obj_logic(4, 0x29, 0x2c)
+    )
+)
+
+achievement(
+    title = format("JPN BOSS"),
+    points = 0,
+    description = format("JPN BOSS"),
+    trigger = (
+        check_if_player_completed_obj_logic(1, 0x2f, 0x2f)
+    )
+)
+
+achievement(
+    title = format("JPN FINAL CHALLENGE"),
+    points = 0,
+    description = format("JPN FINAL CHALLENGE"),
+    trigger = (
+        map_id == 0x2d &&
+        credits_started() &&
+        in_gameplay()
+    )
+)
+
+time_trial_map_dict = {
+    0x15: "UK Race 1",
+    0x16: "UK Race 2",
+    0x17: "UK Race 3",
+    0x18: "UK Race 4",
+    0x19: "UK Race 5",
+    0x1F: "USA Race 1",
+    0x20: "USA Race 2",
+    0x21: "USA Race 3",
+    0x22: "USA Race 4",
+    0x23: "USA Race 5",
+    0x29: "Japan Race 1",
+    0x2A: "Japan Race 2",
+    0x2B: "Japan Race 3",
+    0x2C: "Japan Race 4",
+    0x2D: "Japan Race 5",
+}
+
+time_trial_targets = {
+    0x15: 74.0, // 01:14:00
+    0x16: 80.0, // 01:20:00
+    0x17: 95.0, // 01:35:00
+    0x18: 79.0, // 01:19:00
+    0x19: 100.0, // 01:40:00
+    0x1F: 0,
+    0x20: 0,
+    0x21: 0,
+    0x22: 0,
+    0x23: 0,
+    0x29: 0,
+    0x2A: 0,
+    0x2B: 0,
+    0x2C: 0,
+    0x2D: 0,
+}
+
+// This is horrible but I have no idea how to reasonably turn my float into an int without getting into black magic
+function pad_to_twos(input) {
+    // How many characters of the input should be visible?
+    if input >= 10 {
+        // two chars
+        input = "" + input
+        input = substring(input, 0, 2)
+    } else {
+        // one char
+        input = "" + input
+        input = substring(input, 0, 1)
+    }
+
+    // Depending on the amount, pad out to two chars
+    if (length(input) == 1) {
+        res = "0" + input
+    } else {
+        res = input
+    }
+    
+    return res
+}
+
+function format_time(time_float) {
+    min = time_float / 60
+    sec = time_float % 60
+    
+    return format("{0}:{1}:00", pad_to_twos(min), pad_to_twos(sec))
+}
+
+for map in time_trial_map_dict {
+    leaderboard(
+        title = format("Time Attack: {0}", time_trial_map_dict[map]),
+        description = format("Reach the goal in {0} as quickly as possible", time_trial_map_dict[map]),
+        start = 
+        (
+            map_id == map &&
+            player.reached_race_goal_checkpoint()
+        ),
+        cancel = always_false(),
+        submit = always_true(),
+        value =
+        measured(
+            player.get_time_spent() * 100
+        ),
+        format = "MILLISECS", lower_is_better = true
+    )
+
+    achievement(
+        title = format("TIME TRIAL {0}", time_trial_map_dict[map]),
+        points = 0,
+        description = format("Reach the goal in {0} in {1} or less",
+                        time_trial_map_dict[map],
+                        format_time(time_trial_targets[map])
+                    ),
+        trigger = (
+            map_id == map &&
+            trigger_when(player.reached_race_goal_checkpoint()) &&
+            player.get_time_spent() <= time_trial_targets[map]
+        )
+    )
+}
 
 achievement(
     title = format("BREAK BIG BEN"),
