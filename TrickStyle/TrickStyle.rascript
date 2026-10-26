@@ -163,6 +163,14 @@ class PlayerObject {
         return byte(0x143c79)
     }
 
+    function on_floor() {
+        return ptr(tbyte(0x1c5f40), [0xF4], dword) == 0x01
+    }
+
+    function mid_air() {
+        return ptr(tbyte(0x1c5f40), [0xF4], dword) == 0x00
+    }
+
     function get_x() {
         return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x2C, 0x04, 0x40], float)
     }
@@ -325,11 +333,11 @@ time_trial_targets = {
     0x17: 95.0, // 01:35:00
     0x18: 79.0, // 01:19:00
     0x19: 100.0, // 01:40:00
-    0x1F: 0,
-    0x20: 0,
-    0x21: 0,
-    0x22: 0,
-    0x23: 0,
+    0x1F: 73.0, // 01:13:00
+    0x20: 101.0, // 01:41:00
+    0x21: 83.0, // 01:23:00
+    0x22: 63.0, // 01:03:00
+    0x23: 111.0, // 01:51:00
     0x29: 0,
     0x2A: 0,
     0x2B: 0,
@@ -437,12 +445,48 @@ achievement(
             once(player.entered_area(824.0, 840.0, 220.0, 480.0, 1573.0, 1599.0)) &&
             once(player.entered_area(806.0, 816.0, 220.0, 480.0, 1579.0, 1608.0))
         )
-
-
     )
-
 )
 
+achievement(
+    title = format("LAND ON CAR"),
+    points = 0,
+    description = format("DO IT IN USA 3"),
+    trigger = (
+        never(checkpoint_count == 0xffffffff) &&
+        (
+            // corner 1
+            // 546, 113, 1334
+            // corner 2
+            // 420, 133, 1286
+            // highest for ramp: 120
+            map_id == 0x21 &&
+            player.entered_area(400.0, 570.0, 122.5, 300.0, 1250.0, 1390.0) &&
+            player.on_floor() && prev(player.mid_air())
+        )
+        ||
+        (
+            // corner 1
+            // 411, 298, 209
+            // corner 2
+            // 546, 299, 147
+            // highest for ramp: 304
+            map_id == 0x22 &&
+            player.entered_area(400.0, 570.0, 306.5, 600.0, 120.0, 250.0) &&
+            player.on_floor() && prev(player.mid_air())
+        ) ||
+        (
+            // corner 1
+            // 421, 300, 745
+            // corner 2
+            // 534, 298, 677
+            // highest for ramp: 304
+            map_id == 0x23 &&
+            player.entered_area(400.0, 570.0, 306.5, 600.0, 640.0, 790.0) &&
+            player.on_floor() && prev(player.mid_air())
+        )
+    )
+)
 
 
 // RP
