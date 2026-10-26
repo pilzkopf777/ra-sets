@@ -60,7 +60,7 @@ function tally_progression_data(lower_limit, upper_limit) {
     start_id_slot_adr = 0x143c7a
     start_result_slot_adr = 0x143cba
 
-    for current_offset in range(0, 15, 1) {
+    for current_offset in range(0, 35, 1) {
 
         array_push(cond,
             (
