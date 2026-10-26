@@ -118,7 +118,20 @@ map_map = {
     0x07: "Guide Race 1",
     0x08: "Globe Switch 1",
     0x09: "Magno Race 1",
-    0x0a: "Globe Collect 1"
+    0x0a: "Globe Collect 1",
+    0x0b: "Stunt Session 1",
+    0x0c: "Guide Race 2",
+    0x0d: "Stunt Session 2",
+    0x0e: "Globe Collect 2",
+    0x0f: "Hoop Race 1",
+    0x10: "Globe Switch 2",
+    0x11: "Guide Race 3",
+    0x12: "Stunt Session 3",
+    0x13: "Magno Race 3",
+    0x14: "Hoop Race 2",
+    0x30: "Globe Switch 3",
+    0x31: "Final Challenge"
+
 }
 
 char_map = {
@@ -260,9 +273,9 @@ achievement(
 )
 
 achievement(
-    title = format("JPN FINAL CHALLENGE"),
+    title = format("JPN FINAL RACE"),
     points = 0,
-    description = format("JPN FINAL CHALLENGE"),
+    description = format("JPN FINAL RACE"),
     trigger = (
         map_id == 0x2d &&
         credits_started() &&
@@ -321,7 +334,7 @@ time_trial_targets = {
     0x2A: 0,
     0x2B: 0,
     0x2C: 0,
-    0x2D: 0,
+    0x2D: 122.0, // 02:02:00
 }
 
 // This is horrible but I have no idea how to reasonably turn my float into an int without getting into black magic
