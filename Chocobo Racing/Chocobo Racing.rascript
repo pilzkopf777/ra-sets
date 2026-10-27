@@ -472,6 +472,16 @@ achievement(
     )
 )
 
+achievement(
+    title = "Gunblade Specialist",
+    points = 5,
+    description = "Win Squall's challenge and unlock him as a playable character",
+    id = 83614,
+    trigger = (
+        bit1(0x1e929d) == 0x01 && prev(bit1(0x1e929d) == 0x00) && current_mode == 0x01 && in_race()
+    )
+)
+
 
 achievement(
     title = "Chocobo Grand Prix", points = 5,
@@ -536,12 +546,7 @@ achievement(
     trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit3(0x1E9299) > prev(bit3(0x1E9299))
 )
 
-achievement(
-    title = "Gunblade Specialist", points = 5,
-    description = "Win Squall's challenge and unlock him!",
-    id = 83614, badge = "90752", published = "16/09/2019 18:00:46", modified = "22/10/2019 20:51:01",
-    trigger = unless(byte(0x096868) != 3) && bit1(0x1E929D) > prev(bit1(0x1E929D))
-)
+
 
 achievement(
     title = "Tanking as a Tank", points = 10,
