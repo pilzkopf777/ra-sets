@@ -34,6 +34,8 @@ main_menu_state = dword(0x0ef4b0)
 title_screen_anim_timer = float(0x0ef4b4)
 player_count = dword(0x0efe5c)
 
+pause_state = dword(0x57f95c)
+
 function in_demo() {
     return player_count == 0x00 && main_menu_state == 0x00
 }
@@ -203,6 +205,14 @@ class PlayerObject {
         return ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == amount_of_checkpoints + 1 && prev(ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == amount_of_checkpoints)
     }
 
+    function has_invuln_frames() {
+        return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x50], dword) == 0x00
+    }
+
+    function has_no_invuln_frames() {
+        return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x50], dword) == 0x01
+    }
+
     function entered_area(x1, x2, y1, y2, z1, z2) {
         x_pos = this.get_x()
         y_pos = this.get_y()
@@ -338,7 +348,7 @@ time_trial_targets = {
     0x21: 83.0, // 01:23:00
     0x22: 63.0, // 01:03:00
     0x23: 111.0, // 01:51:00
-    0x29: 0,
+    0x29: 85.0, // 01:25:00
     0x2A: 0,
     0x2B: 0,
     0x2C: 0,
@@ -411,7 +421,7 @@ for map in time_trial_map_dict {
 achievement(
     title = format("BREAK BIG BEN"),
     points = 0,
-    description = format("BREAK BIG BEN UK RACE 1 OR 2"),
+    description = format("BREAK BIG BEN"),
     trigger = (
         never(checkpoint_count == 0xffffffff) &&
         (
@@ -451,7 +461,7 @@ achievement(
 achievement(
     title = format("LAND ON CAR"),
     points = 0,
-    description = format("DO IT IN USA 3"),
+    description = format("LAND ON CAR"),
     trigger = (
         never(checkpoint_count == 0xffffffff) &&
         (
@@ -462,7 +472,7 @@ achievement(
             // highest for ramp: 120
             map_id == 0x21 &&
             player.entered_area(400.0, 570.0, 122.5, 300.0, 1250.0, 1390.0) &&
-            player.on_floor() && prev(player.mid_air())
+            never(player.on_floor())
         )
         ||
         (
@@ -485,6 +495,21 @@ achievement(
             player.entered_area(400.0, 570.0, 306.5, 600.0, 640.0, 790.0) &&
             player.on_floor() && prev(player.mid_air())
         )
+    )
+)
+
+
+
+achievement(
+    title = format("LAND 1080 AIR"),
+    points = 0,
+    description = format("LAND 1080 AIR"),
+    trigger = (
+        never(checkpoint_count == 0xffffffff) &&
+        once(player.get_trick() == 0x44e) &&
+        // 500, 750, 1000 -> adds a minimum of 2250 pts
+        prev(player.get_score() + 2250) <= player.get_score() &&
+        never(player.on_floor())
     )
 )
 
