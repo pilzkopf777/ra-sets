@@ -250,16 +250,48 @@ old_relay_cheevo_id_map = {
 }
 
 time_trial_target = {
-    0x00: 0,
-    0x01: 0,
-    0x02: 0,
-    0x03: 0,
-    0x04: 0,
-    0x05: 0,
-    0x06: 0,
-    0x07: 0,
-    0x08: 0,
-    0x09: 0
+    0x00: 2012,
+    0x01: 2312,
+    0x02: 2462,
+    0x03: 2582,
+    0x04: 3482,
+    0x05: 3512,
+    0x06: 4442,
+    0x07: 4772,
+    0x08: 5072,
+    0x09: 4802
+}
+
+function pad_to_twos(input) {
+    // How many characters of the input should be visible?
+    if input >= 10 {
+        // two chars
+        input = "" + input
+        input = substring(input, 0, 2)
+    } else {
+        // one char
+        input = "" + input
+        input = substring(input, 0, 1)
+    }
+
+    // Depending on the amount, pad out to two chars
+    if (length(input) == 1) {
+        res = "0" + input
+    } else {
+        res = input
+    }
+    
+    return res
+}
+
+function get_time_as_string(input) {
+    offset_time = input // + 4
+    total_sec = offset_time / 30
+
+    min = total_sec / 60
+    sec = total_sec % 60
+
+    return format("{0}:{1}:00", pad_to_twos(min), pad_to_twos(sec))
 }
 
 track_cheevo_names = {
@@ -344,14 +376,14 @@ for current_track in track_map {
     achievement(
         title = track_cheevo_names[current_track]["timetrial"],
         points = 5,
-        description = format("Beat the time of {0} on {1} in Time Attack (handicap may be activated)", time_trial_target[current_track], track_map[current_track]),
+        description = format("Beat the time of {0} on {1} in Time Attack (handicap may be activated)", get_time_as_string(time_trial_target[current_track]), track_map[current_track]),
         id = old_relay_cheevo_id_map[current_track],
         trigger = (
             in_race() &&
-            finished_race() &&
+            trigger_when(finished_race()) &&
             track == current_track &&
             current_mode == 0x02 &&
-            trigger_when(race_time <= time_trial_target[current_track])
+            race_time <= time_trial_target[current_track]
         )
     )
 
