@@ -155,6 +155,10 @@ board_map = {
     0x03: "Combat"
 }
 
+function trick_is_special_orb(trick_num) {
+    return trick_num >= 0x191 && trick_num <= 0x200
+}
+
 class PlayerObject {
 
     function get_char() {
@@ -347,12 +351,12 @@ time_trial_targets = {
     0x20: 101.0, // 01:41:00
     0x21: 83.0, // 01:23:00
     0x22: 63.0, // 01:03:00
-    0x23: 111.0, // 01:51:00
-    0x29: 85.0, // 01:25:00
-    0x2A: 0,
-    0x2B: 0,
-    0x2C: 0,
-    0x2D: 122.0, // 02:02:00
+    0x23: 110.0, // 01:50:00
+    0x29: 83.0, // 01:23:00
+    0x2A: 93.0 // 01:33:00
+    0x2B: 75.0, // 01:15:00
+    0x2C: 96.0, // 01:36:00
+    0x2D: 121.0, // 02:01:00
 }
 
 // This is horrible but I have no idea how to reasonably turn my float into an int without getting into black magic
@@ -510,6 +514,20 @@ achievement(
         // 500, 750, 1000 -> adds a minimum of 2250 pts
         prev(player.get_score() + 2250) <= player.get_score() &&
         never(player.on_floor())
+    )
+)
+
+achievement(
+    title = format("LAND SPECIAL TRICK"),
+    points = 0,
+    description = format("LAND SPECIAL TRICK"),
+    trigger = (
+        never(checkpoint_count == 0xffffffff) &&
+        once(
+            trick_is_special_orb(layer.get_trick()) && prev(!trick_is_special_orb(layer.get_trick()))
+        ) &&
+        prev(player.get_score() + 1500) <= player.get_score() &&
+        never(player.has_invuln_frames())
     )
 )
 
