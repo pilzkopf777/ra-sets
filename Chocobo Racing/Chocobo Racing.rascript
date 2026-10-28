@@ -538,71 +538,44 @@ for char_id in range(0x00, 0x08, 0x01) {
     )
 }
 
+char_unlock_name_map = {
+    0x0a: "Tanking as a Tank",
+    0x0b: "Mumba to the Rescue",
+    0x0c: "Now Where's my Remake?",
+    0x0d: "1000 Needles",
+    0x0e: "Mitochondria Queen",
+    0x0f: "8bit Racing",
+    0x10: "Fly Away",
+    0x11: "Wait, Who?"
+}
+
+old_char_unlock_id = {
+    0x0a: 83615,
+    0x0b: 83616,
+    0x0c: 83617,
+    0x0d: 83618,
+    0x0e: 83619,
+    0x0f: 83620,
+    0x10: 83621,
+    0x11: 83622
+}
+
+for char_id in range(0x0a, 0x11, 0x01) {
+    current_car_name = character_map[char_id]
+
+    achievement(
+        title = char_unlock_name_map[char_id],
+        points = 10,
+        description = format("Unlock {0} as a playable character", current_car_name),
+        id = old_char_unlock_id[char_id],
+        trigger = 
+        (
+            byte(0x1ea998) == char_id - 9 && prev(byte(0x1ea998) == char_id - 10)
+        )
+    )
+}
 
 
-achievement(
-    title = "Tanking as a Tank", points = 10,
-    description = "Unlock Cid Tank as a playable character.",
-    id = 83615, badge = "90753", published = "16/09/2019 18:00:56", modified = "25/04/2022 01:59:27",
-    trigger = unless(byte(0x08D759) == 0) && unless(byte(0x08D759) == 255) && prev(byte(0x1EA998)) == 0 &&
-              byte(0x1EA998) == 1
-)
-
-achievement(
-    title = "Mumba to the Rescue", points = 10,
-    description = "Unlock Mumba as a playable character.",
-    id = 83616, badge = "90754", published = "16/09/2019 18:00:59", modified = "22/10/2019 20:51:01",
-    trigger = unless(byte(0x08D759) == 0) && unless(byte(0x08D759) == 255) && prev(byte(0x1EA998)) == 1 &&
-              byte(0x1EA998) == 2
-)
-
-achievement(
-    title = "Now Where's my Remake?", points = 10,
-    description = "Unlock Cloud as a playable character.",
-    id = 83617, badge = "90755", published = "16/09/2019 18:01:03", modified = "22/10/2019 20:51:01",
-    trigger = unless(byte(0x08D759) == 0) && unless(byte(0x08D759) == 255) && prev(byte(0x1EA998)) == 2 &&
-              byte(0x1EA998) == 3
-)
-
-achievement(
-    title = "1000 Needles", points = 10,
-    description = "Unlock Cactuar as a playable character.",
-    id = 83618, badge = "90756", published = "16/09/2019 18:01:05", modified = "22/10/2019 20:51:01",
-    trigger = unless(byte(0x08D759) == 0) && unless(byte(0x08D759) == 255) && prev(byte(0x1EA998)) == 3 &&
-              byte(0x1EA998) == 4
-)
-
-achievement(
-    title = "Mitochondria Queen", points = 10,
-    description = "Unlock Aya as a playable character.",
-    id = 83619, badge = "90757", published = "16/09/2019 18:01:08", modified = "22/10/2019 20:51:01",
-    trigger = unless(byte(0x08D759) == 0) && unless(byte(0x08D759) == 255) && prev(byte(0x1EA998)) == 4 &&
-              byte(0x1EA998) == 5
-)
-
-achievement(
-    title = "8bit Racing", points = 10,
-    description = "Unlock Classic Chocobo as a playable character.",
-    id = 83620, badge = "90759", published = "16/09/2019 18:01:11", modified = "22/10/2019 20:51:01",
-    trigger = unless(byte(0x08D759) == 0) && unless(byte(0x08D759) == 255) && prev(byte(0x1EA998)) == 5 &&
-              byte(0x1EA998) == 6
-)
-
-achievement(
-    title = "Fly Away", points = 10,
-    description = "Unlock S.S Invincible as a playable character.",
-    id = 83621, badge = "90760", published = "16/09/2019 18:01:14", modified = "22/10/2019 20:51:01",
-    trigger = unless(byte(0x08D759) == 0) && unless(byte(0x08D759) == 255) && prev(byte(0x1EA998)) == 6 &&
-              byte(0x1EA998) == 7
-)
-
-achievement(
-    title = "Wait, who?", points = 10,
-    description = "Unlock Jack as a playable character.",
-    id = 83622, badge = "90761", published = "16/09/2019 18:01:17", modified = "22/10/2019 20:51:01",
-    trigger = unless(byte(0x08D759) == 0) && unless(byte(0x08D759) == 255) && prev(byte(0x1EA998)) == 7 &&
-              byte(0x1EA998) == 8
-)
 
 achievement(
     title = "Bronze Trophy", points = 10,
