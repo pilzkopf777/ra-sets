@@ -344,7 +344,7 @@ for current_track in track_map {
     achievement(
         title = track_cheevo_names[current_track]["timetrial"],
         points = 5,
-        description = format("Beat the time of {0} on {1} in Time Attack (handicap may be activated)", track_map[current_track]),
+        description = format("Beat the time of {0} on {1} in Time Attack (handicap may be activated)", time_trial_target[current_track], track_map[current_track]),
         id = old_relay_cheevo_id_map[current_track],
         trigger = (
             in_race() &&
@@ -422,8 +422,9 @@ achievement(
         gp_contains_requested_map(0x07) &&
         gp_contains_requested_map(0x08) &&
         gp_contains_requested_map(0x09) &&
-        prev(in_race()) && in_race() &&
-        never(on_any_main_menu_screen() && byte(0x07afec) != 0x0b) &&
+        // prev(in_race()) && in_race() &&
+        // never(on_any_main_menu_screen()
+        byte(0x07afec) != 0x0b &&
         gp_scores_revealed() &&
         current_mode == 0x03 &&
         // ID matches last track
@@ -450,8 +451,7 @@ achievement(
     description = "Score a perfect 36 points in a Grand Prix",
     id = 83553,
     trigger = (
-        prev(in_race()) && in_race() &&
-        !on_any_main_menu_screen() && byte(0x07afec) == 0x0b &&
+        on_any_main_menu_screen() && byte(0x07afec) == 0x0b &&
         gp_scores_revealed() &&
         current_mode == 0x03 &&
         // ID matches last track
@@ -482,69 +482,61 @@ achievement(
     )
 )
 
+char_gp_name_map = {
+    0x00: "Little Chocobo in a Big, Wide World",
+    0x01: "Mysterious Creature, Legendary Racer",
+    0x02: "Great Going for a Little Goblin",
+    0x03: "A Monumental, Magical Moment",
+    0x04: "Proficient in Spells and Speed",
+    0x05: "Earning a Cheat Day",
+    0x06: "Monstrous Effort",
+    0x07: "A New Experience for Old Rocks",
+    0x08: "Living Legend"
+}
 
-achievement(
-    title = "Chocobo Grand Prix", points = 5,
-    description = "Win the Grand Prix as Chocobo and unlock the GP Chocobo Movie.",
-    id = 83605, badge = "90762", published = "16/09/2019 18:00:20", modified = "25/04/2022 01:59:22",
-    trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit3(0x1E9298) > prev(bit3(0x1E9298))
-)
+old_gp_movie_cheevo_ids = {
+    0x00: 83605,
+    0x01: 83606,
+    0x02: 83607,
+    0x03: 83608,
+    0x04: 83609,
+    0x05: 83610,
+    0x06: 83611,
+    0x07: 83612,
+    0x08: 83613
+}
 
-achievement(
-    title = "Mog Grand Prix", points = 5,
-    description = "Win the Grand Prix as Mog and unlock the GP Mog Movie.",
-    id = 83606, badge = "90763", published = "16/09/2019 18:00:23", modified = "25/04/2022 01:59:25",
-    trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit4(0x1E9298) > prev(bit4(0x1E9298))
-)
+for char_id in range(0x00, 0x08, 0x01) {
+    current_car_name = character_map[char_id]
 
-achievement(
-    title = "Goblin Grand Prix", points = 5,
-    description = "Win the Grand Prix as Goblin and unlock the GP Goblin Movie.",
-    id = 83607, badge = "90764", published = "16/09/2019 18:00:26", modified = "25/04/2022 01:59:24",
-    trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit5(0x1E9298) > prev(bit5(0x1E9298))
-)
-
-achievement(
-    title = "White Mage Grand Prix", points = 5,
-    description = "Win the Grand Prix as White Mage and unlock the GP White Mage Movie.",
-    id = 83608, badge = "90765", published = "16/09/2019 18:00:28", modified = "25/04/2022 01:59:28",
-    trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit6(0x1E9298) > prev(bit6(0x1E9298))
-)
-
-achievement(
-    title = "Black Magician Grand Prix", points = 5,
-    description = "Win the Grand Prix as Black Magician and unlock the GP Black Magician Movie.",
-    id = 83609, badge = "90766", published = "16/09/2019 18:00:32", modified = "25/04/2022 01:59:21",
-    trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit7(0x1E9298) > prev(bit7(0x1E9298))
-)
-
-achievement(
-    title = "Chubby Chocobo Grand Prix", points = 5,
-    description = "Win the Grand Prix as Chubby Chocobo and unlock the GP Chubby Chocobo Movie.",
-    id = 83610, badge = "90767", published = "16/09/2019 18:00:35", modified = "25/04/2022 01:59:22",
-    trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit0(0x1E9299) > prev(bit0(0x1E9299))
-)
-
-achievement(
-    title = "Behemoth Grand Prix", points = 5,
-    description = "Win the Grand Prix as Behemoth and unlock the GP Behemoth Movie.",
-    id = 83611, badge = "90768", published = "16/09/2019 18:00:37", modified = "25/04/2022 01:59:21",
-    trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit1(0x1E9299) > prev(bit1(0x1E9299))
-)
-
-achievement(
-    title = "Golem Grand Prix", points = 5,
-    description = "Win the Grand Prix as Golem and unlock the GP Golem Movie.",
-    id = 83612, badge = "90769", published = "16/09/2019 18:00:40", modified = "25/04/2022 01:59:24",
-    trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit2(0x1E9299) > prev(bit2(0x1E9299))
-)
-
-achievement(
-    title = "Bahamut Grand Prix", points = 5,
-    description = "Win the Grand Prix as Bahamut and unlock the GP Bahamut Movie.",
-    id = 83613, badge = "90770", published = "16/09/2019 18:00:43", modified = "25/04/2022 01:59:20",
-    trigger = unless(byte(0x08C028) == 0) && unless(byte(0x096868) == 0) && bit3(0x1E9299) > prev(bit3(0x1E9299))
-)
+    achievement(
+        title = char_gp_name_map[char_id],
+        points = 5,
+        description = format("Win the Grand Prix as {0} and unlock the GP {0} Movie", current_car_name),
+        id = old_gp_movie_cheevo_ids[char_id],
+        trigger = 
+        (
+            on_any_main_menu_screen() && byte(0x07afec) == 0x0b &&
+            gp_scores_revealed() &&
+            current_mode == 0x03 &&
+            // ID matches last track
+            byte(0x07ae3f) == track && 
+            (
+                (
+                    // p1 is valid
+                    p1_char == first_place_gp_char &&
+                    p1_char == char_id
+                )
+                ||
+                (
+                    // p2 is valid
+                    p2_char == first_place_gp_char &&
+                    p2_char == char_id
+                )
+            ) 
+        )
+    )
+}
 
 
 
