@@ -512,7 +512,7 @@ for char_id in range(0x00, 0x08, 0x01) {
     achievement(
         title = char_gp_name_map[char_id],
         points = 5,
-        description = format("Win the Grand Prix as {0} and unlock the GP {0} Movie", current_car_name),
+        description = format("Win a Grand Prix as {0}", current_car_name),
         id = old_gp_movie_cheevo_ids[char_id],
         trigger = 
         (
@@ -578,47 +578,44 @@ for char_id in range(0x0a, 0x11, 0x01) {
 
 
 achievement(
-    title = "Bronze Trophy", points = 10,
+    title = "Bronze Trophy",
+    points = 10,
     description = "Win all Bronze Trophies on Grand Prix.",
-    id = 83623, badge = "90749", published = "16/09/2019 18:01:20", modified = "25/04/2022 01:59:21",
-    trigger = unless(prev(byte(0x1E9290)) == 0) && unless(prev(byte(0x1E9291)) == 0) && byte(0x1E9290) == 255 &&
-              bit0(0x1E9291) == 1 && bit1(0x1E9291) == 1 &&
-              ((prev(byte(0x1E9290)) != 255) ||
-               (prev(bit0(0x1E9291)) != 1) ||
-               (prev(bit1(0x1E9291)) != 1))
+    id = 83623,
+    trigger = (
+        in_race() &&
+        // There are 10 tracks total
+        measured(bitcount(0x1e9290) + bit0(0x1e9291) + bit1(0x1e9291) == 10) &&
+        prev(bitcount(0x1e9290) + bit0(0x1e9291) + bit1(0x1e9291) == 9)
+    )
 )
 
 achievement(
-    title = "Silver Trophy", points = 10,
+    title = "Silver Trophy",
+    points = 10,
     description = "Win all Silver Trophies on Grand Prix.",
-    id = 83624, badge = "90750", published = "16/09/2019 18:01:22", modified = "25/04/2022 01:59:26",
-    trigger = unless(prev(byte(0x1E9291)) == 0) && unless(prev(byte(0x1E9292)) == 0) && bit2(0x1E9291) == 1 &&
-              bit3(0x1E9291) == 1 && bit4(0x1E9291) == 1 && bit5(0x1E9291) == 1 && bit6(0x1E9291) == 1 &&
-              bit7(0x1E9291) == 1 && bit0(0x1E9292) == 1 && bit1(0x1E9292) == 1 && bit2(0x1E9292) == 1 &&
-              bit3(0x1E9292) == 1 &&
-              ((prev(byte(0x1E9291)) < 252) ||
-               (prev(bit0(0x1E9292)) != 1) ||
-               (prev(bit1(0x1E9292)) != 1) ||
-               (prev(bit2(0x1E9292)) != 1) ||
-               (prev(bit3(0x1E9292)) != 1))
+    id = 83624,
+    trigger = (
+        in_race() &&
+        // There are 10 tracks total
+        measured(bit2(0x1e9291) + bit3(0x1e9291) + bit4(0x1e9291) + bit5(0x1e9291) + bit6(0x1e9291) + bit7(0x1e9291) + bit0(0x1e9292) + bit1(0x1e9292) + bit2(0x1e9292) + bit3(0x1e9292) == 10) &&
+        prev(bit2(0x1e9291) + bit3(0x1e9291) + bit4(0x1e9291) + bit5(0x1e9291) + bit6(0x1e9291) + bit7(0x1e9291) + bit0(0x1e9292) + bit1(0x1e9292) + bit2(0x1e9292) + bit3(0x1e9292) == 9)
+    )
 )
 
 achievement(
-    title = "Gold Trophy", points = 10,
-    description = "Win all Gold Trophies on Grand Prix and Unlock Mirror Mode.",
-    id = 83625, badge = "90751", published = "16/09/2019 18:01:25", modified = "25/04/2022 01:59:24",
-    trigger = unless(prev(byte(0x1E9292)) == 0) && unless(prev(byte(0x1E9293)) == 0) && bit4(0x1E9292) == 1 &&
-              bit5(0x1E9292) == 1 && bit6(0x1E9292) == 1 && bit7(0x1E9292) == 1 && bit0(0x1E9293) == 1 &&
-              bit1(0x1E9293) == 1 && bit2(0x1E9293) == 1 && bit3(0x1E9293) == 1 && bit4(0x1E9293) == 1 &&
-              bit5(0x1E9293) == 1 &&
-              ((prev(byte(0x1E9292)) < 240) ||
-               (prev(bit0(0x1E9293)) != 1) ||
-               (prev(bit1(0x1E9293)) != 1) ||
-               (prev(bit2(0x1E9293)) != 1) ||
-               (prev(bit3(0x1E9293)) != 1) ||
-               (prev(bit4(0x1E9293)) != 1) ||
-               (prev(bit5(0x1E9293)) != 1))
+    title = "Gold Trophy",
+    points = 10,
+    description = "Win all Gold Trophies on Grand Prix.",
+    id = 83625,
+    trigger = (
+        in_race() &&
+        // There are 10 tracks total
+        measured(bit4(0x1e9292) + bit5(0x1e9292) + bit6(0x1e9292) + bit7(0x1e9292) + bit0(0x1e9293) + bit1(0x1e9293) + bit2(0x1e9293) + bit3(0x1e9293) + bit4(0x1e9293) + bit5(0x1e9293) == 10) &&
+        prev(bit4(0x1e9292) + bit5(0x1e9292) + bit6(0x1e9292) + bit7(0x1e9292) + bit0(0x1e9293) + bit1(0x1e9293) + bit2(0x1e9293) + bit3(0x1e9293) + bit4(0x1e9293) + bit5(0x1e9293) == 9)
+    )
 )
+
 
 
 
