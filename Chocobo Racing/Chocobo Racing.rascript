@@ -538,19 +538,6 @@ old_gp_movie_cheevo_ids = {
     0x08: 83613
 }
 
-/*
-    0x00: "Dash",
-    0x01: "Flap",
-    0x02: "Grip Up",
-    0x03: "Mug",
-    0x04: "Magic Plus",
-    0x05: "Barrier",
-    0x06: "Charge",
-    0x07: "Receive",
-    0x08: "Megaflare",
-    0x09: "Gunblade"
-*/
-
 versus_data_dict = {
     // Chocobo
     0x00: {
@@ -559,7 +546,8 @@ versus_data_dict = {
         "map": 0x00,
         "p1_ability": 0x00,
         "opponent_ability": 0x00,
-        "pts": 5
+        "pts": 5,
+        "title": "Birds of a Feather"
     },
     // Mog
     0x01: {
@@ -568,7 +556,8 @@ versus_data_dict = {
         "map": 0x01,
         "p1_ability": 0x06,
         "opponent_ability": 0x06,
-        "pts": 5
+        "pts": 5,
+        "title": "Mischievous Motorists"
     },
     // Goblin
     0x02: {
@@ -577,7 +566,8 @@ versus_data_dict = {
         "map": 0x03,
         "p1_ability": 0x02,
         "opponent_ability": 0x02,
-        "pts": 5
+        "pts": 5,
+        "title": "Mining My Own Business!"
     },
     // WHM
     0x03: {
@@ -586,7 +576,8 @@ versus_data_dict = {
         "map": 0x05,
         "p1_ability": 0x04,
         "opponent_ability": 0x04,
-        "pts": 5
+        "pts": 5,
+        "title": "No Promises to Keep"
     },
     // BLM
     0x04: {
@@ -595,7 +586,8 @@ versus_data_dict = {
         "map": 0x04,
         "p1_ability": 0x06,
         "opponent_ability": 0x00,
-        "pts": 5
+        "pts": 5,
+        "title": "Cloud of Darkness"
     },
     // Chubby Chocobo
     0x05: {
@@ -604,7 +596,8 @@ versus_data_dict = {
         "map": 0x06,
         "p1_ability": 0x05,
         "opponent_ability": 0x00,
-        "pts": 5
+        "pts": 5,
+        "title": "Calorie Controlled Contest"
     },
     // Behemoth
     0x06: {
@@ -613,7 +606,8 @@ versus_data_dict = {
         "map": 0x07,
         "p1_ability": 0x04,
         "opponent_ability": 0x08,
-        "pts": 10
+        "pts": 10,
+        "title": "Monsters and Mythos"
     },
     // Golem
     0x07: {
@@ -631,7 +625,8 @@ versus_data_dict = {
         "map": 0x08,
         "p1_ability": 0x02,
         "opponent_ability": 0x02,
-        "pts": 10
+        "pts": 10,
+        "title": "The Hallowed Father"
     },
     // Squall
     0x09: {
@@ -640,7 +635,8 @@ versus_data_dict = {
         "map": 0x09,
         "p1_ability": 0x09,
         "opponent_ability": 0x08,
-        "pts": 10
+        "pts": 10,
+        "title": "Piercing the Heavens"
     },
     // Cid's Tank
     0x0a: {
@@ -649,7 +645,8 @@ versus_data_dict = {
         "map": 0x00,
         "p1_ability": 0x00,
         "opponent_ability": 0x00,
-        "pts": 5
+        "pts": 5,
+        "title": "Fast, Forceful Law Enforcement"
     },
     // Mumba
     0x0b: {
@@ -658,7 +655,8 @@ versus_data_dict = {
         "map": 0x02,
         "p1_ability": 0x00,
         "opponent_ability": 0x09,
-        "pts": 5
+        "pts": 5,
+        "title": "Mumba No. 5"
     },
     // Cloud
     0x0c: {
@@ -667,7 +665,8 @@ versus_data_dict = {
         "map": 0x05,
         "p1_ability": 0x04,
         "opponent_ability": 0x04,
-        "pts": 5
+        "pts": 5,
+        "title": "Hey! Watch the Flowers!"
     },
     // Cactuar
     0x0d: {
@@ -676,7 +675,8 @@ versus_data_dict = {
         "map": 0x01,
         "p1_ability": 0x00,
         "opponent_ability": 0x00,
-        "pts": 5
+        "pts": 5,
+        "title": "Cactus Jack"
     },
     // Aya
     0x0e: {
@@ -685,7 +685,8 @@ versus_data_dict = {
         "map": 0x04,
         "p1_ability": 0x00,
         "opponent_ability": 0x00, 
-        "pts": 5
+        "pts": 5,
+        "title": "Catching a Prickly Culprit"
     },
     // Classic Chocobo
     0x0f: {
@@ -694,7 +695,8 @@ versus_data_dict = {
         "map": 0x08,
         "p1_ability": 0x02,
         "opponent_ability": 0x02,
-        "pts": 10
+        "pts": 10,
+        "title": "Future Fantasy Turned Reality"
     },
     // SS Invincible
     0x10: {
@@ -703,7 +705,8 @@ versus_data_dict = {
         "map": 0x07,
         "p1_ability": 0x08,
         "opponent_ability": 0x08
-        "pts": 10
+        "pts": 10,
+        "title": "Avoiding an Aerial Assault"
     },
     // Jack
     0x11: {
@@ -712,7 +715,8 @@ versus_data_dict = {
         "map": 0x03,
         "p1_ability": 0x03,
         "opponent_ability": 0x03,
-        "pts": 5
+        "pts": 5,
+        "title": "You Don't Know Jack! Neither Do I..."
     },
 }
 
@@ -752,7 +756,7 @@ for char_id in range(0x00, 0x08, 0x01) {
 
     // Special 5-lap challenge
     achievement(
-        title = char_gp_name_map[char_id],
+        title = vs_obj["title"],
         points = vs_obj["pts"],
         description = format("As {0}, win a 5 lap race against {1} in VS. Mode on {2} with {3}", current_char_name, character_map[vs_obj["opponent_id"]], vs_obj["map"], vs_obj["string_past_with"]),
         trigger = 
@@ -812,9 +816,9 @@ for char_id in range(0x0a, 0x11, 0x01) {
 
 
 achievement(
-    title = "Bronze Trophy",
+    title = "My Parents Would Be Proud, Hopefully...",
     points = 10,
-    description = "Win all Bronze Trophies on Grand Prix.",
+    description = "Win every Bronze Trophy in Grand Prix mode",
     id = 83623,
     trigger = (
         in_race() &&
@@ -825,9 +829,9 @@ achievement(
 )
 
 achievement(
-    title = "Silver Trophy",
+    title = "Shiny Silver Set",
     points = 10,
-    description = "Win all Silver Trophies on Grand Prix.",
+    description = "Win every Silver Trophy in Grand Prix mode",
     id = 83624,
     trigger = (
         in_race() &&
@@ -838,9 +842,9 @@ achievement(
 )
 
 achievement(
-    title = "Gold Trophy",
+    title = "Great Googly Moogly, That's a Lot of Gold!",
     points = 10,
-    description = "Win all Gold Trophies on Grand Prix.",
+    description = "Win every Gold Trophy in Grand Prix mode and unlock Mirror Mode",
     id = 83625,
     trigger = (
         in_race() &&
