@@ -616,7 +616,8 @@ versus_data_dict = {
         "map": 0x02,
         "p1_ability": 0x02,
         "opponent_ability": 0x02,
-        "pts": 5
+        "pts": 5,
+        "title": "For Old Times' Sake"
     },
     // Bahamut
     0x08: {
@@ -704,7 +705,7 @@ versus_data_dict = {
         "string_past_with": "the Megaflare ability selected for both racers",
         "map": 0x07,
         "p1_ability": 0x08,
-        "opponent_ability": 0x08
+        "opponent_ability": 0x08,
         "pts": 10,
         "title": "Avoiding an Aerial Assault"
     },
