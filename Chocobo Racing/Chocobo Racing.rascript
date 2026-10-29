@@ -538,13 +538,192 @@ old_gp_movie_cheevo_ids = {
     0x08: 83613
 }
 
-for char_id in range(0x00, 0x08, 0x01) {
-    current_car_name = character_map[char_id]
+/*
+    0x00: "Dash",
+    0x01: "Flap",
+    0x02: "Grip Up",
+    0x03: "Mug",
+    0x04: "Magic Plus",
+    0x05: "Barrier",
+    0x06: "Charge",
+    0x07: "Receive",
+    0x08: "Megaflare",
+    0x09: "Gunblade"
+*/
 
+versus_data_dict = {
+    // Chocobo
+    0x00: {
+        "opponent_id": 0x05,
+        "string_past_with": "the Dash ability selected for both racers",
+        "map": 0x00,
+        "p1_ability": 0x00,
+        "opponent_ability": 0x00,
+        "pts": 5
+    },
+    // Mog
+    0x01: {
+        "opponent_id": 0x02,
+        "string_past_with": "the Charge ability selected for both racers",
+        "map": 0x01,
+        "p1_ability": 0x06,
+        "opponent_ability": 0x06,
+        "pts": 5
+    },
+    // Goblin
+    0x02: {
+        "opponent_id": 0x07,
+        "string_past_with": "the Grip-Up ability selected for both racers",
+        "map": 0x03,
+        "p1_ability": 0x02,
+        "opponent_ability": 0x02,
+        "pts": 5
+    },
+    // WHM
+    0x03: {
+        "opponent_id": 0x04,
+        "string_past_with": "the Magic Plus ability selected for both racers",
+        "map": 0x05,
+        "p1_ability": 0x04,
+        "opponent_ability": 0x04,
+        "pts": 5
+    },
+    // BLM
+    0x04: {
+        "opponent_id": 0x03,
+        "string_past_with": "the Charge ability selected for the Black Magician and the Dash ability selected for the White Mage",
+        "map": 0x04,
+        "p1_ability": 0x06,
+        "opponent_ability": 0x00,
+        "pts": 5
+    },
+    // Chubby Chocobo
+    0x05: {
+        "opponent_id": 0x00,
+        "string_past_with": "the Barrier ability selected for Chubby Chocobo and the Dash ability selected for Chocobo",
+        "map": 0x06,
+        "p1_ability": 0x05,
+        "opponent_ability": 0x00,
+        "pts": 5
+    },
+    // Behemoth
+    0x06: {
+        "opponent_id": 0x08,
+        "string_past_with": "the Magic Plus ability selected for Behemoth and the Megaflare ability selected for Bahamut",
+        "map": 0x07,
+        "p1_ability": 0x04,
+        "opponent_ability": 0x08,
+        "pts": 10
+    },
+    // Golem
+    0x07: {
+        "opponent_id": 0x01,
+        "string_past_with": "the Grip-Up ability selected for both racers",
+        "map": 0x02,
+        "p1_ability": 0x02,
+        "opponent_ability": 0x02,
+        "pts": 5
+    },
+    // Bahamut
+    0x08: {
+        "opponent_id": 0x06,
+        "string_past_with": "the Grip-Up ability selected for both racers",
+        "map": 0x08,
+        "p1_ability": 0x02,
+        "opponent_ability": 0x02,
+        "pts": 10
+    },
+    // Squall
+    0x09: {
+        "opponent_id": 0x08,
+        "string_past_with": "the Gunblade ability selected for Squall and the Megaflare ability selected for Bahamut",
+        "map": 0x09,
+        "p1_ability": 0x09,
+        "opponent_ability": 0x08,
+        "pts": 10
+    },
+    // Cid's Tank
+    0x0a: {
+        "opponent_id": 0x0e,
+        "string_past_with": "the Dash ability selected for both racers",
+        "map": 0x00,
+        "p1_ability": 0x00,
+        "opponent_ability": 0x00,
+        "pts": 5
+    },
+    // Mumba
+    0x0b: {
+        "opponent_id": 0x07,
+        "string_past_with": "the Dash ability selected for Mumba and the Gunblade ability selected for Golem",
+        "map": 0x02,
+        "p1_ability": 0x00,
+        "opponent_ability": 0x09,
+        "pts": 5
+    },
+    // Cloud
+    0x0c: {
+        "opponent_id": 0x09,
+        "string_past_with": "the Magic Plus ability selected for both racers",
+        "map": 0x05,
+        "p1_ability": 0x04,
+        "opponent_ability": 0x04,
+        "pts": 5
+    },
+    // Cactuar
+    0x0d: {
+        "opponent_id": 0x11,
+        "string_past_with": "the Charge ability selected for both racers",
+        "map": 0x01,
+        "p1_ability": 0x00,
+        "opponent_ability": 0x00,
+        "pts": 5
+    },
+    // Aya
+    0x0e: {
+        "opponent_id": 0x0d,
+        "string_past_with": "the Charge ability selected for both racers",
+        "map": 0x04,
+        "p1_ability": 0x00,
+        "opponent_ability": 0x00, 
+        "pts": 5
+    },
+    // Classic Chocobo
+    0x0f: {
+        "opponent_id": 0x00,
+        "string_past_with": "the Grip-Up ability selected for both racers",
+        "map": 0x08,
+        "p1_ability": 0x02,
+        "opponent_ability": 0x02,
+        "pts": 10
+    },
+    // SS Invincible
+    0x10: {
+        "opponent_id": 0x08,
+        "string_past_with": "the Megaflare ability selected for both racers",
+        "map": 0x07,
+        "p1_ability": 0x08,
+        "opponent_ability": 0x08
+        "pts": 10
+    },
+    // Jack
+    0x11: {
+        "opponent_id": 0x02,
+        "string_past_with": "the Mug ability selected for both racers",
+        "map": 0x03,
+        "p1_ability": 0x03,
+        "opponent_ability": 0x03,
+        "pts": 5
+    },
+}
+
+for char_id in range(0x00, 0x08, 0x01) {
+    current_char_name = character_map[char_id]
+
+    // Win GP
     achievement(
         title = char_gp_name_map[char_id],
         points = 5,
-        description = format("Win a Grand Prix as {0}", current_car_name),
+        description = format("Win a Grand Prix as {0}", current_char_name),
         id = old_gp_movie_cheevo_ids[char_id],
         trigger = 
         (
@@ -566,6 +745,29 @@ for char_id in range(0x00, 0x08, 0x01) {
                     p2_char == char_id
                 )
             ) 
+        )
+    )
+
+    vs_obj = versus_data_dict[char_id]
+
+    // Special 5-lap challenge
+    achievement(
+        title = char_gp_name_map[char_id],
+        points = vs_obj["pts"],
+        description = format("As {0}, win a 5 lap race against {1} in VS. Mode on {2} with {3}", current_char_name, character_map[vs_obj["opponent_id"]], vs_obj["map"], vs_obj["string_past_with"]),
+        trigger = 
+        (
+            current_mode == 0x04 &&
+            p1_char == char_id &&
+            p2_char == vs_obj["opponent_id"] &&
+            track == vs_obj["map"] &&
+            p1_abl == vs_obj["p1_ability"] &&
+            p2_abl == vs_obj["opponent_ability"] &&
+            p1_race_pos == 0x00 &&
+            // vs cpu
+            team_comp_definition == 0x01 &&
+            goal_lap_count == 0x05 &&
+            in_race() && finished_race() 
         )
     )
 }
