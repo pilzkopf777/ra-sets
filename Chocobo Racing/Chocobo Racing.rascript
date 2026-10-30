@@ -416,6 +416,7 @@ for count in range(0, 7, 1) {
         title = chapter_metadata["name"],
         points = chapter_metadata["pts"],
         description = format("Complete the {0} chapter of Story Mode without using the handicap", chapter_metadata["chapter_string"]),
+        type = "progression",
         trigger = (
             story_chapter_done(count + 1) &&
             current_mode == 0x01 &&
@@ -428,6 +429,7 @@ achievement(
     title = "The Domain of the Gods",
     points = 25,
     description = "Complete the final chapter of Story Mode without using the handicap and watch the end credits",
+    type = "win_condition",
     trigger = (
         ending_cutscene_ended()
     )
