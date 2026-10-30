@@ -376,7 +376,7 @@ for current_track in track_map {
     achievement(
         title = track_cheevo_names[current_track]["timetrial"],
         points = 5,
-        description = format("Beat the time of {0} on {1} in Time Attack (handicap may be activated)", get_time_as_string(time_trial_target[current_track]), track_map[current_track]),
+        description = format("Beat the time of {0} on {1} in Time Attack", get_time_as_string(time_trial_target[current_track]), track_map[current_track]),
         id = old_relay_cheevo_id_map[current_track],
         trigger = (
             in_race() &&
@@ -461,6 +461,7 @@ achievement(
         byte(0x07afec) != 0x0b &&
         gp_scores_revealed() &&
         current_mode == 0x03 &&
+        team_comp_definition != 0x02 &&
         // ID matches last track
         byte(0x07ae3f) == track &&
         (
@@ -473,7 +474,8 @@ achievement(
             (
                 // p2 is valid
                 p2_char == first_place_gp_char &&
-                first_place_gp_score == 36
+                first_place_gp_score == 36 &&
+                team_comp_definition == 0x00
             )
         ) 
     )
@@ -488,6 +490,7 @@ achievement(
         on_any_main_menu_screen() && byte(0x07afec) == 0x0b &&
         gp_scores_revealed() &&
         current_mode == 0x03 &&
+        team_comp_definition != 0x02 &&
         // ID matches last track
         byte(0x07ae3f) == track && 
         (
@@ -500,7 +503,8 @@ achievement(
             (
                 // p2 is valid
                 p2_char == first_place_gp_char &&
-                first_place_gp_score == 36
+                first_place_gp_score == 36 &&
+                team_comp_definition == 0x00
             )
         ) 
     )
@@ -737,6 +741,7 @@ for char_id in range(0x00, 0x08, 0x01) {
             on_any_main_menu_screen() && byte(0x07afec) == 0x0b &&
             gp_scores_revealed() &&
             current_mode == 0x03 &&
+            team_comp_definition != 0x02 &&
             // ID matches last track
             byte(0x07ae3f) == track && 
             (
@@ -749,19 +754,23 @@ for char_id in range(0x00, 0x08, 0x01) {
                 (
                     // p2 is valid
                     p2_char == first_place_gp_char &&
-                    p2_char == char_id
+                    p2_char == char_id &&
+                    team_comp_definition == 0x00
                 )
             ) 
         )
     )
+}
 
+for char_id in range(0x00, 0x11, 0x01) {
+    current_char_name = character_map[char_id]    
     vs_obj = versus_data_dict[char_id]
 
     // Special 5-lap challenge
     achievement(
         title = vs_obj["title"],
         points = vs_obj["pts"],
-        description = format("As {0}, win a 5 lap race against {1} in VS. Mode on {2} with {3}", current_char_name, character_map[vs_obj["opponent_id"]], vs_obj["map"], vs_obj["string_past_with"]),
+        description = format("As {0}, win a 5 lap race against {1} in VS. Mode on {2} with {3}", current_char_name, character_map[vs_obj["opponent_id"]], track_map[vs_obj["map"]], vs_obj["string_past_with"]),
         trigger = 
         (
             current_mode == 0x04 &&
@@ -770,11 +779,11 @@ for char_id in range(0x00, 0x08, 0x01) {
             track == vs_obj["map"] &&
             p1_abl == vs_obj["p1_ability"] &&
             p2_abl == vs_obj["opponent_ability"] &&
-            p1_race_pos == 0x00 &&
             // vs cpu
             team_comp_definition == 0x01 &&
             goal_lap_count == 0x05 &&
-            in_race() && finished_race() 
+            in_race() &&
+            trigger_when(finished_race() && p1_race_pos == 0x00)
         )
     )
 }
