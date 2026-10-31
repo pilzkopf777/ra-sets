@@ -86,6 +86,10 @@ function handicap_p1_off() {
     return bit2(0x1e929a) == 0x00
 }
 
+function handicap_p1_on() {
+    return bit2(0x1e929a) == 0x01
+}
+
 function handicap_p2_off() {
     return bit3(0x1e929a) == 0x00
 }
@@ -376,13 +380,14 @@ for current_track in track_map {
     achievement(
         title = track_cheevo_names[current_track]["timetrial"],
         points = 5,
-        description = format("Beat the time of {0} on {1} in Time Attack", get_time_as_string(time_trial_target[current_track]), track_map[current_track]),
+        description = format("Beat the time of {0} on {1} in Time Attack while using the handicap", get_time_as_string(time_trial_target[current_track]), track_map[current_track]),
         id = old_relay_cheevo_id_map[current_track],
         trigger = (
             in_race() &&
             trigger_when(finished_race()) &&
             track == current_track &&
             current_mode == 0x02 &&
+            handicap_p1_on() &&
             race_time <= time_trial_target[current_track]
         )
     )
