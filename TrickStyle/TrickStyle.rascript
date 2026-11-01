@@ -36,6 +36,14 @@ player_count = dword(0x0efe5c)
 
 pause_state = dword(0x57f95c)
 
+function in_single_player() {
+    return player_count == 0x01
+}
+
+function in_two_player() {
+    return player_count == 0x02
+}
+
 function in_demo() {
     return player_count == 0x00 && main_menu_state == 0x00
 }
@@ -132,9 +140,17 @@ map_map = {
     0x13: "Magno Race 3",
     0x14: "Hoop Race 2",
     0x30: "Globe Switch 3",
-    0x31: "Final Challenge"
-
+    0x31: "Final Challenge",
+    // VS Maps start here
+    0x34: "Stunt Session",
+    0x35: "Globe Switch",
+    0x36: "Hoop Race",
+    0x37: "Base Collect",
+    0x3c: "Stuntbowl UK",
+    0x3d: "Backstreets USA",
+    0x3e: "Skydome Japan",
 }
+
 
 char_map = {
     0x01: "Angel",
@@ -165,8 +181,16 @@ class PlayerObject {
         return byte(0x143c78)
     }
 
+    function get_char_p2() {
+        return byte(0x143f24)
+    }
+
     function get_board() {
         return byte(0x143c79)
+    }
+
+    function get_board_p2() {
+        return byte(0x143f25)
     }
 
     function on_floor() {
@@ -245,6 +269,7 @@ achievement(
     points = 0,
     description = format("UK RACES"),
     trigger = (
+        in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x15, 0x19)
     )
 )
@@ -254,6 +279,7 @@ achievement(
     points = 0,
     description = format("UK BOSS"),
     trigger = (
+        in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x1b, 0x1b)
     )
 )
@@ -263,6 +289,7 @@ achievement(
     points = 0,
     description = format("US RACES"),
     trigger = (
+        in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x1f, 0x23)
     )
 )
@@ -272,6 +299,7 @@ achievement(
     points = 0,
     description = format("US BOSS"),
     trigger = (
+        in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x25, 0x25)
     )
 )
@@ -281,6 +309,7 @@ achievement(
     points = 0,
     description = format("JPN RACES"),
     trigger = (
+        in_single_player() &&
         check_if_player_completed_obj_logic(4, 0x29, 0x2c)
     )
 )
@@ -290,6 +319,7 @@ achievement(
     points = 0,
     description = format("JPN BOSS"),
     trigger = (
+        in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x2f, 0x2f)
     )
 )
@@ -299,6 +329,7 @@ achievement(
     points = 0,
     description = format("JPN FINAL RACE"),
     trigger = (
+        in_single_player() &&
         map_id == 0x2d &&
         credits_started() &&
         in_gameplay()
@@ -353,7 +384,7 @@ time_trial_targets = {
     0x22: 63.0, // 01:03:00
     0x23: 110.0, // 01:50:00
     0x29: 83.0, // 01:23:00
-    0x2A: 93.0 // 01:33:00
+    0x2A: 93.0, // 01:33:00
     0x2B: 75.0, // 01:15:00
     0x2C: 96.0, // 01:36:00
     0x2D: 121.0, // 02:01:00
@@ -392,9 +423,10 @@ function format_time(time_float) {
 for map in time_trial_map_dict {
     leaderboard(
         title = format("Time Attack: {0}", time_trial_map_dict[map]),
-        description = format("Reach the goal in {0} as quickly as possible", time_trial_map_dict[map]),
+        description = format("In Single Player mode, reach the goal in {0} as quickly as possible", time_trial_map_dict[map]),
         start = 
         (
+            in_single_player() &&
             map_id == map &&
             player.reached_race_goal_checkpoint(time_trial_map_checkpoint_count[map])
         ),
@@ -410,11 +442,12 @@ for map in time_trial_map_dict {
     achievement(
         title = format("TIME TRIAL {0}", time_trial_map_dict[map]),
         points = 0,
-        description = format("Reach the goal in {0} in {1} or less",
+        description = format("In Single Player mode, reach the goal in {0} in {1} or less",
                         time_trial_map_dict[map],
                         format_time(time_trial_targets[map])
                     ),
         trigger = (
+            in_single_player() &&
             map_id == map &&
             trigger_when(player.reached_race_goal_checkpoint(time_trial_map_checkpoint_count[map])) &&
             player.get_time_spent() <= time_trial_targets[map]
@@ -427,6 +460,7 @@ achievement(
     points = 0,
     description = format("BREAK BIG BEN"),
     trigger = (
+        in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
         (
             // bottom left: 1597.0, 220.0, 1277.0
@@ -467,6 +501,7 @@ achievement(
     points = 0,
     description = format("LAND ON CAR"),
     trigger = (
+        in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
         (
             // corner 1
@@ -509,6 +544,7 @@ achievement(
     points = 0,
     description = format("LAND 1080 AIR"),
     trigger = (
+        in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
         once(player.get_trick() == 0x44e) &&
         // 500, 750, 1000 -> adds a minimum of 2250 pts
@@ -522,9 +558,10 @@ achievement(
     points = 0,
     description = format("LAND SPECIAL TRICK"),
     trigger = (
+        in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
         once(
-            trick_is_special_orb(layer.get_trick()) && prev(!trick_is_special_orb(layer.get_trick()))
+            trick_is_special_orb(player.get_trick()) && prev(!trick_is_special_orb(player.get_trick()))
         ) &&
         prev(player.get_score() + 1500) <= player.get_score() &&
         never(player.has_invuln_frames())
@@ -538,10 +575,17 @@ rich_presence_conditional_display(on_the_title_screen() || in_demo(), "On the Ti
 
 rich_presence_conditional_display(in_main_menu(), "In the Main Menu")
 
-rich_presence_conditional_display(in_gameplay(), "{0} is competing in {1} on the {2} board", // Challenges completed: {3}
+rich_presence_conditional_display(in_gameplay() && in_single_player(), "{0} is competing in {1} on the {2} board", // Challenges completed: {3}
     rich_presence_lookup("Player", player.get_char(), char_map, fallback="Unknown character"),
-    rich_presence_lookup("Map", map_id, map_map, fallback="Unknown map"),
-    rich_presence_lookup("Board", player.get_board(), board_map, fallback="Unknown board")
+    rich_presence_lookup("Map", map_id, map_map, fallback="an unknown map"),
+    rich_presence_lookup("Board", player.get_board(), board_map, fallback="unknown")
+    //rich_presence_value("ChallengeCount", ...(), "VALUE")
+)
+
+rich_presence_conditional_display(in_gameplay() && in_two_player(), "{0} and {2} are competing in {1}", // Challenges completed: {3}
+    rich_presence_lookup("Player", player.get_char(), char_map, fallback="Unknown character"),
+    rich_presence_lookup("Map", map_id, map_map, fallback="an unknown map"),
+    rich_presence_lookup("Player2", player.get_char_p2(), char_map, fallback="a unknown character")
     //rich_presence_value("ChallengeCount", ...(), "VALUE")
 )
 
