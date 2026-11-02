@@ -148,6 +148,10 @@ function gp_scores_revealed() {
     return byte(0x08d78c) == 0x82 && prev(byte(0x08d78c) < 0x82)
 }
 
+function just_before_gp_scores_revealed() {
+    return byte(0x08d78c) == 0x81 && prev(byte(0x08d78c) < 0x81)
+}
+
 mode_map = {
     0x00: "Options",
     0x01: "Story Mode",
@@ -481,7 +485,6 @@ achievement(
         once(
             // Set on loading screen going to 1st race of GP
             started_gp() &&
-
             gp_contains_requested_map(0x07) &&
             gp_contains_requested_map(0x08) &&
             gp_contains_requested_map(0x09)
@@ -509,6 +512,19 @@ achievement(
                 team_comp_definition == 0x00
             )
         ) 
+        ) &&
+        never(
+            just_before_gp_scores_revealed() &&
+            // p1 is valid
+            p1_char == first_place_gp_char &&
+            first_place_gp_score != 36
+        ) &&
+        never(
+            just_before_gp_scores_revealed() &&
+            // p2 is valid
+            p2_char == first_place_gp_char &&
+            first_place_gp_score != 36 &&
+            team_comp_definition == 0x00
         )
     )
 )
