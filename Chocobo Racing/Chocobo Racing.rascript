@@ -728,8 +728,8 @@ versus_data_dict = {
         "opponent_id": 0x11,
         "string_past_with": "the Charge ability selected for both racers",
         "map": 0x01,
-        "p1_ability": 0x00,
-        "opponent_ability": 0x00,
+        "p1_ability": 0x06,
+        "opponent_ability": 0x06,
         "pts": 5,
         "title": "Cactus Jack"
     },
@@ -738,8 +738,8 @@ versus_data_dict = {
         "opponent_id": 0x0d,
         "string_past_with": "the Charge ability selected for both racers",
         "map": 0x04,
-        "p1_ability": 0x00,
-        "opponent_ability": 0x00, 
+        "p1_ability": 0x06,
+        "opponent_ability": 0x06, 
         "pts": 5,
         "title": "Catching a Prickly Culprit"
     },
