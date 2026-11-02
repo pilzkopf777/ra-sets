@@ -460,7 +460,7 @@ achievement(
 achievement(
     title = "Racing Perfection",
     points = 25,
-    description = "Obtain a perfect score of 100 points score in Story Mode",
+    description = "Obtain a perfect score of 100 points in Story Mode",
     id = 83626,
     trigger = (
         current_mode == 0x09 &&
