@@ -34,7 +34,11 @@ race_time = dword(0x07b044)
 goal_lap_count = byte(0x07ae36)
 team_comp_definition = byte(0x08d752)
 
-p1_race_pos = ptr(tbyte(0x08d32c), [0x27A], byte)
+p1_race_pos = ptr(tbyte(0x0b21cc), [0x27A], byte)
+
+function quit_race_from_gp() {
+    return (byte(0x07afec) == 0x02 && prev(byte(0x07afec) == 0x00)) || (byte(0x07afec) == 0x04 && prev(byte(0x07afec) == 0x00))
+}
 
 function in_demo() {
     return byte(0x07afab) == 0x01
@@ -56,6 +60,10 @@ function on_any_main_menu_screen() {
 function in_race() {
     // return byte(0x07afec) == 0x00
     return word(0x07afb2) == 0x8010
+}
+
+function started_gp() {
+    return prev(on_any_main_menu_screen()) && in_race() && word(0x07afb2) == 0x8010 && prev(word(0x07afb2) == 0x00)
 }
 
 function story_mode_score_revealed() {
@@ -107,7 +115,7 @@ array_of_gp_config_maps = [byte(0x07ae3c), byte(0x07ae3d), byte(0x07ae3e), byte(
 
 function gp_contains_requested_map(requested_map) {
     return once(
-        in_race() &&
+        started_gp() &&
         (
             array_of_gp_config_maps[0] == requested_map ||
             array_of_gp_config_maps[1] == requested_map ||
@@ -302,42 +310,52 @@ track_cheevo_names = {
     0x00: {
         "timetrial": "Experimenting with Efficiency",
         "relay": "Test Track Tag Team",
+        "tt_pts": 5,
     },
     0x01: {
         "timetrial": "Kupo de Grace",
         "relay": "Pass the Branch",
+        "tt_pts": 5,
     },
     0x02: {
         "timetrial": "The Tides of Time",
         "relay": "The Flow of Time",
+        "tt_pts": 5,
     },
     0x03: {
         "timetrial": "Mettle of Mythril",
         "relay": "All Terrain Triumph",
+        "tt_pts": 5,
     },
     0x04: {
         "timetrial": "Haunting Hour",
         "relay": "The Three Haunted Racers",
+        "tt_pts": 5,
     },
     0x05: {
         "timetrial": "Terrace of Eternity",
         "relay": "The Scenic Route",
+        "tt_pts": 5,
     },
     0x06: {
         "timetrial": "Intermittent Fasting",
         "relay": "Sweet, Sweet Victory",
+        "tt_pts": 5,
     },
     0x07: {
         "timetrial": "High Temperatures, Tight Timing",
         "relay": "Air Conditioning Required",
+        "tt_pts": 10
     },
     0x08: {
         "timetrial": "Inching Towards Infinity",
         "relay": "A Victory One Dreams About",
+        "tt_pts": 10
     },
     0x09: {
         "timetrial": "Triple Triad? No, We're Tearing Tracks!",
         "relay": "Twists, Turns and Around and Round And...",
+        "tt_pts": 10
     },
 }
 
@@ -379,9 +397,8 @@ for current_track in track_map {
     // Time Trial
     achievement(
         title = track_cheevo_names[current_track]["timetrial"],
-        points = 5,
+        points = track_cheevo_names[current_track]["tt_pts"],
         description = format("Beat the time of {0} on {1} in Time Attack while using the handicap", get_time_as_string(time_trial_target[current_track]), track_map[current_track]),
-        id = old_relay_cheevo_id_map[current_track],
         trigger = (
             in_race() &&
             trigger_when(finished_race()) &&
@@ -396,7 +413,7 @@ for current_track in track_map {
     achievement(
         title = track_cheevo_names[current_track]["relay"],
         points = 5,
-        description = format("Beat the computer in a Relay Race set at 3 laps each on {0}.", track_map[current_track]),
+        description = format("Beat the computer in a Relay Race set at 3 laps each on {0}", track_map[current_track]),
         id = old_relay_cheevo_id_map[current_track],
         trigger = (
             current_mode == 0x05 &&
@@ -406,8 +423,8 @@ for current_track in track_map {
             goal_lap_count == 0x09 &&
             // correct map
             track == current_track &&
-            finished_race() &&
-            p1_race_pos == 0x00
+            trigger_when(finished_race() &&
+            p1_race_pos == 0x00)
         )
     )
 }
@@ -458,17 +475,26 @@ achievement(
     description = "Score a perfect 36 points in a Grand Prix with Vulcan-O Valley, Fantasia and F.F.VIII Circuit in rotation",
     id = 83554,
     trigger = (
-        gp_contains_requested_map(0x07) &&
-        gp_contains_requested_map(0x08) &&
-        gp_contains_requested_map(0x09) &&
-        // prev(in_race()) && in_race() &&
-        // never(on_any_main_menu_screen()
-        byte(0x07afec) != 0x0b &&
-        gp_scores_revealed() &&
+
+        // Reset hits when leaving GP early via pause menu
+        never(quit_race_from_gp()) &&
+        once(
+            // Set on loading screen going to 1st race of GP
+            started_gp() &&
+
+            gp_contains_requested_map(0x07) &&
+            gp_contains_requested_map(0x08) &&
+            gp_contains_requested_map(0x09)
+        ) &&
         current_mode == 0x03 &&
         team_comp_definition != 0x02 &&
-        // ID matches last track
-        byte(0x07ae3f) == track &&
+        trigger_when(
+            // Must be on podium
+            byte(0x07afec) == 0x0b &&
+            // Reveal scores
+            gp_scores_revealed() &&
+            // ID matches last track
+            byte(0x07ae3f) == track &&
         (
             (
                 // p1 is valid
@@ -483,6 +509,7 @@ achievement(
                 team_comp_definition == 0x00
             )
         ) 
+        )
     )
 )
 
@@ -573,10 +600,10 @@ versus_data_dict = {
     // Goblin
     0x02: {
         "opponent_id": 0x07,
-        "string_past_with": "the Grip-Up ability selected for both racers",
+        "string_past_with": "the Mug ability selected for Goblin and the Barrier ability selected for Golem",
         "map": 0x03,
-        "p1_ability": 0x02,
-        "opponent_ability": 0x02,
+        "p1_ability": 0x03,
+        "opponent_ability": 0x05,
         "pts": 5,
         "title": "Mining My Own Business!"
     },
@@ -796,7 +823,7 @@ for char_id in range(0x00, 0x11, 0x01) {
 char_unlock_name_map = {
     0x0a: "Tanking as a Tank",
     0x0b: "Mumba to the Rescue",
-    0x0c: "Now Where's my Remake?",
+    0x0c: "Now Where's My Remake?",
     0x0d: "1000 Needles",
     0x0e: "Mitochondria Queen",
     0x0f: "8bit Racing",
@@ -825,6 +852,10 @@ for char_id in range(0x0a, 0x11, 0x01) {
         id = old_char_unlock_id[char_id],
         trigger = 
         (
+            
+            (
+                current_mode == 0x09 || current_mode == 0x01
+            ) &&
             byte(0x1ea998) == char_id - 9 && prev(byte(0x1ea998) == char_id - 10)
         )
     )
