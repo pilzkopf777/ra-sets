@@ -764,7 +764,7 @@ versus_data_dict = {
     // Jack
     0x11: {
         "opponent_id": 0x02,
-        "string_past_with": "the Gundlade ability selected for Jack and the Mug ability selected for Goblin",
+        "string_past_with": "the Gunblade ability selected for Jack and the Mug ability selected for Goblin",
         "map": 0x03,
         "p1_ability": 0x09,
         "opponent_ability": 0x03,
