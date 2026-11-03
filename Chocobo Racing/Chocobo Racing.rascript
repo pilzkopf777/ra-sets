@@ -491,13 +491,12 @@ achievement(
         ) &&
         current_mode == 0x03 &&
         team_comp_definition != 0x02 &&
-        trigger_when(
-            // Must be on podium
-            byte(0x07afec) == 0x0b &&
-            // Reveal scores
-            gp_scores_revealed() &&
-            // ID matches last track
-            byte(0x07ae3f) == track &&
+        // Must be on podium
+        byte(0x07afec) == 0x0b &&
+        // Reveal scores
+        gp_scores_revealed() &&
+        // ID matches last track
+        byte(0x07ae3f) == track &&
         (
             (
                 // p1 is valid
@@ -511,7 +510,6 @@ achievement(
                 first_place_gp_score == 36 &&
                 team_comp_definition == 0x00
             )
-        ) 
         ) &&
         never(
             just_before_gp_scores_revealed() &&
@@ -766,9 +764,9 @@ versus_data_dict = {
     // Jack
     0x11: {
         "opponent_id": 0x02,
-        "string_past_with": "the Mug ability selected for both racers",
+        "string_past_with": "the Gundlade ability selected for Jack and the Mug ability selected for Goblin",
         "map": 0x03,
-        "p1_ability": 0x03,
+        "p1_ability": 0x09,
         "opponent_ability": 0x03,
         "pts": 5,
         "title": "You Don't Know Jack! Neither Do I..."
