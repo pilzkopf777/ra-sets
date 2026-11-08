@@ -463,35 +463,37 @@ achievement(
         in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
         (
-            // bottom left: 1597.0, 220.0, 1277.0
-            // top right: 1597.0, 480.0, 1307.0
+            (
+                // bottom left: 1597.0, 220.0, 1277.0
+                // top right: 1597.0, 480.0, 1307.0
 
-            // bottom left: 1618.0, 220.0, 1265.0
-            // top right: 1615.0, 480.0, 1297.0
+                // bottom left: 1618.0, 220.0, 1265.0
+                // top right: 1615.0, 480.0, 1297.0
 
-            // bottom left: 1628.0, 220.0, 1263.0
-            // top right: 1634.0, 480.0, 1291.0
-            map_id == 0x15 &&
+                // bottom left: 1628.0, 220.0, 1263.0
+                // top right: 1634.0, 480.0, 1291.0
+                map_id == 0x15 &&
 
-            once(player.entered_area(1597.0, 1598.0, 220.0, 480.0, 1277.0, 1307.0)) &&
-            once(player.entered_area(1615.0, 1618.0, 220.0, 480.0, 1265.0, 1297.0)) &&
-            once(player.entered_area(1628.0, 1634.0, 220.0, 480.0, 1263.0, 1291.0))
-        )
-        ||
-        (
-            // bottom left: 847.0, 220.0, 1565.0
-            // top right: 856.0, 480.0, 1597.0
+                once(player.entered_area(1597.0, 1598.0, 220.0, 480.0, 1277.0, 1307.0)) &&
+                once(player.entered_area(1615.0, 1618.0, 220.0, 480.0, 1265.0, 1297.0)) &&
+                once(player.entered_area(1628.0, 1634.0, 220.0, 480.0, 1263.0, 1291.0))
+            )
+            ||
+            (
+                // bottom left: 847.0, 220.0, 1565.0
+                // top right: 856.0, 480.0, 1597.0
 
-            // bottom left: 824.0, 220.0, 1573.0
-            // top right: 840.0, 480.0, 1599.0
+                // bottom left: 824.0, 220.0, 1573.0
+                // top right: 840.0, 480.0, 1599.0
 
-            // bottom left: 806.0, 220.0, 1579.0
-            // top right: 816.0, 480.0, 1608.0
-            map_id == 0x16 &&
+                // bottom left: 806.0, 220.0, 1579.0
+                // top right: 816.0, 480.0, 1608.0
+                map_id == 0x16 &&
 
-            once(player.entered_area(847.0, 856.0, 220.0, 480.0, 1565.0, 1597.0)) &&
-            once(player.entered_area(824.0, 840.0, 220.0, 480.0, 1573.0, 1599.0)) &&
-            once(player.entered_area(806.0, 816.0, 220.0, 480.0, 1579.0, 1608.0))
+                once(player.entered_area(847.0, 856.0, 220.0, 480.0, 1565.0, 1597.0)) &&
+                once(player.entered_area(824.0, 840.0, 220.0, 480.0, 1573.0, 1599.0)) &&
+                once(player.entered_area(806.0, 816.0, 220.0, 480.0, 1579.0, 1608.0))
+            )            
         )
     )
 )
@@ -504,40 +506,80 @@ achievement(
         in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
         (
-            // corner 1
-            // 546, 113, 1334
-            // corner 2
-            // 420, 133, 1286
-            // highest for ramp: 120
-            map_id == 0x21 &&
-            player.entered_area(400.0, 570.0, 122.5, 300.0, 1250.0, 1390.0) &&
-            never(player.on_floor())
-        )
-        ||
-        (
-            // corner 1
-            // 411, 298, 209
-            // corner 2
-            // 546, 299, 147
-            // highest for ramp: 304
-            map_id == 0x22 &&
-            player.entered_area(400.0, 570.0, 306.5, 600.0, 120.0, 250.0) &&
-            player.on_floor() && prev(player.mid_air())
-        ) ||
-        (
-            // corner 1
-            // 421, 300, 745
-            // corner 2
-            // 534, 298, 677
-            // highest for ramp: 304
-            map_id == 0x23 &&
-            player.entered_area(400.0, 570.0, 306.5, 600.0, 640.0, 790.0) &&
-            player.on_floor() && prev(player.mid_air())
+            (
+                // corner 1
+                // 395 116 1348
+                // corner 2
+                // 528 133 1276
+                // highest for ramp: 120
+                map_id == 0x21 &&
+                player.entered_area(400.0, 570.0,
+                                    122.5, 300.0,
+                                    1250.0, 1390.0) &&
+                player.on_floor() && prev(player.mid_air())
+            )
+            ||
+            (
+                // corner 1
+                // 411, 298, 209
+                // corner 2
+                // 546, 299, 147
+                // highest for ramp: 304
+                map_id == 0x22 &&
+                player.entered_area(400.0, 570.0,
+                                    306.5, 600.0,
+                                    120.0, 250.0) &&
+                player.on_floor() && prev(player.mid_air())
+            ) ||
+            (
+                // corner 1
+                // 421, 300, 745
+                // corner 2
+                // 534, 298, 677
+                // highest for ramp: 304
+                map_id == 0x23 &&
+                player.entered_area(400.0, 570.0,
+                                    306.5, 600.0,
+                                    640.0, 790.0) &&
+                player.on_floor() && prev(player.mid_air())
+            )
         )
     )
 )
 
+achievement(
+    title = format("LAND KICKFLIP ABOVE PAGODA USA 3"),
+    points = 0,
+    description = format("LAND KICKFLIP ABOVE PAGODA USA 3"),
+    trigger =
+    (
+// TODO: add proper crash check, use save states
 
+        in_single_player() &&
+        never(checkpoint_count == 0xffffffff) &&
+        /*
+        usa 3 (0x17):
+        bottom right
+        573, 130, 319
+        top left
+        596, 130, 301
+        height min: 140, max 144
+        */
+
+        once(
+            map_id == 0x17 &&
+            once(player.get_trick() == 0x43 && prev(player.get_trick() != 0x43)) &&
+            player.entered_area(573.0, 596.0,
+                                140.0, 1400.0,
+                                300.0, 319.0) &&
+            prev(player.get_score() + 600) <= player.get_score()
+        ) &&
+        player.on_floor() && prev(player.mid_air()) &&
+        never(
+            repeated(10, player.on_floor())
+        )
+    )
+)
 
 achievement(
     title = format("LAND 1080 AIR"),
