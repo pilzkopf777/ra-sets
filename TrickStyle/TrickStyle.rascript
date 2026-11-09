@@ -57,7 +57,7 @@ function in_main_menu() {
 }
 
 function in_gameplay() {
-    return !on_the_title_screen() && !in_demo() && !in_main_menu()
+    return !on_the_title_screen() && !in_main_menu() // && !in_demo()
 }
 
 function completed_event(event_result_slot_adr) {
@@ -269,77 +269,84 @@ player = PlayerObject()
 achievement(
     title = format("TUTORIAL LESSONS"),
     points = 0,
-    description = format("TUTORIAL LESSONS"),
+    description = format("Complete all of the Guide's training lessons"),
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(5, 0x02, 0x06)
+        check_if_player_completed_obj_logic(5, 0x02, 0x06) &&
+        in_gameplay()
     )
 )
 
 achievement(
     title = format("UK RACES"),
     points = 0,
-    description = format("UK RACES"),
+    description = format("In Single Player mode, win every race in the UK"),
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(5, 0x15, 0x19)
+        check_if_player_completed_obj_logic(5, 0x15, 0x19) &&
+        in_gameplay()
     )
 )
 
 achievement(
     title = format("UK BOSS"),
     points = 0,
-    description = format("UK BOSS"),
+    description = format("In Single Player mode, win the boss challenge in the UK"),
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(1, 0x1b, 0x1b)
+        check_if_player_completed_obj_logic(1, 0x1b, 0x1b) &&
+        in_gameplay()
     )
 )
 
 achievement(
     title = format("USA RACES"),
     points = 0,
-    description = format("USA RACES"),
+    description = format("In Single Player mode, win every race in the USA"),
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(5, 0x1f, 0x23)
+        check_if_player_completed_obj_logic(5, 0x1f, 0x23) &&
+        in_gameplay()
     )
 )
 
 achievement(
     title = format("USA BOSS"),
     points = 0,
-    description = format("USA BOSS"),
+    description = format("In Single Player mode, win the boss challenge in the USA"),
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(1, 0x25, 0x25)
+        check_if_player_completed_obj_logic(1, 0x25, 0x25) &&
+        in_gameplay()
     )
 )
 
 achievement(
     title = format("JPN RACES"),
     points = 0,
-    description = format("JPN RACES"),
+    description = format("In Single Player mode, win every race in Japan"),
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(4, 0x29, 0x2c)
+        check_if_player_completed_obj_logic(4, 0x29, 0x2c) &&
+        in_gameplay()
     )
 )
 
 achievement(
     title = format("JPN BOSS"),
     points = 0,
-    description = format("JPN BOSS"),
+    description = format("In Single Player mode, win the boss challenge in Japan"),
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(1, 0x2f, 0x2f)
+        check_if_player_completed_obj_logic(1, 0x2f, 0x2f) &&
+        in_gameplay()
     )
 )
 
 achievement(
     title = format("JPN FINAL RACE"),
     points = 0,
-    description = format("JPN FINAL RACE"),
+    description = format("In Single Player mode, win the final race against the Guide"),
     trigger = (
         in_single_player() &&
         map_id == 0x2d &&
@@ -364,6 +371,24 @@ time_trial_map_dict = {
     0x2B: "Japan Race 3",
     0x2C: "Japan Race 4",
     0x2D: "Japan Race 5",
+}
+
+time_trial_ach_titles = {
+    0x15: "",
+    0x16: "",
+    0x17: "",
+    0x18: "",
+    0x19: "",
+    0x1F: "",
+    0x20: "",
+    0x21: "",
+    0x22: "",
+    0x23: "",
+    0x29: "",
+    0x2A: "",
+    0x2B: "",
+    0x2C: "",
+    0x2D: ""
 }
 
 time_trial_map_checkpoint_count = {
@@ -440,7 +465,8 @@ for map in time_trial_map_dict {
         (
             in_single_player() &&
             map_id == map &&
-            player.reached_race_goal_checkpoint(time_trial_map_checkpoint_count[map])
+            player.reached_race_goal_checkpoint(time_trial_map_checkpoint_count[map]) &&
+            in_gameplay()
         ),
         cancel = always_false(),
         submit = always_true(),
@@ -452,7 +478,7 @@ for map in time_trial_map_dict {
     )
 
     achievement(
-        title = format("TIME TRIAL {0}", time_trial_map_dict[map]),
+        title = format("{0}", time_trial_ach_titles[map]),
         points = 0,
         description = format("In Single Player mode, reach the goal in {0} in {1} or less",
                         time_trial_map_dict[map],
@@ -462,7 +488,8 @@ for map in time_trial_map_dict {
             in_single_player() &&
             map_id == map &&
             trigger_when(player.reached_race_goal_checkpoint(time_trial_map_checkpoint_count[map])) &&
-            player.get_time_spent() <= time_trial_targets[map]
+            player.get_time_spent() <= time_trial_targets[map] &&
+            in_gameplay()
         )
     )
 }
@@ -477,7 +504,7 @@ one_cp_options = [0x2d]
 achievement(
     title = format("WIN WITH 15000 PTS"),
     points = 0,
-    description = format("WIN WITH 15000 PTS"),
+    description = format("In Single Player mode, win any race while scoring at least 15,000 points"),
     trigger = (
         (
             (
@@ -493,7 +520,7 @@ achievement(
                 trigger_when(player.reached_race_goal_checkpoint(3))
             ) ||
             (
-                map_id >= 0x2a && map_id <= 0x2c &&
+                map_id >= 0x2a && map_id <= 0x2c&&
                 trigger_when(player.reached_race_goal_checkpoint(3))
             ) ||
             (
@@ -507,7 +534,8 @@ achievement(
         ) &&
         in_single_player() &&
         player.get_score() >= 15000 &&
-        player.get_race_pos() == 0x01
+        player.get_race_pos() == 0x01 &&
+        in_gameplay()
     )
 )
 
@@ -515,10 +543,11 @@ achievement(
 achievement(
     title = format("BREAK BIG BEN"),
     points = 0,
-    description = format("BREAK BIG BEN"),
+    description = format("In Single Player mode, crash through Big Ben"),
     trigger = (
         in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
+        in_gameplay() &&
         (
             (
                 // bottom left: 1597.0, 220.0, 1277.0
@@ -558,10 +587,11 @@ achievement(
 achievement(
     title = format("LAND ON CAR"),
     points = 0,
-    description = format("LAND ON CAR"),
+    description = format("In Single Player mode, land on a flying car"),
     trigger = (
         in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
+        in_gameplay() &&
         (
             (
                 // corner 1
@@ -607,13 +637,13 @@ achievement(
 achievement(
     title = format("LAND KICKFLIP ABOVE PAGODA USA 3 OR 5"),
     points = 0,
-    description = format("LAND KICKFLIP ABOVE PAGODA USA 3 OR 5"),
+    description = format("In Single Player mode, land a Kickflip while jumping over the pagoda in USA Race 3 or 5"),
     trigger =
     (
-// TODO: add proper crash check, use save states
 
         in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
+        in_gameplay() &&
         /*
         usa 3 (0x17):
         bottom right
@@ -660,11 +690,12 @@ achievement(
 achievement(
     title = format("JUMP USA 1 JUMP"),
     points = 0,
-    description = format("JUMP USA 1 JUMP"),
+    description = format("In Single Player mode, jump over both fences in a single jump in USA Race 1"),
     trigger = (
         in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
         map_id == 0x1f &&
+        in_gameplay() &&
         /*
         ramp
         1970 795 1524
@@ -711,9 +742,10 @@ achievement(
 achievement(
     title = format("LAND 1080 AIR"),
     points = 0,
-    description = format("LAND 1080 AIR"),
+    description = format("In Single Player mode, land a 1080 Air"),
     trigger = (
         in_single_player() &&
+        in_gameplay() &&
         never(checkpoint_count == 0xffffffff) &&
         once(player.get_trick() == 0x44e) &&
         // 500, 750, 1000 -> adds a minimum of 2250 pts
@@ -723,17 +755,28 @@ achievement(
 )
 
 achievement(
-    title = format("LAND SPECIAL TRICK"),
+    title = format("AIR 4 SEC"),
     points = 0,
-    description = format("LAND SPECIAL TRICK"),
+    description = format("In Single Player mode, stay airborne for at least 4 seconds and land safely"),
     trigger = (
         in_single_player() &&
+        in_gameplay() &&
         never(checkpoint_count == 0xffffffff) &&
-        once(
-            trick_is_special_orb(player.get_trick()) && prev(!trick_is_special_orb(player.get_trick()))
-        ) &&
-        prev(player.get_score() + 1500) <= player.get_score()
-        // never(player.has_invuln_frames())
+        repeated(120, player.mid_air()) &&
+        never(player.on_floor()) && never(player.in_crash_state())
+    )
+)
+
+achievement(
+    title = format("LAND SPECIAL TRICK"),
+    points = 0,
+    description = format("In Single Player mode, land any special trick"),
+    trigger = (
+        in_single_player() &&
+        in_gameplay() &&
+        checkpoint_count != 0xffffffff&&
+        prev(player.get_score() + 1500) <= player.get_score() &&
+        prev(trick_is_special_orb(player.get_trick())) && player.get_trick() == 0x00
     )
 )
 
