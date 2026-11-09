@@ -70,7 +70,7 @@ function tally_progression_data(lower_limit, upper_limit) {
     start_id_slot_adr = 0x143c7a
     start_result_slot_adr = 0x143cba
 
-    for current_offset in range(0, 35, 1) {
+    for current_offset in range(0, 40, 1) {
 
         array_push(cond,
             (
@@ -265,6 +265,16 @@ class PlayerObject {
 }
 
 player = PlayerObject()
+
+achievement(
+    title = format("TUTORIAL LESSONS"),
+    points = 0,
+    description = format("TUTORIAL LESSONS"),
+    trigger = (
+        in_single_player() &&
+        check_if_player_completed_obj_logic(5, 0x02, 0x06)
+    )
+)
 
 achievement(
     title = format("UK RACES"),
@@ -616,7 +626,7 @@ achievement(
                 )  
             )                  
         ) &&
-        player.on_floor() && prev(player.mid_air()) &&
+        player.on_floor() && prev(player.mid_air())
     )
 )
 
