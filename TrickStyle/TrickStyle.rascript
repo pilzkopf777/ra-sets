@@ -194,11 +194,13 @@ class PlayerObject {
     }
 
     function on_floor() {
-        return ptr(tbyte(0x1c5f40), [0xF4], dword) == 0x01
+        return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x3E0, 0x70], dword) == 0x01
+        // return ptr(tbyte(0x1c5f40), [0xF4], dword) == 0x01
     }
 
     function mid_air() {
-        return ptr(tbyte(0x1c5f40), [0xF4], dword) == 0x00
+        return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x3E0, 0x70], dword) == 0x00
+        // return ptr(tbyte(0x1c5f40), [0xF4], dword) == 0x00
     }
 
     function get_x() {
@@ -233,12 +235,12 @@ class PlayerObject {
         return ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == amount_of_checkpoints + 1 && prev(ptr(tbyte(0x11b890), [0xBBC, 0x1A8], dword) == amount_of_checkpoints)
     }
 
-    function has_invuln_frames() {
-        return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x50], dword) == 0x00
+    function in_crash_state() {
+        return ptr(tbyte(0x11b890), [0xBBC, 0x2C4, 0x08, 0x48], dword) == 0x01
     }
 
-    function has_no_invuln_frames() {
-        return ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x50], dword) == 0x01
+    function not_in_crash_state() {
+        return ptr(tbyte(0x11b890), [0xBBC, 0x2C4, 0x08, 0x48], dword) == 0x00
     }
 
     function entered_area(x1, x2, y1, y2, z1, z2) {
@@ -285,9 +287,9 @@ achievement(
 )
 
 achievement(
-    title = format("US RACES"),
+    title = format("USA RACES"),
     points = 0,
-    description = format("US RACES"),
+    description = format("USA RACES"),
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x1f, 0x23)
@@ -295,9 +297,9 @@ achievement(
 )
 
 achievement(
-    title = format("US BOSS"),
+    title = format("USA BOSS"),
     points = 0,
-    description = format("US BOSS"),
+    description = format("USA BOSS"),
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x25, 0x25)
@@ -455,6 +457,24 @@ for map in time_trial_map_dict {
     )
 }
 
+// UK: 0x15, 0x19
+// US: 0x1F, 0x23
+// JPN: 0x29, 0x2D
+
+achievement(
+    title = format("WIN WITH 15000 PTS"),
+    points = 0,
+    description = format("WIN WITH 15000 PTS"),
+    trigger = (
+        in_single_player() &&
+        map_id == map &&
+        trigger_when(player.reached_race_goal_checkpoint(time_trial_map_checkpoint_count[map])) &&
+        player.get_score() >= 15000 &&
+        player.get_race_pos() == 0x01
+    )
+)
+
+
 achievement(
     title = format("BREAK BIG BEN"),
     points = 0,
@@ -597,16 +617,13 @@ achievement(
             )                  
         ) &&
         player.on_floor() && prev(player.mid_air()) &&
-        never(
-            repeated(10, player.on_floor())
-        )
     )
 )
 
 achievement(
-    title = format("USA 1 JUMP"),
+    title = format("JUMP USA 1 JUMP"),
     points = 0,
-    description = format("USA 1 JUMP"),
+    description = format("JUMP USA 1 JUMP"),
     trigger = (
         in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
@@ -631,7 +648,7 @@ achievement(
         */
         once(
             player.entered_area(1948.0, 1970.0,
-                                791.0, 795.0,
+                                803.0, 900.0,
                                 1524.0, 1541.0)
         ) &&
         once(
@@ -646,9 +663,10 @@ achievement(
         ) &&
         never(
             player.entered_area(1909.0, 1985.0,
-                                600.0, 764.0,
+                                200.0, 764.0,
                                 1620.0, 1665.0)
-        )
+        ) &&
+        player.on_floor() && prev(player.mid_air())
     )
 )
 
@@ -677,8 +695,8 @@ achievement(
         once(
             trick_is_special_orb(player.get_trick()) && prev(!trick_is_special_orb(player.get_trick()))
         ) &&
-        prev(player.get_score() + 1500) <= player.get_score() &&
-        never(player.has_invuln_frames())
+        prev(player.get_score() + 1500) <= player.get_score()
+        // never(player.has_invuln_frames())
     )
 )
 
