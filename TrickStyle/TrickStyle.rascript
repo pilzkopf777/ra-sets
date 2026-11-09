@@ -470,15 +470,42 @@ for map in time_trial_map_dict {
 // UK: 0x15, 0x19
 // US: 0x1F, 0x23
 // JPN: 0x29, 0x2D
+three_cp_options = [0x15, 0x16, 0x17, 0x18, 0x19, 0x1f, 0x20, 0x21, 0x22, 0x24, 0x2a, 0x2b, 0x2c]
+four_cp_options = [0x23]
+one_cp_options = [0x2d]
 
 achievement(
     title = format("WIN WITH 15000 PTS"),
     points = 0,
     description = format("WIN WITH 15000 PTS"),
     trigger = (
+        (
+            (
+                map_id >= 0x15 && map_id <= 0x19 &&
+                trigger_when(player.reached_race_goal_checkpoint(3))
+            ) ||
+            (
+                map_id >= 0x1f && map_id <= 0x22 &&
+                trigger_when(player.reached_race_goal_checkpoint(3))
+            ) ||
+            (
+                map_id == 0x24 &&
+                trigger_when(player.reached_race_goal_checkpoint(3))
+            ) ||
+            (
+                map_id >= 0x2a && map_id <= 0x2c &&
+                trigger_when(player.reached_race_goal_checkpoint(3))
+            ) ||
+            (
+                map_id == 0x23 &&
+                trigger_when(player.reached_race_goal_checkpoint(4))
+            ) ||
+            (
+                map_id == 0x2d &&
+                trigger_when(player.reached_race_goal_checkpoint(1))
+            )
+        ) &&
         in_single_player() &&
-        map_id == map &&
-        trigger_when(player.reached_race_goal_checkpoint(time_trial_map_checkpoint_count[map])) &&
         player.get_score() >= 15000 &&
         player.get_race_pos() == 0x01
     )
