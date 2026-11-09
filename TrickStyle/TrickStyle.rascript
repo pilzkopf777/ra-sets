@@ -80,7 +80,8 @@ function tally_progression_data(lower_limit, upper_limit) {
                     // and higher too
                     byte(start_id_slot_adr + current_offset) <= upper_limit &&
                     // and the mission was completed
-                    completed_event(start_result_slot_adr + current_offset)
+                    completed_event(start_result_slot_adr + current_offset) &&
+                    prev(!completed_event(start_result_slot_adr + current_offset))
                 )
             )
         )
@@ -281,6 +282,7 @@ achievement(
     title = format("UK RACES"),
     points = 0,
     description = format("In Single Player mode, win every race in the UK"),
+    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x15, 0x19) &&
@@ -292,6 +294,7 @@ achievement(
     title = format("UK BOSS"),
     points = 0,
     description = format("In Single Player mode, win the boss challenge in the UK"),
+    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x1b, 0x1b) &&
@@ -303,6 +306,7 @@ achievement(
     title = format("USA RACES"),
     points = 0,
     description = format("In Single Player mode, win every race in the USA"),
+    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x1f, 0x23) &&
@@ -314,6 +318,7 @@ achievement(
     title = format("USA BOSS"),
     points = 0,
     description = format("In Single Player mode, win the boss challenge in the USA"),
+    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x25, 0x25) &&
@@ -325,6 +330,7 @@ achievement(
     title = format("JPN RACES"),
     points = 0,
     description = format("In Single Player mode, win every race in Japan"),
+    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(4, 0x29, 0x2c) &&
@@ -336,6 +342,7 @@ achievement(
     title = format("JPN BOSS"),
     points = 0,
     description = format("In Single Player mode, win the boss challenge in Japan"),
+    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x2f, 0x2f) &&
@@ -347,6 +354,7 @@ achievement(
     title = format("JPN FINAL RACE"),
     points = 0,
     description = format("In Single Player mode, win the final race against the Guide"),
+    type = "win_condition",
     trigger = (
         in_single_player() &&
         map_id == 0x2d &&
