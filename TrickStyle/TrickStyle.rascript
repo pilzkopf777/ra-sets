@@ -548,9 +548,9 @@ achievement(
 )
 
 achievement(
-    title = format("LAND KICKFLIP ABOVE PAGODA USA 3"),
+    title = format("LAND KICKFLIP ABOVE PAGODA USA 3 OR 5"),
     points = 0,
-    description = format("LAND KICKFLIP ABOVE PAGODA USA 3"),
+    description = format("LAND KICKFLIP ABOVE PAGODA USA 3 OR 5"),
     trigger =
     (
 // TODO: add proper crash check, use save states
@@ -563,16 +563,38 @@ achievement(
         573, 130, 319
         top left
         596, 130, 301
-        height min: 140, max 144
+        height min: 140
         */
 
-        once(
-            map_id == 0x17 &&
-            once(player.get_trick() == 0x43 && prev(player.get_trick() != 0x43)) &&
-            player.entered_area(573.0, 596.0,
-                                140.0, 1400.0,
-                                300.0, 319.0) &&
-            prev(player.get_score() + 600) <= player.get_score()
+        /*
+        usa 5 (0x19):
+        bottom right
+        1158, 134, 410
+        top left
+        1130, 134, 435
+        height min: 148
+        */
+        (
+            (
+                once(
+                    map_id == 0x17 &&
+                    once(player.get_trick() == 0x43 && prev(player.get_trick() != 0x43)) &&
+                    player.entered_area(1158.0, 1130.0,
+                                        134.0, 1340.0,
+                                        410.0, 435.0) &&
+                    prev(player.get_score() + 600) <= player.get_score()
+                )
+            ) ||
+            (
+                once(
+                    map_id == 0x19 &&
+                    once(player.get_trick() == 0x43 && prev(player.get_trick() != 0x43)) &&
+                    player.entered_area(573.0, 596.0,
+                                        140.0, 1400.0,
+                                        300.0, 319.0) &&
+                    prev(player.get_score() + 600) <= player.get_score()
+                )  
+            )                  
         ) &&
         player.on_floor() && prev(player.mid_air()) &&
         never(
@@ -580,6 +602,56 @@ achievement(
         )
     )
 )
+
+achievement(
+    title = format("USA 1 JUMP"),
+    points = 0,
+    description = format("USA 1 JUMP"),
+    trigger = (
+        in_single_player() &&
+        never(checkpoint_count == 0xffffffff) &&
+        map_id == 0x1f &&
+        /*
+        ramp
+        1970 795 1524
+        1948 791 1541
+        min height 805
+
+        air
+        1950 770 1640
+        1984 870 1630
+
+        dont be here
+        1909 764 1665
+        1985 600 1620
+
+        end
+        1953 743 1671
+        2007 600 1792
+        */
+        once(
+            player.entered_area(1948.0, 1970.0,
+                                791.0, 795.0,
+                                1524.0, 1541.0)
+        ) &&
+        once(
+            player.entered_area(1950.0, 1984.0,
+                                770.0, 870.0,
+                                1630.0, 1640.0)
+        ) &&
+        once(
+            player.entered_area(1953.0, 2007.0,
+                                600.0, 743.0,
+                                1671.0, 1792.0)
+        ) &&
+        never(
+            player.entered_area(1909.0, 1985.0,
+                                600.0, 764.0,
+                                1620.0, 1665.0)
+        )
+    )
+)
+
 
 achievement(
     title = format("LAND 1080 AIR"),
