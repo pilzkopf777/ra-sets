@@ -268,7 +268,7 @@ class PlayerObject {
 player = PlayerObject()
 
 achievement(
-    title = format("TUTORIAL LESSONS"),
+    title = format("Teacher's Pet"),
     points = 0,
     description = format("Complete all of the Guide's training lessons"),
     trigger = (
@@ -279,7 +279,7 @@ achievement(
 )
 
 achievement(
-    title = format("UK RACES"),
+    title = format("Mind the Gap"),
     points = 0,
     description = format("In Single Player mode, win every race in the UK"),
     type = "progression",
@@ -291,7 +291,7 @@ achievement(
 )
 
 achievement(
-    title = format("UK BOSS"),
+    title = format("Queen of the Hill"),
     points = 0,
     description = format("In Single Player mode, win the boss challenge in the UK"),
     type = "progression",
@@ -303,7 +303,7 @@ achievement(
 )
 
 achievement(
-    title = format("USA RACES"),
+    title = format("Born to Board in the USA"),
     points = 0,
     description = format("In Single Player mode, win every race in the USA"),
     type = "progression",
@@ -327,7 +327,7 @@ achievement(
 )
 
 achievement(
-    title = format("JPN RACES"),
+    title = format("Bullet Board"),
     points = 0,
     description = format("In Single Player mode, win every race in Japan"),
     type = "progression",
@@ -351,7 +351,7 @@ achievement(
 )
 
 achievement(
-    title = format("JPN FINAL RACE"),
+    title = format("Guide Dang It!"),
     points = 0,
     description = format("In Single Player mode, win the final race against the Guide"),
     type = "win_condition",
@@ -510,7 +510,7 @@ four_cp_options = [0x23]
 one_cp_options = [0x2d]
 
 achievement(
-    title = format("WIN WITH 15000 PTS"),
+    title = format("Point Break"),
     points = 0,
     description = format("In Single Player mode, win any race while scoring at least 15,000 points"),
     trigger = (
@@ -549,7 +549,7 @@ achievement(
 
 
 achievement(
-    title = format("BREAK BIG BEN"),
+    title = format("Time's Up!"),
     points = 0,
     description = format("In Single Player mode, crash through Big Ben"),
     trigger = (
@@ -593,7 +593,7 @@ achievement(
 )
 
 achievement(
-    title = format("LAND ON CAR"),
+    title = format("Catch a Ride"),
     points = 0,
     description = format("In Single Player mode, land on a flying car"),
     trigger = (
@@ -643,7 +643,7 @@ achievement(
 )
 
 achievement(
-    title = format("LAND KICKFLIP ABOVE PAGODA USA 3 OR 5"),
+    title = format("Pagoda Pop"),
     points = 0,
     description = format("In Single Player mode, land a Kickflip while jumping over the pagoda in USA Race 3 or 5"),
     trigger =
@@ -696,7 +696,7 @@ achievement(
 )
 
 achievement(
-    title = format("JUMP USA 1 JUMP"),
+    title = format("Two for One"),
     points = 0,
     description = format("In Single Player mode, jump over both fences in a single jump in USA Race 1"),
     trigger = (
@@ -748,7 +748,7 @@ achievement(
 
 
 achievement(
-    title = format("LAND 1080 AIR"),
+    title = format("Triple Threat"),
     points = 0,
     description = format("In Single Player mode, land a 1080 Air"),
     trigger = (
@@ -763,7 +763,7 @@ achievement(
 )
 
 achievement(
-    title = format("AIR 4 SEC"),
+    title = format("Frequent Flyer"),
     points = 0,
     description = format("In Single Player mode, stay airborne for at least 4 seconds and land safely"),
     trigger = (
@@ -776,7 +776,7 @@ achievement(
 )
 
 achievement(
-    title = format("LAND SPECIAL TRICK"),
+    title = format("Special Delivery"),
     points = 0,
     description = format("In Single Player mode, land any special trick"),
     trigger = (
