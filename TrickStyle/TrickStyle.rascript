@@ -653,7 +653,7 @@ achievement(
 achievement(
     title = format("Pagoda Pop"),
     points = 0,
-    description = format("In Single Player mode, land a Kickflip while jumping over the pagoda in USA Race 3 or 5"),
+    description = format("In Single Player mode, land a Kickflip while jumping over the pagoda in UK Race 3 or 5"),
     trigger =
     (
 
