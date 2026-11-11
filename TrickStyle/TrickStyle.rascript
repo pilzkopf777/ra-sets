@@ -36,6 +36,14 @@ player_count = dword(0x0efe5c)
 
 pause_state = dword(0x57f95c)
 
+function hud_pause_inactive() {
+    return dword(0x580ef0) == 0x01
+}
+
+function hud_pause_active() {
+    return dword(0x580ef0) == 0x00
+}
+
 function in_single_player() {
     return player_count == 0x01
 }
@@ -770,8 +778,9 @@ achievement(
         in_single_player() &&
         in_gameplay() &&
         never(checkpoint_count == 0xffffffff) &&
-        repeated(120, player.mid_air()) &&
-        never(player.on_floor()) && never(player.in_crash_state())
+        repeated(120, player.mid_air() && hud_pause_inactive()) &&
+        player.on_floor() && hud_pause_inactive() &&
+        never(player.in_crash_state()) && never(repeated(3, player.on_floor()))
     )
 )
 
