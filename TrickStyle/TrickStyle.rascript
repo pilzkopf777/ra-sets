@@ -315,7 +315,7 @@ achievement(
 )
 
 achievement(
-    title = format("USA BOSS"),
+    title = format("The Big Cheese"),
     points = 0,
     description = format("In Single Player mode, win the boss challenge in the USA"),
     type = "progression",
@@ -327,9 +327,9 @@ achievement(
 )
 
 achievement(
-    title = format("Bullet Board"),
+    title = format("Way of the Winner"),
     points = 0,
-    description = format("In Single Player mode, win every race in Japan"),
+    description = format("In Single Player mode, win the first four races in Japan"),
     type = "progression",
     trigger = (
         in_single_player() &&
@@ -339,7 +339,7 @@ achievement(
 )
 
 achievement(
-    title = format("JPN BOSS"),
+    title = format("Way of the Board"),
     points = 0,
     description = format("In Single Player mode, win the boss challenge in Japan"),
     type = "progression",
