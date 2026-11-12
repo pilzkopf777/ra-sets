@@ -99,14 +99,14 @@ function tally_progression_data(lower_limit, upper_limit) {
 }
 
 function check_if_player_completed_obj_logic(target_amount_of_maps, lower_limit, upper_limit) {
-        if (lower_limit == upper_limit) {
-            // No range - use simplified check instead
-            return tally(target_amount_of_maps, tally_progression_data(lower_limit, upper_limit)) && never(in_main_menu() || on_the_title_screen())
-        } else {
-            return measured(
-                tally(target_amount_of_maps, tally_progression_data(lower_limit, upper_limit))) && never(in_main_menu() || on_the_title_screen()
-            )
-        }
+    if (lower_limit == upper_limit) {
+        // No range - use simplified check instead
+        return tally(target_amount_of_maps, tally_progression_data(lower_limit, upper_limit)) && never(in_main_menu() || on_the_title_screen())
+    } else {
+        return measured(
+            tally(target_amount_of_maps, tally_progression_data(lower_limit, upper_limit))) && never(in_main_menu() || on_the_title_screen()
+        )
+    }
 }
 
 map_map = {
@@ -367,6 +367,87 @@ achievement(
         in_single_player() &&
         map_id == 0x2d &&
         credits_started() &&
+        in_gameplay()
+    )
+)
+
+all_obj_maps = [0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x30, 0x31]
+
+achievement(
+    title = format("CHALLENGE_ONE"),
+    points = 0,
+    description = format("In Single Player mode, complete five challlenges presented by the Guide"),
+    type = "progression",
+    trigger = (
+        in_single_player() &&
+        check_if_player_completed_obj_logic(5, 0x07, 0x0b) &&
+        in_gameplay()
+    )
+)
+
+achievement(
+    title = format("CHALLENGE_TWO"),
+    points = 0,
+    description = format("In Single Player mode, complete ten challlenges presented by the Guide"),
+    type = "progression",
+    trigger = (
+        in_single_player() &&
+        check_if_player_completed_obj_logic(5, 0x0c, 0x10) &&
+        in_gameplay()
+    )
+)
+
+
+function custom_tally_helper() {
+    cond = []
+
+    start_id_slot_adr = 0x143c7a
+    start_result_slot_adr = 0x143cba
+
+    for current_offset in range(0, 40, 1) {
+
+        array_push(cond,
+            (
+                once(
+                    (
+                        byte(start_id_slot_adr + current_offset) == 0x11 ||
+                        byte(start_id_slot_adr + current_offset) == 0x12 ||
+                        byte(start_id_slot_adr + current_offset) == 0x13 ||
+                        byte(start_id_slot_adr + current_offset) == 0x14 ||
+                        byte(start_id_slot_adr + current_offset) == 0x30
+                    ) &&
+                    // and the mission was completed
+                    completed_event(start_result_slot_adr + current_offset) &&
+                    prev(!completed_event(start_result_slot_adr + current_offset))
+                )
+            )
+        )
+    }
+
+    return cond
+}
+
+achievement(
+    title = format("CHALLENGE_THREE"),
+    points = 0,
+    description = format("In Single Player mode, complete fifteen challlenges presented by the Guide"),
+    type = "progression",
+    trigger = (
+        in_single_player() && in_gameplay() &&
+        // terrible custom solution because 0x30 is not neatly alligned with the rest..
+        measured(tally(5, custom_tally_helper()))) &&
+        never(in_main_menu() || on_the_title_screen()
+    )
+)
+
+achievement(
+    title = format("CHALLENGE_FINAL"),
+    points = 0,
+    description = format("In Single Player mode, complete the final challlenge presented by the Guide"),
+    type = "progression",
+    trigger = (
+        in_single_player() &&
+        check_if_player_completed_obj_logic(1, 0x31, 0x31) &&
         in_gameplay()
     )
 )
