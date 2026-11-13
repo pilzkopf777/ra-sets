@@ -377,7 +377,6 @@ achievement(
     title = format("CHALLENGE_ONE"),
     points = 0,
     description = format("In Single Player mode, complete five challlenges presented by the Guide"),
-    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x07, 0x0b) &&
@@ -389,7 +388,6 @@ achievement(
     title = format("CHALLENGE_TWO"),
     points = 0,
     description = format("In Single Player mode, complete ten challlenges presented by the Guide"),
-    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x0c, 0x10) &&
@@ -431,7 +429,6 @@ achievement(
     title = format("CHALLENGE_THREE"),
     points = 0,
     description = format("In Single Player mode, complete fifteen challlenges presented by the Guide"),
-    type = "progression",
     trigger = (
         in_single_player() && in_gameplay() &&
         // terrible custom solution because 0x30 is not neatly alligned with the rest..
@@ -444,7 +441,6 @@ achievement(
     title = format("CHALLENGE_FINAL"),
     points = 0,
     description = format("In Single Player mode, complete the final challlenge presented by the Guide"),
-    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x31, 0x31) &&
