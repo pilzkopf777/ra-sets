@@ -575,7 +575,7 @@ for map in time_trial_map_dict {
     )
 
     achievement(
-        title = format("{0}", time_trial_ach_titles[map]),
+        title = format("Speed Demon: {0}", time_trial_map_dict[map]),
         points = 0,
         description = format("In Single Player mode, reach the goal in {0} in {1} or less",
                         time_trial_map_dict[map],
