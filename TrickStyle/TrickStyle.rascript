@@ -36,6 +36,10 @@ player_count = dword(0x0efe5c)
 
 pause_state = dword(0x57f95c)
 
+function no_cheats_enabled() {
+    return byte(0x11ba84) == 0x00
+}
+
 function player_obj_init() {
     return ptr(tbyte(0x11b890), [0xBBC], dword) != 0x00 && ptr(tbyte(0x11b890), [0xBBC], dword) != 0xffffffff
 }
@@ -69,7 +73,7 @@ function in_main_menu() {
 }
 
 function in_gameplay() {
-    return !on_the_title_screen() && !in_main_menu() && player_obj_init() // && !in_demo()
+    return !on_the_title_screen() && !in_main_menu() && player_obj_init() && no_cheats_enabled() // && !in_demo()
 }
 
 function in_gameplay_w_o_init() {
@@ -620,7 +624,7 @@ for map in time_trial_map_dict {
 // UK: 0x15, 0x19
 // US: 0x1F, 0x23
 // JPN: 0x29, 0x2D
-three_cp_options = [0x15, 0x16, 0x17, 0x18, 0x19, 0x1f, 0x20, 0x21, 0x22, 0x24, 0x29, 0x2a, 0x2b, 0x2c]
+three_cp_options = [0x15, 0x16, 0x17, 0x18, 0x19, 0x1f, 0x20, 0x21, 0x22, 0x29, 0x2a, 0x2b, 0x2c]
 four_cp_options = [0x23]
 one_cp_options = [0x2d]
 
@@ -636,10 +640,6 @@ achievement(
             ) ||
             (
                 map_id >= 0x1f && map_id <= 0x22 &&
-                trigger_when(player.reached_race_goal_checkpoint(3))
-            ) ||
-            (
-                map_id == 0x24 &&
                 trigger_when(player.reached_race_goal_checkpoint(3))
             ) ||
             (
