@@ -319,7 +319,6 @@ achievement(
     title = format("Queen of the Hill"),
     points = 5,
     description = format("In Single Player mode, win the boss challenge in the UK"),
-    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x1b, 0x1b) &&
@@ -343,7 +342,6 @@ achievement(
     title = format("The Big Cheese"),
     points = 5,
     description = format("In Single Player mode, win the boss challenge in the USA"),
-    type = "progression",
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x25, 0x25) &&
