@@ -711,7 +711,7 @@ achievement(
 achievement(
     title = format("Catch a Ride"),
     points = 4,
-    description = format("In Single Player mode, land on a flying car"),
+    description = format("In Single Player mode, land on a flying car in the main square in the US"),
     trigger = (
         in_single_player() &&
         never(checkpoint_count == 0xffffffff) &&
