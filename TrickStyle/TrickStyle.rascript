@@ -786,9 +786,9 @@ achievement(
         (
             (
                 once(
-                    map_id == 0x17 &&
+                    map_id == 0x19 &&
                     once(player.get_trick() == 0x43 && prev(player.get_trick() != 0x43)) &&
-                    player.entered_area(1158.0, 1130.0,
+                    player.entered_area(1130.0, 1158.0,
                                         134.0, 1340.0,
                                         410.0, 435.0) &&
                     prev(player.get_score() + 600) <= player.get_score()
@@ -796,7 +796,7 @@ achievement(
             ) ||
             (
                 once(
-                    map_id == 0x19 &&
+                    map_id == 0x17 &&
                     once(player.get_trick() == 0x43 && prev(player.get_trick() != 0x43)) &&
                     player.entered_area(573.0, 596.0,
                                         140.0, 1400.0,
