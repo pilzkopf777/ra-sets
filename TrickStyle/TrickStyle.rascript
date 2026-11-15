@@ -293,9 +293,10 @@ player = PlayerObject()
 
 achievement(
     title = format("Teacher's Pet"),
-    points = 0,
+    points = 1,
     description = format("Complete all of the Guide's training lessons"),
     trigger = (
+        ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x3E0], dword) != 0x00  &&
         in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x02, 0x06) &&
         in_gameplay()
@@ -304,7 +305,7 @@ achievement(
 
 achievement(
     title = format("Mind the Gap"),
-    points = 0,
+    points = 5,
     description = format("In Single Player mode, win every race in the UK"),
     type = "progression",
     trigger = (
@@ -316,7 +317,7 @@ achievement(
 
 achievement(
     title = format("Queen of the Hill"),
-    points = 0,
+    points = 5,
     description = format("In Single Player mode, win the boss challenge in the UK"),
     type = "progression",
     trigger = (
@@ -328,7 +329,7 @@ achievement(
 
 achievement(
     title = format("Born to Board in the USA"),
-    points = 0,
+    points = 5,
     description = format("In Single Player mode, win every race in the USA"),
     type = "progression",
     trigger = (
@@ -340,7 +341,7 @@ achievement(
 
 achievement(
     title = format("The Big Cheese"),
-    points = 0,
+    points = 5,
     description = format("In Single Player mode, win the boss challenge in the USA"),
     type = "progression",
     trigger = (
@@ -352,7 +353,7 @@ achievement(
 
 achievement(
     title = format("Island Hopper"),
-    points = 0,
+    points = 10,
     description = format("In Single Player mode, win the first four races in Japan"),
     type = "progression",
     trigger = (
@@ -364,7 +365,7 @@ achievement(
 
 achievement(
     title = format("Way of the Board"),
-    points = 0,
+    points = 5,
     description = format("In Single Player mode, win the boss challenge in Japan"),
     type = "progression",
     trigger = (
@@ -376,7 +377,7 @@ achievement(
 
 achievement(
     title = format("Guide Dang It!"),
-    points = 0,
+    points = 25,
     description = format("In Single Player mode, win the final race against the Guide"),
     type = "win_condition",
     trigger = (
@@ -433,7 +434,7 @@ function custom_tally_helper() {
 
 achievement(
     title = format("Rookie Rider"),
-    points = 0,
+    points = 3,
     description = format("In Single Player mode, complete five of the Guide's challenges"),
     id = 651517,
     trigger = (
@@ -446,7 +447,7 @@ achievement(
 
 achievement(
     title = format("Street Shredder"),
-    points = 0,
+    points = 5,
     description = format("In Single Player mode, complete ten of the Guide's challenges"),
     id = 651518,
     trigger = (
@@ -459,7 +460,7 @@ achievement(
 
 achievement(
     title = format("Hover Veteran"),
-    points = 0,
+    points = 10,
     description = format("In Single Player mode, complete fifteen of the Guide's challenges"),
     id = 651519,
     trigger = (
@@ -472,7 +473,7 @@ achievement(
 
 achievement(
     title = format("Trick Legend"),
-    points = 0,
+    points = 25,
     description = format("In Single Player mode, complete the Guide's final challenge"),
     id = 651520,
     trigger = (
@@ -606,7 +607,7 @@ for map in time_trial_map_dict {
 
     achievement(
         title = format("Speed Demon: {0}", time_trial_map_dict[map]),
-        points = 0,
+        points = 10,
         description = format("In Single Player mode, reach the goal in {0} in {1} or less",
                         time_trial_map_dict[map],
                         format_time(time_trial_targets[map])
@@ -630,7 +631,7 @@ one_cp_options = [0x2d]
 
 achievement(
     title = format("Point Break"),
-    points = 0,
+    points = 4,
     description = format("In Single Player mode, win any race while scoring at least 15,000 points"),
     trigger = (
         (
@@ -665,7 +666,7 @@ achievement(
 
 achievement(
     title = format("Time's Up!"),
-    points = 0,
+    points = 2,
     description = format("In Single Player mode, crash through Big Ben"),
     trigger = (
         in_single_player() &&
@@ -709,7 +710,7 @@ achievement(
 
 achievement(
     title = format("Catch a Ride"),
-    points = 0,
+    points = 4,
     description = format("In Single Player mode, land on a flying car"),
     trigger = (
         in_single_player() &&
@@ -759,7 +760,7 @@ achievement(
 
 achievement(
     title = format("Pagoda Pop"),
-    points = 0,
+    points = 3,
     description = format("In Single Player mode, land a Kickflip while jumping over the pagoda in UK Race 3 or 5"),
     trigger =
     (
@@ -812,7 +813,7 @@ achievement(
 
 achievement(
     title = format("Two for One"),
-    points = 0,
+    points = 5,
     description = format("In Single Player mode, jump over both fences in a single jump in USA Race 1"),
     trigger = (
         in_single_player() &&
@@ -864,7 +865,7 @@ achievement(
 
 achievement(
     title = format("Triple Threat"),
-    points = 0,
+    points = 3,
     description = format("In Single Player mode, land a 1080 Air in a race or challenge"),
     trigger = (
         !map_id_is_velodrome(map_id) &&
@@ -880,7 +881,7 @@ achievement(
 
 achievement(
     title = format("Frequent Flyer"),
-    points = 0,
+    points = 4,
     description = format("In Single Player mode, stay airborne for at least 4 seconds and land safely in a race or challenge"),
     trigger = (
         !map_id_is_velodrome(map_id) &&
@@ -895,7 +896,7 @@ achievement(
 
 achievement(
     title = format("Special Delivery"),
-    points = 0,
+    points = 2,
     description = format("In Single Player mode, land any special trick"),
     trigger = (
         in_single_player() &&
