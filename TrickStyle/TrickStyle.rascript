@@ -117,6 +117,10 @@ function check_if_player_completed_obj_logic(target_amount_of_maps, lower_limit,
     }
 }
 
+function map_id_is_velodrome(id_to_test) {
+    return id_to_test == 0x01 || id_to_test == 0x02 || id_to_test == 0x03 || id_to_test == 0x04 || id_to_test == 0x05 || id_to_test == 0x06
+}
+
 map_map = {
     0x01: "the Velodrome",
     0x02: "the Velodrome", // Tutorial
@@ -616,7 +620,7 @@ for map in time_trial_map_dict {
 // UK: 0x15, 0x19
 // US: 0x1F, 0x23
 // JPN: 0x29, 0x2D
-three_cp_options = [0x15, 0x16, 0x17, 0x18, 0x19, 0x1f, 0x20, 0x21, 0x22, 0x24, 0x2a, 0x2b, 0x2c]
+three_cp_options = [0x15, 0x16, 0x17, 0x18, 0x19, 0x1f, 0x20, 0x21, 0x22, 0x24, 0x29, 0x2a, 0x2b, 0x2c]
 four_cp_options = [0x23]
 one_cp_options = [0x2d]
 
@@ -639,7 +643,7 @@ achievement(
                 trigger_when(player.reached_race_goal_checkpoint(3))
             ) ||
             (
-                map_id >= 0x2a && map_id <= 0x2c&&
+                map_id >= 0x29 && map_id <= 0x2c &&
                 trigger_when(player.reached_race_goal_checkpoint(3))
             ) ||
             (
@@ -861,8 +865,9 @@ achievement(
 achievement(
     title = format("Triple Threat"),
     points = 0,
-    description = format("In Single Player mode, land a 1080 Air"),
+    description = format("In Single Player mode, land a 1080 Air in a race or challenge"),
     trigger = (
+        !map_id_is_velodrome(map_id) &&
         in_single_player() &&
         in_gameplay() &&
         never(checkpoint_count == 0xffffffff) &&
@@ -876,8 +881,9 @@ achievement(
 achievement(
     title = format("Frequent Flyer"),
     points = 0,
-    description = format("In Single Player mode, stay airborne for at least 4 seconds and land safely"),
+    description = format("In Single Player mode, stay airborne for at least 4 seconds and land safely in a race or challenge"),
     trigger = (
+        !map_id_is_velodrome(map_id) &&
         in_single_player() &&
         in_gameplay() &&
         never(checkpoint_count == 0xffffffff) &&
