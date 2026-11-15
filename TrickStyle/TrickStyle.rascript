@@ -427,6 +427,7 @@ achievement(
     title = format("Rookie Rider"),
     points = 0,
     description = format("In Single Player mode, complete five of the Guide's challenges"),
+    id = 651517,
     trigger = (
         in_single_player() && in_gameplay() &&
         // terrible custom solution because 0x30 is not neatly alligned with the rest..
@@ -439,6 +440,7 @@ achievement(
     title = format("Street Shredder"),
     points = 0,
     description = format("In Single Player mode, complete ten of the Guide's challenges"),
+    id = 651518,
     trigger = (
         in_single_player() && in_gameplay() &&
         // terrible custom solution because 0x30 is not neatly alligned with the rest..
@@ -451,6 +453,7 @@ achievement(
     title = format("Hover Veteran"),
     points = 0,
     description = format("In Single Player mode, complete fifteen of the Guide's challenges"),
+    id = 651519,
     trigger = (
         in_single_player() && in_gameplay() &&
         // terrible custom solution because 0x30 is not neatly alligned with the rest..
@@ -463,6 +466,7 @@ achievement(
     title = format("Trick Legend"),
     points = 0,
     description = format("In Single Player mode, complete the Guide's final challenge"),
+    id = 651520,
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x31, 0x31) &&
