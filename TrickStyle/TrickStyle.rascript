@@ -36,6 +36,10 @@ player_count = dword(0x0efe5c)
 
 pause_state = dword(0x57f95c)
 
+function player_obj_init() {
+    return ptr(tbyte(0x11b890), [0xBBC], dword) != 0x00 && ptr(tbyte(0x11b890), [0xBBC], dword) != 0xffffffff
+}
+
 function hud_pause_inactive() {
     return dword(0x580ef0) == 0x01
 }
@@ -65,7 +69,11 @@ function in_main_menu() {
 }
 
 function in_gameplay() {
-    return !on_the_title_screen() && !in_main_menu() // && !in_demo()
+    return !on_the_title_screen() && !in_main_menu() && player_obj_init() // && !in_demo()
+}
+
+function in_gameplay_w_o_init() {
+    return !on_the_title_screen() && !in_main_menu()// && !in_demo()
 }
 
 function completed_event(event_result_slot_adr) {
@@ -335,7 +343,7 @@ achievement(
 )
 
 achievement(
-    title = format("Way of the Winner"),
+    title = format("Island Hopper"),
     points = 0,
     description = format("In Single Player mode, win the first four races in Japan"),
     type = "progression",
@@ -881,14 +889,14 @@ rich_presence_conditional_display(on_the_title_screen() || in_demo(), "On the Ti
 
 rich_presence_conditional_display(in_main_menu(), "In the Main Menu")
 
-rich_presence_conditional_display(in_gameplay() && in_single_player(), "{0} is competing in {1} on the {2} board", // Challenges completed: {3}
+rich_presence_conditional_display(in_gameplay_w_o_init() && in_single_player(), "{0} is competing in {1} on the {2} board", // Challenges completed: {3}
     rich_presence_lookup("Player", player.get_char(), char_map, fallback="Unknown character"),
     rich_presence_lookup("Map", map_id, map_map, fallback="an unknown map"),
     rich_presence_lookup("Board", player.get_board(), board_map, fallback="unknown")
     //rich_presence_value("ChallengeCount", ...(), "VALUE")
 )
 
-rich_presence_conditional_display(in_gameplay() && in_two_player(), "{0} and {2} are competing in {1}", // Challenges completed: {3}
+rich_presence_conditional_display(in_gameplay_w_o_init() && in_two_player(), "{0} and {2} are competing in {1}", // Challenges completed: {3}
     rich_presence_lookup("Player", player.get_char(), char_map, fallback="Unknown character"),
     rich_presence_lookup("Map", map_id, map_map, fallback="an unknown map"),
     rich_presence_lookup("Player2", player.get_char_p2(), char_map, fallback="a unknown character")
