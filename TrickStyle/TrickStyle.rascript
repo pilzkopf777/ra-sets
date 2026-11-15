@@ -381,29 +381,6 @@ achievement(
 
 all_obj_maps = [0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x30, 0x31]
 
-achievement(
-    title = format("CHALLENGE_ONE"),
-    points = 0,
-    description = format("In Single Player mode, complete five challlenges presented by the Guide"),
-    trigger = (
-        in_single_player() &&
-        check_if_player_completed_obj_logic(5, 0x07, 0x0b) &&
-        in_gameplay()
-    )
-)
-
-achievement(
-    title = format("CHALLENGE_TWO"),
-    points = 0,
-    description = format("In Single Player mode, complete ten challlenges presented by the Guide"),
-    trigger = (
-        in_single_player() &&
-        check_if_player_completed_obj_logic(5, 0x0c, 0x10) &&
-        in_gameplay()
-    )
-)
-
-
 function custom_tally_helper() {
     cond = []
 
@@ -416,6 +393,19 @@ function custom_tally_helper() {
             (
                 once(
                     (
+                        // five
+                        byte(start_id_slot_adr + current_offset) == 0x07 ||
+                        byte(start_id_slot_adr + current_offset) == 0x08 ||
+                        byte(start_id_slot_adr + current_offset) == 0x09 ||
+                        byte(start_id_slot_adr + current_offset) == 0x0a ||
+                        byte(start_id_slot_adr + current_offset) == 0x0b ||
+                        // ten
+                        byte(start_id_slot_adr + current_offset) == 0x0c ||
+                        byte(start_id_slot_adr + current_offset) == 0x0d ||
+                        byte(start_id_slot_adr + current_offset) == 0x0e ||
+                        byte(start_id_slot_adr + current_offset) == 0x0f ||
+                        byte(start_id_slot_adr + current_offset) == 0x10 ||
+                        // fifteen
                         byte(start_id_slot_adr + current_offset) == 0x11 ||
                         byte(start_id_slot_adr + current_offset) == 0x12 ||
                         byte(start_id_slot_adr + current_offset) == 0x13 ||
@@ -434,9 +424,9 @@ function custom_tally_helper() {
 }
 
 achievement(
-    title = format("CHALLENGE_THREE"),
+    title = format("Rookie Rider"),
     points = 0,
-    description = format("In Single Player mode, complete fifteen challlenges presented by the Guide"),
+    description = format("In Single Player mode, complete five of the Guide's challenges"),
     trigger = (
         in_single_player() && in_gameplay() &&
         // terrible custom solution because 0x30 is not neatly alligned with the rest..
@@ -446,9 +436,33 @@ achievement(
 )
 
 achievement(
-    title = format("CHALLENGE_FINAL"),
+    title = format("Street Shredder"),
     points = 0,
-    description = format("In Single Player mode, complete the final challlenge presented by the Guide"),
+    description = format("In Single Player mode, complete ten of the Guide's challenges"),
+    trigger = (
+        in_single_player() && in_gameplay() &&
+        // terrible custom solution because 0x30 is not neatly alligned with the rest..
+        measured(tally(10, custom_tally_helper()))) &&
+        never(in_main_menu() || on_the_title_screen()
+    )
+)
+
+achievement(
+    title = format("Hover Veteran"),
+    points = 0,
+    description = format("In Single Player mode, complete fifteen of the Guide's challenges"),
+    trigger = (
+        in_single_player() && in_gameplay() &&
+        // terrible custom solution because 0x30 is not neatly alligned with the rest..
+        measured(tally(15, custom_tally_helper()))) &&
+        never(in_main_menu() || on_the_title_screen()
+    )
+)
+
+achievement(
+    title = format("Trick Legend"),
+    points = 0,
+    description = format("In Single Player mode, complete the Guide's final challenge"),
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(1, 0x31, 0x31) &&
