@@ -420,8 +420,8 @@ function custom_tally_helper() {
                         byte(start_id_slot_adr + current_offset) == 0x30
                     ) &&
                     // and the mission was completed
-                    completed_event(start_result_slot_adr + current_offset) &&
-                    prev(!completed_event(start_result_slot_adr + current_offset))
+                    completed_event(start_result_slot_adr + current_offset) //&&
+                    //prev(!completed_event(start_result_slot_adr + current_offset))
                 )
             )
         )
@@ -439,6 +439,7 @@ achievement(
         in_single_player() && in_gameplay() &&
         // terrible custom solution because 0x30 is not neatly alligned with the rest..
         measured(tally(5, custom_tally_helper()))) &&
+        check_if_player_completed_obj_logic(1, 0x0b, 0x0b) && map_id == 0x0b &&
         never(in_main_menu() || on_the_title_screen()
     )
 )
