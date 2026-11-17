@@ -100,6 +100,32 @@ function tally_progression_data(lower_limit, upper_limit) {
                     // and higher too
                     byte(start_id_slot_adr + current_offset) <= upper_limit &&
                     // and the mission was completed
+                    completed_event(start_result_slot_adr + current_offset) //&&
+                    //prev(!completed_event(start_result_slot_adr + current_offset))
+                )
+            )
+        )
+    }
+
+    return cond
+}
+
+function final_tally_progression_data(lower_limit, upper_limit) {
+    cond = []
+
+    start_id_slot_adr = 0x143c7a
+    start_result_slot_adr = 0x143cba
+
+    for current_offset in range(0, 40, 1) {
+
+        array_push(cond,
+            (
+                once(
+                    // meets lower limit req
+                    byte(start_id_slot_adr + current_offset) >= lower_limit && 
+                    // and higher too
+                    byte(start_id_slot_adr + current_offset) <= upper_limit &&
+                    // and the mission was completed
                     completed_event(start_result_slot_adr + current_offset) &&
                     prev(!completed_event(start_result_slot_adr + current_offset))
                 )
@@ -119,6 +145,11 @@ function check_if_player_completed_obj_logic(target_amount_of_maps, lower_limit,
             tally(target_amount_of_maps, tally_progression_data(lower_limit, upper_limit))) && never(in_main_menu() || on_the_title_screen()
         )
     }
+}
+
+function final_check_if_player_completed_obj_logic(target_amount_of_maps, lower_limit, upper_limit) {
+    // No range - use simplified check instead
+    return tally(target_amount_of_maps, final_tally_progression_data(lower_limit, upper_limit)) && never(in_main_menu() || on_the_title_screen())
 }
 
 function map_id_is_velodrome(id_to_test) {
@@ -299,6 +330,7 @@ achievement(
         ptr(tbyte(0x11b890), [0xBBC, 0xAC, 0x3E0], dword) != 0x00  &&
         in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x02, 0x06) &&
+        final_check_if_player_completed_obj_logic(1, 0x06, 0x06) && map_id == 0x06 &&
         in_gameplay()
     )
 )
@@ -311,6 +343,7 @@ achievement(
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x15, 0x19) &&
+        final_check_if_player_completed_obj_logic(1, 0x19, 0x19) && map_id == 0x19 &&
         in_gameplay()
     )
 )
@@ -321,7 +354,7 @@ achievement(
     description = format("In Single Player mode, win the boss challenge in the UK"),
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(1, 0x1b, 0x1b) &&
+        final_check_if_player_completed_obj_logic(1, 0x1b, 0x1b) &&
         in_gameplay()
     )
 )
@@ -334,6 +367,7 @@ achievement(
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(5, 0x1f, 0x23) &&
+        final_check_if_player_completed_obj_logic(1, 0x23, 0x23) && map_id == 0x23 &&
         in_gameplay()
     )
 )
@@ -344,7 +378,7 @@ achievement(
     description = format("In Single Player mode, win the boss challenge in the USA"),
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(1, 0x25, 0x25) &&
+        final_check_if_player_completed_obj_logic(1, 0x25, 0x25) &&
         in_gameplay()
     )
 )
@@ -357,6 +391,7 @@ achievement(
     trigger = (
         in_single_player() &&
         check_if_player_completed_obj_logic(4, 0x29, 0x2c) &&
+        final_check_if_player_completed_obj_logic(1, 0x2c, 0x2c) && map_id == 0x2c &&
         in_gameplay()
     )
 )
@@ -368,7 +403,7 @@ achievement(
     type = "progression",
     trigger = (
         in_single_player() &&
-        check_if_player_completed_obj_logic(1, 0x2f, 0x2f) &&
+        final_check_if_player_completed_obj_logic(1, 0x2f, 0x2f) &&
         in_gameplay()
     )
 )
